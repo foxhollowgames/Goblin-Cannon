@@ -1,0 +1,24 @@
+# Godot 4+ specific
+.godot/
+*.translation
+
+# Imported translations
+*.import
+
+# Mono-specific
+.mono/
+data_*/
+mono_crash.*.json
+
+# System/tool
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
