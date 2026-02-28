@@ -9,6 +9,9 @@ func add_energy(amount: int) -> void:
 	_current += amount
 	sidearm_energy_changed.emit(_current)
 
+func get_current_energy() -> int:
+	return _current
+
 func consume(amount: int) -> bool:
 	if _current < amount:
 		return false

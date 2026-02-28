@@ -24,9 +24,29 @@ func pick_ball_rewards(candidates: Array, count: int) -> Array:
 	for c in shuffled:
 		if out.size() >= count:
 			break
-		var id_key = c.get("id", c)
+		# Resource.get() takes one arg only; use instance as key for Resources.
+		var id_key = c.get("id", c) if c is Dictionary else c
 		if not seen.get(id_key, false):
 			seen[id_key] = true
+			out.append(c)
+	return out
+
+## Same as ball picks: shuffle, return first N (for major upgrade draft on wall break).
+func pick_major_upgrades(candidates: Array, count: int) -> Array:
+	if candidates.is_empty() or count <= 0:
+		return []
+	var shuffled: Array = candidates.duplicate()
+	shuffle_array(shuffled)
+	var out: Array = []
+	var seen_ids: Dictionary = {}
+	for c in shuffled:
+		if out.size() >= count:
+			break
+		var id_key: StringName = c.upgrade_id if c is MajorUpgradeDefinition else (c.get("upgrade_id", c) if c is Dictionary else &"")
+		if id_key.is_empty():
+			id_key = StringName(str(c))
+		if not seen_ids.get(id_key, false):
+			seen_ids[id_key] = true
 			out.append(c)
 	return out
 

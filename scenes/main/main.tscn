@@ -16,6 +16,34 @@
 [ext_resource type="Script" uid="uid://bd4wxv2sh8gl2" path="res://scenes/rewards/reward_handler.gd" id="14_rh"]
 [ext_resource type="Script" uid="uid://b2f2m6rfxc1wr" path="res://scenes/ui/debug_overlay.gd" id="15_ui"]
 [ext_resource type="Script" uid="uid://basay0sb1usnb" path="res://scenes/main/center_panel_ui.gd" id="16_cpu"]
+[ext_resource type="PackedScene" uid="uid://hopper001" path="res://scenes/hopper/hopper.tscn" id="17_hopper"]
+[ext_resource type="PackedScene" uid="uid://battlefield001" path="res://scenes/combat/battlefield_view.tscn" id="18_battlefield"]
+[ext_resource type="Script" path="res://scenes/systems/shield_pool.gd" id="19_shield"]
+[ext_resource type="Script" path="res://scenes/systems/sidearms/sidearms_container.gd" id="20_sidearms"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hxu8e"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_nvumn"]
+width = 20
+height = 20
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_buckets_panel"]
+bg_color = Color(0.12, 0.1, 0.16, 0.95)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.35, 0.3, 0.45, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_board_left_wall"]
+size = Vector2(10, 720)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_board_right_wall"]
+size = Vector2(10, 720)
 
 [node name="Main" type="Node2D" unique_id=1439836887]
 script = ExtResource("1_main")
@@ -43,6 +71,9 @@ offset_bottom = 720.0
 color = Color(0.14, 0.12, 0.18, 1)
 
 [node name="UILayer" type="CanvasLayer" parent="." unique_id=1561640443]
+
+[node name="CannonOverlay" type="CanvasLayer" parent="." unique_id=1611307599]
+layer = 1
 
 [node name="LeftPanel" type="Control" parent="UILayer" unique_id=1998517521]
 layout_mode = 3
@@ -74,6 +105,70 @@ theme_override_colors/font_color = Color(0.6, 0.8, 1, 1)
 theme_override_font_sizes/font_size = 14
 text = "Stream: 1x"
 
+[node name="HopperBalls" type="Label" parent="UILayer/LeftPanel" unique_id=1535948081]
+layout_mode = 1
+offset_left = 400.0
+offset_top = 8.0
+offset_right = 560.0
+offset_bottom = 40.0
+theme_override_colors/font_color = Color(0.95, 0.85, 0.5, 1)
+theme_override_font_sizes/font_size = 16
+text = "BALLS: 0/10"
+horizontal_alignment = 1
+
+[node name="BoardStatsPanel" type="VBoxContainer" parent="UILayer/LeftPanel" unique_id=1998517522]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -212.0
+offset_top = 50.0
+offset_right = -12.0
+offset_bottom = 200.0
+grow_horizontal = 0
+theme_override_constants/separation = 4
+
+[node name="ActiveAbilities" type="PanelContainer" parent="UILayer/LeftPanel/BoardStatsPanel" unique_id=1457319408]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="UILayer/LeftPanel/BoardStatsPanel/ActiveAbilities" unique_id=1350495856]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UILayer/LeftPanel/BoardStatsPanel/ActiveAbilities/VBox" unique_id=1364387304]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.6, 0.95, 1)
+theme_override_font_sizes/font_size = 12
+text = "Active Abilities"
+
+[node name="ActiveAttributes" type="PanelContainer" parent="UILayer/LeftPanel/BoardStatsPanel" unique_id=294305039]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="UILayer/LeftPanel/BoardStatsPanel/ActiveAttributes" unique_id=314919778]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UILayer/LeftPanel/BoardStatsPanel/ActiveAttributes/VBox" unique_id=511673707]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.6, 0.95, 1)
+theme_override_font_sizes/font_size = 12
+text = "Active Attributes"
+
+[node name="NextBonus" type="PanelContainer" parent="UILayer/LeftPanel/BoardStatsPanel" unique_id=20982468]
+layout_mode = 2
+
+[node name="VBox" type="VBoxContainer" parent="UILayer/LeftPanel/BoardStatsPanel/NextBonus" unique_id=1654142044]
+layout_mode = 2
+
+[node name="Title" type="Label" parent="UILayer/LeftPanel/BoardStatsPanel/NextBonus/VBox" unique_id=508285562]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.6, 0.95, 1)
+theme_override_font_sizes/font_size = 12
+text = "Next Bonus"
+
+[node name="Progress" type="Label" parent="UILayer/LeftPanel/BoardStatsPanel/NextBonus/VBox" unique_id=354555598]
+layout_mode = 2
+theme_override_font_sizes/font_size = 11
+text = "0/200"
+
 [node name="CenterPanel" type="Control" parent="UILayer" unique_id=1605974261]
 layout_mode = 3
 anchors_preset = 0
@@ -87,30 +182,7 @@ layout_mode = 1
 offset_left = 8.0
 offset_top = 8.0
 offset_right = 200.0
-offset_bottom = 720.0
-
-[node name="VillageGate" type="PanelContainer" parent="UILayer/CenterPanel/CannonColumn" unique_id=1371715151]
-layout_mode = 2
-
-[node name="VBox" type="VBoxContainer" parent="UILayer/CenterPanel/CannonColumn/VillageGate" unique_id=235044717]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="UILayer/CenterPanel/CannonColumn/VillageGate/VBox" unique_id=380572350]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.4, 0.35, 1)
-theme_override_font_sizes/font_size = 14
-text = "Village Gate"
-
-[node name="FortificationBar" type="ProgressBar" parent="UILayer/CenterPanel/CannonColumn/VillageGate/VBox" unique_id=596473153]
-custom_minimum_size = Vector2(0, 20)
-layout_mode = 2
-value = 100.0
-show_percentage = false
-
-[node name="FortificationLabel" type="Label" parent="UILayer/CenterPanel/CannonColumn/VillageGate/VBox" unique_id=906281782]
-layout_mode = 2
-theme_override_font_sizes/font_size = 11
-text = "Fortification 100/100"
+offset_bottom = 600.0
 
 [node name="GoblinCannon" type="PanelContainer" parent="UILayer/CenterPanel/CannonColumn" unique_id=1393789589]
 layout_mode = 2
@@ -118,95 +190,22 @@ layout_mode = 2
 [node name="VBox" type="VBoxContainer" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon" unique_id=241753513]
 layout_mode = 2
 
-[node name="Title" type="Label" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox" unique_id=1118198205]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.85, 0.5, 1)
-theme_override_font_sizes/font_size = 16
-text = "GOBLIN CANNON"
+[node name="BagPanel" type="PanelContainer" parent="UILayer/CenterPanel" unique_id=1900000001]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 208.0
+offset_top = -36.0
+offset_right = 312.0
+offset_bottom = -8.0
+grow_vertical = 0
 
-[node name="BaseLabel" type="Label" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox" unique_id=1453871865]
+[node name="BagLabel" type="Label" parent="UILayer/CenterPanel/BagPanel" unique_id=1900000002]
 layout_mode = 2
-theme_override_font_sizes/font_size = 11
-text = "Base: 50"
-
-[node name="CannonPlaceholder" type="ColorRect" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox" unique_id=1312662567]
-custom_minimum_size = Vector2(100, 60)
-layout_mode = 2
-color = Color(0.35, 0.35, 0.4, 1)
-
-[node name="HealthBar" type="HBoxContainer" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox" unique_id=1081261940]
-layout_mode = 2
-
-[node name="HealthLabel" type="Label" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox/HealthBar" unique_id=74012550]
-layout_mode = 2
-theme_override_font_sizes/font_size = 11
-text = "HEALTH: "
-
-[node name="HealthValue" type="Label" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox/HealthBar" unique_id=2119260181]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.9, 0.5, 1)
-theme_override_font_sizes/font_size = 11
-text = "95/100"
-
-[node name="BallsLabel" type="Label" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox" unique_id=926108081]
-layout_mode = 2
-theme_override_font_sizes/font_size = 11
-text = "BALLS: 7/10"
-
-[node name="ChargeBar" type="HBoxContainer" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox" unique_id=825018565]
-layout_mode = 2
-
-[node name="ChargeLabel" type="Label" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox/ChargeBar" unique_id=28936626]
-layout_mode = 2
-theme_override_font_sizes/font_size = 11
-text = "CHARGE: "
-
-[node name="ChargeValue" type="Label" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox/ChargeBar" unique_id=1792188541]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.8, 0.3, 1)
-theme_override_font_sizes/font_size = 11
-text = "0/100"
-
-[node name="ActiveAbilities" type="PanelContainer" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox" unique_id=1457319408]
-layout_mode = 2
-
-[node name="VBox" type="VBoxContainer" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox/ActiveAbilities" unique_id=1350495856]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox/ActiveAbilities/VBox" unique_id=1364387304]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.6, 0.95, 1)
-theme_override_font_sizes/font_size = 12
-text = "Active Abilities"
-
-[node name="ActiveAttributes" type="PanelContainer" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox" unique_id=294305039]
-layout_mode = 2
-
-[node name="VBox" type="VBoxContainer" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox/ActiveAttributes" unique_id=314919778]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox/ActiveAttributes/VBox" unique_id=511673707]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.6, 0.95, 1)
-theme_override_font_sizes/font_size = 12
-text = "Active Attributes"
-
-[node name="NextBonus" type="PanelContainer" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox" unique_id=20982468]
-layout_mode = 2
-
-[node name="VBox" type="VBoxContainer" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox/NextBonus" unique_id=1654142044]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox/NextBonus/VBox" unique_id=508285562]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.6, 0.95, 1)
-theme_override_font_sizes/font_size = 12
-text = "Next Bonus"
-
-[node name="Progress" type="Label" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon/VBox/NextBonus/VBox" unique_id=354555598]
-layout_mode = 2
-theme_override_font_sizes/font_size = 11
-text = "0/200"
+theme_override_colors/font_color = Color(0.85, 0.75, 0.5, 1)
+theme_override_font_sizes/font_size = 14
+text = "BAG: 0"
 
 [node name="ConquestBar" type="VBoxContainer" parent="UILayer/CenterPanel" unique_id=1611307580]
 layout_mode = 1
@@ -214,19 +213,276 @@ offset_left = 208.0
 offset_top = 8.0
 offset_right = 312.0
 offset_bottom = 720.0
+theme_override_constants/separation = 0
 
-[node name="ConquestLabel" type="Label" parent="UILayer/CenterPanel/ConquestBar" unique_id=634639352]
+[node name="WallHealthUnder" type="CenterContainer" parent="UILayer/CenterPanel/ConquestBar" unique_id=596473152]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.75, 0.95, 1)
+
+[node name="BarContainer" type="Control" parent="UILayer/CenterPanel/ConquestBar/WallHealthUnder" unique_id=596473156]
+custom_minimum_size = Vector2(120, 24)
+layout_mode = 2
+
+[node name="WallHealthBar" type="ProgressBar" parent="UILayer/CenterPanel/ConquestBar/WallHealthUnder/BarContainer" unique_id=596473157]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_top = 0.0
+offset_right = 0.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+value = 100.0
+show_percentage = false
+
+[node name="ValueLabel" type="Label" parent="UILayer/CenterPanel/ConquestBar/WallHealthUnder/BarContainer" unique_id=596473158]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -28.0
+offset_top = -8.0
+offset_right = 28.0
+offset_bottom = 8.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.95, 0.5, 0.4, 1)
 theme_override_font_sizes/font_size = 12
-text = "Conquest"
+text = "100/100"
+horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="City1" type="Button" parent="UILayer/CenterPanel/ConquestBar" unique_id=1646740771]
-custom_minimum_size = Vector2(96, 40)
+[node name="ConquestContentCenter" type="CenterContainer" parent="UILayer/CenterPanel/ConquestBar" unique_id=1611307578]
 layout_mode = 2
-tooltip_text = "City 1 (Village Gate)"
-text = "City 1"
-flat = true
+size_flags_vertical = 3
+
+[node name="ConquestContent" type="VBoxContainer" parent="UILayer/CenterPanel/ConquestBar/ConquestContentCenter" unique_id=1611307579]
+layout_mode = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="ConquestGoalLabel" type="Label" parent="UILayer/CenterPanel/ConquestBar/ConquestContentCenter/ConquestContent" unique_id=634639352]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 12
+text = "Halflings"
+horizontal_alignment = 1
+
+[node name="ConquestPathWrapper" type="CenterContainer" parent="UILayer/CenterPanel/ConquestBar/ConquestContentCenter/ConquestContent" unique_id=1611307582]
+layout_mode = 2
+
+[node name="ConquestPath" type="VBoxContainer" parent="UILayer/CenterPanel/ConquestBar/ConquestContentCenter/ConquestContent/ConquestPathWrapper" unique_id=1611307581]
+layout_mode = 2
+theme_override_constants/separation = 0
+alignment = 1
+
+[node name="BottomEnergyPools" type="Control" parent="UILayer/CenterPanel" unique_id=1611307590]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 0.0
+offset_top = -120.0
+offset_right = 320.0
+offset_bottom = 0.0
+grow_vertical = 0
+custom_minimum_size = Vector2(320, 120)
+
+[node name="BucketsPanel" type="PanelContainer" parent="UILayer/CenterPanel/BottomEnergyPools" unique_id=1611307584]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 4.0
+offset_right = -4.0
+offset_bottom = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_buckets_panel")
+
+[node name="HBox" type="HBoxContainer" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel" unique_id=1611307591]
+layout_mode = 2
+theme_override_constants/separation = 32
+alignment = 1
+
+[node name="HealthBucket" type="VBoxContainer" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox" unique_id=1611307589]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="Label" type="Label" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/HealthBucket" unique_id=1611307587]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.4, 0.9, 0.5, 1)
+theme_override_font_sizes/font_size = 12
+text = "HEALTH"
+horizontal_alignment = 1
+
+[node name="BarContainer" type="Control" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/HealthBucket" unique_id=1611307586]
+custom_minimum_size = Vector2(48, 72)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="HealthProgress" type="ProgressBar" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/HealthBucket/BarContainer" unique_id=1611307585]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 0.0
+offset_right = -4.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+custom_minimum_size = Vector2(40, 72)
+max_value = 100.0
+value = 95.0
+show_percentage = false
+fill_mode = 3
+
+[node name="ShieldOverlay" type="ProgressBar" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/HealthBucket/BarContainer" unique_id=1611307579]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 0.0
+offset_right = -4.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+max_value = 100.0
+value = 0.0
+show_percentage = false
+fill_mode = 3
+
+[node name="ValueLabel" type="Label" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/HealthBucket/BarContainer" unique_id=1611307583]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -24.0
+offset_top = -10.0
+offset_right = 24.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.5, 1.0, 0.65, 1)
+theme_override_font_sizes/font_size = 14
+text = "95/100"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ChargeBucket" type="VBoxContainer" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox" unique_id=1611307592]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="Label" type="Label" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/ChargeBucket" unique_id=1611307593]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.8, 0.3, 1)
+theme_override_font_sizes/font_size = 12
+text = "CHARGE"
+horizontal_alignment = 1
+
+[node name="BarContainer" type="Control" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/ChargeBucket" unique_id=1611307594]
+custom_minimum_size = Vector2(48, 72)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Bar" type="ProgressBar" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/ChargeBucket/BarContainer" unique_id=1611307595]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 0.0
+offset_right = -4.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+custom_minimum_size = Vector2(40, 72)
+max_value = 800.0
+value = 0.0
+show_percentage = false
+fill_mode = 3
+
+[node name="ValueLabel" type="Label" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/ChargeBucket/BarContainer" unique_id=1611307596]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -10.0
+offset_right = 20.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.95, 0.9, 0.6, 1)
+theme_override_font_sizes/font_size = 14
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SidearmBucket" type="VBoxContainer" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox" unique_id=1611307602]
+layout_mode = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="Label" type="Label" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/SidearmBucket" unique_id=1611307603]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.35, 0.3, 1)
+theme_override_font_sizes/font_size = 12
+text = "SIDEARM"
+horizontal_alignment = 1
+
+[node name="BarContainer" type="Control" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/SidearmBucket" unique_id=1611307604]
+custom_minimum_size = Vector2(48, 72)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Bar" type="ProgressBar" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/SidearmBucket/BarContainer" unique_id=1611307605]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_top = 0.0
+offset_right = -4.0
+offset_bottom = 0.0
+grow_horizontal = 2
+grow_vertical = 2
+custom_minimum_size = Vector2(40, 72)
+max_value = 100.0
+value = 0.0
+show_percentage = false
+fill_mode = 3
+
+[node name="ValueLabel" type="Label" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/SidearmBucket/BarContainer" unique_id=1611307606]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -10.0
+offset_right = 20.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1.0, 0.5, 0.45, 1)
+theme_override_font_sizes/font_size = 14
+text = "0"
+horizontal_alignment = 1
+vertical_alignment = 1
 
 [node name="GameCoordinator" type="Node" parent="." unique_id=1575200896]
 script = ExtResource("2_gc")
@@ -240,8 +496,8 @@ script = ExtResource("4_cm")
 [node name="RewardsManager" type="Node" parent="." unique_id=1027426675]
 script = ExtResource("5_rm")
 
-[node name="Hopper" type="Node2D" parent="." unique_id=210049821]
-script = ExtResource("6_hop")
+[node name="Hopper" parent="." instance=ExtResource("17_hopper") unique_id=210049821]
+position = Vector2(480, 28)
 
 [node name="Conduit" type="Node2D" parent="." unique_id=1827569296]
 script = ExtResource("7_con")
@@ -250,6 +506,25 @@ script = ExtResource("7_con")
 script = ExtResource("8_brd")
 
 [node name="BallsContainer" type="Node2D" parent="." unique_id=1423675392]
+
+[node name="BoardWalls" type="Node2D" parent="."]
+position = Vector2(0, 0)
+
+[node name="LeftWall" type="StaticBody2D" parent="BoardWalls"]
+position = Vector2(-5, 360)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoardWalls/LeftWall"]
+shape = SubResource("RectangleShape2D_board_left_wall")
+
+[node name="RightWall" type="StaticBody2D" parent="BoardWalls"]
+position = Vector2(965, 360)
+collision_layer = 1
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoardWalls/RightWall"]
+shape = SubResource("RectangleShape2D_board_right_wall")
 
 [node name="EnergyRouter" type="Node" parent="." unique_id=64668425]
 script = ExtResource("9_er")
@@ -260,6 +535,7 @@ script = ExtResource("9_er")
 script = ExtResource("11_mc")
 
 [node name="Sidearms" type="Node" parent="SystemsContainer" unique_id=708117939]
+script = ExtResource("20_sidearms")
 
 [node name="SidearmPool" type="Node" parent="SystemsContainer/Sidearms" unique_id=1845197693]
 script = ExtResource("10_ep")
@@ -267,7 +543,11 @@ script = ExtResource("10_ep")
 [node name="RapidFire" type="Node" parent="SystemsContainer/Sidearms" unique_id=454203286]
 script = ExtResource("12_rf")
 
+[node name="ShieldPool" type="Node" parent="SystemsContainer" unique_id=2847193651]
+script = ExtResource("19_shield")
+
 [node name="CombatContainer" type="Node" parent="." unique_id=840832011]
+[node name="BattlefieldView" parent="CombatContainer" instance=ExtResource("18_battlefield")]
 
 [node name="MilestoneTracker" type="Node" parent="." unique_id=1211399944]
 script = ExtResource("13_ms")
@@ -293,6 +573,7 @@ grow_vertical = 2
 script = ExtResource("15_ui")
 
 [node name="EnergyLabel" type="Label" parent="UI/DebugOverlay" unique_id=1571550672]
+visible = false
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
@@ -304,5 +585,14 @@ offset_bottom = 382.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0.6, 0.65, 0.75, 1)
 theme_override_font_sizes/font_size = 12
-text = "Energy: 0 | Sidearm: 0"
+text = "Energy: 0 | Sidearm: 0 | Shield: 0"
 horizontal_alignment = 1
+
+[node name="RigidBody2D" type="RigidBody2D" parent="." unique_id=1589660386]
+position = Vector2(461, 43)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D" unique_id=622851246]
+shape = SubResource("CircleShape2D_hxu8e")
+
+[node name="Sprite2D" type="Sprite2D" parent="RigidBody2D" unique_id=1733458124]
+texture = SubResource("NoiseTexture2D_nvumn")

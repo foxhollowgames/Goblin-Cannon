@@ -1,0 +1,31 @@
+[gd_scene load_steps=6 format=3 uid="uid://battlefield001"]
+
+[ext_resource type="Script" path="res://scenes/combat/battlefield_view.gd" id="1_bf"]
+[ext_resource type="Script" path="res://scenes/combat/wall_visual.gd" id="2_wall"]
+[ext_resource type="Script" path="res://scenes/combat/cannon_visual.gd" id="3_cannon"]
+[ext_resource type="PackedScene" uid="uid://fortturret001" path="res://scenes/combat/fortification_turret.tscn" id="4_fort"]
+
+[node name="BattlefieldView" type="Node2D"]
+position = Vector2(960, 0)
+script = ExtResource("1_bf")
+
+[node name="WallVisual" type="Node2D" parent="."]
+position = Vector2(0, 0)
+script = ExtResource("2_wall")
+
+[node name="Fortification1" parent="WallVisual" instance=ExtResource("4_fort")]
+position = Vector2(50, 44)
+
+[node name="Fortification2" parent="WallVisual" instance=ExtResource("4_fort")]
+position = Vector2(160, 44)
+
+[node name="Fortification3" parent="WallVisual" instance=ExtResource("4_fort")]
+position = Vector2(270, 44)
+
+[node name="MinionsContainer" type="Node2D" parent="."]
+
+[node name="ProjectilesContainer" type="Node2D" parent="."]
+
+[node name="CannonVisual" type="Node2D" parent="."]
+position = Vector2(160, 660)
+script = ExtResource("3_cannon")

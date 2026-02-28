@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://sidearm_shot_vfx"]
+
+[ext_resource type="Script" path="res://scenes/combat/sidearm_shot_vfx.gd" id="1_script"]
+
+[node name="SidearmShotVFX" type="Node2D"]
+script = ExtResource("1_script")

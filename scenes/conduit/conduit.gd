@@ -1,14 +1,13 @@
 extends Node2D
-## Conduit (§6.2). Door + wave timing in sim ticks. request_ball() -> emits ball_entered_board.
+## Conduit (§6.2). Door + wave timing in sim ticks. Opens gate; Hopper emits ball_entered_board when balls fall out.
 
-signal ball_entered_board(ball: Node)
 signal door_opened
 signal door_closed
 
 var _wave_interval_ticks: int = 0
 var _open_ticks: int = 0
 var _ticks_until_open: int = 0
-var _balls_to_release: int = 0
+var _ticks_door_open: int = 0  # elapsed while gate is open; close after _open_ticks
 var _hopper: Node
 var _board: Node
 
@@ -28,14 +27,11 @@ func request_ball() -> void:
 		if _ticks_until_open == 0:
 			_open_door()
 		return
-	if _balls_to_release <= 0:
+	_ticks_door_open += 1
+	if _ticks_door_open >= _open_ticks:
+		_close_door()
 		return
-	var ball: Node = _hopper.release_next_ball() if _hopper else null
-	if ball:
-		_balls_to_release -= 1
-		ball_entered_board.emit(ball)
-		if _balls_to_release <= 0:
-			_close_door()
+	# Balls fall out by physics when gate is open; Hopper emits ball_entered_board when one exits
 
 func _can_release() -> bool:
 	if not _board or not _board.has_method("get_active_ball_count"):
@@ -43,9 +39,13 @@ func _can_release() -> bool:
 	return _board.get_active_ball_count() < Constants.MAX_ACTIVE_BALLS
 
 func _open_door() -> void:
-	_balls_to_release = Constants.CONDUIT_SIZE
+	_ticks_door_open = 0
+	if _hopper and _hopper.has_method("set_gate_open"):
+		_hopper.set_gate_open(true)
 	door_opened.emit()
 
 func _close_door() -> void:
+	if _hopper and _hopper.has_method("set_gate_open"):
+		_hopper.set_gate_open(false)
 	_ticks_until_open = _wave_interval_ticks
 	door_closed.emit()

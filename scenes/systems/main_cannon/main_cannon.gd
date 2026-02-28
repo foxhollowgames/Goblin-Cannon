@@ -14,6 +14,12 @@ func add_energy(amount: int) -> void:
 func get_current_energy() -> int:
 	return _current
 
+## Status effects applied when cannon fires (e.g. to minions in muzzle blast). Empty by default; upgrades can set via MainCannonConfig.status_effects_on_fire.
+func get_status_effects_on_fire() -> Dictionary:
+	if _config is MainCannonConfig:
+		return (_config as MainCannonConfig).status_effects_on_fire
+	return {}
+
 func try_fire() -> bool:
 	var threshold: int = 80000  # internal
 	if _current < threshold:

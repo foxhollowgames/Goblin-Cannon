@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CityDefinition" load_steps=2 format=3 uid="uid://halfling_shire_city"]
+
+[ext_resource type="Script" path="res://resources/cities/city_definition.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+city_id = &"halfling_shire"
+display_name = "Halfling Shire"
+gate_name = "Village Gate"
+wall_names = ["Village Gate", "Mill Gate", "Town Hall"]
+wall_hp_max = 100
+milestone_thresholds = [200, 400, 600]
+waves = []
+rewards = []
+boss = null

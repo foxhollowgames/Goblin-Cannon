@@ -1,7 +1,8 @@
 extends Node
+class_name SidearmBase
 ## Base for sidearms (§6.8). try_fire, cooldown in sim_ticks. RapidFire extends this.
 
-signal sidearm_fired(damage: int)
+signal sidearm_fired(damage: int, energy_cost_display: int, status_effects: Dictionary)
 
 var _cooldown_ticks_remaining: int = 0
 

@@ -5,19 +5,17 @@ extends RefCounted
 
 enum Alignment { MAIN, SIDEARM, DEFENSE }
 
-# GDD slice: 70/15/15 main-aligned, 80/20 sidearm-aligned, etc.
-const SPLIT_MAIN: int = 70
+# Main-aligned: 100% main cannon only. Sidearm/Defense: unchanged splits.
 const SPLIT_SIDEARM: int = 15
 const SPLIT_SHIELD: int = 15
 const SPLIT_SIDEARM_ALIGNED_MAIN: int = 20
 const SPLIT_SIDEARM_ALIGNED_SIDEARM: int = 80
+const SPLIT_DEFENSE_ALIGNED_MAIN: int = 20
+const SPLIT_DEFENSE_ALIGNED_SHIELD: int = 80
 
-## Returns (main, sidearm, shield) in internal units. Integer division only.
+## Returns (main, sidearm, shield) in internal units. Main cannon balls: 100% main.
 static func split_main_aligned(internal: int) -> Vector3i:
-	var main: int = (internal * SPLIT_MAIN) / 100
-	var sidearm: int = (internal * SPLIT_SIDEARM) / 100
-	var shield: int = internal - main - sidearm
-	return Vector3i(main, sidearm, shield)
+	return Vector3i(internal, 0, 0)
 
 static func split_sidearm_aligned(internal: int) -> Vector3i:
 	var main: int = (internal * SPLIT_SIDEARM_ALIGNED_MAIN) / 100
@@ -26,10 +24,9 @@ static func split_sidearm_aligned(internal: int) -> Vector3i:
 	return Vector3i(main, sidearm, shield)
 
 static func split_defense_aligned(internal: int) -> Vector3i:
-	# Placeholder: e.g. 15/15/70
-	var main: int = (internal * SPLIT_SIDEARM) / 100
-	var sidearm: int = (internal * SPLIT_SIDEARM) / 100
-	var shield: int = internal - main - sidearm
+	var main: int = (internal * SPLIT_DEFENSE_ALIGNED_MAIN) / 100
+	var shield: int = (internal * SPLIT_DEFENSE_ALIGNED_SHIELD) / 100
+	var sidearm: int = internal - main - shield
 	return Vector3i(main, sidearm, shield)
 
 static func route(internal_energy: int, alignment: Alignment) -> Vector3i:

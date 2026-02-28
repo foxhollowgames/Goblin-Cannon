@@ -5,9 +5,19 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_1"]
 radius = 8.0
 
-[node name="Ball" type="CharacterBody2D"]
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_ball"]
+restitution = 0.82
+friction = 0.2
+
+[node name="Ball" type="RigidBody2D"]
 collision_layer = 2
-collision_mask = 1
+collision_mask = 3
+gravity_scale = 1.0
+physics_material_override = SubResource("PhysicsMaterial_ball")
+lock_rotation = true
+can_sleep = true
+contact_monitor = true
+max_contacts_reported = 8
 script = ExtResource("1_ball")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

@@ -5,9 +5,14 @@
 [sub_resource type="CircleShape2D" id="CircleShape2D_1"]
 radius = 12.0
 
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_peg"]
+restitution = 0.82
+friction = 0.2
+
 [node name="Peg" type="StaticBody2D"]
 collision_layer = 1
 collision_mask = 0
+physics_material_override = SubResource("PhysicsMaterial_peg")
 script = ExtResource("1_peg")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

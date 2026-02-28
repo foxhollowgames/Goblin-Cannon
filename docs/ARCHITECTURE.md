@@ -1,4 +1,4 @@
-﻿# Goblin Cannon – Godot Architecture Document
+# Goblin Cannon – Godot Architecture Document
 
 Based on **Goblin_Cannon_GDD_Full_Vision_v1.pdf**. This document defines a modular, signal-driven architecture for Godot 4.x that matches the GDD’s core loop and supports the vertical slice, then expansion.
 
@@ -95,7 +95,7 @@ To avoid multiple hits per sim tick on the same peg, “stuck in peg” spam, an
 
 **Invariant test (use to catch double-multiply or forgot-to-multiply)**: One ball, base 20 + 3 peg hits → display = 50, internal = 5000. Main-aligned split (70/15/15) ⇒ main = 3500, sidearm = 750, shield = 750. If your implementation disagrees, fix the conversion boundary.
 
-**Milestone units (locked)**: **Milestones use display units only.** MilestoneTracker stores the running total in **display** energy (e.g. 2k, 4k, 6.5k). MilestoneDefinition thresholds are in **display** (e.g. 2000, 4000, 6500). Board emits `ball_reached_bottom(…, total_energy_display, …)`; GameCoordinator (or EnergyManager) passes that **display** value to MilestoneTracker as-is and multiplies by 100 when calling EnergyRouter. So: one number from Board (display); MilestoneTracker consumes display; EnergyRouter receives internal (display × 100). Do not store milestone thresholds or milestone total in internal units—that would fork the implementation.
+**Milestone units (locked)**: **Milestones use display units only.** MilestoneTracker stores the running total in **display** energy. GDD §12: ~3 milestones per wall, 200 scale — thresholds (e.g. 200, 400, 600). Board emits `ball_reached_bottom(…, total_energy_display, …)`; GameCoordinator (or EnergyManager) passes that **display** value to MilestoneTracker as-is and multiplies by 100 when calling EnergyRouter. So: one number from Board (display); MilestoneTracker consumes display; EnergyRouter receives internal (display × 100). Do not store milestone thresholds or milestone total in internal units—that would fork the implementation.
 
 ### 1.8 Physics Constants Contract (Slice Defaults)
 
@@ -426,8 +426,8 @@ Parents (or GameState) call these methods on children. Keep signatures minimal.
 
 ### 6.9 Milestone Tracker
 
-- **Single responsibility**: Accumulate total energy in **display units** (never decrease). When total crosses one or more thresholds, **enqueue** those milestone indices; do not emit multiple signals at once. **Multi-threshold rule**: MilestoneTracker enqueues **all** milestone indices for which total ≥ threshold (e.g. one ball crosses 2k and 4k → enqueue [0, 1]). **RewardsManager drains the queue one at a time**: slow-mo → pause → show pick → resume → next queued milestone. This prevents overlapping reward UIs or dropped rewards.
-- **Units**: display only (§1.7); thresholds in MilestoneDefinition (e.g. 2000, 4000, 6500).
+- **Single responsibility**: Accumulate total energy in **display units** (never decrease). When total crosses one or more thresholds, **enqueue** those milestone indices; do not emit multiple signals at once. **Multi-threshold rule**: MilestoneTracker enqueues **all** milestone indices for which total ≥ threshold (e.g. one ball crosses 200 and 400 → enqueue [0, 1]). **RewardsManager drains the queue one at a time**: slow-mo → pause → show pick → resume → next queued milestone. This prevents overlapping reward UIs or dropped rewards.
+- **Units**: display only (§1.7); thresholds in MilestoneDefinition (e.g. 200, 400, 600; GDD §12 ~3 per wall).
 - **Signals**: `milestone_reached(milestone_index, total_energy_display)` — emitted **one at a time** when RewardsManager (or owner) drains the queue.
 - **Methods**: `add_display_energy(amount: int)`, `get_pending_milestones() -> Array` (or `pop_next_milestone() -> int | null`) so RewardsManager can drain.
 - **Small functions**: `_check_thresholds()` (enqueue new indices), `_get_next_threshold() -> int`.
@@ -458,9 +458,9 @@ CombatManager is **not** a passive visual listener. It **owns**:
 - **BallDefinition**: `tier: int`, `base_energy: int` (20), `city_weights: Dictionary` (city_id → weight), `scene: PackedScene` (optional).
 - **PegConfig**: `durability: int`, `recovery_sim_ticks: int` (for determinism), `vibrancy_scale: float` (for feedback).
 - **BoardArchetype**: `archetype: Enum (Balanced/Tech/Magic)`, `peg_layout: Array` or `PackedScene`.
-- **MainCannonConfig**: `energy_per_shot: int`, `fire_threshold: int` — **both in internal units (×100)**. E.g. fire threshold **800** display → **80,000** internal.
-- **SidearmConfig**: `energy_per_shot: int`, `cooldown_sim_ticks: int`, `archetype_id: StringName`; energy in internal units (e.g. threshold 200 display → 20,000 internal).
-- **MilestoneDefinition**: `threshold: int` in **display** units (e.g. 2000, 4000, 6500), `ball_reward_count: int`, `stat_upgrade_count: int` (slice: 3 and 2).
+- **MainCannonConfig**: `energy_per_shot: int`, `fire_threshold: int` — **both in internal units (×100)**. Optional `status_effects_on_fire: Dictionary` (default `{}`); upgrades can set so cannon applies status when it fires.
+- **SidearmConfig**: `energy_per_shot: int`, `cooldown_sim_ticks: int`, `archetype_id: StringName`; optional `status_effects_on_fire: Dictionary` (default `{}`). Energy in internal units (e.g. threshold 200 display → 20,000 internal).
+- **MilestoneDefinition**: `threshold: int` in **display** units (e.g. 200, 400, 600; GDD §12 ~3 per wall), `ball_reward_count: int`, `stat_upgrade_count: int` (slice: 3 and 2).
 
 Pools and **cannon/sidearm** thresholds store **internal units (×100)**; **milestone** thresholds and MilestoneTracker total store **display** (§1.7). Only UI divides by 100 for display. Conduit/wave timing: store designer seconds in config; convert to **sim ticks** once with round(seconds × SIM_TICKS_PER_SECOND) (§1.13). **MAX_ACTIVE_BALLS** (§1.12): Conduit stops releasing when active count ≥ cap (e.g. 120). **Version control**: key tunables can live in **JSON or .cfg** for cleaner diffs; keep .tres minimal or enforce consistent property order.
 
@@ -481,6 +481,8 @@ The architecture above is designed so that:
 - New sidearms = new scenes that conform to `SidearmBase` (same signals/methods).
 - New cities = new `CityDefinition` + wave/board data; same Hopper/Board/Energy flow.
 - Status system = new nodes/resources and signals (e.g. `status_applied`, `status_tick`) without changing core loop nodes.
+
+**Status effects (GDD)**: Cannon and sidearms do **not** apply status by default. Status comes from **balls** (e.g. ball abilities on peg hit or ball_reached_bottom) or from **upgrades/special sidearms**. MainCannonConfig and SidearmConfig have optional `status_effects_on_fire: Dictionary` (default `{}`); upgrades can set these (e.g. `{ "fire": 1 }`) so that when that weapon fires, the same damage call carries status. BattlefieldView exposes `apply_status_to_frontmost_minion(status_effects)` and `apply_status_to_minions_in_radius(center, radius, status_effects)` for ball abilities or other systems to apply status without dealing damage.
 
 ### 8.1 Performance & Caps
 

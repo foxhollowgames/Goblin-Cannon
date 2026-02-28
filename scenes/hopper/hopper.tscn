@@ -1,0 +1,75 @@
+[gd_scene format=3 uid="uid://hopper001"]
+
+[ext_resource type="Script" path="res://scenes/hopper/hopper.gd" id="1_hopper"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gate"]
+size = Vector2(60, 10)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bin_area"]
+size = Vector2(70, 100)
+
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_left_wall"]
+points = PackedVector2Array(-36, -181, -35, -181, -30, 28, -31, 28)
+
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_right_wall"]
+points = PackedVector2Array(35, -181, 36, -181, 31, 28, 30, 28)
+
+[node name="Hopper" type="Node2D"]
+z_index = 10
+script = ExtResource("1_hopper")
+
+[node name="Bin" type="Polygon2D" parent="."]
+color = Color(0.32, 0.28, 0.22, 0.65)
+polygon = PackedVector2Array(-40, -80, 40, -80, 30, 28, -30, 28)
+
+[node name="BinOutline" type="Line2D" parent="."]
+width = 3.0
+points = PackedVector2Array(-40, -80, 40, -80, 30, 28, -30, 28, -40, -80)
+
+[node name="BinCollision" type="StaticBody2D" parent="."]
+collision_layer = 1
+collision_mask = 0
+
+[node name="LeftWall" type="CollisionShape2D" parent="BinCollision"]
+shape = SubResource("ConvexPolygonShape2D_left_wall")
+
+[node name="RightWall" type="CollisionShape2D" parent="BinCollision"]
+shape = SubResource("ConvexPolygonShape2D_right_wall")
+
+[node name="GateBlocker" type="CollisionShape2D" parent="BinCollision"]
+position = Vector2(0, 23)
+shape = SubResource("RectangleShape2D_gate")
+
+[node name="BinInterior" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+monitoring = true
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BinInterior"]
+position = Vector2(0, -25)
+shape = SubResource("RectangleShape2D_bin_area")
+
+[node name="GateArms" type="Node2D" parent="."]
+
+[node name="LeftArm" type="Node2D" parent="GateArms"]
+position = Vector2(-30, 23)
+
+[node name="ArmRect" type="ColorRect" parent="GateArms/LeftArm"]
+offset_left = 0.0
+offset_top = -5.0
+offset_right = 30.0
+offset_bottom = 5.0
+color = Color(0.5, 0.38, 0.28, 1)
+
+[node name="RightArm" type="Node2D" parent="GateArms"]
+position = Vector2(30, 23)
+
+[node name="ArmRect" type="ColorRect" parent="GateArms/RightArm"]
+offset_left = -30.0
+offset_top = -5.0
+offset_right = 0.0
+offset_bottom = 5.0
+color = Color(0.5, 0.38, 0.28, 1)
+
+[node name="BallsContainer" type="Node2D" parent="."]

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://cxj8kc30itim4"]
+
+[ext_resource type="Script" path="res://scenes/combat/wall_impact_vfx.gd" id="1_script"]
+
+[node name="WallImpactVFX" type="Node2D"]
+script = ExtResource("1_script")
