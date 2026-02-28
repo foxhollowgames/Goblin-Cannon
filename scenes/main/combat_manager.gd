@@ -137,8 +137,11 @@ func get_target_for(_source_id: StringName) -> Node:
 	return null  # Slice: frontmost unit or wall
 
 ## GDD §8: Apply status from ball abilities. reason: "peg_hit" or "ball_reached_bottom" for alerts.
+## Targets frontmost minion and all active fortifications.
 func apply_ball_status(status_effects: Dictionary, reason: String = "unknown") -> void:
 	if status_effects.is_empty() or _battlefield == null:
 		return
 	if _battlefield.has_method("apply_status_to_frontmost_minion"):
 		_battlefield.apply_status_to_frontmost_minion(status_effects, "ball_ability", reason)
+	if _battlefield.has_method("apply_status_to_active_fortifications"):
+		_battlefield.apply_status_to_active_fortifications(status_effects, "ball_ability", reason)

@@ -97,6 +97,8 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if _cannon_visual and _cannon_visual.get_parent() != self:
 		_cannon_visual.global_position = global_position + _cannon_overlay_local_pos + Vector2(0.0, CANNON_OVERLAY_OFFSET_Y)
+	if _cannon_visual and _cannon_visual.has_method("set_sidearm_on_cooldown") and _rapid_fire and _rapid_fire.has_method("is_on_cooldown"):
+		_cannon_visual.set_sidearm_on_cooldown(_rapid_fire.is_on_cooldown())
 
 func get_wall_center_y() -> float:
 	return WALL_HEIGHT * 0.5
@@ -400,6 +402,16 @@ func apply_status_to_minions_in_radius(center: Vector2, radius: float, status_ef
 			continue
 		if child.position.distance_to(center) <= radius:
 			_apply_status_effects_to_node(child, status_effects, source, reason)
+
+## Apply status to all active fortifications (wall turrets). source/reason for alerts.
+func apply_status_to_active_fortifications(status_effects: Dictionary, source: String = "unknown", reason: String = "unknown") -> void:
+	if status_effects.is_empty():
+		return
+	var count: int = mini(_current_wall_index + 1, _fortifications.size())
+	for i in count:
+		var node: Node = _fortifications[i]
+		if node.has_method("apply_status"):
+			_apply_status_effects_to_node(node, status_effects, source, reason)
 
 ## Called from GameCoordinator when center UI is updated. Passes shield (display units) to cannon visual.
 func set_cannon_shield(display_value: int) -> void:
