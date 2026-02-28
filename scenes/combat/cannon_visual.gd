@@ -15,6 +15,7 @@ const STATUS_OVERLAY_SIZE: float = 50.0  # scale for flame/ice/lightning overlay
 var _shield_display: int = 0
 var _status_stacks: Dictionary = {}
 var _status_decay_counter: int = 0
+var _sidearm_on_cooldown: bool = false
 
 func apply_status(status_id: StringName, stacks: int) -> void:
 	if stacks <= 0:
@@ -46,6 +47,11 @@ func set_shield(display_value: int) -> void:
 		return
 	_shield_display = display_value
 	queue_redraw()
+
+func set_sidearm_on_cooldown(on_cooldown: bool) -> void:
+	if _sidearm_on_cooldown != on_cooldown:
+		_sidearm_on_cooldown = on_cooldown
+		queue_redraw()
 
 func _process(_delta: float) -> void:
 	if _status_stacks.size() > 0:
@@ -88,11 +94,12 @@ func _draw() -> void:
 	draw_rect(Rect2(-16, base_y - 22, 32, 8), Color(0.7, 0.5, 0.3, 1), false, 1.0)
 	# Muzzle glow (subtle)
 	draw_circle(barrel_end, 6, Color(0.4, 0.35, 0.25, 0.6))
-	# Single sidearm pistol: one red-orange barrel to the right (aligned with BattlefieldView SIDEARM_MUZZLE_POS)
+	# Single sidearm pistol: one red-orange barrel to the right (aligned with BattlefieldView SIDEARM_MUZZLE_POS). Dim when on cooldown.
 	const SIDEARM_BARREL_Y: float = -42.0
 	const SIDEARM_BARREL_X: float = 28.0
-	draw_circle(Vector2(SIDEARM_BARREL_X, SIDEARM_BARREL_Y), 5, Color(0.5, 0.22, 0.2, 0.9))
-	draw_arc(Vector2(SIDEARM_BARREL_X, SIDEARM_BARREL_Y), 5, 0, TAU, 8, Color(0.85, 0.35, 0.3, 0.8), 1.0)
+	var sidearm_alpha: float = 0.4 if _sidearm_on_cooldown else 1.0
+	draw_circle(Vector2(SIDEARM_BARREL_X, SIDEARM_BARREL_Y), 5, Color(0.5, 0.22, 0.2, 0.9 * sidearm_alpha))
+	draw_arc(Vector2(SIDEARM_BARREL_X, SIDEARM_BARREL_Y), 5, 0, TAU, 8, Color(0.85, 0.35, 0.3, 0.8 * sidearm_alpha), 1.0)
 
 	# --- Status effect overlays (flame, ice, lightning; same style as minions) ---
 	var flame_stacks: int = _status_stacks.get(Constants.STATUS_FIRE, 0)

@@ -21,8 +21,8 @@ func _load_config() -> SidearmConfig:
 
 func _default_config() -> SidearmConfig:
 	var c: SidearmConfig = SidearmConfig.new()
-	c.energy_per_shot = 10000   # 100 display
-	c.cooldown_sim_ticks = 30
+	c.energy_per_shot = 5000   # 50 display
+	c.cooldown_sim_ticks = 120  # 2 seconds at 60 sim ticks/s
 	c.archetype_id = &"rapid_fire"
 	c.damage_per_shot = 5
 	return c

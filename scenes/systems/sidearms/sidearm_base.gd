@@ -6,6 +6,9 @@ signal sidearm_fired(damage: int, energy_cost_display: int, status_effects: Dict
 
 var _cooldown_ticks_remaining: int = 0
 
+func is_on_cooldown() -> bool:
+	return _cooldown_ticks_remaining > 0
+
 func try_fire() -> bool:
 	return false  # override
 

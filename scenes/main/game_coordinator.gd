@@ -2,10 +2,9 @@ extends Node
 ## GameCoordinator (§3, §6). Wiring only; no peg buffering (Board does that).
 ## Runs per-sim-tick order; fixed-step accumulator for slow-mo. Disconnects in _exit_tree.
 
-## Starting ball mix: main cannon, sidearm, shield (no attributes).
-const START_MAIN: int = 8
-const START_SIDEARM: int = 2
-const START_SHIELD: int = 2
+## Starting ball mix: 1 Explosive (main), 1 Chain Lightning (shield).
+const START_EXPLOSIVE_MAIN: int = 1
+const START_CHAIN_LIGHTNING_SHIELD: int = 1
 ## Max balls in the hopper; excess is stored in the bag and refills when hopper drops below this.
 const HOPPER_MAX_BALLS: int = 100
 
@@ -68,41 +67,37 @@ func _sync_battlefield_wall_index() -> void:
 		battlefield.set_wall_index(_combat_manager.get_current_wall_index())
 
 func _spawn_initial_balls() -> void:
-	# 8 main cannon, 2 sidearm, 2 shield; no attributes (plain BallDefinitions).
-	var main_def: BallDefinition = _plain_ball_def(Constants.ALIGNMENT_MAIN)
-	var sidearm_def: BallDefinition = _plain_ball_def(Constants.ALIGNMENT_SIDEARM)
-	var shield_def: BallDefinition = _plain_ball_def(Constants.ALIGNMENT_DEFENSE)
-	var total: int = START_MAIN + START_SIDEARM + START_SHIELD
+	# 1 Explosive (main cannon), 1 Chain Lightning (shield).
+	var explosive_def: BallDefinition = _ability_ball_def("Explosive", Constants.ALIGNMENT_MAIN, BallVisuals.ShapeType.SQUARE)
+	var chain_lightning_def: BallDefinition = _ability_ball_def("Chain Lightning", Constants.ALIGNMENT_DEFENSE, BallVisuals.ShapeType.STAR)
+	var total: int = START_EXPLOSIVE_MAIN + START_CHAIN_LIGHTNING_SHIELD
 	var in_hopper: int = _hopper.get_stored_ball_count() if _hopper and _hopper.has_method("get_stored_ball_count") else 0
 	var room: int = HOPPER_MAX_BALLS - in_hopper
 	var added: int = 0
 	if _hopper and _hopper.has_method("add_balls_with_definition"):
-		var to_hopper_main: int = mini(START_MAIN, room)
-		if to_hopper_main > 0:
-			_hopper.add_balls_with_definition(to_hopper_main, main_def)
-			room -= to_hopper_main
-			added += to_hopper_main
-		var to_hopper_sidearm: int = mini(START_SIDEARM, room)
-		if to_hopper_sidearm > 0:
-			_hopper.add_balls_with_definition(to_hopper_sidearm, sidearm_def)
-			room -= to_hopper_sidearm
-			added += to_hopper_sidearm
-		var to_hopper_shield: int = mini(START_SHIELD, room)
-		if to_hopper_shield > 0:
-			_hopper.add_balls_with_definition(to_hopper_shield, shield_def)
-			room -= to_hopper_shield
-			added += to_hopper_shield
+		var to_hopper_explosive: int = mini(START_EXPLOSIVE_MAIN, room)
+		if to_hopper_explosive > 0:
+			_hopper.add_balls_with_definition(to_hopper_explosive, explosive_def)
+			room -= to_hopper_explosive
+			added += to_hopper_explosive
+		var to_hopper_chain: int = mini(START_CHAIN_LIGHTNING_SHIELD, room)
+		if to_hopper_chain > 0:
+			_hopper.add_balls_with_definition(to_hopper_chain, chain_lightning_def)
+			room -= to_hopper_chain
+			added += to_hopper_chain
 	_bag_count += (total - added)
 
-## Plain ball definition for starting balls: no ability, default energy, rarity 0, alignment-based shape.
-func _plain_ball_def(alignment: int) -> BallDefinition:
+## Ability ball definition for starting balls: ability_name, alignment, shape; tier 1, base 20, rarity uncommon.
+func _ability_ball_def(ability_name: String, alignment: int, shape_type: int, status_effects: Dictionary = {}) -> BallDefinition:
 	var d: BallDefinition = BallDefinition.new()
-	d.ability_name = ""
+	d.ability_name = ability_name
 	d.base_energy = 20
-	d.city_weights = {}
+	d.city_weights = {0: 100}
 	d.alignment = alignment
-	d.rarity = 0
-	d.shape_type = -1
+	d.rarity = Constants.RARITY_UNCOMMON
+	d.tier = 1
+	d.shape_type = shape_type
+	d.status_effects = status_effects
 	return d
 
 func _exit_tree() -> void:
@@ -251,13 +246,16 @@ func _on_ball_exited_board(ball: Node, reason: int) -> void:
 	if reason == 1:  # stall_despawn — return ball to hopper (future)
 		pass
 		return
-	var in_hopper: int = _hopper.get_stored_ball_count() if _hopper and _hopper.has_method("get_stored_ball_count") else 0
+	# Split twin (extra ball from Split): never return to hopper; destroy when it leaves the board.
+	if ball.has_method("is_split_twin") and ball.is_split_twin():
+		ball.queue_free()
+		return
 	var gate_open: bool = _hopper.is_gate_open() if _hopper and _hopper.has_method("is_gate_open") else false
-	# Only return ball to hopper when gate is closed; otherwise it would fall through and be lost.
-	if in_hopper < HOPPER_MAX_BALLS and not gate_open and _hopper and _hopper.has_method("return_ball"):
+	# Return ball to hopper when gate is closed (including split-spawned balls); otherwise it would fall through and be lost.
+	if not gate_open and _hopper and _hopper.has_method("return_ball"):
 		_hopper.return_ball(ball)
 		return
-	# Hopper full or gate open: put ball back into the bag (count only; ball node is freed)
+	# Gate open: put ball back into the bag (count only; ball node is freed)
 	_bag_count += 1
 	ball.queue_free()
 

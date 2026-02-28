@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://chain_lightning_arc"]
+
+[ext_resource type="Script" path="res://scenes/board/chain_lightning_arc_effect.gd" id="1_script"]
+
+[node name="ChainLightningArcEffect" type="Node2D"]
+z_index = 99
+script = ExtResource("1_script")

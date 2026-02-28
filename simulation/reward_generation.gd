@@ -28,7 +28,12 @@ func pick_ball_rewards(candidates: Array, count: int) -> Array:
 		var id_key = c.get("id", c) if c is Dictionary else c
 		if not seen.get(id_key, false):
 			seen[id_key] = true
-			out.append(c)
+			# GDD §8: randomize alignment per pick so fire/frost/lightning can appear as Main, Sidearm, or Defense.
+			var pick = c
+			if c is BallDefinition:
+				pick = c.duplicate(true)
+				(pick as BallDefinition).alignment = _rng.randi() % 3  # 0=Main, 1=Sidearm, 2=Defense
+			out.append(pick)
 	return out
 
 ## Same as ball picks: shuffle, return first N (for major upgrade draft on wall break).

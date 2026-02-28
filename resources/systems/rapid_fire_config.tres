@@ -4,7 +4,7 @@
 
 [resource]
 script = ExtResource("1_script")
-energy_per_shot = 10000
-cooldown_sim_ticks = 30
+energy_per_shot = 5000
+cooldown_sim_ticks = 120
 archetype_id = &"rapid_fire"
 damage_per_shot = 5

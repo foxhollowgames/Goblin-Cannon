@@ -54,3 +54,7 @@ const CITY_DEFINITION_PATHS: Array[String] = [
 const STATUS_FIRE: StringName = &"fire"
 const STATUS_FROZEN: StringName = &"frozen"
 const STATUS_LIGHTNING: StringName = &"lightning"
+
+# GDD: Explosive ball — hit pegs in radius; Chain Lightning — chain to N nearest pegs (apply hit + lightning status).
+const EXPLOSIVE_RADIUS_PX: float = 90.0
+const CHAIN_LIGHTNING_COUNT: int = 2

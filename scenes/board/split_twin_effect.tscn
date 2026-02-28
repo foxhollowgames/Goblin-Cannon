@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://split_twin_effect"]
+
+[ext_resource type="Script" path="res://scenes/board/split_twin_effect.gd" id="1_script"]
+
+[node name="SplitTwinEffect" type="Node2D"]
+z_index = 50
+script = ExtResource("1_script")

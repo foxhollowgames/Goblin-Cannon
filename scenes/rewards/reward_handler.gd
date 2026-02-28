@@ -25,6 +25,7 @@ func _build_ball_candidates() -> Array:
 	var fire: Dictionary = { "fire": 1 }
 	var frozen: Dictionary = { "frozen": 1 }
 	var lightning: Dictionary = { "lightning": 1 }
+	# GDD: Split and Energize are additional ball abilities (alignment randomized at pick time).
 	var t1: Array = [
 		_create_ball_def("Bounce", Constants.ALIGNMENT_MAIN, 1, Constants.RARITY_COMMON, {0: 100}, BallVisuals.ShapeType.CIRCLE),
 		_create_ball_def("Flame", Constants.ALIGNMENT_SIDEARM, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.TRIANGLE, fire),
@@ -35,6 +36,10 @@ func _build_ball_candidates() -> Array:
 		_create_ball_def("Bolt", Constants.ALIGNMENT_MAIN, 1, 3, {0: 80}, BallVisuals.ShapeType.STAR, lightning),  # Purple
 		_create_ball_def("Flare", Constants.ALIGNMENT_SIDEARM, 1, 3, {0: 80}, BallVisuals.ShapeType.PLUS, fire),
 		_create_ball_def("Ward", Constants.ALIGNMENT_DEFENSE, 1, 3, {0: 80}, BallVisuals.ShapeType.CIRCLE),
+		_create_ball_def("Split", Constants.ALIGNMENT_MAIN, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.HEXAGON),  # GDD: split-style energy
+		_create_ball_def("Energize", Constants.ALIGNMENT_MAIN, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.PENTAGON),  # GDD: bonus energy
+		_create_ball_def("Explosive", Constants.ALIGNMENT_SIDEARM, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.SQUARE),  # GDD: area hit; Uncommon so offered in City 0
+		_create_ball_def("Chain Lightning", Constants.ALIGNMENT_MAIN, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.STAR),  # GDD: chain + lightning; Uncommon so offered in City 0
 	]
 	# Tier 2
 	var t2: Array = [
@@ -44,6 +49,10 @@ func _build_ball_candidates() -> Array:
 		_create_ball_def("Volt", Constants.ALIGNMENT_MAIN, 2, 4, {0: 40, 1: 100}, BallVisuals.ShapeType.PENTAGON, lightning),  # Orange
 		_create_ball_def("Inferno", Constants.ALIGNMENT_SIDEARM, 2, 4, {0: 40, 1: 100}, BallVisuals.ShapeType.HEXAGON, fire),
 		_create_ball_def("Glacier", Constants.ALIGNMENT_DEFENSE, 2, 4, {0: 40, 1: 100}, BallVisuals.ShapeType.STAR, frozen),
+		_create_ball_def("Split", Constants.ALIGNMENT_MAIN, 2, 2, {0: 50, 1: 100}, BallVisuals.ShapeType.HEXAGON),  # GDD: Tier 2 variant
+		_create_ball_def("Energize", Constants.ALIGNMENT_MAIN, 2, 2, {0: 50, 1: 100}, BallVisuals.ShapeType.PENTAGON),  # GDD: Tier 2 variant
+		_create_ball_def("Explosive", Constants.ALIGNMENT_SIDEARM, 2, 3, {0: 40, 1: 100}, BallVisuals.ShapeType.SQUARE),
+		_create_ball_def("Chain Lightning", Constants.ALIGNMENT_MAIN, 2, 3, {0: 40, 1: 100}, BallVisuals.ShapeType.STAR),
 	]
 	for d in t1 + t2:
 		list.append(d)
