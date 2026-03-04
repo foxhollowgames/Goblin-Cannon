@@ -4,23 +4,24 @@ extends Node
 
 signal wall_destroyed
 
-var _wall_hp: int = 100
-var _wall_hp_max: int = 100
+var _wall_hp: int = 50
+var _wall_hp_max: int = 50
 var _wall_destroyed_emitted: bool = false
 var _current_wave: int = 0
 var _wall_names: Array = []  # Ordered wall names from city
 var _city_display_name: String = ""  # e.g. "Halfling Shire" for conquest goal label
 var _current_wall_index: int = 0
 var _cannon_hp: int = 100
-var _cannon_hp_max: int = 100
 var _battlefield: Node
 var _shield_pool: Node
+var _sidearms_container: Node = null
+var _sidearm_nodes: Array[Node] = []
 
 ## Initialize from current city (Halfling Shire etc). Call at run start.
 func init_from_city(city: CityDefinition) -> void:
 	if city == null:
 		return
-	_wall_hp_max = city.wall_hp_max
+	_wall_hp_max = city.get_wall_hp_max_for_index(0)
 	_wall_names = city.get_effective_wall_names()
 	_city_display_name = city.display_name if not city.display_name.is_empty() else ""
 	_current_wall_index = 0
@@ -40,9 +41,10 @@ func _ready() -> void:
 			mc.main_fired.connect(_on_main_fired)
 		var sidearms: Node = sys.get_node_or_null("Sidearms")
 		if sidearms:
-			var rf: Node = sidearms.get_node_or_null("RapidFire")
-			if rf and rf.has_signal("sidearm_fired"):
-				rf.sidearm_fired.connect(_on_sidearm_fired)
+			_connect_all_sidearms(sidearms)
+			if sidearms.has_signal("sidearms_updated"):
+				_sidearms_container = sidearms
+				sidearms.sidearms_updated.connect(_on_sidearms_updated)
 
 func _exit_tree() -> void:
 	if _battlefield and _battlefield.has_signal("cannon_damaged") and _battlefield.cannon_damaged.is_connected(_on_cannon_damaged):
@@ -53,11 +55,30 @@ func _exit_tree() -> void:
 		var mc: Node = sys.get_node_or_null("MainCannon")
 		if mc and mc.has_signal("main_fired") and mc.main_fired.is_connected(_on_main_fired):
 			mc.main_fired.disconnect(_on_main_fired)
-		var sidearms: Node = sys.get_node_or_null("Sidearms")
+		if _sidearms_container and _sidearms_container.has_signal("sidearms_updated") and _sidearms_container.sidearms_updated.is_connected(_on_sidearms_updated):
+			_sidearms_container.sidearms_updated.disconnect(_on_sidearms_updated)
+		_sidearms_container = null
+	_disconnect_all_sidearms()
+
+func _on_sidearms_updated() -> void:
+	var main: Node = get_parent()
+	if main:
+		var sidearms: Node = main.get_node_or_null("SystemsContainer/Sidearms")
 		if sidearms:
-			var rf: Node = sidearms.get_node_or_null("RapidFire")
-			if rf and rf.has_signal("sidearm_fired") and rf.sidearm_fired.is_connected(_on_sidearm_fired):
-				rf.sidearm_fired.disconnect(_on_sidearm_fired)
+			_connect_all_sidearms(sidearms)
+
+func _connect_all_sidearms(sidearms: Node) -> void:
+	_disconnect_all_sidearms()
+	for child in sidearms.get_children():
+		if child.has_signal("sidearm_fired"):
+			child.sidearm_fired.connect(_on_sidearm_fired)
+			_sidearm_nodes.append(child)
+
+func _disconnect_all_sidearms() -> void:
+	for node in _sidearm_nodes:
+		if is_instance_valid(node) and node.has_signal("sidearm_fired") and node.sidearm_fired.is_connected(_on_sidearm_fired):
+			node.sidearm_fired.disconnect(_on_sidearm_fired)
+	_sidearm_nodes.clear()
 
 func _on_cannon_damaged(amount: int) -> void:
 	var shield_damage: int = 0
@@ -68,8 +89,11 @@ func _on_cannon_damaged(amount: int) -> void:
 			_shield_pool.consume_shield_points(shield_damage)
 	var cannon_damage: int = amount - shield_damage
 	_cannon_hp -= cannon_damage
+	var max_hp: int = get_cannon_hp_max()
 	if _cannon_hp < 0:
 		_cannon_hp = 0
+	elif _cannon_hp > max_hp:
+		_cannon_hp = max_hp
 
 func sim_tick(tick: int) -> void:
 	if _battlefield:
@@ -90,9 +114,17 @@ func _on_main_fired(damage: int) -> void:
 		_wall_hp = 0
 	_emit_wall_destroyed_once()
 
-func _on_sidearm_fired(damage: int, _energy_cost_display: int, status_effects: Dictionary = {}) -> void:
+func _on_sidearm_fired(damage: int, _energy_cost_display: int, status_effects: Dictionary = {}, is_aoe: bool = false, aoe_radius: float = 0.0) -> void:
 	# Sidearms only ever target minions; they never damage the wall. No status by default (GDD); upgrades/sidearm config can add.
-	if _battlefield and _battlefield.has_method("damage_frontmost_minion"):
+	if _battlefield == null:
+		return
+	if is_aoe and aoe_radius > 0 and _battlefield.has_method("damage_minions_in_radius") and _battlefield.has_method("get_frontmost_minion_position"):
+		var center: Vector2 = _battlefield.get_frontmost_minion_position()
+		if center != Vector2.INF:
+			_battlefield.damage_minions_in_radius(center, aoe_radius, damage, status_effects)
+		else:
+			_battlefield.damage_frontmost_minion(damage, status_effects)
+	elif _battlefield.has_method("damage_frontmost_minion"):
 		_battlefield.damage_frontmost_minion(damage, status_effects)
 
 func get_wall_hp() -> int:
@@ -105,11 +137,21 @@ func get_cannon_hp() -> int:
 	return _cannon_hp
 
 func get_cannon_hp_max() -> int:
-	return _cannon_hp_max
+	return 100 + (GameState.cannon_hp_max_bonus if GameState else 0)
+
+## Called when player picks "Max Health" milestone stat: add bonus to current HP so they get immediate benefit.
+func apply_health_max_bonus(amount: int) -> void:
+	_cannon_hp += amount
+	var max_hp: int = get_cannon_hp_max()
+	if _cannon_hp > max_hp:
+		_cannon_hp = max_hp
 
 func _advance_to_next_wall() -> void:
 	_current_wall_index += 1
 	if _current_wall_index < _wall_names.size():
+		var city: CityDefinition = GameState.get_current_city_definition() if GameState else null
+		var base_max: int = city.get_wall_hp_max_for_index(_current_wall_index) if city else 50
+		_wall_hp_max = base_max
 		_wall_hp = _wall_hp_max
 		_wall_destroyed_emitted = false
 

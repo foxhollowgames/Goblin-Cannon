@@ -18,7 +18,8 @@ var _picks: Array = []
 var _dim_layer: ColorRect
 var _modal_container: CenterContainer
 var _modal_panel: PanelContainer
-var _cards_container: HBoxContainer
+var _top_row_container: HBoxContainer   ## 3 cards, centered
+var _bottom_row_container: HBoxContainer ## 2 cards, centered
 
 func _ready() -> void:
 	set_anchors_preset(Control.PRESET_FULL_RECT)
@@ -46,7 +47,8 @@ func _ready() -> void:
 	_modal_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_modal_container)
 	_modal_panel = PanelContainer.new()
-	_modal_panel.custom_minimum_size = Vector2(720, 320)
+	# 3 top + 2 bottom: width fits 3 cards (3*200 + 2*24), height = title + 2 rows (220 each) + separation
+	_modal_panel.custom_minimum_size = Vector2(700, 520)
 	_modal_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	var panel_style: StyleBoxFlat = StyleBoxFlat.new()
 	panel_style.bg_color = Color(0.12, 0.1, 0.16, 0.98)
@@ -71,15 +73,28 @@ func _ready() -> void:
 	vbox.add_theme_constant_override("separation", 20)
 	margin.add_child(vbox)
 	var title: Label = Label.new()
-	title.text = "Choose a ball reward"
+	title.text = "Choose a reward"
 	title.add_theme_font_size_override("font_size", 24)
 	title.add_theme_color_override("font_color", Color(0.95, 0.85, 0.4, 1))
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
-	_cards_container = HBoxContainer.new()
-	_cards_container.add_theme_constant_override("separation", 24)
-	_cards_container.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_child(_cards_container)
+	var rows_vbox: VBoxContainer = VBoxContainer.new()
+	rows_vbox.add_theme_constant_override("separation", 20)
+	vbox.add_child(rows_vbox)
+	# Top row: 3 cards, centered
+	var top_center: CenterContainer = CenterContainer.new()
+	_top_row_container = HBoxContainer.new()
+	_top_row_container.add_theme_constant_override("separation", 24)
+	_top_row_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	top_center.add_child(_top_row_container)
+	rows_vbox.add_child(top_center)
+	# Bottom row: 2 cards, centered
+	var bottom_center: CenterContainer = CenterContainer.new()
+	_bottom_row_container = HBoxContainer.new()
+	_bottom_row_container.add_theme_constant_override("separation", 24)
+	_bottom_row_container.alignment = BoxContainer.ALIGNMENT_CENTER
+	bottom_center.add_child(_bottom_row_container)
+	rows_vbox.add_child(bottom_center)
 	hide()
 
 func _alignment_name(alignment: int) -> String:
@@ -94,19 +109,36 @@ func _rarity_color(rarity: int) -> Color:
 
 func show_draft(picks: Array) -> bool:
 	_picks = picks
-	if not _cards_container:
+	if not _top_row_container or not _bottom_row_container:
 		return false
-	for child in _cards_container.get_children():
+	for child in _top_row_container.get_children():
 		child.queue_free()
+	for child in _bottom_row_container.get_children():
+		child.queue_free()
+	# Top row: first 3; bottom row: next 2 (each row centered)
 	for i in picks.size():
-		var pick: Resource = picks[i] as Resource
+		var pick: Variant = picks[i]
 		var card: Control = _make_card(pick, i)
-		_cards_container.add_child(card)
+		if i < 3:
+			_top_row_container.add_child(card)
+		else:
+			_bottom_row_container.add_child(card)
 	show()
 	return true
 
-func _make_card(pick: Resource, index: int) -> Control:
-	var def: BallDefinition = pick as BallDefinition
+func _make_card(pick: Variant, index: int) -> Control:
+	if pick is MilestoneOption:
+		var opt: MilestoneOption = pick as MilestoneOption
+		if opt.option_type == MilestoneOption.Type.BALL:
+			return _make_ball_card(opt.ball_definition, index)
+		else:
+			return _make_stat_card(opt, index)
+	# Legacy: raw BallDefinition
+	if pick is BallDefinition:
+		return _make_ball_card(pick as BallDefinition, index)
+	return _make_ball_card(null, index)
+
+func _make_ball_card(def: BallDefinition, index: int) -> Control:
 	var ability: String = def.ability_name if def else "Ball"
 	var alignment: int = def.alignment if def else 0
 	var rarity: int = def.rarity if def else 0
@@ -158,6 +190,70 @@ func _make_card(pick: Resource, index: int) -> Control:
 	spacer.custom_minimum_size = Vector2(0, 12)
 	card_vbox.add_child(spacer)
 	# Select button
+	var btn: Button = Button.new()
+	btn.text = "Select"
+	btn.pressed.connect(_on_pick_pressed.bind(index))
+	card_vbox.add_child(btn)
+	return panel
+
+const STAT_DISPLAY: Dictionary = {
+	"main_charge": { "name": "Main Charge", "desc": "+5% main energy per ball" },
+	"sidearm_cap": { "name": "Sidearm Cap", "desc": "+10% sidearm pool capacity" },
+	"shield_cap": { "name": "Shield Cap", "desc": "+10% shield capacity" },
+	"shield_max": { "name": "Max Shield", "desc": "+10% shield capacity" },
+	"health_max": { "name": "Max Health", "desc": "+10 cannon max HP" },
+	"door_interval": { "name": "Faster Waves", "desc": "10% less time between hopper doors" },
+	"door_duration": { "name": "Longer Door Open", "desc": "Gate stays open 10% longer each wave" },
+	"cannon_damage": { "name": "Cannon Damage", "desc": "+5 base damage per shot" },
+	"cannon_energy": { "name": "Cannon Energy", "desc": "Energy to fire -20" }
+}
+
+func _make_stat_card(opt: MilestoneOption, index: int) -> Control:
+	var stat_id: String = opt.stat_id if opt else ""
+	var info: Dictionary = STAT_DISPLAY.get(stat_id, { "name": "Stat Up", "desc": "" })
+	var rarity: int = opt.rarity if opt else 0
+	var border_color: Color = _rarity_color(rarity)
+	var panel: PanelContainer = PanelContainer.new()
+	panel.custom_minimum_size = Vector2(200, 220)
+	panel.mouse_filter = Control.MOUSE_FILTER_STOP
+	var style: StyleBoxFlat = StyleBoxFlat.new()
+	style.bg_color = Color(0.08, 0.07, 0.1, 1)
+	style.border_width_left = 3
+	style.border_width_right = 3
+	style.border_width_top = 3
+	style.border_width_bottom = 3
+	style.border_color = border_color
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_left = 6
+	style.corner_radius_bottom_right = 6
+	panel.add_theme_stylebox_override("panel", style)
+	var card_vbox: VBoxContainer = VBoxContainer.new()
+	card_vbox.add_theme_constant_override("separation", 8)
+	panel.add_child(card_vbox)
+	var title_label: Label = Label.new()
+	title_label.text = info.get("name", stat_id)
+	title_label.add_theme_font_size_override("font_size", 18)
+	title_label.add_theme_color_override("font_color", border_color)
+	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	card_vbox.add_child(title_label)
+	var gem: Label = Label.new()
+	gem.text = "◆"
+	gem.add_theme_font_size_override("font_size", 36)
+	gem.add_theme_color_override("font_color", border_color)
+	gem.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	card_vbox.add_child(gem)
+	var desc_label: Label = Label.new()
+	desc_label.text = info.get("desc", "")
+	desc_label.add_theme_font_size_override("font_size", 14)
+	desc_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85, 1))
+	desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc_label.custom_minimum_size = Vector2(160, 0)
+	card_vbox.add_child(desc_label)
+	var spacer: Control = Control.new()
+	spacer.custom_minimum_size = Vector2(0, 12)
+	card_vbox.add_child(spacer)
 	var btn: Button = Button.new()
 	btn.text = "Select"
 	btn.pressed.connect(_on_pick_pressed.bind(index))

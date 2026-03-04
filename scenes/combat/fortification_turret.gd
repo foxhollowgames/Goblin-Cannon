@@ -10,7 +10,8 @@ enum AttackState {
 	ATTACKING
 }
 
-const FIRE_INTERVAL_TICKS: int = 90  # 1.5 seconds at 60 ticks/s
+const FIRE_INTERVAL_MIN_SECONDS: float = 10.0
+const FIRE_INTERVAL_MAX_SECONDS: float = 15.0
 const WINDUP_TICKS: int = 18  # 0.3s at 60 ticks/s — show "about to attack" before firing
 const MUZZLE_FLASH_DURATION: float = 0.15  # seconds to hold bright flash when firing
 const WINDUP_PULSE_SPEED: float = 10.0  # rad/s for wind-up muzzle glow pulse
@@ -19,8 +20,14 @@ const PROJECTILE_SPEED: float = 280.0
 const TURRET_SIZE: float = 14.0
 const STATUS_MAX_STACKS: int = 5
 const STATUS_DECAY_TICKS: int = 120
+const FORTIFICATION_HP_MAX: int = 15
+const DISABLED_REPAIR_SECONDS_BASE: float = 10.0
+const DISABLED_DARKEN: float = 0.35
 
 var _ticks_until_fire: int = 0
+var _hp: int = FORTIFICATION_HP_MAX
+var _disabled: bool = false
+var _repair_ticks_remaining: float = 0.0
 var _projectile_scene: PackedScene
 var _battlefield: Node2D
 var _attack_state: AttackState = AttackState.IDLE
@@ -29,8 +36,21 @@ var _flash_remaining: float = 0.0   # holds ATTACKING muzzle flash visible
 var _status_stacks: Dictionary = {}
 var _status_decay_counter: int = 0
 
+func take_damage(amount: int) -> void:
+	if _disabled or amount <= 0:
+		return
+	_hp -= amount
+	if _hp <= 0:
+		_hp = 0
+		_disabled = true
+		_repair_ticks_remaining = -1.0  # set by next sim_tick with repair_scale
+	queue_redraw()
+
+func is_disabled() -> bool:
+	return _disabled
+
 func apply_status(status_id: StringName, stacks: int) -> void:
-	if stacks <= 0:
+	if stacks <= 0 or _disabled:
 		return
 	var current: int = _status_stacks.get(status_id, 0)
 	_status_stacks[status_id] = mini(current + stacks, STATUS_MAX_STACKS)
@@ -54,16 +74,18 @@ func _turret_stack_alpha_sat(stacks: int) -> Vector2:
 	var t: float = clampf(float(stacks) / float(STATUS_MAX_STACKS), 0.0, 1.0)
 	return Vector2(0.35 + 0.6 * t, 0.5 + 0.5 * t)
 
+func _get_random_fire_ticks() -> int:
+	var min_ticks: int = ceili(FIRE_INTERVAL_MIN_SECONDS * Constants.SIM_TICKS_PER_SECOND)
+	var max_ticks: int = ceili(FIRE_INTERVAL_MAX_SECONDS * Constants.SIM_TICKS_PER_SECOND)
+	return randi_range(min_ticks, max_ticks)
+
 func _ready() -> void:
-	_ticks_until_fire = FIRE_INTERVAL_TICKS * 2 / 3  # stagger first shot
+	_ticks_until_fire = _get_random_fire_ticks()
 	_projectile_scene = load("res://scenes/combat/fortification_projectile.tscn") as PackedScene
 	var p: Node = get_parent()
 	while p and not p.has_method("get_projectiles_container"):
 		p = p.get_parent()
 	_battlefield = p as Node2D
-	# Stagger each turret's first shot
-	var idx: int = get_index()
-	_ticks_until_fire += idx * (FIRE_INTERVAL_TICKS / 4)
 
 func get_attack_state() -> int:
 	return _attack_state
@@ -80,13 +102,23 @@ func _process(delta: float) -> void:
 	if _status_stacks.size() > 0:
 		queue_redraw()  # animate status overlays
 
-func sim_tick(_tick: int) -> void:
+func sim_tick(tick: int, repair_scale: float = 1.0) -> void:
+	if _disabled:
+		if _repair_ticks_remaining < 0:
+			_repair_ticks_remaining = DISABLED_REPAIR_SECONDS_BASE * float(Constants.SIM_TICKS_PER_SECOND) * repair_scale
+		_repair_ticks_remaining -= 1.0
+		if _repair_ticks_remaining <= 0:
+			_disabled = false
+			_hp = FORTIFICATION_HP_MAX
+			_repair_ticks_remaining = 0.0
+			queue_redraw()
+		return
 	if _attack_state == AttackState.ATTACKING:
 		# Flash is driven by _flash_remaining in _process
 		return
 	_ticks_until_fire -= 1
 	if _ticks_until_fire <= 0:
-		_ticks_until_fire = FIRE_INTERVAL_TICKS
+		_ticks_until_fire = _get_random_fire_ticks()
 		_attack_state = AttackState.ATTACKING
 		_flash_remaining = MUZZLE_FLASH_DURATION
 		_fire()
@@ -99,7 +131,7 @@ func sim_tick(_tick: int) -> void:
 	queue_redraw()
 
 func _fire() -> void:
-	if _projectile_scene == null or _battlefield == null:
+	if _disabled or _projectile_scene == null or _battlefield == null:
 		return
 	var container: Node2D = _battlefield.get_projectiles_container() if _battlefield.has_method("get_projectiles_container") else _battlefield
 	var proj: Node2D = _projectile_scene.instantiate() as Node2D
@@ -117,30 +149,31 @@ func _fire() -> void:
 	shot_fired.emit(PROJECTILE_DAMAGE)
 
 func _draw() -> void:
-	# State-based muzzle glow: wind-up = pulsing orange, attacking = held bright flash
+	var darken: float = DISABLED_DARKEN if _disabled else 1.0
+	# State-based muzzle glow: wind-up = pulsing orange, attacking = held bright flash (skip when disabled)
 	var muzzle_inner := Color(0.2, 0.18, 0.16, 1)
 	var muzzle_outer := Color(0.35, 0.3, 0.28, 1)
-	if _attack_state == AttackState.ABOUT_TO_ATTACK:
-		# Pulsing glow during wind-up (0.65 .. 1.0)
-		var pulse: float = 0.75 + 0.25 * sin(_turret_anim_time * WINDUP_PULSE_SPEED)
-		muzzle_inner = Color(0.4 + 0.2 * pulse, 0.2 + 0.1 * pulse, 0.08, 1)
-		muzzle_outer = Color(0.7 + 0.2 * pulse, 0.4 + 0.15 * pulse, 0.15 + 0.1 * pulse, 1)
-	elif _attack_state == AttackState.ATTACKING:
-		muzzle_inner = Color(0.95, 0.55, 0.2, 1)
-		muzzle_outer = Color(1.0, 0.8, 0.4, 1)
-	# Turret base (stone)
-	draw_rect(Rect2(-TURRET_SIZE, -TURRET_SIZE * 0.5, TURRET_SIZE * 2, TURRET_SIZE), Color(0.3, 0.27, 0.24, 1))
-	draw_rect(Rect2(-TURRET_SIZE, -TURRET_SIZE * 0.5, TURRET_SIZE * 2, TURRET_SIZE), Color(0.45, 0.4, 0.35, 1), false, 1.5)
+	if not _disabled:
+		if _attack_state == AttackState.ABOUT_TO_ATTACK:
+			var pulse: float = 0.75 + 0.25 * sin(_turret_anim_time * WINDUP_PULSE_SPEED)
+			muzzle_inner = Color(0.4 + 0.2 * pulse, 0.2 + 0.1 * pulse, 0.08, 1)
+			muzzle_outer = Color(0.7 + 0.2 * pulse, 0.4 + 0.15 * pulse, 0.15 + 0.1 * pulse, 1)
+		elif _attack_state == AttackState.ATTACKING:
+			muzzle_inner = Color(0.95, 0.55, 0.2, 1)
+			muzzle_outer = Color(1.0, 0.8, 0.4, 1)
+	# Turret base (stone) — darken when disabled
+	draw_rect(Rect2(-TURRET_SIZE, -TURRET_SIZE * 0.5, TURRET_SIZE * 2, TURRET_SIZE), Color(0.3 * darken, 0.27 * darken, 0.24 * darken, 1))
+	draw_rect(Rect2(-TURRET_SIZE, -TURRET_SIZE * 0.5, TURRET_SIZE * 2, TURRET_SIZE), Color(0.45 * darken, 0.4 * darken, 0.35 * darken, 1), false, 1.5)
 	# Cannon muzzle (small)
-	draw_circle(Vector2(0, -TURRET_SIZE * 0.8), 6, muzzle_inner)
-	draw_arc(Vector2(0, -TURRET_SIZE * 0.8), 6, 0, TAU, 12, muzzle_outer, 1.0)
+	draw_circle(Vector2(0, -TURRET_SIZE * 0.8), 6, Color(muzzle_inner.r * darken, muzzle_inner.g * darken, muzzle_inner.b * darken, muzzle_inner.a))
+	draw_arc(Vector2(0, -TURRET_SIZE * 0.8), 6, 0, TAU, 12, Color(muzzle_outer.r * darken, muzzle_outer.g * darken, muzzle_outer.b * darken, muzzle_outer.a), 1.0)
 
-	# --- Status effect overlays (flame, ice, lightning; same style as minions) ---
+	# --- Status effect overlays (flame, ice, lightning; same style as minions) — dim when disabled ---
 	var flame_stacks: int = _status_stacks.get(Constants.STATUS_FIRE, 0)
 	var frozen_stacks: int = _status_stacks.get(Constants.STATUS_FROZEN, 0)
 	var lightning_stacks: int = _status_stacks.get(Constants.STATUS_LIGHTNING, 0)
 	var sz: float = TURRET_SIZE * 1.4
-	if flame_stacks > 0:
+	if flame_stacks > 0 and not _disabled:
 		var v: Vector2 = _turret_stack_alpha_sat(flame_stacks)
 		var base_orange := Color(1.0, 0.5, 0.1, v.x)
 		var tip_yellow := Color(1.0, 0.9, 0.2, v.x * 0.8)
@@ -150,11 +183,11 @@ func _draw() -> void:
 		var tm: float = Time.get_ticks_msec() * 0.003
 		draw_line(flame_top, flame_top + Vector2(-sz * 0.25, sz * 0.2).rotated(sin(tm) * 0.3), base_orange)
 		draw_line(flame_top, flame_top + Vector2(sz * 0.2, sz * 0.25).rotated(cos(tm * 1.1) * 0.3), base_orange)
-	if frozen_stacks > 0:
+	if frozen_stacks > 0 and not _disabled:
 		var v: Vector2 = _turret_stack_alpha_sat(frozen_stacks)
 		var ice_color := Color(0.5, 0.85, 1.0, v.x * 0.85)
 		draw_arc(Vector2.ZERO, sz * 0.9, 0, TAU, 24, ice_color, 2.0)
-	if lightning_stacks > 0:
+	if lightning_stacks > 0 and not _disabled:
 		var v: Vector2 = _turret_stack_alpha_sat(lightning_stacks)
 		var bolt_color := Color(1.0, 1.0, 0.7, v.x)
 		var r: float = sz * 0.9

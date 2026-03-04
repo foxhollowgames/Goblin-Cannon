@@ -5,7 +5,6 @@
 [ext_resource type="Script" uid="uid://w03jbkgnfqaa" path="res://scenes/main/energy_manager.gd" id="3_em"]
 [ext_resource type="Script" uid="uid://i5l5n6apcvlj" path="res://scenes/main/combat_manager.gd" id="4_cm"]
 [ext_resource type="Script" uid="uid://cdgmrgpimabnl" path="res://scenes/main/rewards_manager.gd" id="5_rm"]
-[ext_resource type="Script" uid="uid://bsdhkmh01wdf" path="res://scenes/hopper/hopper.gd" id="6_hop"]
 [ext_resource type="Script" uid="uid://bgq018sxpbpqi" path="res://scenes/conduit/conduit.gd" id="7_con"]
 [ext_resource type="Script" uid="uid://cweemmlm53ola" path="res://scenes/board/board.gd" id="8_brd"]
 [ext_resource type="Script" uid="uid://iwih87rjfb23" path="res://scenes/energy/energy_router.gd" id="9_er"]
@@ -17,15 +16,9 @@
 [ext_resource type="Script" uid="uid://b2f2m6rfxc1wr" path="res://scenes/ui/debug_overlay.gd" id="15_ui"]
 [ext_resource type="Script" uid="uid://basay0sb1usnb" path="res://scenes/main/center_panel_ui.gd" id="16_cpu"]
 [ext_resource type="PackedScene" uid="uid://hopper001" path="res://scenes/hopper/hopper.tscn" id="17_hopper"]
-[ext_resource type="PackedScene" uid="uid://battlefield001" path="res://scenes/combat/battlefield_view.tscn" id="18_battlefield"]
-[ext_resource type="Script" path="res://scenes/systems/shield_pool.gd" id="19_shield"]
-[ext_resource type="Script" path="res://scenes/systems/sidearms/sidearms_container.gd" id="20_sidearms"]
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_hxu8e"]
-
-[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_nvumn"]
-width = 20
-height = 20
+[ext_resource type="PackedScene" uid="uid://dwkmnx5d2q0xw" path="res://scenes/combat/battlefield_view.tscn" id="18_battlefield"]
+[ext_resource type="Script" uid="uid://ep0ydcnpiyyr" path="res://scenes/systems/shield_pool.gd" id="19_shield"]
+[ext_resource type="Script" uid="uid://pqfc1bacim8c" path="res://scenes/systems/sidearms/sidearms_container.gd" id="20_sidearms"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_buckets_panel"]
 bg_color = Color(0.12, 0.1, 0.16, 0.95)
@@ -71,9 +64,6 @@ offset_bottom = 720.0
 color = Color(0.14, 0.12, 0.18, 1)
 
 [node name="UILayer" type="CanvasLayer" parent="." unique_id=1561640443]
-
-[node name="CannonOverlay" type="CanvasLayer" parent="." unique_id=1611307599]
-layer = 1
 
 [node name="LeftPanel" type="Control" parent="UILayer" unique_id=1998517521]
 layout_mode = 3
@@ -227,10 +217,6 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 0.0
-offset_top = 0.0
-offset_right = 0.0
-offset_bottom = 0.0
 grow_horizontal = 2
 grow_vertical = 2
 value = 100.0
@@ -280,16 +266,14 @@ theme_override_constants/separation = 0
 alignment = 1
 
 [node name="BottomEnergyPools" type="Control" parent="UILayer/CenterPanel" unique_id=1611307590]
+custom_minimum_size = Vector2(320, 120)
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
-offset_left = 0.0
 offset_top = -120.0
 offset_right = 320.0
-offset_bottom = 0.0
 grow_vertical = 0
-custom_minimum_size = Vector2(320, 120)
 
 [node name="BucketsPanel" type="PanelContainer" parent="UILayer/CenterPanel/BottomEnergyPools" unique_id=1611307584]
 layout_mode = 1
@@ -327,37 +311,30 @@ layout_mode = 2
 size_flags_horizontal = 4
 
 [node name="HealthProgress" type="ProgressBar" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/HealthBucket/BarContainer" unique_id=1611307585]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = 4.0
-offset_top = 0.0
-offset_right = -4.0
-offset_bottom = 0.0
-grow_horizontal = 2
-grow_vertical = 2
 custom_minimum_size = Vector2(40, 72)
-max_value = 100.0
-value = 95.0
-show_percentage = false
-fill_mode = 3
-
-[node name="ShieldOverlay" type="ProgressBar" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/HealthBucket/BarContainer" unique_id=1611307579]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 4.0
-offset_top = 0.0
 offset_right = -4.0
-offset_bottom = 0.0
 grow_horizontal = 2
 grow_vertical = 2
-max_value = 100.0
-value = 0.0
-show_percentage = false
+value = 95.0
 fill_mode = 3
+show_percentage = false
+
+[node name="ShieldOverlay" type="ProgressBar" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/HealthBucket/BarContainer" unique_id=655553649]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 4.0
+offset_right = -4.0
+grow_horizontal = 2
+grow_vertical = 2
+fill_mode = 3
+show_percentage = false
 
 [node name="ValueLabel" type="Label" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/HealthBucket/BarContainer" unique_id=1611307583]
 layout_mode = 1
@@ -372,7 +349,7 @@ offset_right = 24.0
 offset_bottom = 10.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.5, 1.0, 0.65, 1)
+theme_override_colors/font_color = Color(0.5, 1, 0.65, 1)
 theme_override_font_sizes/font_size = 14
 text = "95/100"
 horizontal_alignment = 1
@@ -396,21 +373,18 @@ layout_mode = 2
 size_flags_horizontal = 4
 
 [node name="Bar" type="ProgressBar" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/ChargeBucket/BarContainer" unique_id=1611307595]
+custom_minimum_size = Vector2(40, 72)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 4.0
-offset_top = 0.0
 offset_right = -4.0
-offset_bottom = 0.0
 grow_horizontal = 2
 grow_vertical = 2
-custom_minimum_size = Vector2(40, 72)
 max_value = 800.0
-value = 0.0
-show_percentage = false
 fill_mode = 3
+show_percentage = false
 
 [node name="ValueLabel" type="Label" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/ChargeBucket/BarContainer" unique_id=1611307596]
 layout_mode = 1
@@ -449,21 +423,17 @@ layout_mode = 2
 size_flags_horizontal = 4
 
 [node name="Bar" type="ProgressBar" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/SidearmBucket/BarContainer" unique_id=1611307605]
+custom_minimum_size = Vector2(40, 72)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 4.0
-offset_top = 0.0
 offset_right = -4.0
-offset_bottom = 0.0
 grow_horizontal = 2
 grow_vertical = 2
-custom_minimum_size = Vector2(40, 72)
-max_value = 100.0
-value = 0.0
-show_percentage = false
 fill_mode = 3
+show_percentage = false
 
 [node name="ValueLabel" type="Label" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/SidearmBucket/BarContainer" unique_id=1611307606]
 layout_mode = 1
@@ -478,11 +448,13 @@ offset_right = 20.0
 offset_bottom = 10.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(1.0, 0.5, 0.45, 1)
+theme_override_colors/font_color = Color(1, 0.5, 0.45, 1)
 theme_override_font_sizes/font_size = 14
 text = "0"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="CannonOverlay" type="CanvasLayer" parent="." unique_id=1611307599]
 
 [node name="GameCoordinator" type="Node" parent="." unique_id=1575200896]
 script = ExtResource("2_gc")
@@ -496,7 +468,7 @@ script = ExtResource("4_cm")
 [node name="RewardsManager" type="Node" parent="." unique_id=1027426675]
 script = ExtResource("5_rm")
 
-[node name="Hopper" parent="." instance=ExtResource("17_hopper") unique_id=210049821]
+[node name="Hopper" parent="." unique_id=210049821 instance=ExtResource("17_hopper")]
 position = Vector2(480, 28)
 
 [node name="Conduit" type="Node2D" parent="." unique_id=1827569296]
@@ -507,23 +479,20 @@ script = ExtResource("8_brd")
 
 [node name="BallsContainer" type="Node2D" parent="." unique_id=1423675392]
 
-[node name="BoardWalls" type="Node2D" parent="."]
-position = Vector2(0, 0)
+[node name="BoardWalls" type="Node2D" parent="." unique_id=1904259189]
 
-[node name="LeftWall" type="StaticBody2D" parent="BoardWalls"]
+[node name="LeftWall" type="StaticBody2D" parent="BoardWalls" unique_id=612703216]
 position = Vector2(-5, 360)
-collision_layer = 1
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="BoardWalls/LeftWall"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoardWalls/LeftWall" unique_id=1731317872]
 shape = SubResource("RectangleShape2D_board_left_wall")
 
-[node name="RightWall" type="StaticBody2D" parent="BoardWalls"]
+[node name="RightWall" type="StaticBody2D" parent="BoardWalls" unique_id=1577942879]
 position = Vector2(965, 360)
-collision_layer = 1
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="BoardWalls/RightWall"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BoardWalls/RightWall" unique_id=401872798]
 shape = SubResource("RectangleShape2D_board_right_wall")
 
 [node name="EnergyRouter" type="Node" parent="." unique_id=64668425]
@@ -543,11 +512,12 @@ script = ExtResource("10_ep")
 [node name="RapidFire" type="Node" parent="SystemsContainer/Sidearms" unique_id=454203286]
 script = ExtResource("12_rf")
 
-[node name="ShieldPool" type="Node" parent="SystemsContainer" unique_id=2847193651]
+[node name="ShieldPool" type="Node" parent="SystemsContainer" unique_id=-1447773645]
 script = ExtResource("19_shield")
 
 [node name="CombatContainer" type="Node" parent="." unique_id=840832011]
-[node name="BattlefieldView" parent="CombatContainer" instance=ExtResource("18_battlefield")]
+
+[node name="BattlefieldView" parent="CombatContainer" unique_id=1092833102 instance=ExtResource("18_battlefield")]
 
 [node name="MilestoneTracker" type="Node" parent="." unique_id=1211399944]
 script = ExtResource("13_ms")
@@ -587,12 +557,3 @@ theme_override_colors/font_color = Color(0.6, 0.65, 0.75, 1)
 theme_override_font_sizes/font_size = 12
 text = "Energy: 0 | Sidearm: 0 | Shield: 0"
 horizontal_alignment = 1
-
-[node name="RigidBody2D" type="RigidBody2D" parent="." unique_id=1589660386]
-position = Vector2(461, 43)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="RigidBody2D" unique_id=622851246]
-shape = SubResource("CircleShape2D_hxu8e")
-
-[node name="Sprite2D" type="Sprite2D" parent="RigidBody2D" unique_id=1733458124]
-texture = SubResource("NoiseTexture2D_nvumn")

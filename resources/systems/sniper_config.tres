@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="SidearmConfig" load_steps=2 format=3 uid="uid://sniper_sidearm_config"]
+
+[ext_resource type="Script" path="res://resources/systems/sidearm_config.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+energy_per_shot = 10000
+cooldown_sim_ticks = 180
+archetype_id = &"sniper"
+damage_per_shot = 25

@@ -181,8 +181,7 @@ Upgrades and design will specify door open/close and wave interval in **seconds*
 - **ticks = round(seconds × SIM_TICKS_PER_SECOND)**. Pick one rounding (e.g. **round**); use it everywhere. Do not mix floor/ceil.
 - **Designer-facing value (seconds)** lives **only** in config or UI. **Never** store seconds in gameplay state. At load or when applying an upgrade, convert once and store **sim ticks**. Otherwise upgrades will drift.
 
-**Conduit release spec (reconcile door + wave)**: Every **WAVE_INTERVAL_TICKS**, Conduit opens for **OPEN_TICKS**. While open, it releases exactly **CONDUIT_SIZE** balls (or fewer if hopper is empty), one per sim tick (or at a deterministic rate you define). Upgrades adjust: conduit size, wave interval, open duration. This keeps “door open duration” and “how many balls exit per wave” explicit and deterministic.
-
+**Conduit release spec (reconcile door + wave)**: Every **WAVE_INTERVAL_TICKS**, Conduit opens for **OPEN_TICKS**. While open, balls fall out by **physics** (hopper contents, gate width, fall speed); there is no fixed balls-per-wave limit. Gate closes when open duration expires. Upgrades adjust wave interval and open duration only.
 ---
 
 ## 2. Project Folder Structure
@@ -375,9 +374,9 @@ Parents (or GameState) call these methods on children. Keep signatures minimal.
 
 ### 6.2 Conduit & Door
 
-- **Single responsibility**: Control when balls leave the hopper and enter the board. **Spec** (§1.13): Every **WAVE_INTERVAL_TICKS**, Conduit opens for **OPEN_TICKS**; while open, release **CONDUIT_SIZE** balls (or fewer if hopper empty), one per sim tick (deterministic). **Safety**: If active ball count ≥ **MAX_ACTIVE_BALLS** (e.g. 120), **do not release** until count drops.
-- **Signals**: `ball_entered_board(ball)`, `door_opened`, `door_closed`.
-- **Methods**: `request_ball()` (only if active balls < MAX_ACTIVE_BALLS; calls `Hopper.release_next_ball()`; if non-null, emits `ball_entered_board`). **Timing**: all in **sim ticks**; convert from seconds once with **round(seconds × SIM_TICKS_PER_SECOND)** (§1.13).
+- **Single responsibility**: Control when the hopper gate is open or closed. **Spec** (§1.13): Every **WAVE_INTERVAL_TICKS**, Conduit opens for **OPEN_TICKS**; while open, balls fall out by physics (hopper size, gate open time, fall speed)—no fixed ball count. Gate closes when open duration expires. **Safety**: If active ball count ≥ **MAX_ACTIVE_BALLS** (e.g. 120), do not open / release until count drops.
+- **Signals**: `door_opened`, `door_closed`.
+- **Methods**: `request_ball()` (only if active balls < MAX_ACTIVE_BALLS; drives gate open/close timing). **Timing**: all in **sim ticks**; convert from seconds once with **round(seconds × SIM_TICKS_PER_SECOND)** (§1.13).
 - **Small functions**: `_open_door()`, `_close_door()`, `_on_sim_tick()` (decrement ticks; open when wave timer hits 0); `_can_release() -> bool` (active count < MAX_ACTIVE_BALLS).
 
 ### 6.3 Board

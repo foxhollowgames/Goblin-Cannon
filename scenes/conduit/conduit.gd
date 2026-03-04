@@ -12,13 +12,12 @@ var _hopper: Node
 var _board: Node
 
 func _ready() -> void:
-	_wave_interval_ticks = ceili(Constants.WAVE_INTERVAL_SECONDS * Constants.SIM_TICKS_PER_SECOND)
+	_update_wave_interval_ticks()
 	_open_ticks = ceili(Constants.OPEN_SECONDS * Constants.SIM_TICKS_PER_SECOND)
 	_ticks_until_open = 1  # First wave after 1 tick so something is visible immediately
 	var main: Node = get_parent()
 	_hopper = main.get_node_or_null("Hopper")
 	_board = main.get_node_or_null("Board")
-
 func request_ball() -> void:
 	if not _can_release():
 		return
@@ -40,6 +39,8 @@ func _can_release() -> bool:
 
 func _open_door() -> void:
 	_ticks_door_open = 0
+	var scale: float = GameState.conduit_open_duration_scale if GameState else 1.0
+	_open_ticks = ceili(Constants.OPEN_SECONDS * Constants.SIM_TICKS_PER_SECOND * scale)
 	if _hopper and _hopper.has_method("set_gate_open"):
 		_hopper.set_gate_open(true)
 	door_opened.emit()
@@ -47,5 +48,10 @@ func _open_door() -> void:
 func _close_door() -> void:
 	if _hopper and _hopper.has_method("set_gate_open"):
 		_hopper.set_gate_open(false)
+	_update_wave_interval_ticks()
 	_ticks_until_open = _wave_interval_ticks
 	door_closed.emit()
+
+func _update_wave_interval_ticks() -> void:
+	var scale: float = GameState.conduit_wave_interval_scale if GameState else 1.0
+	_wave_interval_ticks = ceili(Constants.WAVE_INTERVAL_SECONDS * Constants.SIM_TICKS_PER_SECOND * scale)

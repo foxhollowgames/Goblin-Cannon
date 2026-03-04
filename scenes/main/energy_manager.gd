@@ -48,9 +48,20 @@ func on_ball_reached_bottom(ball_id: int, total_energy_display: int, alignment: 
 	var internal: int = total_energy_display * Constants.ENERGY_SCALE
 	_energy_router.route_energy(internal, alignment)
 
+## Route display energy (e.g. Leech peg drain) into pools by alignment. Does not update last_ball_id.
+func add_display_energy(amount_display: int, alignment: int) -> void:
+	if not _energy_router or not _energy_router.has_method("route_energy"):
+		return
+	var internal: int = amount_display * Constants.ENERGY_SCALE
+	_energy_router.route_energy(internal, alignment)
+
 func _on_energy_allocated(main: int, sidearm: int, shield: int) -> void:
+	# GDD §12: milestone stat upgrade main_charge_bonus adds % to main energy per ball
+	var main_effective: int = main
+	if GameState:
+		main_effective = int(main * (1.0 + GameState.main_charge_bonus))
 	if _main_cannon and _main_cannon.has_method("add_energy"):
-		_main_cannon.add_energy(main)
+		_main_cannon.add_energy(main_effective)
 	if _sidearm_pool and _sidearm_pool.has_method("add_energy"):
 		_sidearm_pool.add_energy(sidearm)
 	if _shield_pool and _shield_pool.has_method("add_energy"):

@@ -14,14 +14,19 @@ const CANNON_OVERLAY_OFFSET_Y: float = -180.0
 const CANNON_ZONE_TOP: float = 600.0 + CANNON_OVERLAY_OFFSET_Y
 const MINION_SPAWN_Y: float = 68.0
 const MINION_DAMAGE: int = 2
-const SPAWN_INTERVAL_TICKS: int = 120  # 2 seconds at 60 ticks/s
+const SPAWN_INTERVAL_TICKS: int = 240  # 4 seconds at 60 ticks/s
 const CANNON_MUZZLE_POS: Vector2 = Vector2(160.0, 616.0 + CANNON_OVERLAY_OFFSET_Y)
 const WALL_IMPACT_POS: Vector2 = Vector2(160.0, 36.0)
 const CANNON_BLAST_CENTER: Vector2 = Vector2(160.0, 640.0 + CANNON_OVERLAY_OFFSET_Y)
 const MUZZLE_BLAST_RADIUS: float = 85.0
 const MUZZLE_BLAST_DAMAGE: int = 999  # kills 1-HP melee minions on wall 1
-## Single sidearm pistol: one muzzle to the right of the main barrel.
+## Muzzle positions for sidearms (slot order = Sidearms container child order). First matches original pistol; spacing matches CannonVisual.
 const SIDEARM_MUZZLE_POS: Vector2 = Vector2(188.0, 618.0 + CANNON_OVERLAY_OFFSET_Y)
+const SIDEARM_MUZZLE_SPACING: float = 30.0
+const MAX_SIDEARM_SLOTS: int = 6
+
+func _get_sidearm_muzzle_pos(slot: int) -> Vector2:
+	return SIDEARM_MUZZLE_POS + Vector2(clampi(slot, 0, MAX_SIDEARM_SLOTS - 1) * SIDEARM_MUZZLE_SPACING, 0.0)
 const SIDEARM_ENERGY_LABEL_FADE_DURATION: float = 1.0
 const SIDEARM_ENERGY_LABEL_FLOAT_OFFSET: float = -28.0  # pixels to move up
 const COLOR_SIDEARM_ENERGY: Color = Color(0.95, 0.35, 0.3, 1)
@@ -35,10 +40,13 @@ var _wall_visual: Node2D
 var _cannon_visual: Node2D
 var _fortifications: Array[Node] = []  # Up to 3; only first (wall_index+1) are active per wall.
 var _current_wall_index: int = 0  # 0=Wall 1 (1 fort), 1=Wall 2 (2 forts), 2=Boss (3 forts)
-var _spawn_ticks_until_next: int = 60  # first spawn after 1 second
+var _spawn_ticks_until_next: int = 120  # first spawn after 2 seconds
 var _minion_scene: PackedScene
 var _main_cannon: Node
-var _rapid_fire: Node
+## Sidearm nodes in slot order (children of Sidearms that have sidearm_fired signal).
+var _sidearms: Array[Node] = []
+var _sidearm_connections: Array[Callable] = []
+var _sidearms_container: Node = null
 var _cannon_shot_scene: PackedScene
 var _wall_impact_scene: PackedScene
 var _muzzle_blast_scene: PackedScene
@@ -97,8 +105,11 @@ func _ready() -> void:
 func _process(_delta: float) -> void:
 	if _cannon_visual and _cannon_visual.get_parent() != self:
 		_cannon_visual.global_position = global_position + _cannon_overlay_local_pos + Vector2(0.0, CANNON_OVERLAY_OFFSET_Y)
-	if _cannon_visual and _cannon_visual.has_method("set_sidearm_on_cooldown") and _rapid_fire and _rapid_fire.has_method("is_on_cooldown"):
-		_cannon_visual.set_sidearm_on_cooldown(_rapid_fire.is_on_cooldown())
+	if _cannon_visual and _cannon_visual.has_method("set_sidearm_cooldowns") and _sidearms.size() > 0:
+		var cooldowns: Array = []
+		for s in _sidearms:
+			cooldowns.append(s.has_method("is_on_cooldown") and s.is_on_cooldown())
+		_cannon_visual.set_sidearm_cooldowns(cooldowns)
 
 func get_wall_center_y() -> float:
 	return WALL_HEIGHT * 0.5
@@ -159,12 +170,15 @@ func _update_fortification_visibility() -> void:
 		node.set_physics_process(active)
 
 ## Call once per sim tick; fortifications with timers will shoot when ready.
+## repair_scale: 1.0 at wall 0, lower at later walls so disabled fortifications repair faster.
 func fortification_tick(sim_tick: int) -> void:
 	var count: int = mini(_current_wall_index + 1, _fortifications.size())
+	var repair_scale: float = 1.0 - _current_wall_index * 0.15  # wall 0 = 10s, wall 1 = 8.5s, wall 2 = 7s
+	repair_scale = clampf(repair_scale, 0.5, 1.0)
 	for i in count:
 		var node: Node = _fortifications[i]
 		if node.has_method("sim_tick"):
-			node.sim_tick(sim_tick)
+			node.sim_tick(sim_tick, repair_scale)
 	# Status tick for all minions (decay stacks, fire DoT)
 	for child in _minions_container.get_children():
 		if child.has_method("status_tick"):
@@ -172,7 +186,8 @@ func fortification_tick(sim_tick: int) -> void:
 	# Status tick for cannon and fortifications (decay stacks)
 	if _cannon_visual and _cannon_visual.has_method("status_tick"):
 		_cannon_visual.status_tick(sim_tick)
-	for node in _fortifications:
+	for i in count:
+		var node: Node = _fortifications[i]
 		if node.has_method("status_tick"):
 			node.status_tick(sim_tick)
 	# Staging: periodically apply cycling status to minions, cannon, and fortifications
@@ -207,23 +222,52 @@ func _connect_main_cannon() -> void:
 			_main_cannon.main_fired.connect(_on_main_fired)
 
 func _connect_sidearm() -> void:
+	_disconnect_sidearms()
 	var main: Node = get_parent()
 	if main:
 		main = main.get_parent()
 	if main:
 		var sidearms: Node = main.get_node_or_null("SystemsContainer/Sidearms")
 		if sidearms:
-			_rapid_fire = sidearms.get_node_or_null("RapidFire")
-			if _rapid_fire and _rapid_fire.has_signal("sidearm_fired"):
-				_rapid_fire.sidearm_fired.connect(_on_sidearm_fired)
+			for child in sidearms.get_children():
+				if child.has_signal("sidearm_fired"):
+					var slot: int = _sidearms.size()
+					_sidearms.append(child)
+					var callable_bound: Callable = _on_sidearm_fired.bind(slot)
+					_sidearm_connections.append(callable_bound)
+					child.sidearm_fired.connect(callable_bound)
+			# Re-connect when new sidearms are added at runtime (e.g. after drafting Sniper)
+			if sidearms.has_signal("sidearms_updated"):
+				if _sidearms_container != null and _sidearms_container != sidearms and _sidearms_container.sidearms_updated.is_connected(_on_sidearms_updated):
+					_sidearms_container.sidearms_updated.disconnect(_on_sidearms_updated)
+				if _sidearms_container != sidearms or not sidearms.sidearms_updated.is_connected(_on_sidearms_updated):
+					_sidearms_container = sidearms
+					sidearms.sidearms_updated.connect(_on_sidearms_updated)
+
+func _on_sidearms_updated() -> void:
+	_connect_sidearm()
+
+func _disconnect_sidearms() -> void:
+	for i in range(_sidearms.size()):
+		if i < _sidearm_connections.size():
+			var s: Node = _sidearms[i]
+			if is_instance_valid(s) and s.has_signal("sidearm_fired"):
+				s.sidearm_fired.disconnect(_sidearm_connections[i])
+	_sidearms.clear()
+	_sidearm_connections.clear()
 
 func _exit_tree() -> void:
 	if _main_cannon and _main_cannon.has_signal("main_fired") and _main_cannon.main_fired.is_connected(_on_main_fired):
 		_main_cannon.main_fired.disconnect(_on_main_fired)
-	if _rapid_fire and _rapid_fire.has_signal("sidearm_fired") and _rapid_fire.sidearm_fired.is_connected(_on_sidearm_fired):
-		_rapid_fire.sidearm_fired.disconnect(_on_sidearm_fired)
+	if _sidearms_container and _sidearms_container.has_signal("sidearms_updated") and _sidearms_container.sidearms_updated.is_connected(_on_sidearms_updated):
+		_sidearms_container.sidearms_updated.disconnect(_on_sidearms_updated)
+	_sidearms_container = null
+	_disconnect_sidearms()
 
-func _on_main_fired(_damage: int) -> void:
+func _on_main_fired(damage: int) -> void:
+	# Main shot damages fortifications only 15%; rest comes from sidearms, status, or abilities.
+	var fort_damage: int = ceili(damage * 0.15)
+	damage_fortifications(fort_damage)
 	# Muzzle blast damages/kills melee minions near cannon (wall 1 = 1 HP, so they die). No status by default (GDD); upgrades can add via config.
 	var status_effects: Dictionary = {}
 	if staging_status_demo:
@@ -247,22 +291,22 @@ func _on_main_fired(_damage: int) -> void:
 			shot.setup(CANNON_MUZZLE_POS, WALL_IMPACT_POS, _spawn_wall_impact)
 			_vfx_container.add_child(shot)
 
-func _on_sidearm_fired(_damage: int, energy_cost_display: int, _status_effects: Dictionary = {}) -> void:
-	# Single sidearm pistol: only shoots at minions. No wall targeting. Status is applied by CombatManager via damage_frontmost_minion(damage, status_effects).
-	# Floating number: how much sidearm energy this shot used (display units).
-	_show_sidearm_energy_cost(SIDEARM_MUZZLE_POS, energy_cost_display)
+func _on_sidearm_fired(_damage: int, energy_cost_display: int, _status_effects: Dictionary = {}, _is_aoe: bool = false, _aoe_radius: float = 0.0, slot: int = 0) -> void:
+	# Each sidearm fires at minions from its slot muzzle. Status is applied by CombatManager via damage_frontmost_minion(damage, status_effects).
+	var muzzle_pos: Vector2 = _get_sidearm_muzzle_pos(slot)
+	_show_sidearm_energy_cost(muzzle_pos, energy_cost_display)
 	# Muzzle burst VFX (red-orange so player sees sidearm firing)
 	if _sidearm_muzzle_scene and _vfx_container:
 		var burst: Node2D = _sidearm_muzzle_scene.instantiate() as Node2D
 		if burst and burst.has_method("setup"):
-			burst.setup(SIDEARM_MUZZLE_POS)
+			burst.setup(muzzle_pos)
 			_vfx_container.add_child(burst)
 	# Projectile only when there is a minion to hit; shot goes to frontmost minion, not the wall.
 	var target_pos: Vector2 = _get_frontmost_minion_position()
 	if target_pos != Vector2.INF and _sidearm_shot_scene and _vfx_container:
 		var shot: Node2D = _sidearm_shot_scene.instantiate() as Node2D
 		if shot and shot.has_method("setup"):
-			shot.setup(SIDEARM_MUZZLE_POS, target_pos, _spawn_minion_impact)
+			shot.setup(muzzle_pos, target_pos, _spawn_minion_impact)
 			_vfx_container.add_child(shot)
 
 func _spawn_wall_impact(impact_pos: Vector2) -> void:
@@ -312,7 +356,10 @@ func _staging_minion_status_effects() -> Dictionary:
 		2: return { Constants.STATUS_LIGHTNING: 2 }
 	return {}
 
-## Returns position of frontmost minion (closest to cannon = largest Y) in local space, or Vector2.INF if none.
+## Returns position of frontmost minion (closest to cannon = largest Y) in local space, or Vector2.INF if none. Public for CombatManager AOE targeting.
+func get_frontmost_minion_position() -> Vector2:
+	return _get_frontmost_minion_position()
+
 func _get_frontmost_minion_position() -> Vector2:
 	if _minions_container == null:
 		return Vector2.INF
@@ -355,6 +402,20 @@ func damage_minions_near_cannon(radius: float, damage: int, status_effects: Dict
 	for node in to_damage:
 		node.take_damage(damage)
 		_apply_status_effects_to_node(node, status_effects, "main_cannon", "muzzle_blast")
+
+## Damage all minions within radius of center (e.g. AOE sidearm). Applies status_effects to each. Returns count damaged.
+func damage_minions_in_radius(center: Vector2, radius: float, damage: int, status_effects: Dictionary = {}) -> int:
+	if _minions_container == null or damage <= 0 or radius <= 0:
+		return 0
+	var count: int = 0
+	for child in _minions_container.get_children():
+		if not child is Node2D or not child.has_method("take_damage"):
+			continue
+		if child.position.distance_to(center) <= radius:
+			child.take_damage(damage)
+			_apply_status_effects_to_node(child, status_effects, "sidearm", "aoe_shot")
+			count += 1
+	return count
 
 ## Sidearm target: frontmost minion. Returns true if a minion was damaged.
 ## Cannon/sidearm do NOT apply status by default; pass status_effects from config/upgrades (or from ball abilities) to apply.
@@ -412,6 +473,16 @@ func apply_status_to_active_fortifications(status_effects: Dictionary, source: S
 		var node: Node = _fortifications[i]
 		if node.has_method("apply_status"):
 			_apply_status_effects_to_node(node, status_effects, source, reason)
+
+## Damage all active fortifications (same damage to each). Called when main cannon hits the wall.
+func damage_fortifications(damage: int) -> void:
+	if damage <= 0:
+		return
+	var count: int = mini(_current_wall_index + 1, _fortifications.size())
+	for i in count:
+		var node: Node = _fortifications[i]
+		if node.has_method("take_damage"):
+			node.take_damage(damage)
 
 ## Called from GameCoordinator when center UI is updated. Passes shield (display units) to cannon visual.
 func set_cannon_shield(display_value: int) -> void:

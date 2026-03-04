@@ -9,3 +9,7 @@ class_name SidearmConfig
 @export var damage_per_shot: int = 5  # Slice: Rapid Fire damage per shot
 ## Status effects applied when this sidearm hits. Empty by default; upgrades can set (e.g. { "fire": 1, "lightning": 1 }).
 @export var status_effects_on_fire: Dictionary = {}
+## If true, damage is applied to all minions within aoe_radius of the frontmost minion (area damage).
+@export var is_aoe: bool = false
+## Radius in pixels for AOE damage (only used when is_aoe is true).
+@export var aoe_radius: float = 100.0

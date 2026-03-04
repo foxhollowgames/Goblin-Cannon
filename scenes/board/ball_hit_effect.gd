@@ -2,7 +2,7 @@ class_name BallHitEffect
 extends Node2D
 ## Short burst VFX when a ball hits a peg or reaches the bottom. Type: fire (flame explosion), ice (frost burst), lightning (spark).
 
-enum EffectType { FIRE, ICE, LIGHTNING, ENERGIZE, SPLIT, EXPLOSIVE, CHAIN_LIGHTNING }
+enum EffectType { FIRE, ICE, LIGHTNING, ENERGIZE, SPLIT, EXPLOSIVE, CHAIN_LIGHTNING, LEECH, RUBBERY, PHANTOM, TRAMPOLINE }
 
 const DURATION_SEC: float = 0.4
 const BASE_RADIUS: float = 18.0
@@ -49,6 +49,14 @@ func _draw() -> void:
 			_draw_explosive_burst(radius, alpha)
 		EffectType.CHAIN_LIGHTNING:
 			_draw_chain_lightning_burst(radius, alpha)
+		EffectType.LEECH:
+			_draw_leech_burst(radius, alpha)
+		EffectType.RUBBERY:
+			_draw_rubbery_burst(radius, alpha)
+		EffectType.PHANTOM:
+			_draw_phantom_burst(radius, alpha)
+		EffectType.TRAMPOLINE:
+			_draw_trampoline_burst(radius, alpha)
 
 func _draw_fire_burst(radius: float, alpha: float) -> void:
 	draw_circle(Vector2.ZERO, radius, Color(1.0, 0.35, 0.05, alpha * 0.5))
@@ -97,3 +105,31 @@ func _draw_chain_lightning_burst(radius: float, alpha: float) -> void:
 	draw_circle(Vector2.ZERO, radius * 0.7, Color(0.6, 0.8, 1.0, alpha * 0.65))
 	draw_circle(Vector2.ZERO, radius * 0.4, Color(0.85, 0.95, 1.0, alpha * 0.75))
 	draw_circle(Vector2.ZERO, radius * 0.15, Color(1.0, 1.0, 1.0, alpha * 0.9))
+
+func _draw_leech_burst(radius: float, alpha: float) -> void:
+	# Leech: green siphon/drain burst
+	draw_circle(Vector2.ZERO, radius, Color(0.15, 0.5, 0.25, alpha * 0.5))
+	draw_circle(Vector2.ZERO, radius * 0.7, Color(0.25, 0.65, 0.35, alpha * 0.65))
+	draw_circle(Vector2.ZERO, radius * 0.4, Color(0.45, 0.85, 0.5, alpha * 0.75))
+	draw_circle(Vector2.ZERO, radius * 0.15, Color(0.7, 1.0, 0.75, alpha * 0.9))
+
+func _draw_rubbery_burst(radius: float, alpha: float) -> void:
+	# Rubbery: soft bouncy white-gray burst
+	draw_circle(Vector2.ZERO, radius, Color(0.75, 0.78, 0.82, alpha * 0.5))
+	draw_circle(Vector2.ZERO, radius * 0.72, Color(0.88, 0.9, 0.92, alpha * 0.65))
+	draw_circle(Vector2.ZERO, radius * 0.4, Color(0.95, 0.96, 0.98, alpha * 0.75))
+	draw_circle(Vector2.ZERO, radius * 0.18, Color(1.0, 1.0, 1.0, alpha * 0.9))
+
+func _draw_phantom_burst(radius: float, alpha: float) -> void:
+	# Phantom: ghostly translucent purple-white (no physical impact)
+	draw_circle(Vector2.ZERO, radius, Color(0.5, 0.45, 0.7, alpha * 0.4))
+	draw_circle(Vector2.ZERO, radius * 0.72, Color(0.65, 0.6, 0.85, alpha * 0.5))
+	draw_circle(Vector2.ZERO, radius * 0.4, Color(0.82, 0.78, 0.95, alpha * 0.55))
+	draw_circle(Vector2.ZERO, radius * 0.18, Color(0.95, 0.93, 1.0, alpha * 0.6))
+
+func _draw_trampoline_burst(radius: float, alpha: float) -> void:
+	# Trampoline: upward bounce burst – green/teal rings expanding up
+	draw_circle(Vector2.ZERO, radius, Color(0.2, 0.65, 0.45, alpha * 0.5))
+	draw_circle(Vector2.ZERO, radius * 0.72, Color(0.35, 0.82, 0.55, alpha * 0.65))
+	draw_circle(Vector2.ZERO, radius * 0.4, Color(0.55, 0.95, 0.7, alpha * 0.75))
+	draw_circle(Vector2.ZERO, radius * 0.18, Color(0.85, 1.0, 0.9, alpha * 0.9))

@@ -70,10 +70,10 @@ func _start_reward_flow() -> void:
 	_reward_flow_id += 1
 	var flow_id: int = _reward_flow_id
 	if _current_reward_type == RewardType.MILESTONE:
-		if not _reward_handler.has_method("get_ball_reward_picks"):
+		if not _reward_handler.has_method("get_milestone_reward_picks"):
 			_finish_reward_flow()
 			return
-		_pending_picks = _reward_handler.get_ball_reward_picks(3)
+		_pending_picks = _reward_handler.get_milestone_reward_picks(5)
 	else:
 		if not _reward_handler.has_method("get_major_upgrade_picks"):
 			_finish_reward_flow()
@@ -103,8 +103,8 @@ func _on_slowmo_finished(flow_id: int) -> void:
 	if flow_id != _reward_flow_id:
 		return
 	if _pending_picks.is_empty() and _reward_handler:
-		if _current_reward_type == RewardType.MILESTONE and _reward_handler.has_method("get_ball_reward_picks"):
-			_pending_picks = _reward_handler.get_ball_reward_picks(3)
+		if _current_reward_type == RewardType.MILESTONE and _reward_handler.has_method("get_milestone_reward_picks"):
+			_pending_picks = _reward_handler.get_milestone_reward_picks(5)
 		elif _current_reward_type == RewardType.WALL_BREAK and _reward_handler.has_method("get_major_upgrade_picks"):
 			_pending_picks = _reward_handler.get_major_upgrade_picks(3)
 	# Show modal but stay in REWARD_SLOWMO for REWARD_SLOWMO_WITH_MODAL_DURATION, then strict pause
@@ -137,12 +137,12 @@ func _show_milestone_draft() -> void:
 		_draft_panel.process_mode = Node.PROCESS_MODE_ALWAYS
 		var shown: bool = _draft_panel.show_draft(_pending_picks)
 		_draft_panel.visible = true
-		if not shown and _reward_handler and _reward_handler.has_method("apply_ball_pick"):
-			_reward_handler.apply_ball_pick(_pending_picks[0])
+		if not shown and _reward_handler and _reward_handler.has_method("apply_milestone_pick"):
+			_reward_handler.apply_milestone_pick(_pending_picks[0])
 			_finish_reward_flow()
 	else:
-		if _pending_picks.size() > 0 and _reward_handler and _reward_handler.has_method("apply_ball_pick"):
-			_reward_handler.apply_ball_pick(_pending_picks[0])
+		if _pending_picks.size() > 0 and _reward_handler and _reward_handler.has_method("apply_milestone_pick"):
+			_reward_handler.apply_milestone_pick(_pending_picks[0])
 			_finish_reward_flow()
 
 func _show_wall_break_draft() -> void:
@@ -164,10 +164,8 @@ func _show_wall_break_draft() -> void:
 			_finish_reward_flow()
 
 func _on_milestone_pick_selected(pick: Resource) -> void:
-	if _reward_handler and _reward_handler.has_method("apply_ball_pick"):
-		_reward_handler.apply_ball_pick(pick)
-	if _reward_handler and _reward_handler.has_method("grant_stat_upgrades"):
-		_reward_handler.grant_stat_upgrades(2)  # GDD §12: 2 stat upgrades per milestone
+	if _reward_handler and _reward_handler.has_method("apply_milestone_pick"):
+		_reward_handler.apply_milestone_pick(pick)
 	_finish_reward_flow()
 
 func _on_wall_break_pick_selected(pick: Resource) -> void:

@@ -22,11 +22,9 @@ const STALL_SIM_TICKS: int = SIM_TICKS_PER_SECOND * 10  # 10 seconds
 # Energy: internal = display × 100 (§1.7)
 const ENERGY_SCALE: int = 100
 
-# Conduit (§1.13): convert seconds to ticks with round(seconds * SIM_TICKS_PER_SECOND)
-# Default slice: e.g. wave every 5s, open 1s, 3 balls per wave
+# Conduit (§1.13): wave interval and gate open duration in seconds. How many balls fall is physics-driven (hopper size, open duration, fall speed).
 const WAVE_INTERVAL_SECONDS: float = 5.0
 const OPEN_SECONDS: float = 0.5
-const CONDUIT_SIZE: int = 3
 
 # Ball alignments (GDD §8): 0=Main, 1=Sidearm, 2=Defense. Must match EnergyRouting.Alignment.
 const ALIGNMENT_MAIN: int = 0
@@ -58,3 +56,22 @@ const STATUS_LIGHTNING: StringName = &"lightning"
 # GDD: Explosive ball — hit pegs in radius; Chain Lightning — chain to N nearest pegs (apply hit + lightning status).
 const EXPLOSIVE_RADIUS_PX: float = 90.0
 const CHAIN_LIGHTNING_COUNT: int = 2
+
+# Leech ball: status on pegs hit — drains energy each second, then expires.
+const LEECH_DRAIN_PER_SECOND: int = 5   # display energy per second per leeched peg
+const LEECH_DURATION_SEC: int = 10      # status lasts 10 seconds (10 drains of 5)
+
+# Rubbery ball: higher restitution so it bounces more and can hit more pegs.
+const RUBBERY_RESTITUTION: float = 0.94
+
+# Trampoline peg: higher restitution and strong upward launch on contact (upward = negative Y).
+const TRAMPOLINE_RESTITUTION: float = 0.98
+const TRAMPOLINE_UPWARD_SPEED: float = 340.0  ## px/s; ball is launched upward with at least this speed on trampoline contact
+const TRAMPOLINE_TOP_COLLISION_HEIGHT: float = 5.0  ## thickness of top-only collision strip (one-way platform)
+
+# Debug: test run with 50% trampoline pegs and all sidearms (Rapid Fire, Sniper, AOE Cannon). Set false for normal play.
+const DEBUG_TEST_RUN_50_TRAMPOLINE_ALL_SIDEARMS: bool = false
+# Default board has 8 rows × 16 cols checkerboard = 64 pegs; 50% = 32 trampolines.
+const TEST_RUN_TRAMPOLINE_PEG_COUNT: int = 32
+# Debug: test run with all pegs as bombs (every hit triggers an explosion). Set false for normal play.
+const DEBUG_TEST_RUN_ALL_BOMB_PEGS: bool = true

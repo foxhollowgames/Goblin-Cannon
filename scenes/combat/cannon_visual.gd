@@ -15,7 +15,8 @@ const STATUS_OVERLAY_SIZE: float = 50.0  # scale for flame/ice/lightning overlay
 var _shield_display: int = 0
 var _status_stacks: Dictionary = {}
 var _status_decay_counter: int = 0
-var _sidearm_on_cooldown: bool = false
+## Per-slot cooldown state; index = sidearm slot (scene order). Empty = draw one barrel at slot 0, no cooldown.
+var _sidearm_cooldowns: Array = []
 
 func apply_status(status_id: StringName, stacks: int) -> void:
 	if stacks <= 0:
@@ -48,10 +49,18 @@ func set_shield(display_value: int) -> void:
 	_shield_display = display_value
 	queue_redraw()
 
+## Single sidearm (slot 0). Kept for backward compatibility.
 func set_sidearm_on_cooldown(on_cooldown: bool) -> void:
-	if _sidearm_on_cooldown != on_cooldown:
-		_sidearm_on_cooldown = on_cooldown
+	if _sidearm_cooldowns.size() < 1:
+		_sidearm_cooldowns.resize(1)
+	if _sidearm_cooldowns[0] != on_cooldown:
+		_sidearm_cooldowns[0] = on_cooldown
 		queue_redraw()
+
+## Multiple sidearms: one bool per slot (order matches Sidearms container children). Drives barrel count and cooldown dimming.
+func set_sidearm_cooldowns(slots: Array) -> void:
+	_sidearm_cooldowns = slots.duplicate()
+	queue_redraw()
 
 func _process(_delta: float) -> void:
 	if _status_stacks.size() > 0:
@@ -94,12 +103,18 @@ func _draw() -> void:
 	draw_rect(Rect2(-16, base_y - 22, 32, 8), Color(0.7, 0.5, 0.3, 1), false, 1.0)
 	# Muzzle glow (subtle)
 	draw_circle(barrel_end, 6, Color(0.4, 0.35, 0.25, 0.6))
-	# Single sidearm pistol: one red-orange barrel to the right (aligned with BattlefieldView SIDEARM_MUZZLE_POS). Dim when on cooldown.
-	const SIDEARM_BARREL_Y: float = -42.0
-	const SIDEARM_BARREL_X: float = 28.0
-	var sidearm_alpha: float = 0.4 if _sidearm_on_cooldown else 1.0
-	draw_circle(Vector2(SIDEARM_BARREL_X, SIDEARM_BARREL_Y), 5, Color(0.5, 0.22, 0.2, 0.9 * sidearm_alpha))
-	draw_arc(Vector2(SIDEARM_BARREL_X, SIDEARM_BARREL_Y), 5, 0, TAU, 8, Color(0.85, 0.35, 0.3, 0.8 * sidearm_alpha), 1.0)
+	# Sidearm barrels: one per slot to the right of main barrel (aligned with BattlefieldView SIDEARM_MUZZLE_POSITIONS). Dim when on cooldown.
+	const SIDEARM_BARREL_START: Vector2 = Vector2(28.0, -42.0)
+	const SIDEARM_BARREL_SPACING: float = 30.0
+	const MAX_SIDEARM_SLOTS: int = 6
+	var slot_count: int = _sidearm_cooldowns.size() if _sidearm_cooldowns.size() > 0 else 1
+	slot_count = mini(slot_count, MAX_SIDEARM_SLOTS)
+	for i in range(slot_count):
+		var pos: Vector2 = SIDEARM_BARREL_START + Vector2(i * SIDEARM_BARREL_SPACING, 0.0)
+		var on_cd: bool = _sidearm_cooldowns[i] if i < _sidearm_cooldowns.size() else false
+		var sidearm_alpha: float = 0.4 if on_cd else 1.0
+		draw_circle(pos, 5, Color(0.5, 0.22, 0.2, 0.9 * sidearm_alpha))
+		draw_arc(pos, 5, 0, TAU, 8, Color(0.85, 0.35, 0.3, 0.8 * sidearm_alpha), 1.0)
 
 	# --- Status effect overlays (flame, ice, lightning; same style as minions) ---
 	var flame_stacks: int = _status_stacks.get(Constants.STATUS_FIRE, 0)

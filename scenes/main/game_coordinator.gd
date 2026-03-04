@@ -2,9 +2,10 @@ extends Node
 ## GameCoordinator (§3, §6). Wiring only; no peg buffering (Board does that).
 ## Runs per-sim-tick order; fixed-step accumulator for slow-mo. Disconnects in _exit_tree.
 
-## Starting ball mix: 1 Explosive (main), 1 Chain Lightning (shield).
-const START_EXPLOSIVE_MAIN: int = 1
-const START_CHAIN_LIGHTNING_SHIELD: int = 1
+## Starting ball mix: 8 main cannon, 1 shield, 1 sidearm.
+const START_MAIN: int = 8
+const START_SHIELD: int = 1
+const START_SIDEARM: int = 1
 ## Max balls in the hopper; excess is stored in the bag and refills when hopper drops below this.
 const HOPPER_MAX_BALLS: int = 100
 
@@ -67,37 +68,50 @@ func _sync_battlefield_wall_index() -> void:
 		battlefield.set_wall_index(_combat_manager.get_current_wall_index())
 
 func _spawn_initial_balls() -> void:
-	# 1 Explosive (main cannon), 1 Chain Lightning (shield).
-	var explosive_def: BallDefinition = _ability_ball_def("Explosive", Constants.ALIGNMENT_MAIN, BallVisuals.ShapeType.SQUARE)
-	var chain_lightning_def: BallDefinition = _ability_ball_def("Chain Lightning", Constants.ALIGNMENT_DEFENSE, BallVisuals.ShapeType.STAR)
-	var total: int = START_EXPLOSIVE_MAIN + START_CHAIN_LIGHTNING_SHIELD
+	# 8 main, 1 shield, 1 sidearm — all plain (no ability); shape from alignment.
+	var main_def: BallDefinition = _plain_ball_def(Constants.ALIGNMENT_MAIN)
+	var shield_def: BallDefinition = _plain_ball_def(Constants.ALIGNMENT_DEFENSE)
+	var sidearm_def: BallDefinition = _plain_ball_def(Constants.ALIGNMENT_SIDEARM)
+	var total: int = START_MAIN + START_SHIELD + START_SIDEARM
 	var in_hopper: int = _hopper.get_stored_ball_count() if _hopper and _hopper.has_method("get_stored_ball_count") else 0
 	var room: int = HOPPER_MAX_BALLS - in_hopper
 	var added: int = 0
 	if _hopper and _hopper.has_method("add_balls_with_definition"):
-		var to_hopper_explosive: int = mini(START_EXPLOSIVE_MAIN, room)
-		if to_hopper_explosive > 0:
-			_hopper.add_balls_with_definition(to_hopper_explosive, explosive_def)
-			room -= to_hopper_explosive
-			added += to_hopper_explosive
-		var to_hopper_chain: int = mini(START_CHAIN_LIGHTNING_SHIELD, room)
-		if to_hopper_chain > 0:
-			_hopper.add_balls_with_definition(to_hopper_chain, chain_lightning_def)
-			room -= to_hopper_chain
-			added += to_hopper_chain
+		var to_hopper_main: int = mini(START_MAIN, room)
+		if to_hopper_main > 0:
+			_hopper.add_balls_with_definition(to_hopper_main, main_def)
+			room -= to_hopper_main
+			added += to_hopper_main
+		var to_hopper_shield: int = mini(START_SHIELD, room)
+		if to_hopper_shield > 0:
+			_hopper.add_balls_with_definition(to_hopper_shield, shield_def)
+			room -= to_hopper_shield
+			added += to_hopper_shield
+		var to_hopper_sidearm: int = mini(START_SIDEARM, room)
+		if to_hopper_sidearm > 0:
+			_hopper.add_balls_with_definition(to_hopper_sidearm, sidearm_def)
+			room -= to_hopper_sidearm
+			added += to_hopper_sidearm
 	_bag_count += (total - added)
 
-## Ability ball definition for starting balls: ability_name, alignment, shape; tier 1, base 20, rarity uncommon.
-func _ability_ball_def(ability_name: String, alignment: int, shape_type: int, status_effects: Dictionary = {}) -> BallDefinition:
+## Reset ball reserve to starting pool: clear hopper and bag, then spawn initial mix (8 main, 1 shield, 1 sidearm).
+func reset_starting_ball_pool() -> void:
+	_bag_count = 0
+	if _hopper and _hopper.has_method("clear_stored_balls"):
+		_hopper.clear_stored_balls()
+	_spawn_initial_balls()
+
+## Plain ball (no ability) for starting pool: alignment only; shape from alignment (circle/triangle/diamond).
+func _plain_ball_def(alignment: int) -> BallDefinition:
 	var d: BallDefinition = BallDefinition.new()
-	d.ability_name = ability_name
+	d.ability_name = ""
 	d.base_energy = 20
 	d.city_weights = {0: 100}
 	d.alignment = alignment
 	d.rarity = Constants.RARITY_UNCOMMON
 	d.tier = 1
-	d.shape_type = shape_type
-	d.status_effects = status_effects
+	d.shape_type = -1  # use alignment-based shape
+	d.status_effects = {}
 	return d
 
 func _exit_tree() -> void:
@@ -131,6 +145,8 @@ func _wire_signals() -> void:
 			_board.ball_ability_on_peg_hit.connect(_on_ball_ability_on_peg_hit)
 		if _board.has_signal("ball_exited_board"):
 			_board.ball_exited_board.connect(_on_ball_exited_board)
+		if _board.has_signal("leech_drain"):
+			_board.leech_drain.connect(_on_leech_drain)
 	if _milestone_tracker and _milestone_tracker.has_signal("milestone_reached"):
 		_milestone_tracker.milestone_reached.connect(_on_milestone_reached)
 	if _combat_manager and _combat_manager.has_signal("wall_destroyed"):
@@ -166,6 +182,8 @@ func _disconnect_signals() -> void:
 			_board.ball_ability_on_peg_hit.disconnect(_on_ball_ability_on_peg_hit)
 		if _board.has_signal("ball_exited_board"):
 			_board.ball_exited_board.disconnect(_on_ball_exited_board)
+		if _board.has_signal("leech_drain") and _board.leech_drain.is_connected(_on_leech_drain):
+			_board.leech_drain.disconnect(_on_leech_drain)
 	if _milestone_tracker and _milestone_tracker.has_signal("milestone_reached"):
 		_milestone_tracker.milestone_reached.disconnect(_on_milestone_reached)
 	if _combat_manager and _combat_manager.has_signal("wall_destroyed"):
@@ -236,6 +254,24 @@ func _on_ball_reached_bottom(ball_id: int, total_energy_display: int, alignment:
 	if not status_effects.is_empty() and _combat_manager and _combat_manager.has_method("apply_ball_status"):
 		_combat_manager.apply_ball_status(status_effects, "ball_reached_bottom")
 
+func _on_leech_drain(amount_display: int, alignment: int, peg_id: int) -> void:
+	if _energy_manager and _energy_manager.has_method("add_display_energy"):
+		_energy_manager.add_display_energy(amount_display, alignment)
+	if _milestone_tracker and _milestone_tracker.has_method("add_display_energy"):
+		_milestone_tracker.add_display_energy(amount_display)
+	# Visual: flow from peg to energy bucket and +N on bar (purple leech)
+	var peg_pos: Vector2 = Vector2(480, 400)
+	if _board and _board.has_method("get_peg_by_id"):
+		var peg: Node = _board.get_peg_by_id(peg_id)
+		if peg and peg.get("global_position") != null:
+			peg_pos = peg.global_position
+	var internal: int = amount_display * Constants.ENERGY_SCALE
+	var main_internal: int = internal if alignment == Constants.ALIGNMENT_MAIN else 0
+	var sidearm_internal: int = internal if alignment == Constants.ALIGNMENT_SIDEARM else 0
+	var shield_internal: int = internal if alignment == Constants.ALIGNMENT_DEFENSE else 0
+	if _center_panel_ui and _center_panel_ui.has_method("show_energy_gain"):
+		_center_panel_ui.show_energy_gain(main_internal, sidearm_internal, shield_internal, peg_pos, alignment)
+
 func _on_ball_ability_on_peg_hit(status_effects: Dictionary) -> void:
 	if status_effects.is_empty() or not _combat_manager or not _combat_manager.has_method("apply_ball_status"):
 		return
@@ -246,8 +282,13 @@ func _on_ball_exited_board(ball: Node, reason: int) -> void:
 	if reason == 1:  # stall_despawn — return ball to hopper (future)
 		pass
 		return
-	# Split twin (extra ball from Split): never return to hopper; destroy when it leaves the board.
+	# Split twin (fragment): Fragment Echo sends it back to top once; then destroy.
 	if ball.has_method("is_split_twin") and ball.is_split_twin():
+		if GameState and GameState.has_wall_break_upgrade(&"fragment_echo") and ball.has_method("has_fragment_echo_used") and not ball.has_fragment_echo_used():
+			ball.mark_fragment_echo_used()
+			if _board and _board.has_method("respawn_fragment_at_top"):
+				_board.respawn_fragment_at_top(ball)
+			return
 		ball.queue_free()
 		return
 	var gate_open: bool = _hopper.is_gate_open() if _hopper and _hopper.has_method("is_gate_open") else false
@@ -294,8 +335,8 @@ func _on_wall_break_reward_completed() -> void:
 func _update_center_ui() -> void:
 	if not _center_panel_ui or not _center_panel_ui.has_method("set_fortification"):
 		return
-	var wall_hp: int = 100
-	var wall_max: int = 100
+	var wall_hp: int = 50
+	var wall_max: int = 50
 	var cannon_hp: int = 100
 	var cannon_max: int = 100
 	if _combat_manager:
@@ -328,7 +369,12 @@ func _update_center_ui() -> void:
 			var pool: Node = sidearms.get_node_or_null("SidearmPool")
 			if pool and pool.has_method("get_current_energy"):
 				sidearm_energy = pool.get_current_energy()
-	_center_panel_ui.set_charge(main_energy, 80000)
+	var charge_max: int = 80000
+	if _systems_container:
+		var mc: Node = _systems_container.get_node_or_null("MainCannon")
+		if mc and mc.has_method("get_charge_threshold"):
+			charge_max = mc.get_charge_threshold()
+	_center_panel_ui.set_charge(main_energy, charge_max)
 	if _center_panel_ui.has_method("set_shield"):
 		_center_panel_ui.set_shield(shield_points)
 	if _center_panel_ui.has_method("set_sidearm"):

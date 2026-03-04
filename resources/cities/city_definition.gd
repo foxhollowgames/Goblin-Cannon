@@ -11,8 +11,8 @@ class_name CityDefinition
 @export var gate_name: String = "Village Gate"
 ## All wall names in order for this city. Conquest sidebar lists these; when one breaks, we advance to the next.
 @export var wall_names: Array = []  # e.g. ["Village Gate", "Mill Gate", "Town Hall"]
-## Max wall HP per wall. CombatManager resets to this when advancing to the next wall.
-@export var wall_hp_max: int = 100
+## Base wall HP for wall 1. Later walls scale exponentially (normal curve): Wall 1 = 50, 2 = 100, 3 = 300, etc.
+@export var wall_hp_max: int = 50
 ## Milestone thresholds in display units (GDD §12: ~3 per wall, 200 scale). Stored as ints in Array for .tres.
 @export var milestone_thresholds: Array = [200, 400, 600]
 @export var waves: Array = []
@@ -31,3 +31,11 @@ func get_effective_wall_names() -> Array:
 	if wall_names.size() > 0:
 		return wall_names
 	return [gate_name]
+
+## Max HP for a given wall index (0 = first wall). Follows exponential curve: 50, 100, 300, 650, ...
+## Formula: base - 25*w + 75*w^2 (fits Wall 1=50, 2=100, 3=300).
+func get_wall_hp_max_for_index(wall_index: int) -> int:
+	if wall_index < 0:
+		return wall_hp_max
+	var w: int = wall_index
+	return int(wall_hp_max - 25 * w + 75 * w * w)

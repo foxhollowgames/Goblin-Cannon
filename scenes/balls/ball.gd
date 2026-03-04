@@ -16,9 +16,12 @@ var _consecutive_vertical_bounces: int = 0
 var _was_in_vertical_bounce: bool = false
 var _board_material: PhysicsMaterial
 var _hopper_material: PhysicsMaterial
+var _rubbery_material: PhysicsMaterial  ## Higher bounce for Rubbery ball on board
+var _is_rubbery: bool = false
 var _split_spin_elapsed: float = -1.0
 var _split_triggered: bool = false  ## true after this ball has been part of a split (original or spawned)
 var _is_split_twin: bool = false  ## true if this ball was spawned by Split (extra ball); never return to hopper, destroy on exit
+var _fragment_echo_used: bool = false  ## Fragment Echo (wall break): once per fragment; after echo we destroy on next bottom
 
 func _ready() -> void:
 	_total_energy_display = 20
@@ -30,6 +33,9 @@ func _ready() -> void:
 	_hopper_material = PhysicsMaterial.new()
 	_hopper_material.bounce = 0.12
 	_hopper_material.friction = 0.5
+	_rubbery_material = PhysicsMaterial.new()
+	_rubbery_material.bounce = Constants.RUBBERY_RESTITUTION
+	_rubbery_material.friction = Constants.TANGENTIAL_FRICTION
 	physics_material_override = _board_material
 
 func _physics_process(delta: float) -> void:
@@ -111,6 +117,12 @@ func set_ball_id(id: int) -> void:
 
 func set_definition(def: Resource) -> void:
 	_definition = def
+	_is_rubbery = (def is BallDefinition and (def as BallDefinition).ability_name == "Rubbery")
+	# Phantom: no physics collision with pegs (layer 1) so ball phases through; Board uses overlap for energy.
+	if def is BallDefinition and (def as BallDefinition).ability_name == "Phantom":
+		collision_mask = 2  # layers 2 only (e.g. other balls); skip layer 1 (pegs)
+	else:
+		collision_mask = 3  # layers 1 and 2 (pegs + balls)
 	queue_redraw()
 
 func has_split_triggered() -> bool:
@@ -138,11 +150,19 @@ func mark_as_split_twin() -> void:
 	modulate = Color(1.0, 1.0, 1.0, 0.55)  # semi-transparent so split balls are easy to notice
 	queue_redraw()
 
+## Fragment Echo (wall break): fragment can only float back to top once; then destroy on next bottom.
+func has_fragment_echo_used() -> bool:
+	return _fragment_echo_used
+
+func mark_fragment_echo_used() -> void:
+	_fragment_echo_used = true
+
 ## Use low bounce and high damp in the hopper so balls settle; restore when leaving for the board.
+## Rubbery balls use higher restitution on the board so they bounce more.
 func apply_hopper_physics(inside: bool) -> void:
 	if inside:
 		physics_material_override = _hopper_material
 		linear_damp = 4.0
 	else:
-		physics_material_override = _board_material
+		physics_material_override = _rubbery_material if _is_rubbery else _board_material
 		linear_damp = 0.0

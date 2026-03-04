@@ -35,6 +35,7 @@ func _ready() -> void:
 	if _bin_area:
 		_bin_area.body_entered.connect(_on_bin_body_entered)
 		_bin_area.body_exited.connect(_on_bin_body_exited)
+	scale.x = GameState.hopper_width_scale
 
 func add_balls(count: int) -> void:
 	for i in count:
@@ -71,6 +72,13 @@ func get_visible_count() -> int:
 func get_stored_ball_count() -> int:
 	return _stored_balls.size()
 
+## Remove and free all balls in the bin; used when resetting the starting ball pool.
+func clear_stored_balls() -> void:
+	for ball in _stored_balls:
+		if is_instance_valid(ball):
+			ball.queue_free()
+	_stored_balls.clear()
+
 ## Re-add a ball that left the board: spawn above the frame so it falls into the hopper with physics.
 func return_ball(ball: Node) -> void:
 	if not ball or not _main_balls_container:
@@ -103,6 +111,10 @@ func set_gate_open(open: bool) -> void:
 
 func is_gate_open() -> bool:
 	return _gate_open
+
+## Apply width scale from major upgrade (wall break). Called when player picks Wider Hopper.
+func set_width_scale(s: float) -> void:
+	scale.x = clampf(s, 0.5, 2.0)
 
 func _on_bin_body_entered(body: Node) -> void:
 	if not body is RigidBody2D:

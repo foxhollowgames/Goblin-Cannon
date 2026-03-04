@@ -12,7 +12,7 @@ enum AttackState {
 	AT_CANNON_IDLE
 }
 
-const SPEED: float = 85.0
+const SPEED: float = 42.5
 const DAMAGE: int = 2
 const PERIODIC_INTERVAL: float = 2.0
 const WINDUP_TIME: float = 0.4  # seconds before each hit that we show "about to attack"
