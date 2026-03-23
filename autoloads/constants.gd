@@ -74,4 +74,4 @@ const DEBUG_TEST_RUN_50_TRAMPOLINE_ALL_SIDEARMS: bool = false
 # Default board has 8 rows × 16 cols checkerboard = 64 pegs; 50% = 32 trampolines.
 const TEST_RUN_TRAMPOLINE_PEG_COUNT: int = 32
 # Debug: test run with all pegs as bombs (every hit triggers an explosion). Set false for normal play.
-const DEBUG_TEST_RUN_ALL_BOMB_PEGS: bool = true
+const DEBUG_TEST_RUN_ALL_BOMB_PEGS: bool = false
