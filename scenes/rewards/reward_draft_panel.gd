@@ -12,7 +12,7 @@ const RARITY_COLORS: Array[Color] = [
 	Color(0.95, 0.25, 0.2, 1),    # 5 epic: Red
 ]
 
-const ALIGNMENT_NAMES: Array[String] = ["Main", "Sidearm", "Defense"]
+const ALIGNMENT_NAMES: Array[String] = ["Main"]
 
 var _picks: Array = []
 var _dim_layer: ColorRect
@@ -162,9 +162,8 @@ func _make_ball_card(def: BallDefinition, index: int) -> Control:
 	var card_vbox: VBoxContainer = VBoxContainer.new()
 	card_vbox.add_theme_constant_override("separation", 8)
 	panel.add_child(card_vbox)
-	# Title: "<Ability> <Alignment>"
 	var title_label: Label = Label.new()
-	title_label.text = "%s %s" % [ability, _alignment_name(alignment)]
+	title_label.text = ability
 	title_label.add_theme_font_size_override("font_size", 18)
 	title_label.add_theme_color_override("font_color", border_color)
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
@@ -198,10 +197,6 @@ func _make_ball_card(def: BallDefinition, index: int) -> Control:
 
 const STAT_DISPLAY: Dictionary = {
 	"main_charge": { "name": "Main Charge", "desc": "+5% main energy per ball" },
-	"sidearm_cap": { "name": "Sidearm Cap", "desc": "+10% sidearm pool capacity" },
-	"shield_cap": { "name": "Shield Cap", "desc": "+10% shield capacity" },
-	"shield_max": { "name": "Max Shield", "desc": "+10% shield capacity" },
-	"health_max": { "name": "Max Health", "desc": "+10 cannon max HP" },
 	"door_interval": { "name": "Faster Waves", "desc": "10% less time between hopper doors" },
 	"door_duration": { "name": "Longer Door Open", "desc": "Gate stays open 10% longer each wave" },
 	"cannon_damage": { "name": "Cannon Damage", "desc": "+5 base damage per shot" },

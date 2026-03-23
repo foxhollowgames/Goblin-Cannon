@@ -4,13 +4,9 @@ extends Node
 var _reward_gen: RewardGeneration
 var _hopper: Node
 var _game_coordinator: Node
-## Slice: cached candidate list (BallDefinition resources) for draft picks.
 var _ball_candidates: Array = []
-## GDD: wall break = major upgrades (conquest/boss tier), not balls+stats. Three pools: sidearm, ball enhancement, board (incl. tag).
-var _sidearm_candidates: Array = []
 var _ball_enhancement_candidates: Array = []
 var _board_candidates: Array = []
-var _sidearm_fallback_candidates: Array = []  # cooldown/damage scaling when sidearm already owned
 
 func _ready() -> void:
 	_reward_gen = RewardGeneration.new(GameState.run_seed)
@@ -20,48 +16,27 @@ func _ready() -> void:
 	_ball_candidates = _build_ball_candidates()
 	_build_wall_break_candidates()
 
-## GDD §7: Tier 1 (City 1 primary), Tier 2 (City 2 primary), base_energy 20, city_weights. §8: alignments Main/Sidearm/Defense. Rarity 0-5.
 func _build_ball_candidates() -> Array:
 	var list: Array = []
-	# Tier 1 – City 1 primary (slice). Each ability has a unique shape (BallVisuals.ShapeType).
-	# Status effect keys match Constants (fire, frozen, lightning). GDD §8: ball abilities apply status on peg hit or ball_reached_bottom.
-	var fire: Dictionary = { "fire": 1 }
-	var frozen: Dictionary = { "frozen": 1 }
-	var lightning: Dictionary = { "lightning": 1 }
-	# GDD: Split and Energize are additional ball abilities (alignment randomized at pick time).
+	var M: int = Constants.ALIGNMENT_MAIN
 	var t1: Array = [
-		_create_ball_def("Bounce", Constants.ALIGNMENT_MAIN, 1, Constants.RARITY_COMMON, {0: 100}, BallVisuals.ShapeType.CIRCLE),
-		_create_ball_def("Flame", Constants.ALIGNMENT_SIDEARM, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.TRIANGLE, fire),
-		_create_ball_def("Frost", Constants.ALIGNMENT_DEFENSE, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.DIAMOND, frozen),
-		_create_ball_def("Spark", Constants.ALIGNMENT_MAIN, 1, 2, {0: 100}, BallVisuals.ShapeType.SQUARE, lightning),  # Rare
-		_create_ball_def("Ember", Constants.ALIGNMENT_SIDEARM, 1, Constants.RARITY_COMMON, {0: 100}, BallVisuals.ShapeType.PENTAGON, fire),
-		_create_ball_def("Chill", Constants.ALIGNMENT_DEFENSE, 1, 2, {0: 100}, BallVisuals.ShapeType.HEXAGON, frozen),  # Rare
-		_create_ball_def("Bolt", Constants.ALIGNMENT_MAIN, 1, 3, {0: 80}, BallVisuals.ShapeType.STAR, lightning),  # Purple
-		_create_ball_def("Flare", Constants.ALIGNMENT_SIDEARM, 1, 3, {0: 80}, BallVisuals.ShapeType.PLUS, fire),
-		_create_ball_def("Ward", Constants.ALIGNMENT_DEFENSE, 1, 3, {0: 80}, BallVisuals.ShapeType.CIRCLE),
-		_create_ball_def("Split", Constants.ALIGNMENT_MAIN, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.HEXAGON),  # GDD: split-style energy
-		_create_ball_def("Energize", Constants.ALIGNMENT_MAIN, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.PENTAGON),  # GDD: bonus energy
-		_create_ball_def("Explosive", Constants.ALIGNMENT_SIDEARM, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.SQUARE),  # GDD: area hit; Uncommon so offered in City 0
-		_create_ball_def("Chain Lightning", Constants.ALIGNMENT_MAIN, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.STAR),  # GDD: chain + lightning; Uncommon so offered in City 0
-		_create_ball_def("Leech", Constants.ALIGNMENT_MAIN, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.DIAMOND),  # GDD: bonus energy per peg hit (siphon-style)
-		_create_ball_def("Rubbery", Constants.ALIGNMENT_DEFENSE, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.CIRCLE),  # GDD: high bounce, more peg hits
-		_create_ball_def("Phantom", Constants.ALIGNMENT_DEFENSE, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.HEXAGON),  # GDD: energy on hit but no peg durability damage
+		_create_ball_def("Bounce", M, 1, Constants.RARITY_COMMON, {0: 100}, BallVisuals.ShapeType.CIRCLE),
+		_create_ball_def("Split", M, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.HEXAGON),
+		_create_ball_def("Energize", M, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.PENTAGON),
+		_create_ball_def("Explosive", M, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.SQUARE),
+		_create_ball_def("Chain Lightning", M, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.STAR),
+		_create_ball_def("Leech", M, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.DIAMOND),
+		_create_ball_def("Rubbery", M, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.CIRCLE),
+		_create_ball_def("Phantom", M, 1, Constants.RARITY_UNCOMMON, {0: 100}, BallVisuals.ShapeType.HEXAGON),
 	]
-	# Tier 2
 	var t2: Array = [
-		_create_ball_def("Surge", Constants.ALIGNMENT_MAIN, 2, 2, {0: 50, 1: 100}, BallVisuals.ShapeType.TRIANGLE, lightning),  # GDD: Tier 2 lightning (surge)
-		_create_ball_def("Phantom", Constants.ALIGNMENT_DEFENSE, 2, 2, {0: 50, 1: 100}, BallVisuals.ShapeType.HEXAGON),
-		_create_ball_def("Blaze", Constants.ALIGNMENT_SIDEARM, 2, Constants.RARITY_EPIC, {0: 50, 1: 100}, BallVisuals.ShapeType.DIAMOND, fire),
-		_create_ball_def("Aegis", Constants.ALIGNMENT_DEFENSE, 2, Constants.RARITY_EPIC, {0: 50, 1: 100}, BallVisuals.ShapeType.SQUARE),
-		_create_ball_def("Volt", Constants.ALIGNMENT_MAIN, 2, 4, {0: 40, 1: 100}, BallVisuals.ShapeType.PENTAGON, lightning),  # Orange
-		_create_ball_def("Inferno", Constants.ALIGNMENT_SIDEARM, 2, 4, {0: 40, 1: 100}, BallVisuals.ShapeType.HEXAGON, fire),
-		_create_ball_def("Glacier", Constants.ALIGNMENT_DEFENSE, 2, 4, {0: 40, 1: 100}, BallVisuals.ShapeType.STAR, frozen),
-		_create_ball_def("Split", Constants.ALIGNMENT_MAIN, 2, 2, {0: 50, 1: 100}, BallVisuals.ShapeType.HEXAGON),  # GDD: Tier 2 variant
-		_create_ball_def("Energize", Constants.ALIGNMENT_MAIN, 2, 2, {0: 50, 1: 100}, BallVisuals.ShapeType.PENTAGON),  # GDD: Tier 2 variant
-		_create_ball_def("Explosive", Constants.ALIGNMENT_SIDEARM, 2, 3, {0: 40, 1: 100}, BallVisuals.ShapeType.SQUARE),
-		_create_ball_def("Chain Lightning", Constants.ALIGNMENT_MAIN, 2, 3, {0: 40, 1: 100}, BallVisuals.ShapeType.STAR),
-		_create_ball_def("Leech", Constants.ALIGNMENT_MAIN, 2, 2, {0: 50, 1: 100}, BallVisuals.ShapeType.DIAMOND),
-		_create_ball_def("Rubbery", Constants.ALIGNMENT_DEFENSE, 2, 2, {0: 50, 1: 100}, BallVisuals.ShapeType.CIRCLE),
+		_create_ball_def("Split", M, 2, 2, {0: 50, 1: 100}, BallVisuals.ShapeType.HEXAGON),
+		_create_ball_def("Energize", M, 2, 2, {0: 50, 1: 100}, BallVisuals.ShapeType.PENTAGON),
+		_create_ball_def("Explosive", M, 2, 3, {0: 40, 1: 100}, BallVisuals.ShapeType.SQUARE),
+		_create_ball_def("Chain Lightning", M, 2, 3, {0: 40, 1: 100}, BallVisuals.ShapeType.STAR),
+		_create_ball_def("Leech", M, 2, 2, {0: 50, 1: 100}, BallVisuals.ShapeType.DIAMOND),
+		_create_ball_def("Rubbery", M, 2, 2, {0: 50, 1: 100}, BallVisuals.ShapeType.CIRCLE),
+		_create_ball_def("Phantom", M, 2, 2, {0: 50, 1: 100}, BallVisuals.ShapeType.HEXAGON),
 	]
 	for d in t1 + t2:
 		list.append(d)
@@ -102,16 +77,8 @@ func _get_max_rarity_for_city(city_id: int) -> int:
 		return Constants.MAX_RARITY_BY_CITY[city_id]
 	return Constants.RARITY_UNCOMMON
 
-## Wall break: always 3 options — 1 Sidearm, 1 Ball Enhancement, 1 Board (including Tag). Filter ball by types in run.
-func get_major_upgrade_picks(_count: int) -> Array:
-	var sidearm: Array = []
-	for c in _sidearm_candidates:
-		var def: MajorUpgradeDefinition = c as MajorUpgradeDefinition
-		if def and not GameState.owns_sidearm(def.upgrade_id):
-			sidearm.append(c)
-	if sidearm.is_empty():
-		sidearm = _sidearm_fallback_candidates.duplicate()
-	var ball: Array = []
+## Wall break: pick 3 from ball enhancements + board upgrades. Only offers ball enhancements for types in the run.
+func get_major_upgrade_picks(count: int = 3) -> Array:
 	var max_stacks_for: Dictionary = {
 		&"impact_burst": 2,
 		&"hyper_elastic": 1, &"overdrive_hits": 1, &"supernova_peg": 1, &"chain_conduction": 1,
@@ -119,6 +86,7 @@ func get_major_upgrade_picks(_count: int) -> Array:
 		&"final_arc_detonation": 1, &"overcurrent_surge": 1, &"fragment_echo": 1, &"mass_cascade": 1,
 		&"ghost_trail": 1, &"phase_instability": 1
 	}
+	var pool: Array = []
 	for c in _ball_enhancement_candidates:
 		var def: MajorUpgradeDefinition = c as MajorUpgradeDefinition
 		if not def:
@@ -128,9 +96,10 @@ func get_major_upgrade_picks(_count: int) -> Array:
 		var cap: Variant = max_stacks_for.get(def.upgrade_id, -1)
 		if cap >= 0 and GameState.get_wall_break_upgrade_stacks(def.upgrade_id) >= cap:
 			continue
-		ball.append(c)
-	var board: Array = _board_candidates.duplicate()
-	return _reward_gen.pick_wall_break_trio(sidearm, ball, board)
+		pool.append(c)
+	for c in _board_candidates:
+		pool.append(c)
+	return _reward_gen.pick_major_upgrades(pool, count)
 
 func _mk(def_name: String, desc: String, uid: StringName, cat: int, ball_t: String = "") -> MajorUpgradeDefinition:
 	var u: MajorUpgradeDefinition = MajorUpgradeDefinition.new()
@@ -141,18 +110,10 @@ func _mk(def_name: String, desc: String, uid: StringName, cat: int, ball_t: Stri
 	u.ball_type = ball_t
 	return u
 
-## GDD §12.1: wall break pool — Sidearms (Rapid Fire, AOE Cannon, Sniper + fallbacks), Ball Enhancements by type, Board + Tag.
+## Wall break pool: Ball Enhancements by type + Board/Tag upgrades.
 func _build_wall_break_candidates() -> void:
-	var cat_s: int = MajorUpgradeDefinition.Category.SIDEARM
 	var cat_b: int = MajorUpgradeDefinition.Category.BALL_ENHANCEMENT
 	var cat_board: int = MajorUpgradeDefinition.Category.BOARD_UPGRADE
-	# ——— SIDEARM ———
-	_sidearm_candidates.append(_mk("Rapid Fire", "Sidearm: rapid shots at minions. Shared pool, parallel charging.", &"rapid_fire", cat_s))
-	_sidearm_candidates.append(_mk("AOE Cannon", "Sidearm: area damage. Shared pool, parallel charging.", &"aoe_cannon", cat_s))
-	_sidearm_candidates.append(_mk("Sniper", "Sidearm: high single-target damage. Shared pool, parallel charging.", &"sniper", cat_s))
-	_sidearm_fallback_candidates.append(_mk("Rapid Fire (Scaling)", "Improve cooldown and damage scaling for Rapid Fire.", &"rapid_fire_scaling", cat_s))
-	_sidearm_fallback_candidates.append(_mk("AOE Cannon (Scaling)", "Improve cooldown and damage scaling for AOE Cannon.", &"aoe_cannon_scaling", cat_s))
-	_sidearm_fallback_candidates.append(_mk("Sniper (Scaling)", "Improve cooldown and damage scaling for Sniper.", &"sniper_scaling", cat_s))
 	# ——— BALL ENHANCEMENTS (only offered if ball type in bag) ———
 	# Rubbery
 	_ball_enhancement_candidates.append(_mk("Impact Burst", "Each peg hit creates a small explosion. Max 2 stacks (radius increase).", &"impact_burst", cat_b, "Rubbery"))
@@ -222,25 +183,13 @@ func apply_milestone_pick(option: Resource) -> void:
 		elif opt.option_type == MilestoneOption.Type.STAT and not opt.stat_id.is_empty():
 			apply_stat_upgrade(opt.stat_id)
 
-## Apply a single stat upgrade (main_charge, sidearm_cap, shield_cap, health_max, shield_max, door_interval, door_duration, cannon_damage, cannon_energy).
+## Apply a single stat upgrade.
 func apply_stat_upgrade(stat_id: String) -> void:
 	if not GameState:
 		return
 	match stat_id:
 		"main_charge":
 			GameState.main_charge_bonus += 0.05
-		"sidearm_cap":
-			GameState.sidearm_cap_bonus += 0.10
-		"shield_cap":
-			GameState.shield_cap_bonus += 0.10
-		"shield_max":
-			GameState.shield_cap_bonus += 0.10
-		"health_max":
-			GameState.cannon_hp_max_bonus += 10
-			var main: Node = get_parent()
-			var cm: Node = main.get_node_or_null("CombatManager") if main else null
-			if cm and cm.has_method("apply_health_max_bonus"):
-				cm.apply_health_max_bonus(10)
 		"door_interval":
 			GameState.conduit_wave_interval_scale = maxf(0.5, GameState.conduit_wave_interval_scale - 0.1)
 		"door_duration":
@@ -248,7 +197,7 @@ func apply_stat_upgrade(stat_id: String) -> void:
 		"cannon_damage":
 			GameState.cannon_base_damage_bonus += 5
 		"cannon_energy":
-			GameState.cannon_charge_reduction += 2000  # -20 display (internal ×100)
+			GameState.cannon_charge_reduction += 2000
 
 func grant_ball_rewards(count: int) -> void:
 	var candidates: Array = _get_candidates_for_current_city()
@@ -260,7 +209,7 @@ func grant_ball_rewards(count: int) -> void:
 func grant_stat_upgrades(count: int) -> void:
 	if not GameState:
 		return
-	var options: Array[String] = ["main_charge", "sidearm_cap", "shield_cap", "health_max", "shield_max", "door_interval", "door_duration", "cannon_damage", "cannon_energy"]
+	var options: Array[String] = ["main_charge", "door_interval", "door_duration", "cannon_damage", "cannon_energy"]
 	for i in count:
 		if options.is_empty():
 			break
@@ -275,14 +224,7 @@ func apply_major_upgrade(pick: Resource) -> void:
 		return
 	var def: MajorUpgradeDefinition = pick as MajorUpgradeDefinition
 	var uid: StringName = def.upgrade_id
-	# ——— Sidearms (unlock or scaling) ———
-	if uid == &"rapid_fire" or uid == &"aoe_cannon" or uid == &"sniper":
-		GameState.add_owned_sidearm(uid)
-		return
-	if uid == &"rapid_fire_scaling" or uid == &"aoe_cannon_scaling" or uid == &"sniper_scaling":
-		GameState.add_wall_break_upgrade(uid, 1)
-		return
-	# ——— Ball enhancements (stack caps per GDD) ———
+	# ——— Ball enhancements (stack caps) ———
 	var max_stacks: int = -1
 	match uid:
 		&"impact_burst": max_stacks = 2

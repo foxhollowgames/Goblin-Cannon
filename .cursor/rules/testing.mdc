@@ -1,0 +1,69 @@
+---
+description: Run unit tests after completing any major feature work, bug fix, or refactor
+globs:
+alwaysApply: true
+---
+
+# Testing Rule — Goblin Cannon
+
+## When to Run Tests
+
+Run the full test suite **after completing any major feature work, bug fix, or significant refactor**. This includes:
+
+- Adding or removing game systems
+- Changing energy routing, combat, rewards, or game state logic
+- Modifying ball definitions or reward candidates
+- Changing milestone/timer/wall mechanics
+- Any structural code change across multiple files
+
+## How to Run Tests
+
+Execute from the project root:
+
+```
+godot --headless -s tests/run_tests.gd
+```
+
+The runner auto-discovers all `tests/test_*.gd` files, runs them, and exits with code 0 (all pass) or 1 (any failure).
+
+## After Running Tests
+
+- If any tests fail, **fix the code or update the tests** before considering the work complete.
+- If a feature changes existing behavior, **update the relevant tests** to match the new expectations.
+- If a feature adds new systems, **add new test files** following the `tests/test_<system>.gd` convention.
+
+## Test File Conventions
+
+- Each test file extends `TestBase` (from `tests/test_base.gd`)
+- Set `suite_name` in `_init()`
+- Implement `run()` which calls individual `test_*()` methods
+- Use `begin("description")` before assertions for clear error messages
+- Use `assert_eq`, `assert_true`, `assert_false`, `assert_gt`, `assert_lt`, `assert_in`, `assert_not_in`, `assert_empty`, `assert_not_empty`, `assert_approx`
+- For Node-based classes: instantiate via `Node.new()` + `set_script(load(...))` and call methods directly
+- For classes needing GameState: call `GameState.start_run(seed)` first to ensure clean state
+
+## Current Test Coverage
+
+| Test File | System Under Test | Key Assertions |
+|---|---|---|
+| `test_energy_routing.gd` | EnergyRouting | All energy routes to main cannon regardless of alignment |
+| `test_hit_cooldown.gd` | HitCooldown | Cooldown tracking per ball/peg pair, clear, overwrite |
+| `test_milestone_curve.gd` | MilestoneCurve | Linear thresholds (levels 0-4), exponential (5+), crossed indices |
+| `test_combat_manager.gd` | CombatManager | Wall HP, timer countdown, wall_destroyed/time_expired signals, wall advancement |
+| `test_main_cannon.gd` | MainCannon | Energy accumulation, charge threshold, firing, damage bonus |
+| `test_game_state.gd` | GameState | start_run reset, ball abilities, wall break upgrade stacking, flow states |
+| `test_reward_generation.gd` | RewardGeneration | Pick counts, uniqueness, stat IDs exclude removed systems |
+| `test_reward_handler.gd` | RewardHandler | All balls Main alignment, no status effects, stat/major upgrades, stack caps |
+| `test_energy_router.gd` | EnergyRouter | Signal emits all energy to main, ignores alignment |
+| `test_test_scenario.gd` | TestScenario | Ball defs, summary, city/stat/upgrade/peg/timer overrides |
+
+## TestScenario — Gameplay Testing Framework
+
+Edit `autoloads/test_scenario.gd` to quickly set up gameplay test configurations.
+
+1. Set `enabled = true`
+2. Configure the fields you need (starting balls, upgrades, pegs, timer, etc.)
+3. Run the game
+4. Set `enabled = false` when done
+
+When the user describes a test scenario (e.g. "test with all explosive balls and explosions apply energize"), translate that into TestScenario fields rather than creating new constants or debug flags.

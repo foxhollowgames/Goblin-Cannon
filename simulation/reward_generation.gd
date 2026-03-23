@@ -28,27 +28,18 @@ func pick_ball_rewards(candidates: Array, count: int) -> Array:
 		var id_key = c.get("id", c) if c is Dictionary else c
 		if not seen.get(id_key, false):
 			seen[id_key] = true
-			# GDD §8: randomize alignment per pick so fire/frost/lightning can appear as Main, Sidearm, or Defense.
-			var pick = c
-			if c is BallDefinition:
-				pick = c.duplicate(true)
-				(pick as BallDefinition).alignment = _rng.randi() % 3  # 0=Main, 1=Sidearm, 2=Defense
-			out.append(pick)
+			out.append(c)
 	return out
 
-## All stat upgrade ids for milestone draft. Must match RewardHandler.apply_stat_upgrade and draft panel STAT_DISPLAY.
 const MILESTONE_STAT_IDS: Array[String] = [
-	"main_charge", "sidearm_cap", "shield_cap",
-	"health_max", "shield_max",
+	"main_charge",
 	"door_interval", "door_duration",
 	"cannon_damage", "cannon_energy"
 ]
 
-## Rarity per stat: Common (0) = HP/shield/pool, Uncommon (1) = energy per ball / cannon, Rare (2) = hopper. Used for weighting and display.
 const STAT_RARITY: Dictionary = {
-	"health_max": 0, "shield_max": 0, "shield_cap": 0, "sidearm_cap": 0,  # Common
-	"main_charge": 1, "cannon_damage": 1, "cannon_energy": 1,  # Uncommon
-	"door_interval": 2, "door_duration": 2  # Rare
+	"main_charge": 1, "cannon_damage": 1, "cannon_energy": 1,
+	"door_interval": 2, "door_duration": 2
 }
 
 ## Weight copies per stat in pool (common appears more often). Index = rarity tier.

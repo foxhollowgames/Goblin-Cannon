@@ -551,12 +551,20 @@ func _spawn_peg_layout() -> void:
 			peg_id_counter += 1
 			add_child(p)
 	_layout_empty_slots = empty_slots
-	# Debug test variant: all pegs are bombs (every hit triggers an explosion).
-	if Constants and Constants.DEBUG_TEST_RUN_ALL_BOMB_PEGS:
+	var _ts_all_bombs: bool = TestScenario and TestScenario.enabled and TestScenario.all_pegs_bombs
+	var _ts_all_tramps: bool = TestScenario and TestScenario.enabled and TestScenario.all_pegs_trampolines
+	if _ts_all_bombs:
 		for pid in _peg_by_id:
 			var p: Node = _peg_by_id[pid]
 			p.peg_extra_kind = "bomb"
 			_tag_peg_as_explosion_source(p)
+		_extra_pegs_spawned_count = _peg_by_id.size()
+	elif _ts_all_tramps:
+		for pid in _peg_by_id:
+			var p: Node = _peg_by_id[pid]
+			p.peg_extra_kind = "trampoline"
+			if p.has_method("apply_trampoline_physics"):
+				p.apply_trampoline_physics()
 		_extra_pegs_spawned_count = _peg_by_id.size()
 	else:
 		# Wall break: replace random existing pegs with bomb/trampoline/goblin reset (no new pegs).

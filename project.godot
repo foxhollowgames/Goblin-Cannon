@@ -23,6 +23,7 @@ config/features=PackedStringArray("4.6", "Forward Plus")
 
 GameState="*res://autoloads/game_state.gd"
 Constants="*res://autoloads/constants.gd"
+TestScenario="*res://autoloads/test_scenario.gd"
 
 [display]
 

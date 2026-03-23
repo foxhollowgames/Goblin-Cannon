@@ -69,9 +69,5 @@ const TRAMPOLINE_RESTITUTION: float = 0.98
 const TRAMPOLINE_UPWARD_SPEED: float = 340.0  ## px/s; ball is launched upward with at least this speed on trampoline contact
 const TRAMPOLINE_TOP_COLLISION_HEIGHT: float = 5.0  ## thickness of top-only collision strip (one-way platform)
 
-# Debug: test run with 50% trampoline pegs and all sidearms (Rapid Fire, Sniper, AOE Cannon). Set false for normal play.
-const DEBUG_TEST_RUN_50_TRAMPOLINE_ALL_SIDEARMS: bool = false
-# Default board has 8 rows × 16 cols checkerboard = 64 pegs; 50% = 32 trampolines.
-const TEST_RUN_TRAMPOLINE_PEG_COUNT: int = 32
-# Debug: test run with all pegs as bombs (every hit triggers an explosion). Set false for normal play.
-const DEBUG_TEST_RUN_ALL_BOMB_PEGS: bool = false
+## Debug peg/ball overrides have moved to TestScenario autoload.
+## Edit autoloads/test_scenario.gd and set enabled = true.

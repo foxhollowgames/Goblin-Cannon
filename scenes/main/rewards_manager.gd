@@ -1,37 +1,31 @@
 extends Node
-## RewardsManager (§6). Milestone = balls + stats (GDD §12). Wall break = major upgrades (GDD conquest/boss).
+## RewardsManager. Milestone rewards (balls + stats) and wall-break rewards (board upgrades).
 
-signal wall_break_reward_completed  ## Emitted when the player has finished the wall-break draft; coordinator advances to next wall.
+signal wall_break_reward_completed
 
-## GDD §1.10: brief slow-mo so player sees the milestone, then show modal; slow-mo continues for this long, then strict pause for picks.
 const REWARD_SLOWMO_DURATION: float = 1.0
-const REWARD_SLOWMO_WITH_MODAL_DURATION: float = 5.0  ## Slow-mo degrades to full pause over this many real seconds while modal is open.
-const SLOWMO_TIME_SCALE: float = 0.03  ## Match GameState; start of ramp to pause.
+const REWARD_SLOWMO_WITH_MODAL_DURATION: float = 5.0
+const SLOWMO_TIME_SCALE: float = 0.03
 
 enum RewardType { MILESTONE, WALL_BREAK }
 
 var _reward_handler: Node
 var _draft_panel: Control
 var _major_draft_panel: Control
-var _modal_layer: CanvasLayer  ## Dedicated layer so modals always draw on top (layer=10)
+var _modal_layer: CanvasLayer
 var _pending_picks: Array = []
 var _reward_flow_id: int = 0
-## GDD §6.9: drain one at a time. Queue reward type so milestone (balls+stats) ≠ wall_break (major upgrades).
-var _pending_rewards: Array = []  # [RewardType.MILESTONE, RewardType.WALL_BREAK, ...]
+var _pending_rewards: Array = []
 var _in_reward_flow: bool = false
 var _current_reward_type: RewardType = RewardType.MILESTONE
-## Real-time end of slow-mo (ms); Engine.time_scale is 0.03 during slow-mo so we must not use create_timer.
 var _slowmo_end_utime_ms: int = 0
 var _slowmo_flow_id_for_timer: int = -1
-## After modal is shown, strict pause at this time (ms). 0 = not set.
 var _strict_pause_at_utime_ms: int = 0
-## When the "modal open + ramp to pause" phase started (ms); used to lerp time_scale.
 var _slowmo_modal_start_utime_ms: int = 0
 
 func _ready() -> void:
 	var main: Node = get_parent()
 	_reward_handler = main.get_node_or_null("RewardHandler")
-	# Create modal layer and panels; add them deferred so we don't add_child during parent's _ready()
 	_modal_layer = CanvasLayer.new()
 	_modal_layer.layer = 10
 	_modal_layer.name = "ModalLayer"
@@ -68,7 +62,6 @@ func _start_reward_flow() -> void:
 		return
 	_in_reward_flow = true
 	_reward_flow_id += 1
-	var flow_id: int = _reward_flow_id
 	if _current_reward_type == RewardType.MILESTONE:
 		if not _reward_handler.has_method("get_milestone_reward_picks"):
 			_finish_reward_flow()
@@ -81,7 +74,7 @@ func _start_reward_flow() -> void:
 		_pending_picks = _reward_handler.get_major_upgrade_picks(3)
 	GameState.set_run_flow_state(GameState.RunFlowState.REWARD_SLOWMO)
 	_slowmo_end_utime_ms = Time.get_ticks_msec() + int(REWARD_SLOWMO_DURATION * 1000.0)
-	_slowmo_flow_id_for_timer = flow_id
+	_slowmo_flow_id_for_timer = _reward_flow_id
 
 func _process(_delta: float) -> void:
 	if not _in_reward_flow or GameState.run_flow_state != GameState.RunFlowState.REWARD_SLOWMO:
@@ -107,7 +100,6 @@ func _on_slowmo_finished(flow_id: int) -> void:
 			_pending_picks = _reward_handler.get_milestone_reward_picks(5)
 		elif _current_reward_type == RewardType.WALL_BREAK and _reward_handler.has_method("get_major_upgrade_picks"):
 			_pending_picks = _reward_handler.get_major_upgrade_picks(3)
-	# Show modal but stay in REWARD_SLOWMO for REWARD_SLOWMO_WITH_MODAL_DURATION, then strict pause
 	if _current_reward_type == RewardType.MILESTONE:
 		if _draft_panel and _draft_panel.has_method("show_draft") and not _pending_picks.is_empty():
 			call_deferred("_show_milestone_draft")
