@@ -33,4 +33,4 @@ func _process(delta: float) -> void:
 		queue_free()
 
 func _draw() -> void:
-	BallVisuals.draw_ball(self, Vector2.ZERO, Constants.BALL_RADIUS, _alignment, _shape_type)
+	BallVisuals.draw_ball(self, Vector2.ZERO, Constants.BALL_RADIUS, _alignment, BallVisuals.ShapeType.HALF_CIRCLE)

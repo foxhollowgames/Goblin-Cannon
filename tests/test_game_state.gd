@@ -18,6 +18,32 @@ func run() -> void:
 	test_explosion_radius_bonus_resets()
 	test_chain_arc_bonus_resets()
 	test_peg_durability_bonus_resets()
+	test_plain_swarm_stacks_resets()
+	test_volt_primer_discount_resets()
+	test_get_leech_duration_and_drain()
+	test_chest_stacks_reset_on_start_run()
+
+func test_get_leech_duration_and_drain() -> void:
+	begin("get_leech_duration_sec and get_leech_drain_per_second_display include chest stacks")
+	GameState.start_run(1)
+	assert_eq(GameState.get_leech_duration_sec(), Constants.LEECH_DURATION_SEC, "base duration")
+	assert_eq(GameState.get_leech_drain_per_second_display(), Constants.LEECH_DRAIN_PER_SECOND, "base drain")
+	GameState.chest_leech_duration_stacks = 2
+	GameState.chest_leech_drain_stacks = 1
+	assert_eq(GameState.get_leech_duration_sec(), Constants.LEECH_DURATION_SEC + 2, "+2s duration")
+	assert_eq(GameState.get_leech_drain_per_second_display(), Constants.LEECH_DRAIN_PER_SECOND + 1, "+1 drain")
+
+func test_chest_stacks_reset_on_start_run() -> void:
+	begin("treasure chest passive stacks reset on start_run")
+	GameState.chest_leech_drain_stacks = 3
+	GameState.chest_phantom_energy_stacks = 2
+	GameState.chest_devastating_barrage_taken = true
+	GameState.chest_compressed_charge_taken = true
+	GameState.start_run(1)
+	assert_eq(GameState.chest_leech_drain_stacks, 0, "leech drain reset")
+	assert_eq(GameState.chest_phantom_energy_stacks, 0, "phantom reset")
+	assert_false(GameState.chest_devastating_barrage_taken, "devastating barrage flag reset")
+	assert_false(GameState.chest_compressed_charge_taken, "compressed charge flag reset")
 
 func test_start_run_resets_values() -> void:
 	begin("start_run resets all run-scoped values")
@@ -25,7 +51,11 @@ func test_start_run_resets_values() -> void:
 	GameState.cannon_base_damage_bonus = 50
 	GameState.main_charge_bonus = 0.5
 	GameState.hopper_width_scale = 2.0
+	GameState.endless_mode = true
+	GameState.run_gold = 999
 	GameState.start_run(42)
+	assert_eq(GameState.run_gold, 10, "run_gold reset to starting stipend")
+	assert_false(GameState.endless_mode, "endless_mode reset")
 	assert_eq(GameState.cannon_charge_reduction, 0, "cannon_charge_reduction reset")
 	assert_eq(GameState.cannon_base_damage_bonus, 0, "cannon_base_damage_bonus reset")
 	assert_approx(GameState.main_charge_bonus, 0.0, 0.001, "main_charge_bonus reset")
@@ -39,8 +69,8 @@ func test_start_run_sets_seed() -> void:
 func test_record_ball_ability() -> void:
 	begin("record_ball_ability_in_run adds ability name")
 	GameState.start_run(1)
-	GameState.record_ball_ability_in_run("Bounce")
-	assert_true(GameState.has_ball_ability_in_run("Bounce"), "Bounce recorded")
+	GameState.record_ball_ability_in_run("Plain")
+	assert_true(GameState.has_ball_ability_in_run("Plain"), "Plain recorded")
 
 func test_record_ball_ability_no_duplicates() -> void:
 	begin("record_ball_ability_in_run does not duplicate")
@@ -115,3 +145,19 @@ func test_peg_durability_bonus_resets() -> void:
 	GameState.global_peg_durability_bonus = 2
 	GameState.start_run(1)
 	assert_eq(GameState.global_peg_durability_bonus, 0, "reset to 0")
+
+func test_plain_swarm_stacks_resets() -> void:
+	begin("plain swarm milestone stacks reset on start_run")
+	GameState.plain_surge_stacks = 5
+	GameState.plain_horde_stacks = 3
+	GameState.plain_momentum_stacks = 3
+	GameState.start_run(1)
+	assert_eq(GameState.plain_surge_stacks, 0, "plain_surge reset")
+	assert_eq(GameState.plain_horde_stacks, 0, "plain_horde reset")
+	assert_eq(GameState.plain_momentum_stacks, 0, "plain_momentum reset")
+
+func test_volt_primer_discount_resets() -> void:
+	begin("main_cannon_volt_primer_discount resets on start_run")
+	GameState.main_cannon_volt_primer_discount = 5000
+	GameState.start_run(1)
+	assert_eq(GameState.main_cannon_volt_primer_discount, 0, "primer cleared")

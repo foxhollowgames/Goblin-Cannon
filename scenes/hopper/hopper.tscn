@@ -1,75 +1,83 @@
 [gd_scene format=3 uid="uid://hopper001"]
 
-[ext_resource type="Script" path="res://scenes/hopper/hopper.gd" id="1_hopper"]
+[ext_resource type="Script" uid="uid://bsdhkmh01wdf" path="res://scenes/hopper/hopper.gd" id="1_hopper"]
+
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_left_wall"]
+points = PackedVector2Array(-45, -84, -192, -290, -42, -85, -45, 28)
+
+[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_right_wall"]
+points = PackedVector2Array(42, -86, 261, -291, 44, -82, 44, 28)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_gate"]
 size = Vector2(88, 10)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bin_area"]
-size = Vector2(88, 100)
+size = Vector2(96, 118)
 
-[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_left_wall"]
-points = PackedVector2Array(-40, -181, -39, -181, -44, 28, -45, 28)
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_catchment"]
+size = Vector2(168, 300)
 
-[sub_resource type="ConvexPolygonShape2D" id="ConvexPolygonShape2D_right_wall"]
-points = PackedVector2Array(39, -181, 40, -181, 45, 28, 44, 28)
-
-[node name="Hopper" type="Node2D"]
+[node name="Hopper" type="Node2D" unique_id=1021340282]
 z_index = 10
 script = ExtResource("1_hopper")
 
-[node name="Bin" type="Polygon2D" parent="."]
+[node name="Bin" type="Polygon2D" parent="." unique_id=939759671]
 color = Color(0.32, 0.28, 0.22, 0.65)
 polygon = PackedVector2Array(-45, -80, 45, -80, 44, 28, -44, 28)
 
-[node name="BinOutline" type="Line2D" parent="."]
-width = 3.0
+[node name="BinOutline" type="Line2D" parent="." unique_id=1903296188]
 points = PackedVector2Array(-45, -80, 45, -80, 44, 28, -44, 28, -45, -80)
+width = 3.0
 
-[node name="BinCollision" type="StaticBody2D" parent="."]
-collision_layer = 1
+[node name="BinCollision" type="StaticBody2D" parent="." unique_id=584382067]
 collision_mask = 0
 
-[node name="LeftWall" type="CollisionShape2D" parent="BinCollision"]
+[node name="LeftWall" type="CollisionShape2D" parent="BinCollision" unique_id=1633268936]
 shape = SubResource("ConvexPolygonShape2D_left_wall")
 
-[node name="RightWall" type="CollisionShape2D" parent="BinCollision"]
+[node name="RightWall" type="CollisionShape2D" parent="BinCollision" unique_id=1403507637]
 shape = SubResource("ConvexPolygonShape2D_right_wall")
 
-[node name="GateBlocker" type="CollisionShape2D" parent="BinCollision"]
+[node name="GateBlocker" type="CollisionShape2D" parent="BinCollision" unique_id=1613230936]
 position = Vector2(0, 23)
 shape = SubResource("RectangleShape2D_gate")
 
-[node name="BinInterior" type="Area2D" parent="."]
+[node name="BinInterior" type="Area2D" parent="." unique_id=1713321799]
 collision_layer = 0
 collision_mask = 2
 monitorable = false
-monitoring = true
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="BinInterior"]
-position = Vector2(0, -25)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BinInterior" unique_id=1916072176]
+position = Vector2(0, -24)
 shape = SubResource("RectangleShape2D_bin_area")
 
-[node name="GateArms" type="Node2D" parent="."]
+[node name="HopperCatchment" type="Area2D" parent="." unique_id=1713321800]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
 
-[node name="LeftArm" type="Node2D" parent="GateArms"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HopperCatchment" unique_id=1916072177]
+position = Vector2(0, -102)
+shape = SubResource("RectangleShape2D_catchment")
+
+[node name="GateArms" type="Node2D" parent="." unique_id=1587108966]
+
+[node name="LeftArm" type="Node2D" parent="GateArms" unique_id=2094795280]
 position = Vector2(-44, 23)
 
-[node name="ArmRect" type="ColorRect" parent="GateArms/LeftArm"]
-offset_left = 0.0
+[node name="ArmRect" type="ColorRect" parent="GateArms/LeftArm" unique_id=1197128285]
 offset_top = -5.0
 offset_right = 44.0
 offset_bottom = 5.0
 color = Color(0.5, 0.38, 0.28, 1)
 
-[node name="RightArm" type="Node2D" parent="GateArms"]
+[node name="RightArm" type="Node2D" parent="GateArms" unique_id=2024431817]
 position = Vector2(44, 23)
 
-[node name="ArmRect" type="ColorRect" parent="GateArms/RightArm"]
+[node name="ArmRect" type="ColorRect" parent="GateArms/RightArm" unique_id=470008982]
 offset_left = -44.0
 offset_top = -5.0
-offset_right = 0.0
 offset_bottom = 5.0
 color = Color(0.5, 0.38, 0.28, 1)
 
-[node name="BallsContainer" type="Node2D" parent="."]
+[node name="BallsContainer" type="Node2D" parent="." unique_id=2093977661]

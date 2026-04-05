@@ -14,21 +14,19 @@ func run() -> void:
 	test_exponential_growth_increases()
 
 func test_linear_thresholds() -> void:
-	begin("linear thresholds for levels 0-4")
+	begin("linear thresholds for levels 0-2")
 	assert_eq(MilestoneCurve.threshold_for_level(0), 2000, "level 0 = 2k")
 	assert_eq(MilestoneCurve.threshold_for_level(1), 4000, "level 1 = 4k")
 	assert_eq(MilestoneCurve.threshold_for_level(2), 6000, "level 2 = 6k")
-	assert_eq(MilestoneCurve.threshold_for_level(3), 8000, "level 3 = 8k")
-	assert_eq(MilestoneCurve.threshold_for_level(4), 10000, "level 4 = 10k")
 
 func test_exponential_thresholds() -> void:
-	begin("exponential thresholds for levels 5+")
-	# Level 5: 10000 * 1.5^0 = 10000
-	assert_eq(MilestoneCurve.threshold_for_level(5), 10000, "level 5 = 10k (1.5^0)")
-	# Level 6: 10000 * 1.5^1 = 15000
-	assert_eq(MilestoneCurve.threshold_for_level(6), 15000, "level 6 = 15k (1.5^1)")
-	# Level 7: 10000 * 1.5^2 = 22500
-	assert_eq(MilestoneCurve.threshold_for_level(7), 22500, "level 7 = 22.5k (1.5^2)")
+	begin("exponential thresholds for levels 3+")
+	# Level 3: 6000 * 2^1 = 12000
+	assert_eq(MilestoneCurve.threshold_for_level(3), 12000, "level 3 = 12k (2^1)")
+	# Level 4: 6000 * 2^2 = 24000
+	assert_eq(MilestoneCurve.threshold_for_level(4), 24000, "level 4 = 24k (2^2)")
+	# Level 5: 6000 * 2^3 = 48000
+	assert_eq(MilestoneCurve.threshold_for_level(5), 48000, "level 5 = 48k (2^3)")
 
 func test_negative_level_returns_zero() -> void:
 	begin("negative level returns 0")

@@ -15,11 +15,13 @@ func run() -> void:
 	test_time_expired_signal()
 	test_time_expired_blocks_further_damage()
 	test_advance_to_next_wall()
+	test_init_from_city_at_wall()
 	test_is_all_walls_destroyed()
 	test_timer_seconds_remaining()
 	test_get_wall_names()
 	test_get_current_gate_name()
 	test_get_city_display_name()
+	test_endless_wave_scales_hp_and_timer()
 
 func _make_combat_manager() -> Node:
 	var script: GDScript = load("res://scenes/main/combat_manager.gd")
@@ -32,7 +34,7 @@ func _make_city() -> CityDefinition:
 	city.display_name = "Test City"
 	city.gate_name = "Front Gate"
 	city.wall_names = ["Wall A", "Wall B", "Wall C"]
-	city.wall_hp_max = 50
+	city.wall_hp_max = 200
 	return city
 
 func test_init_from_city_sets_wall_hp() -> void:
@@ -40,8 +42,8 @@ func test_init_from_city_sets_wall_hp() -> void:
 	var cm := _make_combat_manager()
 	var city := _make_city()
 	cm.init_from_city(city)
-	assert_eq(cm.get_wall_hp(), 50, "wall HP = city wall_hp_max for index 0")
-	assert_eq(cm.get_wall_hp_max(), 50, "wall HP max = 50")
+	assert_eq(cm.get_wall_hp(), 200, "wall HP = city wall_hp_max for index 0")
+	assert_eq(cm.get_wall_hp_max(), 200, "wall HP max = 200")
 
 func test_init_from_city_sets_timer() -> void:
 	begin("init_from_city sets timer for first wall")
@@ -62,9 +64,9 @@ func test_on_main_fired_reduces_hp() -> void:
 	var cm := _make_combat_manager()
 	cm.init_from_city(_make_city())
 	cm._on_main_fired(10)
-	assert_eq(cm.get_wall_hp(), 40, "50 - 10 = 40")
+	assert_eq(cm.get_wall_hp(), 190, "200 - 10 = 190")
 	cm._on_main_fired(15)
-	assert_eq(cm.get_wall_hp(), 25, "40 - 15 = 25")
+	assert_eq(cm.get_wall_hp(), 175, "190 - 15 = 175")
 
 func test_wall_hp_floors_at_zero() -> void:
 	begin("wall HP does not go below zero")
@@ -79,7 +81,7 @@ func test_wall_destroyed_signal_emitted() -> void:
 	cm.init_from_city(_make_city())
 	var count := [0]
 	cm.wall_destroyed.connect(func(): count[0] += 1)
-	cm._on_main_fired(50)
+	cm._on_main_fired(200)
 	assert_eq(count[0], 1, "wall_destroyed emitted once")
 
 func test_wall_destroyed_emitted_only_once() -> void:
@@ -88,8 +90,8 @@ func test_wall_destroyed_emitted_only_once() -> void:
 	cm.init_from_city(_make_city())
 	var count := [0]
 	cm.wall_destroyed.connect(func(): count[0] += 1)
-	cm._on_main_fired(25)
-	cm._on_main_fired(25)
+	cm._on_main_fired(100)
+	cm._on_main_fired(100)
 	assert_eq(count[0], 1, "emitted once at HP=0")
 	cm._on_main_fired(10)
 	assert_eq(count[0], 1, "no duplicate emission")
@@ -130,13 +132,25 @@ func test_advance_to_next_wall() -> void:
 	begin("advance_to_next_wall sets new HP and timer")
 	var cm := _make_combat_manager()
 	cm.init_from_city(_make_city())
-	cm._on_main_fired(50)
+	cm._on_main_fired(200)
 	cm.advance_to_next_wall()
 	assert_eq(cm.get_current_wall_index(), 1, "moved to wall index 1")
 	assert_gt(cm.get_wall_hp(), 0, "new wall has HP")
 	assert_eq(cm.get_wall_hp(), cm.get_wall_hp_max(), "HP = HP max")
 	# Wall 1 timer = 180 seconds
 	assert_approx(cm.get_timer_seconds_remaining(), 180.0, 0.1, "wall 1 timer = 180s")
+
+func test_init_from_city_at_wall() -> void:
+	begin("init_from_city_at_wall jumps to wall index with matching HP and timer")
+	var cm := _make_combat_manager()
+	var city := _make_city()
+	cm.init_from_city_at_wall(city, 1)
+	assert_eq(cm.get_current_wall_index(), 1, "wall index 1")
+	assert_eq(cm.get_current_gate_name(), "Wall B", "gate name for index 1")
+	assert_eq(cm.get_wall_hp(), cm.get_wall_hp_max(), "full HP for that wall")
+	assert_approx(cm.get_timer_seconds_remaining(), 180.0, 0.1, "wall 1 uses second timer slot (180s)")
+	cm.init_from_city_at_wall(city, 99)
+	assert_eq(cm.get_current_wall_index(), 2, "clamped to last wall")
 
 func test_is_all_walls_destroyed() -> void:
 	begin("is_all_walls_destroyed true when past last wall")
@@ -183,3 +197,18 @@ func test_get_city_display_name() -> void:
 	var cm := _make_combat_manager()
 	cm.init_from_city(_make_city())
 	assert_eq(cm.get_city_display_name(), "Test City", "city display name")
+
+func test_endless_wave_scales_hp_and_timer() -> void:
+	begin("start_endless_wave and advance scale HP up and timer down")
+	var cm := _make_combat_manager()
+	cm.init_from_city(_make_city())
+	cm.start_endless_wave(1)
+	var hp1: int = cm.get_wall_hp_max()
+	var t1: float = cm.get_timer_seconds_remaining()
+	assert_eq(cm.get_current_gate_name(), "Endless 1", "gate label")
+	cm.advance_to_next_wall()
+	var hp2: int = cm.get_wall_hp_max()
+	var t2: float = cm.get_timer_seconds_remaining()
+	assert_eq(cm.get_current_gate_name(), "Endless 2", "gate label wave 2")
+	assert_gt(hp2, hp1, "HP increases each endless wave")
+	assert_lt(t2, t1, "timer tightens each endless wave")

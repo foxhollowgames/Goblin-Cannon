@@ -2,7 +2,7 @@ class_name BallHitEffect
 extends Node2D
 ## Short burst VFX when a ball hits a peg or reaches the bottom. Type: fire (flame explosion), ice (frost burst), lightning (spark).
 
-enum EffectType { FIRE, ICE, LIGHTNING, ENERGIZE, SPLIT, EXPLOSIVE, CHAIN_LIGHTNING, LEECH, RUBBERY, PHANTOM, TRAMPOLINE }
+enum EffectType { FIRE, ICE, LIGHTNING, ENERGIZE, SPLIT, EXPLOSIVE, CHAIN_LIGHTNING, LEECH, RUBBERY, PHANTOM, TRAMPOLINE, VOLATILE }
 
 const DURATION_SEC: float = 0.4
 const BASE_RADIUS: float = 18.0
@@ -57,6 +57,8 @@ func _draw() -> void:
 			_draw_phantom_burst(radius, alpha)
 		EffectType.TRAMPOLINE:
 			_draw_trampoline_burst(radius, alpha)
+		EffectType.VOLATILE:
+			_draw_volatile_burst(radius, alpha)
 
 func _draw_fire_burst(radius: float, alpha: float) -> void:
 	draw_circle(Vector2.ZERO, radius, Color(1.0, 0.35, 0.05, alpha * 0.5))
@@ -133,3 +135,10 @@ func _draw_trampoline_burst(radius: float, alpha: float) -> void:
 	draw_circle(Vector2.ZERO, radius * 0.72, Color(0.35, 0.82, 0.55, alpha * 0.65))
 	draw_circle(Vector2.ZERO, radius * 0.4, Color(0.55, 0.95, 0.7, alpha * 0.75))
 	draw_circle(Vector2.ZERO, radius * 0.18, Color(0.85, 1.0, 0.9, alpha * 0.9))
+
+func _draw_volatile_burst(radius: float, alpha: float) -> void:
+	# Volatile: pale green–yellow gas puff
+	draw_circle(Vector2.ZERO, radius, Color(0.55, 0.82, 0.38, alpha * 0.48))
+	draw_circle(Vector2.ZERO, radius * 0.7, Color(0.72, 0.92, 0.52, alpha * 0.58))
+	draw_circle(Vector2.ZERO, radius * 0.38, Color(0.88, 0.98, 0.7, alpha * 0.68))
+	draw_circle(Vector2.ZERO, radius * 0.16, Color(0.95, 1.0, 0.85, alpha * 0.78))

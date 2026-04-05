@@ -10,6 +10,13 @@ const CANNON_MUZZLE_POS: Vector2 = Vector2(160.0, 616.0 + CANNON_OVERLAY_OFFSET_
 const WALL_IMPACT_POS: Vector2 = Vector2(160.0, 36.0)
 const CANNON_BLAST_CENTER: Vector2 = Vector2(160.0, 640.0 + CANNON_OVERLAY_OFFSET_Y)
 
+signal wall_break_transition_finished
+signal next_wall_intro_finished
+
+const CANNON_ROLL_DISTANCE: float = 200.0
+const CANNON_ROLL_FORWARD_DURATION: float = 1.4
+const CANNON_ROLL_BACK_DURATION: float = 1.0
+
 var _wall_visual: Node2D
 var _cannon_visual: Node2D
 var _main_cannon: Node
@@ -18,6 +25,8 @@ var _wall_impact_scene: PackedScene
 var _muzzle_blast_scene: PackedScene
 var _vfx_container: Node2D
 var _cannon_overlay_local_pos: Vector2 = Vector2.ZERO
+var _cannon_roll_offset_y: float = 0.0
+var _roll_tween: Tween
 
 func _ready() -> void:
 	_wall_visual = get_node_or_null("WallVisual") as Node2D
@@ -48,7 +57,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	if _cannon_visual and _cannon_visual.get_parent() != self:
-		_cannon_visual.global_position = global_position + _cannon_overlay_local_pos + Vector2(0.0, CANNON_OVERLAY_OFFSET_Y)
+		_cannon_visual.global_position = global_position + _cannon_overlay_local_pos + Vector2(0.0, CANNON_OVERLAY_OFFSET_Y + _cannon_roll_offset_y)
 
 func _connect_main_cannon() -> void:
 	var main: Node = get_parent()
@@ -86,3 +95,21 @@ func _spawn_wall_impact(impact_pos: Vector2) -> void:
 
 func set_wall_index(_wall_index: int) -> void:
 	pass
+
+func play_wall_destroyed_transition() -> void:
+	if _wall_visual and _wall_visual.has_method("play_explosion"):
+		_wall_visual.play_explosion()
+	if _roll_tween and _roll_tween.is_valid():
+		_roll_tween.kill()
+	_roll_tween = create_tween()
+	_roll_tween.tween_property(self, "_cannon_roll_offset_y", -CANNON_ROLL_DISTANCE, CANNON_ROLL_FORWARD_DURATION) \
+		.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC).set_delay(0.3)
+
+func play_next_wall_intro() -> void:
+	if _wall_visual and _wall_visual.has_method("play_rebuild"):
+		_wall_visual.play_rebuild()
+	if _roll_tween and _roll_tween.is_valid():
+		_roll_tween.kill()
+	_roll_tween = create_tween()
+	_roll_tween.tween_property(self, "_cannon_roll_offset_y", 0.0, CANNON_ROLL_BACK_DURATION) \
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC).set_delay(0.2)

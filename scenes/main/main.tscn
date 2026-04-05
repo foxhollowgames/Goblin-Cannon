@@ -19,6 +19,11 @@
 [ext_resource type="PackedScene" uid="uid://dwkmnx5d2q0xw" path="res://scenes/combat/battlefield_view.tscn" id="18_battlefield"]
 [ext_resource type="Script" uid="uid://ep0ydcnpiyyr" path="res://scenes/systems/shield_pool.gd" id="19_shield"]
 [ext_resource type="Script" uid="uid://pqfc1bacim8c" path="res://scenes/systems/sidearms/sidearms_container.gd" id="20_sidearms"]
+[ext_resource type="Script" uid="uid://bjii004ycj0b7" path="res://scenes/board/board_event_controller.gd" id="21_bec"]
+[ext_resource type="Script" uid="uid://dkgm7xgsbrg4r" path="res://scenes/board/treasure_chest_controller.gd" id="22_tcc"]
+[ext_resource type="Script" path="res://scenes/board/buffet_table_controller.gd" id="23_btc"]
+[ext_resource type="Script" path="res://scenes/board/sticky_slime_controller.gd" id="24_ssc"]
+[ext_resource type="Script" path="res://scenes/board/black_hole_controller.gd" id="25_bhc"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_buckets_panel"]
 bg_color = Color(0.12, 0.1, 0.16, 0.95)
@@ -33,10 +38,10 @@ corner_radius_bottom_right = 6
 corner_radius_bottom_left = 6
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_board_left_wall"]
-size = Vector2(10, 720)
+size = Vector2(16, 2402)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_board_right_wall"]
-size = Vector2(10, 720)
+size = Vector2(8, 2430)
 
 [node name="Main" type="Node2D" unique_id=1439836887]
 script = ExtResource("1_main")
@@ -71,93 +76,16 @@ anchors_preset = 0
 offset_right = 960.0
 offset_bottom = 720.0
 
-[node name="BoardTitle" type="Label" parent="UILayer/LeftPanel" unique_id=184065761]
-layout_mode = 1
-offset_left = 12.0
-offset_top = 12.0
-offset_right = 220.0
-offset_bottom = 44.0
-theme_override_colors/font_color = Color(0.95, 0.7, 0.3, 1)
-theme_override_font_sizes/font_size = 20
-text = "GOBLIN PLINKO"
-
-[node name="StreamSpeed" type="Label" parent="UILayer/LeftPanel" unique_id=1535948080]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -140.0
-offset_top = 12.0
-offset_right = -12.0
-offset_bottom = 44.0
-grow_horizontal = 0
-theme_override_colors/font_color = Color(0.6, 0.8, 1, 1)
-theme_override_font_sizes/font_size = 14
-text = "Stream: 1x"
-
-[node name="HopperBalls" type="Label" parent="UILayer/LeftPanel" unique_id=1535948081]
+[node name="RunGold" type="Label" parent="UILayer/LeftPanel" unique_id=1535948081]
 layout_mode = 1
 offset_left = 400.0
 offset_top = 8.0
 offset_right = 560.0
 offset_bottom = 40.0
-theme_override_colors/font_color = Color(0.95, 0.85, 0.5, 1)
-theme_override_font_sizes/font_size = 16
-text = "BALLS: 0/10"
+theme_override_colors/font_color = Color(0.95, 0.82, 0.35, 1)
+theme_override_font_sizes/font_size = 18
+text = "Gold: 0"
 horizontal_alignment = 1
-
-[node name="BoardStatsPanel" type="VBoxContainer" parent="UILayer/LeftPanel" unique_id=1998517522]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -212.0
-offset_top = 50.0
-offset_right = -12.0
-offset_bottom = 200.0
-grow_horizontal = 0
-theme_override_constants/separation = 4
-
-[node name="ActiveAbilities" type="PanelContainer" parent="UILayer/LeftPanel/BoardStatsPanel" unique_id=1457319408]
-layout_mode = 2
-
-[node name="VBox" type="VBoxContainer" parent="UILayer/LeftPanel/BoardStatsPanel/ActiveAbilities" unique_id=1350495856]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="UILayer/LeftPanel/BoardStatsPanel/ActiveAbilities/VBox" unique_id=1364387304]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.6, 0.95, 1)
-theme_override_font_sizes/font_size = 12
-text = "Active Abilities"
-
-[node name="ActiveAttributes" type="PanelContainer" parent="UILayer/LeftPanel/BoardStatsPanel" unique_id=294305039]
-layout_mode = 2
-
-[node name="VBox" type="VBoxContainer" parent="UILayer/LeftPanel/BoardStatsPanel/ActiveAttributes" unique_id=314919778]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="UILayer/LeftPanel/BoardStatsPanel/ActiveAttributes/VBox" unique_id=511673707]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.6, 0.95, 1)
-theme_override_font_sizes/font_size = 12
-text = "Active Attributes"
-
-[node name="NextBonus" type="PanelContainer" parent="UILayer/LeftPanel/BoardStatsPanel" unique_id=20982468]
-layout_mode = 2
-
-[node name="VBox" type="VBoxContainer" parent="UILayer/LeftPanel/BoardStatsPanel/NextBonus" unique_id=1654142044]
-layout_mode = 2
-
-[node name="Title" type="Label" parent="UILayer/LeftPanel/BoardStatsPanel/NextBonus/VBox" unique_id=508285562]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.75, 0.6, 0.95, 1)
-theme_override_font_sizes/font_size = 12
-text = "Next Bonus"
-
-[node name="Progress" type="Label" parent="UILayer/LeftPanel/BoardStatsPanel/NextBonus/VBox" unique_id=354555598]
-layout_mode = 2
-theme_override_font_sizes/font_size = 11
-text = "0/200"
 
 [node name="CenterPanel" type="Control" parent="UILayer" unique_id=1605974261]
 layout_mode = 3
@@ -476,6 +404,21 @@ script = ExtResource("7_con")
 
 [node name="Board" type="Node2D" parent="." unique_id=1134437968]
 script = ExtResource("8_brd")
+
+[node name="BoardEventController" type="Node2D" parent="Board" unique_id=1134437969]
+script = ExtResource("21_bec")
+
+[node name="TreasureChestController" type="Node2D" parent="Board" unique_id=1134437970]
+script = ExtResource("22_tcc")
+
+[node name="BuffetTableController" type="Node2D" parent="Board" unique_id=1134437971]
+script = ExtResource("23_btc")
+
+[node name="StickySlimeController" type="Node2D" parent="Board" unique_id=1134437972]
+script = ExtResource("24_ssc")
+
+[node name="BlackHoleController" type="Node2D" parent="Board" unique_id=1134437973]
+script = ExtResource("25_bhc")
 
 [node name="BallsContainer" type="Node2D" parent="." unique_id=1423675392]
 

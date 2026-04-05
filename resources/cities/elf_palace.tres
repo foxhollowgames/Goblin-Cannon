@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CityDefinition" load_steps=2 format=3 uid="uid://elf_palace_city"]
+
+[ext_resource type="Script" path="res://resources/cities/city_definition.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+city_id = &"elf_palace"
+display_name = "Elf Palace"
+gate_name = "Moonwood Gate"
+wall_names = ["Moonwood Gate", "Crystal Sanctum", "Throne of Stars"]
+wall_hp_max = 1400
+milestone_thresholds = [2000, 5000, 9000]
+waves = []
+rewards = []
+boss = null

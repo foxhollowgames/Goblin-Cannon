@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://treasure_chest_break_fx"]
+
+[ext_resource type="Script" path="res://scenes/board/treasure_chest_break_effect.gd" id="1_script"]
+
+[node name="TreasureChestBreakEffect" type="Node2D"]
+script = ExtResource("1_script")

@@ -15,8 +15,10 @@ func run() -> void:
 	test_summary_shows_timer_infinite()
 	test_summary_shows_timer_custom()
 	test_summary_shows_all_pegs_bombs()
+	test_summary_shows_all_pegs_start_leeched()
 	test_apply_scenario_city_override()
 	test_apply_scenario_stat_overrides()
+	test_apply_scenario_plain_swarm_stats()
 	test_apply_scenario_upgrade_string()
 	test_apply_scenario_upgrade_dict_with_stacks()
 	test_apply_scenario_peg_counts()
@@ -36,6 +38,7 @@ func _reset_scenario() -> void:
 	TestScenario.starting_peg_counts = {}
 	TestScenario.all_pegs_bombs = false
 	TestScenario.all_pegs_trampolines = false
+	TestScenario.all_pegs_start_leeched = false
 	GameState.start_run(42)
 
 func test_disabled_by_default() -> void:
@@ -58,7 +61,7 @@ func test_make_ball_definition_explosive() -> void:
 	assert_eq(d.ability_name, "Explosive", "ability name")
 	assert_eq(d.alignment, Constants.ALIGNMENT_MAIN, "main alignment")
 	assert_eq(d.shape_type, BallVisuals.ShapeType.SQUARE, "square shape")
-	assert_eq(d.rarity, Constants.RARITY_UNCOMMON, "uncommon rarity")
+	assert_eq(d.rarity, Constants.RARITY_LEGENDARY, "legendary rarity")
 
 func test_make_ball_definition_chain_lightning() -> void:
 	begin("make_ball_definition creates Chain Lightning ball")
@@ -66,11 +69,12 @@ func test_make_ball_definition_chain_lightning() -> void:
 	var d: BallDefinition = TestScenario.make_ball_definition("Chain Lightning")
 	assert_eq(d.ability_name, "Chain Lightning", "ability name")
 	assert_eq(d.shape_type, BallVisuals.ShapeType.STAR, "star shape")
+	assert_eq(d.rarity, Constants.RARITY_LEGENDARY, "legendary rarity")
 
 func test_make_ball_definition_all_abilities() -> void:
 	begin("make_ball_definition handles all known abilities")
 	_reset_scenario()
-	var abilities: Array = ["Bounce", "Split", "Energize", "Explosive", "Chain Lightning", "Leech", "Rubbery", "Phantom"]
+	var abilities: Array = ["Split", "Energize", "Explosive", "Chain Lightning", "Leech", "Rubbery", "Phantom", "Volatile"]
 	for ability in abilities:
 		var d: BallDefinition = TestScenario.make_ball_definition(ability)
 		assert_eq(d.ability_name, ability, "'%s' ability name" % ability)
@@ -128,6 +132,15 @@ func test_summary_shows_all_pegs_bombs() -> void:
 	assert_true(summary.find("bombs") >= 0, "summary mentions bombs")
 	_reset_scenario()
 
+func test_summary_shows_all_pegs_start_leeched() -> void:
+	begin("get_summary shows all pegs start leeched")
+	_reset_scenario()
+	TestScenario.enabled = true
+	TestScenario.all_pegs_start_leeched = true
+	var summary: String = TestScenario.get_summary()
+	assert_true(summary.find("leeched") >= 0, "summary mentions leeched")
+	_reset_scenario()
+
 func test_apply_scenario_city_override() -> void:
 	begin("_apply_test_scenario sets city_id")
 	_reset_scenario()
@@ -151,12 +164,31 @@ func test_apply_scenario_stat_overrides() -> void:
 			"cannon_damage":
 				GameState.cannon_base_damage_bonus += int(value)
 			"cannon_energy":
-				GameState.cannon_charge_reduction += int(value)
+				GameState.cannon_charge_reduction += Constants.legacy_internal_energy_to_current(int(value))
 			"main_charge":
 				GameState.main_charge_bonus += float(value)
 	assert_eq(GameState.cannon_base_damage_bonus, 20, "cannon damage +20")
-	assert_eq(GameState.cannon_charge_reduction, 4000, "cannon energy -4000")
+	assert_eq(GameState.cannon_charge_reduction, Constants.legacy_internal_energy_to_current(4000), "cannon energy scaled reduction")
 	assert_approx(GameState.main_charge_bonus, 0.15, 0.001, "main charge +15%")
+	_reset_scenario()
+
+func test_apply_scenario_plain_swarm_stats() -> void:
+	begin("starting_stats plain_* match game_coordinator caps")
+	_reset_scenario()
+	TestScenario.enabled = true
+	TestScenario.starting_stats = {"plain_surge": 10, "plain_horde": 5, "plain_momentum": 5}
+	for stat_key in TestScenario.starting_stats:
+		var value = TestScenario.starting_stats[stat_key]
+		match stat_key:
+			"plain_surge":
+				GameState.plain_surge_stacks = mini(5, GameState.plain_surge_stacks + int(value))
+			"plain_horde":
+				GameState.plain_horde_stacks = mini(3, GameState.plain_horde_stacks + int(value))
+			"plain_momentum":
+				GameState.plain_momentum_stacks = mini(3, GameState.plain_momentum_stacks + int(value))
+	assert_eq(GameState.plain_surge_stacks, 5, "plain_surge capped at 5")
+	assert_eq(GameState.plain_horde_stacks, 3, "plain_horde capped at 3")
+	assert_eq(GameState.plain_momentum_stacks, 3, "plain_momentum capped at 3")
 	_reset_scenario()
 
 func test_apply_scenario_upgrade_string() -> void:

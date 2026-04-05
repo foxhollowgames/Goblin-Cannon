@@ -24,7 +24,7 @@ Execute from the project root:
 godot --headless -s tests/run_tests.gd
 ```
 
-The runner auto-discovers all `tests/test_*.gd` files, runs them, and exits with code 0 (all pass) or 1 (any failure).
+The runner executes scripts listed in `tests/run_tests.gd` (`TEST_SCRIPTS`), runs them, and exits with code 0 (all pass) or 1 (any failure). Add new suites to that array.
 
 ## After Running Tests
 
@@ -46,6 +46,7 @@ The runner auto-discovers all `tests/test_*.gd` files, runs them, and exits with
 
 | Test File | System Under Test | Key Assertions |
 |---|---|---|
+| `test_script_parse_smoke.gd` | GDScript load | Critical scripts + every `res://scenes/**/*.gd` parses (catches invalid `Object.get()` etc.) |
 | `test_energy_routing.gd` | EnergyRouting | All energy routes to main cannon regardless of alignment |
 | `test_hit_cooldown.gd` | HitCooldown | Cooldown tracking per ball/peg pair, clear, overwrite |
 | `test_milestone_curve.gd` | MilestoneCurve | Linear thresholds (levels 0-4), exponential (5+), crossed indices |
@@ -56,6 +57,7 @@ The runner auto-discovers all `tests/test_*.gd` files, runs them, and exits with
 | `test_reward_handler.gd` | RewardHandler | All balls Main alignment, no status effects, stat/major upgrades, stack caps |
 | `test_energy_router.gd` | EnergyRouter | Signal emits all energy to main, ignores alignment |
 | `test_test_scenario.gd` | TestScenario | Ball defs, summary, city/stat/upgrade/peg/timer overrides |
+| `test_volatile_gas.gd` | Ball gas buffs | Per-cloud claim, clear on score |
 
 ## TestScenario — Gameplay Testing Framework
 

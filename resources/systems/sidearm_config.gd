@@ -3,7 +3,7 @@ extends Resource
 class_name SidearmConfig
 ## §7: energy_per_shot, cooldown_sim_ticks, archetype_id; internal units. damage_per_shot for CombatManager.
 
-@export var energy_per_shot: int = 10000  # 100 display (internal)
+@export var energy_per_shot: int = 1250  # ~12.5 display @ 100 main charge (legacy 100 internal @ 800)
 @export var cooldown_sim_ticks: int = 30
 @export var archetype_id: StringName = &"rapid_fire"
 @export var damage_per_shot: int = 5  # Slice: Rapid Fire damage per shot

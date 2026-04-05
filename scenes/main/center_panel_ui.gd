@@ -1,25 +1,27 @@
 extends Control
-## Center panel UI: wall health, cannon charge, timer, conquest path, balls/bag.
+## Center panel UI: wall health, cannon charge, timer, conquest path, bag, run gold.
 
 var _gate_title_label: Label
 var _conquest_path: VBoxContainer
 var _conquest_goal_label: Label
 var _wall_health_label: Label
 var _wall_health_bar: ProgressBar
-var _balls_label: Label
+var _run_gold_label: Label
 var _bag_label: Label
 var _charge_label: Label
 var _charge_progress: ProgressBar
 var _charge_bar: Control
-var _next_bonus_label: Label
 var _timer_label: Label
 var _energy_flow_vfx_scene: PackedScene
 var _energy_gain_label: Label
 var _energy_gain_total: int = 0
 var _energy_gain_tween: Tween
+var _conquest_animate_next: bool = false
+var _wall_cleared_flash_tween: Tween
 const ENERGY_GAIN_LABEL_FADE_DURATION: float = 1.2
 const ENERGY_GAIN_ACCUMULATE_THRESHOLD: float = 0.5
 const COLOR_MAIN: Color = Color(0.95, 0.85, 0.4, 1)
+const COLOR_CLEARED: Color = Color(0.3, 0.85, 0.35, 1)
 
 func _apply_progress_bar_theme(bar: ProgressBar, fill_color: Color) -> void:
 	if not bar:
@@ -50,8 +52,7 @@ func _ready() -> void:
 		sidearm_bucket.visible = false
 	var ui: Node = get_parent()
 	if ui:
-		_balls_label = ui.get_node_or_null("LeftPanel/HopperBalls") as Label
-		_next_bonus_label = ui.get_node_or_null("LeftPanel/BoardStatsPanel/NextBonus/VBox/Progress") as Label
+		_run_gold_label = ui.get_node_or_null("LeftPanel/RunGold") as Label
 		var charge_bucket: Control = ui.get_node_or_null("CenterPanel/BottomEnergyPools/BucketsPanel/HBox/ChargeBucket/BarContainer") as Control
 		if charge_bucket:
 			_charge_bar = charge_bucket
@@ -99,6 +100,8 @@ func set_conquest_walls(wall_names: Array, current_index: int, goal_name: String
 		_conquest_goal_label.visible = true
 	if not _conquest_path:
 		return
+	var should_animate: bool = _conquest_animate_next
+	_conquest_animate_next = false
 	for child in _conquest_path.get_children():
 		child.queue_free()
 	var bubble_script: GDScript = load("res://scenes/ui/conquest_bubble.gd") as GDScript
@@ -110,6 +113,7 @@ func set_conquest_walls(wall_names: Array, current_index: int, goal_name: String
 		row.alignment = BoxContainer.ALIGNMENT_CENTER
 		row.add_theme_constant_override("separation", 6)
 		var is_current: bool = (idx == current_index)
+		var is_cleared: bool = (idx < current_index)
 		var wall_label: Label = Label.new()
 		wall_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		wall_label.custom_minimum_size.x = WALL_LABEL_MIN_WIDTH
@@ -117,12 +121,51 @@ func set_conquest_walls(wall_names: Array, current_index: int, goal_name: String
 			wall_label.text = "Wall %d" % (idx + 1)
 			wall_label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 			wall_label.add_theme_font_size_override("font_size", 12)
+		elif is_cleared:
+			wall_label.add_theme_color_override("font_color", Color(0.5, 0.8, 0.5, 0.6))
+			wall_label.add_theme_font_size_override("font_size", 10)
 		row.add_child(wall_label)
 		var bubble: Control = Control.new()
 		bubble.set_script(bubble_script)
 		bubble.set("is_current", is_current)
 		row.add_child(bubble)
 		_conquest_path.add_child(row)
+	if should_animate:
+		_conquest_path.modulate.a = 0.0
+		_conquest_path.position.y = 20.0
+		var tween: Tween = create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(_conquest_path, "modulate:a", 1.0, 0.5).set_ease(Tween.EASE_OUT)
+		tween.tween_property(_conquest_path, "position:y", 0.0, 0.6).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC)
+
+func animate_wall_cleared() -> void:
+	_conquest_animate_next = true
+	if _wall_cleared_flash_tween and _wall_cleared_flash_tween.is_valid():
+		_wall_cleared_flash_tween.kill()
+	if _wall_health_bar:
+		_wall_cleared_flash_tween = create_tween()
+		var fill_style: StyleBoxFlat = StyleBoxFlat.new()
+		fill_style.bg_color = COLOR_CLEARED
+		fill_style.set_corner_radius_all(3)
+		_wall_health_bar.add_theme_stylebox_override("fill", fill_style)
+		_wall_cleared_flash_tween.tween_interval(1.2)
+		_wall_cleared_flash_tween.tween_callback(_restore_health_bar_color)
+	if _conquest_path:
+		for child in _conquest_path.get_children():
+			var bubble: Control = null
+			for sub in child.get_children():
+				if sub.get("is_current") == true:
+					bubble = sub
+					break
+			if bubble:
+				var pulse: Tween = create_tween()
+				pulse.tween_property(bubble, "modulate", Color(0.3, 1.0, 0.4, 1.0), 0.3).set_ease(Tween.EASE_OUT)
+				pulse.tween_property(bubble, "modulate", Color(1, 1, 1, 0.5), 0.8).set_ease(Tween.EASE_IN)
+				break
+
+func _restore_health_bar_color() -> void:
+	if _wall_health_bar:
+		_apply_progress_bar_theme(_wall_health_bar, Color(0.95, 0.4, 0.35, 1))
 
 func set_fortification(current: int, maximum: int) -> void:
 	var text: String = "%d/%d" % [current, maximum]
@@ -133,9 +176,9 @@ func set_fortification(current: int, maximum: int) -> void:
 		_wall_health_bar.value = float(current)
 		_wall_health_bar.queue_redraw()
 
-func set_balls(current: int, maximum: int) -> void:
-	if _balls_label:
-		_balls_label.text = "BALLS: %d/%d" % [current, maximum]
+func set_run_gold(amount: int) -> void:
+	if _run_gold_label:
+		_run_gold_label.text = "Gold: %d" % amount
 
 func set_bag(count: int) -> void:
 	if _bag_label:
@@ -149,10 +192,6 @@ func set_charge(current: int, threshold: int) -> void:
 		_charge_progress.max_value = float(threshold)
 		_charge_progress.value = float(current)
 		_charge_progress.queue_redraw()
-
-func set_next_bonus(current: int, next_threshold: int) -> void:
-	if _next_bonus_label:
-		_next_bonus_label.text = "%d/%d" % [current, next_threshold]
 
 func set_timer(seconds_remaining: float) -> void:
 	if not _timer_label:
@@ -177,7 +216,9 @@ func show_energy_gain(main_internal: int, _sidearm_internal: int, _shield_intern
 	var end_rect: Rect2 = end_bar.get_global_rect()
 	var end_pos: Vector2 = end_rect.get_center()
 
-	if _energy_flow_vfx_scene:
+	# One flying VFX per gain burst; rapid sources (e.g. many leech ticks) reuse the label only.
+	var reuse_label: bool = _energy_gain_label != null and is_instance_valid(_energy_gain_label) and _energy_gain_label.modulate.a > ENERGY_GAIN_ACCUMULATE_THRESHOLD
+	if _energy_flow_vfx_scene and not reuse_label:
 		var vfx: Control = _energy_flow_vfx_scene.instantiate() as Control
 		if vfx and vfx.has_method("setup"):
 			vfx.setup(exit_position, end_pos, COLOR_MAIN)

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="CityDefinition" load_steps=2 format=3 uid="uid://human_kingdom_city"]
+
+[ext_resource type="Script" path="res://resources/cities/city_definition.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+city_id = &"human_kingdom"
+display_name = "Human Kingdom"
+gate_name = "Outer Rampart"
+wall_names = ["Outer Rampart", "King's Garrison", "Royal Keep"]
+wall_hp_max = 600
+milestone_thresholds = [800, 1800, 3000]
+waves = []
+rewards = []
+boss = null

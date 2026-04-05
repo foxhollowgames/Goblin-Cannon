@@ -14,11 +14,12 @@ func add_energy(amount: int) -> void:
 func get_current_energy() -> int:
 	return _current
 
-## For UI: effective fire threshold (internal). Cannon Charge reduces this by 100 per pick.
+## For UI: effective fire threshold (internal). cannon_charge_reduction subtracts internal units (see RewardHandler cannon_energy).
 func get_charge_threshold() -> int:
-	const BASE: int = 80000
+	var base: int = Constants.main_cannon_charge_internal()
 	var reduction: int = GameState.cannon_charge_reduction if GameState else 0
-	return maxi(1, BASE - reduction)
+	var primer: int = GameState.main_cannon_volt_primer_discount if GameState else 0
+	return maxi(1, base - reduction - primer)
 
 ## Status effects applied when cannon fires (e.g. to minions in muzzle blast). Empty by default; upgrades can set via MainCannonConfig.status_effects_on_fire.
 func get_status_effects_on_fire() -> Dictionary:
@@ -34,6 +35,8 @@ func try_fire() -> bool:
 	if cost <= 0:
 		return false
 	_current -= cost
+	if GameState:
+		GameState.main_cannon_volt_primer_discount = 0
 	main_energy_changed.emit(_current)
 	var dmg: int = _get_damage_for_shot()
 	main_fired.emit(dmg)

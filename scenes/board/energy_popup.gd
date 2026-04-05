@@ -7,6 +7,7 @@ const DURATION_SEC: float = 1.0
 var _elapsed: float = 0.0
 var _label: Label
 var _pending_text: String = ""
+var _pool_release: Callable = Callable()
 
 func _ready() -> void:
 	_label = get_node_or_null("Label") as Label
@@ -15,8 +16,14 @@ func _ready() -> void:
 		if _pending_text != "":
 			_label.text = _pending_text
 
+## When set, finished popups call this instead of queue_free() (object pooling on Board).
+func set_pool_release(release_cb: Callable) -> void:
+	_pool_release = release_cb
+
 func setup(text: String) -> void:
+	_elapsed = 0.0
 	_pending_text = text
+	modulate.a = 1.0
 	if _label:
 		_label.text = text
 
@@ -26,4 +33,7 @@ func _process(delta: float) -> void:
 	var t: float = clampf(_elapsed / DURATION_SEC, 0.0, 1.0)
 	modulate.a = 1.0 - t
 	if _elapsed >= DURATION_SEC:
-		queue_free()
+		if _pool_release.is_valid():
+			_pool_release.call(self)
+		else:
+			queue_free()

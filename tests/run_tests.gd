@@ -7,9 +7,11 @@ extends SceneTree
 
 ## Register test scripts here. Add new test files to this array.
 const TEST_SCRIPTS: Array[String] = [
+	"res://tests/test_script_parse_smoke.gd",
 	"res://tests/test_energy_routing.gd",
 	"res://tests/test_hit_cooldown.gd",
 	"res://tests/test_milestone_curve.gd",
+	"res://tests/test_milestone_tracker_events.gd",
 	"res://tests/test_combat_manager.gd",
 	"res://tests/test_main_cannon.gd",
 	"res://tests/test_game_state.gd",
@@ -17,6 +19,13 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/test_reward_handler.gd",
 	"res://tests/test_energy_router.gd",
 	"res://tests/test_test_scenario.gd",
+	"res://tests/test_city_progression.gd",
+	"res://tests/test_magnet_peg.gd",
+	"res://tests/test_lucky_gold_peg.gd",
+	"res://tests/test_volatile_gas.gd",
+	"res://tests/test_sticky_slime_event.gd",
+	"res://tests/test_black_hole_event.gd",
+	"res://tests/test_energize_event_pegs.gd",
 ]
 
 func _initialize() -> void:

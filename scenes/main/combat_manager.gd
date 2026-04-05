@@ -7,19 +7,27 @@ signal time_expired
 
 const TICKS_PER_SECOND: int = 60
 const WALL_TIME_SECONDS: Array[int] = [300, 180, 120]  # 5 min, 3 min, 2 min
+## Endless mode: ramp difficulty (testing). HP rises; timer tightens toward a floor.
+const ENDLESS_HP_GROWTH: float = 1.12
+const ENDLESS_TIMER_SHRINK: float = 0.94
+const ENDLESS_MIN_TIMER_SEC: int = 25
 
-var _wall_hp: int = 50
-var _wall_hp_max: int = 50
+var _wall_hp: int = 200
+var _wall_hp_max: int = 200
 var _wall_destroyed_emitted: bool = false
 var _wall_names: Array = []
 var _city_display_name: String = ""
 var _current_wall_index: int = 0
 var _timer_ticks_remaining: int = 0
 var _time_expired_emitted: bool = false
+var _endless_active: bool = false
+var _endless_wave: int = 0
 
 func init_from_city(city: CityDefinition) -> void:
 	if city == null:
 		return
+	_endless_active = false
+	_endless_wave = 0
 	_wall_hp_max = city.get_wall_hp_max_for_index(0)
 	_wall_names = city.get_effective_wall_names()
 	_city_display_name = city.display_name if not city.display_name.is_empty() else ""
@@ -28,6 +36,24 @@ func init_from_city(city: CityDefinition) -> void:
 	_wall_destroyed_emitted = false
 	_time_expired_emitted = false
 	_timer_ticks_remaining = _get_wall_time_ticks(0)
+
+## Debug / TestScenario: start combat at a specific wall (0 = first "world" in the city).
+func init_from_city_at_wall(city: CityDefinition, wall_index: int) -> void:
+	if city == null:
+		return
+	_endless_active = false
+	_endless_wave = 0
+	_wall_names = city.get_effective_wall_names()
+	_city_display_name = city.display_name if not city.display_name.is_empty() else ""
+	if _wall_names.is_empty():
+		_wall_names = [city.gate_name] if not city.gate_name.is_empty() else ["Wall"]
+	var max_idx: int = maxi(0, _wall_names.size() - 1)
+	_current_wall_index = clampi(wall_index, 0, max_idx)
+	_wall_hp_max = city.get_wall_hp_max_for_index(_current_wall_index)
+	_wall_hp = _wall_hp_max
+	_wall_destroyed_emitted = false
+	_time_expired_emitted = false
+	_timer_ticks_remaining = _get_wall_time_ticks(_current_wall_index)
 
 func _ready() -> void:
 	var main: Node = get_parent()
@@ -85,6 +111,12 @@ func _get_wall_time_ticks(wall_index: int) -> int:
 			return 999999 * TICKS_PER_SECOND
 		elif TestScenario.timer_override_seconds > 0:
 			return TestScenario.timer_override_seconds * TICKS_PER_SECOND
+	if _endless_active and _endless_wave > 0:
+		var last_idx: int = maxi(0, _wall_names.size() - 1)
+		var base_sec: int = WALL_TIME_SECONDS[clampi(last_idx, 0, WALL_TIME_SECONDS.size() - 1)]
+		var sec: int = int(roundf(float(base_sec) * pow(ENDLESS_TIMER_SHRINK, float(_endless_wave - 1))))
+		sec = maxi(ENDLESS_MIN_TIMER_SEC, sec)
+		return sec * TICKS_PER_SECOND
 	var idx: int = clampi(wall_index, 0, WALL_TIME_SECONDS.size() - 1)
 	return WALL_TIME_SECONDS[idx] * TICKS_PER_SECOND
 
@@ -92,14 +124,39 @@ func _advance_to_next_wall() -> void:
 	_current_wall_index += 1
 	if _current_wall_index < _wall_names.size():
 		var city: CityDefinition = GameState.get_current_city_definition() if GameState else null
-		var base_max: int = city.get_wall_hp_max_for_index(_current_wall_index) if city else 50
+		var base_max: int = city.get_wall_hp_max_for_index(_current_wall_index) if city else 200
 		_wall_hp_max = base_max
 		_wall_hp = _wall_hp_max
 		_wall_destroyed_emitted = false
 		_timer_ticks_remaining = _get_wall_time_ticks(_current_wall_index)
 		_time_expired_emitted = false
 
+func start_endless_wave(wave: int) -> void:
+	var city: CityDefinition = GameState.get_current_city_definition() if GameState else null
+	if city == null or _wall_names.is_empty():
+		return
+	_endless_active = true
+	_endless_wave = maxi(1, wave)
+	_current_wall_index = _wall_names.size() - 1
+	_apply_endless_wall_hp_from_city(city)
+
+func _apply_endless_wall_hp_from_city(city: CityDefinition) -> void:
+	var last_idx: int = _wall_names.size() - 1
+	var base_max: int = city.get_wall_hp_max_for_index(last_idx)
+	_wall_hp_max = int(roundf(float(base_max) * pow(ENDLESS_HP_GROWTH, float(_endless_wave - 1))))
+	_wall_hp_max = maxi(1, _wall_hp_max)
+	_wall_hp = _wall_hp_max
+	_wall_destroyed_emitted = false
+	_time_expired_emitted = false
+	_timer_ticks_remaining = _get_wall_time_ticks(_current_wall_index)
+
 func advance_to_next_wall() -> void:
+	if _endless_active:
+		_endless_wave += 1
+		var city: CityDefinition = GameState.get_current_city_definition() if GameState else null
+		if city:
+			_apply_endless_wall_hp_from_city(city)
+		return
 	_advance_to_next_wall()
 
 func get_city_display_name() -> String:
@@ -112,6 +169,8 @@ func get_current_wall_index() -> int:
 	return _current_wall_index
 
 func get_current_gate_name() -> String:
+	if _endless_active and _endless_wave > 0:
+		return "Endless %d" % _endless_wave
 	if _current_wall_index >= 0 and _current_wall_index < _wall_names.size():
 		return str(_wall_names[_current_wall_index])
 	return ""

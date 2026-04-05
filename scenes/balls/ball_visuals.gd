@@ -17,7 +17,8 @@ enum ShapeType {
 	PENTAGON,
 	HEXAGON,
 	STAR,
-	PLUS
+	PLUS,
+	HALF_CIRCLE
 }
 
 static func get_alignment_color(alignment: int) -> Color:
@@ -35,7 +36,7 @@ static func get_shape_for_alignment(alignment: int) -> int:
 ## shape_override: -1 = use alignment-based shape; 0+ = use this ShapeType so each ability can be unique.
 static func draw_ball(canvas: CanvasItem, center: Vector2, radius: float, alignment: int, shape_override: int = -1) -> void:
 	var color: Color = get_alignment_color(alignment)
-	var shape: int = shape_override if shape_override >= 0 and shape_override <= ShapeType.PLUS else get_shape_for_alignment(alignment)
+	var shape: int = shape_override if shape_override >= 0 and shape_override <= ShapeType.HALF_CIRCLE else get_shape_for_alignment(alignment)
 	var r: float = radius
 	match shape:
 		ShapeType.CIRCLE:
@@ -101,5 +102,12 @@ static func draw_ball(canvas: CanvasItem, center: Vector2, radius: float, alignm
 				center + Vector2(-r, thick),
 			])
 			canvas.draw_colored_polygon(horz, color)
+		ShapeType.HALF_CIRCLE:
+			var pts: PackedVector2Array = PackedVector2Array()
+			var segments: int = 16
+			for i in segments + 1:
+				var a: float = -PI / 2.0 + (float(i) / float(segments)) * PI
+				pts.append(center + Vector2(cos(a) * r, sin(a) * r))
+			canvas.draw_colored_polygon(pts, color)
 		_:
 			canvas.draw_circle(center, radius, color)
