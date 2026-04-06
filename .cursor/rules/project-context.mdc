@@ -1,0 +1,10 @@
+---
+description: Repo navigation — read CLAUDE.md before broad exploration
+alwaysApply: true
+---
+
+# Project context — Goblin Cannon
+
+Before listing or reading many files, open **`CLAUDE.md`** at the repo root. It orders: `project.godot` → `docs/ARCHITECTURE.md` → test rules under `.cursor/rules/`, and names optional `docs/agent-orchestration.md` only for backlog/planner workflows.
+
+Avoid loading **`docs/cursor-orchestration-plan.md`** as primary context — use **`docs/agent-orchestration.md`** for orchestration topics.

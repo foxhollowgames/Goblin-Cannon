@@ -25,3 +25,13 @@ Thumbs.db
 
 # Rapier addon editor temp/lock files (Windows)
 addons/godot-rapier2d/bin/~*.TMP
+
+# Agent orchestration (local Node app)
+orchestration/node_modules/
+orchestration/dist/
+orchestration/data/*
+!orchestration/data/.gitkeep
+orchestration/orchestration.config.local.json
+
+# Git worktrees created by local orchestration (full repo copies; do not commit)
+goblin-cannon-agent-task_*/

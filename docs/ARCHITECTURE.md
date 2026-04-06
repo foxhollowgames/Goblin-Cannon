@@ -1,5 +1,7 @@
 # Goblin Cannon – Godot Architecture Document
 
+**LLM navigation:** Repo root [`CLAUDE.md`](../CLAUDE.md) lists what to read first (`project.godot`, this file, test rules). This document is the **deep** architecture reference—read it after that index when changing gameplay systems.
+
 Based on **Goblin_Cannon_GDD_Full_Vision_v1.pdf**. This document defines a modular, signal-driven architecture for Godot 4.x that matches the GDD’s core loop and supports the vertical slice, then expansion.
 
 ---

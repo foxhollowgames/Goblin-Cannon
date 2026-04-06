@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Goblin Cannon — Agent Orchestration</title>
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <header class="header">
+        <h1>Goblin Cannon — Agent Orchestration</h1>
+        <p class="tagline">
+          Automated pipeline: planner → worktrees → execution → Godot tests → report — one
+          dashboard
+        </p>
+      </header>
+
+      <section class="panel dungeon-panel" id="dungeonPanel" aria-live="polite">
+        <div class="dungeon-meta">
+          <span id="phaseLabel">Phase: idle</span>
+          <span id="dungeonTimer" class="dungeon-timer">—</span>
+        </div>
+        <div
+          class="dungeon-bar"
+          role="progressbar"
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-valuenow="0"
+          id="dungeonBar"
+        ></div>
+        <p class="dungeon-hint">
+          Placeholder for Kenney Tiny Dungeon visuals — depth follows active agent time.
+        </p>
+      </section>
+
+      <main class="main dashboard-main">
+        <section class="card">
+          <h2>Problem &amp; control</h2>
+          <label class="sr-only" for="problem">Problem or goal</label>
+          <textarea
+            id="problem"
+            name="problem"
+            rows="5"
+            placeholder="Describe the core problem or feature goal…"
+            autocomplete="off"
+          ></textarea>
+          <p class="kbd-hint muted">
+            <strong>Enter</strong> to send · <strong>Shift+Enter</strong> for a new line
+          </p>
+          <div class="row row-actions">
+            <button type="button" id="btnSend" class="btn-primary">Send</button>
+            <button type="button" id="btnStop" class="btn-danger" disabled>
+              Stop
+            </button>
+            <button type="button" id="btnStartOver" class="secondary">
+              Start over
+            </button>
+          </div>
+          <p class="muted" id="runIdDisplay"></p>
+          <p id="problemStatus" class="status-line" role="status" aria-live="polite"></p>
+          <div id="pipelineBanner" class="pipeline-banner" role="status" aria-live="polite"></div>
+        </section>
+
+        <section class="card">
+          <h2>Status</h2>
+          <p class="muted config-hint" id="cursorHint"></p>
+          <dl class="status-grid">
+            <dt>Pipeline</dt>
+            <dd id="pipelineState">—</dd>
+            <dt>Step</dt>
+            <dd id="pipelineStep">—</dd>
+          </dl>
+        </section>
+
+        <section class="card">
+          <h2>Backlog &amp; tasks</h2>
+          <pre id="backlogPreview" class="preview">(empty)</pre>
+          <ul id="taskList" class="task-list"></ul>
+        </section>
+
+        <section class="card">
+          <h2>Report</h2>
+          <article id="reportOut" class="report">—</article>
+        </section>
+      </main>
+
+      <section class="card log-card">
+        <h2>Live log</h2>
+        <pre id="log" class="log"></pre>
+      </section>
+    </div>
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>

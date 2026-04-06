@@ -1,0 +1,17 @@
+{
+  "repoRoot": "..",
+  "worktreeParentDir": "..",
+  "godotPath": "",
+  "cursorCli": {
+    "command": "cursor",
+    "args": ["agent", "{{PROMPT}}"],
+    "timeoutMs": 3600000,
+    "env": {}
+  },
+  "plannerFallback": true,
+  "requireExecutionGitChanges": true,
+  "limits": {
+    "maxParallelWorktrees": 1
+  },
+  "dryRun": false
+}

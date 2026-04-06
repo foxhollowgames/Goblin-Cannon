@@ -1,0 +1,31 @@
+---
+description: Rebuild orchestration before restart; how to run the local orchestration server
+alwaysApply: true
+---
+
+# Orchestration server (Goblin Cannon)
+
+The local dashboard + API live under `orchestration/` (Fastify + Vite). **Source edits are in `orchestration/src/` and `orchestration/client/`; Node runs compiled output from `orchestration/dist/`.**
+
+## When to rebuild
+
+After **any** change to orchestration **TypeScript** (`orchestration/src/**/*.ts`) or **client** (`orchestration/client/**`), run a full build **before** testing in the browser or restarting the server:
+
+```powershell
+Set-Location "c:\Users\josep\Desktop\Coding Projects\goblin-cannon\orchestration"; npm run build
+```
+
+If you only changed **config JSON** (`orchestration.config.local.json`) or **prompts** under `orchestration/prompts/`, a rebuild is **not** required unless those files are bundled at build time (prompts are read at runtime from the package — no rebuild). Still restart the Node process so `loadConfig()` cache resets if config changed.
+
+If the Cursor **agent** returns no stdout/stderr on Windows, the planner uses **`plannerFallback`** (default true) to create one task from the problem text so the pipeline can run. Env: `ORCH_PLANNER_FALLBACK=0` to disable.
+
+After execution, **`requireExecutionGitChanges`** (default true) fails the pipeline if the worktree has no new commits and no dirty files — catches silent no-ops when the CLI exits 0 without editing. Env: `ORCH_REQUIRE_EXEC_GIT_CHANGES=0` to disable (e.g. debugging). Work stays in the worktree branch until you merge manually; the main checkout is never auto-updated.
+
+If logs show **empty planner stdout** and **no git changes** after execution, the Node-spawned `cursor agent` is not the same as running `cursor agent` in an interactive terminal (no TTY). Set **`cursorCli.command`** to **`cursor.cmd`**, use **`cursorCli.env`** or the shell environment for **`CURSOR_API_KEY`** per Cursor headless docs, and see **`orchestration/README.md`** (Headless agent).
+
+## Restart the server
+
+1. Find the listener on **8787** (`netstat -ano | findstr ":8787"`), then `taskkill /PID <pid> /F`.
+2. From `orchestration/`: `npm start` (serves `http://127.0.0.1:8787`).
+
+Godot path for tests: see `godot-path.mdc` and `orchestration/orchestration.config.local.json`.
