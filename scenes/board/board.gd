@@ -999,11 +999,12 @@ func run_ball_steps(sim_tick: int) -> void:
 						var hits: int = _ball_hit_count_this_visit.get(bid, 0)
 						if hits == 5:
 							_overdrive_cascade_end_tick = sim_tick + Constants.SIM_TICKS_PER_SECOND * 3
-					# Bloom: every 5 direct peg hits, spawn a random catalog ball at this peg
+					# Bloom: every 5 peg hits on this ball (same counter as visit hits), spawn a random
+					# catalog ball at the Bloom ball’s position; repeats at 10, 15, … (counter not zeroed).
 					if ability_key == "Bloom":
 						var hits_co: int = _ball_hit_count_this_visit.get(bid, 0)
 						if hits_co >= 5 and hits_co % 5 == 0:
-							_spawn_random_ball_from_bloom_at(peg.global_position, b, sim_tick)
+							_spawn_random_ball_from_bloom_at(b.global_position, b, sim_tick)
 					_spawn_energy_popup(peg, energy_this_hit)
 					if ability_key == "Volatile":
 						_release_volatile_ball(b, peg.global_position, sim_tick)
@@ -1844,6 +1845,7 @@ func _pick_random_catalog_ball_definition_duplicate() -> BallDefinition:
 	var fallback_abilities: Array[String] = ["Split", "Energize", "Leech", "Rubbery", "Phantom", "Volatile", "Constellation", "Binary", "Bloom"]
 	return TestScenario.make_ball_definition(fallback_abilities[randi() % fallback_abilities.size()])
 
+## Bloom-only: `world_pos` is the Bloom ball’s center (not the peg), matching spawn-at-ball spec.
 func _spawn_random_ball_from_bloom_at(world_pos: Vector2, _source_ball: Node, _sim_tick: int) -> void:
 	if get_active_ball_count() >= Constants.MAX_ACTIVE_BALLS:
 		return
