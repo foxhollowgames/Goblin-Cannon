@@ -41,7 +41,7 @@ func test_three_way_icon_rotation() -> void:
 
 func test_ability_theme_colors_distinct() -> void:
 	begin("each ability maps to a distinct theme color")
-	var keys: Array[String] = ["Plain", "Split", "Energize", "Explosive", "Chain Lightning", "Leech", "Rubbery", "Phantom", "Volatile", "Constellation"]
+	var keys: Array[String] = ["Plain", "Split", "Energize", "Explosive", "Chain Lightning", "Leech", "Rubbery", "Phantom", "Volatile", "Constellation", "Binary", "Bloom"]
 	var seen: Dictionary = {}
 	for k in keys:
 		var c: Color = BallVisuals.get_ability_theme_color(k)

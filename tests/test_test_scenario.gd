@@ -74,7 +74,7 @@ func test_make_ball_definition_chain_lightning() -> void:
 func test_make_ball_definition_all_abilities() -> void:
 	begin("make_ball_definition handles all known abilities")
 	_reset_scenario()
-	var abilities: Array = ["Split", "Energize", "Explosive", "Chain Lightning", "Leech", "Rubbery", "Phantom", "Volatile", "Constellation"]
+	var abilities: Array = ["Split", "Energize", "Explosive", "Chain Lightning", "Leech", "Rubbery", "Phantom", "Volatile", "Constellation", "Binary", "Bloom"]
 	for ability in abilities:
 		var d: BallDefinition = TestScenario.make_ball_definition(ability)
 		assert_eq(d.ability_name, ability, "'%s' ability name" % ability)

@@ -2,7 +2,7 @@ class_name BallHitEffect
 extends Node2D
 ## Short burst VFX when a ball hits a peg or reaches the bottom. Type: fire (flame explosion), ice (frost burst), lightning (spark).
 
-enum EffectType { FIRE, ICE, LIGHTNING, ENERGIZE, SPLIT, EXPLOSIVE, CHAIN_LIGHTNING, LEECH, RUBBERY, PHANTOM, TRAMPOLINE, VOLATILE }
+enum EffectType { FIRE, ICE, LIGHTNING, ENERGIZE, SPLIT, EXPLOSIVE, CHAIN_LIGHTNING, LEECH, RUBBERY, PHANTOM, TRAMPOLINE, VOLATILE, CONSTELLATION, BINARY, BLOOM }
 
 const DURATION_SEC: float = 0.4
 const BASE_RADIUS: float = 18.0
@@ -59,6 +59,12 @@ func _draw() -> void:
 			_draw_trampoline_burst(radius, alpha)
 		EffectType.VOLATILE:
 			_draw_volatile_burst(radius, alpha)
+		EffectType.CONSTELLATION:
+			_draw_constellation_burst(radius, alpha)
+		EffectType.BINARY:
+			_draw_binary_burst(radius, alpha)
+		EffectType.BLOOM:
+			_draw_bloom_burst(radius, alpha)
 
 func _draw_fire_burst(radius: float, alpha: float) -> void:
 	draw_circle(Vector2.ZERO, radius, Color(1.0, 0.35, 0.05, alpha * 0.5))
@@ -142,3 +148,24 @@ func _draw_volatile_burst(radius: float, alpha: float) -> void:
 	draw_circle(Vector2.ZERO, radius * 0.7, Color(0.72, 0.92, 0.52, alpha * 0.58))
 	draw_circle(Vector2.ZERO, radius * 0.38, Color(0.88, 0.98, 0.7, alpha * 0.68))
 	draw_circle(Vector2.ZERO, radius * 0.16, Color(0.95, 1.0, 0.85, alpha * 0.78))
+
+func _draw_constellation_burst(radius: float, alpha: float) -> void:
+	# Constellation laser line: cool white/cyan beam wash (not chain lightning)
+	draw_circle(Vector2.ZERO, radius * 0.72, Color(0.45, 0.72, 0.95, alpha * 0.42))
+	draw_circle(Vector2.ZERO, radius * 0.48, Color(0.65, 0.88, 1.0, alpha * 0.55))
+	draw_circle(Vector2.ZERO, radius * 0.26, Color(0.88, 0.96, 1.0, alpha * 0.68))
+	draw_circle(Vector2.ZERO, radius * 0.1, Color(1.0, 1.0, 1.0, alpha * 0.82))
+
+func _draw_binary_burst(radius: float, alpha: float) -> void:
+	# Binary: twin-orbit coral / magenta rings
+	draw_circle(Vector2.ZERO, radius, Color(0.92, 0.45, 0.55, alpha * 0.48))
+	draw_circle(Vector2.ZERO, radius * 0.62, Color(0.98, 0.62, 0.72, alpha * 0.6))
+	draw_circle(Vector2.ZERO, radius * 0.32, Color(1.0, 0.85, 0.92, alpha * 0.72))
+	draw_arc(Vector2.ZERO, radius * 0.88, 0.0, TAU, 48, Color(1.0, 0.55, 0.65, alpha * 0.55), 2.2)
+
+func _draw_bloom_burst(radius: float, alpha: float) -> void:
+	# Bloom: rose-gold “surprise spawn” puff
+	draw_circle(Vector2.ZERO, radius, Color(0.95, 0.55, 0.65, alpha * 0.45))
+	draw_circle(Vector2.ZERO, radius * 0.68, Color(1.0, 0.72, 0.45, alpha * 0.58))
+	draw_circle(Vector2.ZERO, radius * 0.36, Color(1.0, 0.9, 0.65, alpha * 0.7))
+	draw_circle(Vector2.ZERO, radius * 0.14, Color(1.0, 1.0, 0.92, alpha * 0.85))

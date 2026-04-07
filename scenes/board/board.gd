@@ -106,8 +106,8 @@ var _black_hole_active: bool = false
 var _black_hole_center_global: Vector2 = Vector2.ZERO
 var _black_hole_deadline_ms: int = 0
 var _black_hole_visual: Node2D = null
-## Constellation: unordered ball pair (min_id, max_id) -> last sim_tick when ball–ball split fired
-var _constellation_ball_pair_last_split_tick: Dictionary = {}
+## Binary: unordered ball pair (min_id, max_id) -> last sim_tick when ball–ball split fired
+var _binary_ball_pair_last_split_tick: Dictionary = {}
 ## Constellation laser line hits: "minId|maxId|pegId" -> last sim_tick
 var _constellation_laser_peg_last_tick: Dictionary = {}
 
@@ -997,11 +997,11 @@ func run_ball_steps(sim_tick: int) -> void:
 						var hits: int = _ball_hit_count_this_visit.get(bid, 0)
 						if hits == 5:
 							_overdrive_cascade_end_tick = sim_tick + Constants.SIM_TICKS_PER_SECOND * 3
-					# Constellation: every 5 direct peg hits, spawn a random catalog ball at this peg
-					if ability_key == "Constellation":
+					# Bloom: every 5 direct peg hits, spawn a random catalog ball at this peg
+					if ability_key == "Bloom":
 						var hits_co: int = _ball_hit_count_this_visit.get(bid, 0)
 						if hits_co >= 5 and hits_co % 5 == 0:
-							_spawn_random_ball_from_constellation_at(peg.global_position, b, sim_tick)
+							_spawn_random_ball_from_bloom_at(peg.global_position, b, sim_tick)
 					_spawn_energy_popup(peg, energy_this_hit)
 					if ability_key == "Volatile":
 						_release_volatile_ball(b, peg.global_position, sim_tick)
@@ -1036,7 +1036,7 @@ func run_ball_steps(sim_tick: int) -> void:
 						elif ability_key == "Chain Lightning":
 							_chain_conduction_done_this_event = false
 							_apply_chain_lightning_hits(pid, b, bdef, sim_tick)
-	_process_constellation_ball_on_ball_splits(sim_tick)
+	_process_binary_ball_on_ball_splits(sim_tick)
 	_check_peg_destruction_upgrades(sim_tick)
 	_process_milestone_event_pegs(sim_tick)
 	_process_treasure_chest_pegs(sim_tick)
@@ -1737,12 +1737,12 @@ func _segment_point_distance_squared(a: Vector2, b: Vector2, p: Vector2) -> floa
 	var proj: Vector2 = a + ab * t
 	return proj.distance_squared_to(p)
 
-func _process_constellation_ball_on_ball_splits(sim_tick: int) -> void:
+func _process_binary_ball_on_ball_splits(sim_tick: int) -> void:
 	for attacker in _active_balls.duplicate():
 		if not is_instance_valid(attacker):
 			continue
 		var adef: Resource = attacker.get_definition() if attacker.has_method("get_definition") else null
-		if not adef is BallDefinition or _ability_key(adef as BallDefinition) != "Constellation":
+		if not adef is BallDefinition or _ability_key(adef as BallDefinition) != "Binary":
 			continue
 		if not attacker.has_method("get_colliding_bodies"):
 			continue
@@ -1751,9 +1751,9 @@ func _process_constellation_ball_on_ball_splits(sim_tick: int) -> void:
 				continue
 			if not body.has_method("get_ball_id") or not body.has_method("get_definition"):
 				continue
-			_try_constellation_split_victim_from_collision(attacker, body as Node, sim_tick)
+			_try_binary_split_victim_from_collision(attacker, body as Node, sim_tick)
 
-func _try_constellation_split_victim_from_collision(attacker: Node, victim: Node, sim_tick: int) -> void:
+func _try_binary_split_victim_from_collision(attacker: Node, victim: Node, sim_tick: int) -> void:
 	if not is_instance_valid(attacker) or not is_instance_valid(victim):
 		return
 	if victim.has_method("is_split_twin") and victim.is_split_twin():
@@ -1761,8 +1761,8 @@ func _try_constellation_split_victim_from_collision(attacker: Node, victim: Node
 	var aid: int = attacker.get_ball_id() if attacker.has_method("get_ball_id") else 0
 	var vid: int = victim.get_ball_id() if victim.has_method("get_ball_id") else 0
 	var pair_key: Vector2i = Vector2i(mini(aid, vid), maxi(aid, vid))
-	var last_t: int = int(_constellation_ball_pair_last_split_tick.get(pair_key, -999999999))
-	if sim_tick - last_t < Constants.CONSTELLATION_BALL_PAIR_COOLDOWN_SIM_TICKS:
+	var last_t: int = int(_binary_ball_pair_last_split_tick.get(pair_key, -999999999))
+	if sim_tick - last_t < Constants.BINARY_BALL_PAIR_COOLDOWN_SIM_TICKS:
 		return
 	var vdef: Resource = victim.get_definition() if victim.has_method("get_definition") else null
 	if not vdef is BallDefinition:
@@ -1777,7 +1777,7 @@ func _try_constellation_split_victim_from_collision(attacker: Node, victim: Node
 		_active_balls.append(frag)
 		_ball_hit_count_this_visit[frag.get_ball_id()] = 0
 		_splitter_triggered_this_visit[frag.get_ball_id()] = true
-	_constellation_ball_pair_last_split_tick[pair_key] = sim_tick
+	_binary_ball_pair_last_split_tick[pair_key] = sim_tick
 
 func _pick_random_catalog_ball_definition_duplicate() -> BallDefinition:
 	var main_n: Node = get_parent()
@@ -1800,10 +1800,10 @@ func _pick_random_catalog_ball_definition_duplicate() -> BallDefinition:
 			if pool.size() > 0:
 				var pick: BallDefinition = pool[randi() % pool.size()] as BallDefinition
 				return pick.duplicate(true) as BallDefinition
-	var fallback_abilities: Array[String] = ["Split", "Energize", "Leech", "Rubbery", "Phantom", "Volatile", "Constellation"]
+	var fallback_abilities: Array[String] = ["Split", "Energize", "Leech", "Rubbery", "Phantom", "Volatile", "Constellation", "Binary", "Bloom"]
 	return TestScenario.make_ball_definition(fallback_abilities[randi() % fallback_abilities.size()])
 
-func _spawn_random_ball_from_constellation_at(world_pos: Vector2, _source_ball: Node, _sim_tick: int) -> void:
+func _spawn_random_ball_from_bloom_at(world_pos: Vector2, _source_ball: Node, _sim_tick: int) -> void:
 	if get_active_ball_count() >= Constants.MAX_ACTIVE_BALLS:
 		return
 	if not _ball_scene or not _balls_container:
@@ -1847,7 +1847,6 @@ func _apply_constellation_laser_hits(sim_tick: int) -> void:
 			var pa: Vector2 = ba.global_position
 			var pb: Vector2 = bb.global_position
 			_apply_constellation_laser_segment_hits(ba, bb, pa, pb, sim_tick)
-			_spawn_chain_lightning_arcs([pa, pb])
 
 func _apply_constellation_laser_segment_hits(ba: Node, bb: Node, pos_a: Vector2, pos_b: Vector2, sim_tick: int) -> void:
 	var bid_a: int = ba.get_ball_id() if ba.has_method("get_ball_id") else 0
@@ -1881,11 +1880,7 @@ func _apply_constellation_laser_segment_hits(ba: Node, bb: Node, pos_a: Vector2,
 		if peg.has_method("apply_hit"):
 			var has_attr: bool = bdef_a != null and (not bdef_a.status_effects.is_empty() or not _ability_key(bdef_a).is_empty())
 			peg.apply_hit(not has_attr, 1, false)
-		if peg.has_method("play_lightning_shock"):
-			peg.play_lightning_shock()
 		_spawn_energy_popup(peg, PEG_DISPLAY_ENERGY_PER_HIT)
-		var lightning_status: Dictionary = { Constants.STATUS_LIGHTNING: 1 }
-		ball_ability_on_peg_hit.emit(lightning_status)
 
 ## Phantom balls don't collide with pegs; use distance overlap to grant energy. Returns one peg within range or null.
 func _get_peg_overlapping_phantom_ball(ball: Node) -> Node:
@@ -2017,7 +2012,11 @@ func _spawn_hit_effect(world_pos: Vector2, status_effects: Dictionary, ability_n
 	elif key == "Volatile":
 		effect_type = BallHitEffect.EffectType.VOLATILE
 	elif key == "Constellation":
-		effect_type = BallHitEffect.EffectType.CHAIN_LIGHTNING
+		effect_type = BallHitEffect.EffectType.CONSTELLATION
+	elif key == "Binary":
+		effect_type = BallHitEffect.EffectType.BINARY
+	elif key == "Bloom":
+		effect_type = BallHitEffect.EffectType.BLOOM
 	elif status_effects.get(Constants.STATUS_FROZEN, 0) > 0 or status_effects.get("frozen", 0) > 0:
 		effect_type = BallHitEffect.EffectType.ICE
 	elif status_effects.get(Constants.STATUS_LIGHTNING, 0) > 0 or status_effects.get("lightning", 0) > 0:

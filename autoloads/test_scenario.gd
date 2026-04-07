@@ -29,7 +29,7 @@ var enabled: bool = false
 ## Override which balls the player starts with.
 ## Each entry: { "ability": "<name>", "count": <n> }
 ## Abilities: "Split", "Energize", "Explosive",
-##            "Chain Lightning", "Leech", "Rubbery", "Phantom", "Volatile", "Constellation"
+##            "Chain Lightning", "Leech", "Rubbery", "Phantom", "Volatile", "Constellation", "Binary", "Bloom"
 ## Use "" for plain (no-ability) balls.
 ## Empty array = use default (10 plain balls).
 ##
@@ -169,6 +169,8 @@ const ABILITY_SHAPES: Dictionary = {
 	"Phantom": 5,
 	"Volatile": 7,
 	"Constellation": 7,
+	"Binary": 1,
+	"Bloom": 4,
 }
 
 func get_summary() -> String:
@@ -237,7 +239,7 @@ func make_ball_definition(ability_name: String) -> BallDefinition:
 		d.rarity = Constants.RARITY_COMMON
 	elif ability_name == "Volatile":
 		d.rarity = Constants.RARITY_RARE
-	elif ability_name == "Explosive" or ability_name == "Chain Lightning" or ability_name == "Constellation":
+	elif ability_name == "Explosive" or ability_name == "Chain Lightning" or ability_name == "Constellation" or ability_name == "Binary" or ability_name == "Bloom":
 		d.rarity = Constants.RARITY_LEGENDARY
 	else:
 		d.rarity = Constants.RARITY_UNCOMMON
