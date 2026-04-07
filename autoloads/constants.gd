@@ -4,6 +4,8 @@ extends Node
 const SIM_TICKS_PER_SECOND: int = 60
 const MAX_ACTIVE_BALLS: int = 120
 const HIT_COOLDOWN_SIM_TICKS: int = 3
+## Constellation ball: min sim ticks between splitting the same ball pair on collision (ball–ball).
+const CONSTELLATION_BALL_PAIR_COOLDOWN_SIM_TICKS: int = 30
 ## After Goblin Reset releases the ball at the hopper line, ignore that peg until grace ends (hit cooldown alone is far shorter than the grab tween).
 const GOBLIN_RESET_POST_RELEASE_GRACE_TICKS: int = SIM_TICKS_PER_SECOND / 2
 # Physics (slice defaults; apply per step_one_sim_tick)
@@ -219,9 +221,9 @@ static func shop_price_for_ball_rarity(rarity: int) -> int:
 			return clampi(SHOP_PRICE_COMMON + rarity * 5, SHOP_PRICE_COMMON, SHOP_PRICE_EPIC)
 
 
-## Human-readable ball rarity (one tier per ability: Plain common; Split/Rubbery/Phantom/Energize/Leech uncommon; Volatile rare; Explosive & Chain Lightning legendary).
+## Human-readable ball rarity (one tier per ability: Plain common; Split/Rubbery/Phantom/Energize/Leech uncommon; Volatile rare; Explosive, Chain Lightning, Constellation legendary).
 static func ball_rarity_display_name(ability_name: String, rarity: int) -> String:
-	if ability_name == "Explosive" or ability_name == "Chain Lightning":
+	if ability_name == "Explosive" or ability_name == "Chain Lightning" or ability_name == "Constellation":
 		return "Legendary"
 	match rarity:
 		RARITY_COMMON:

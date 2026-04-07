@@ -129,11 +129,11 @@ func test_tier_3_balls_exist() -> void:
 	assert_gt(t3_count, 0, "at least one Tier 3 ball exists")
 
 func test_ball_reward_rarity_by_ability() -> void:
-	begin("milestone ball rarities: Volatile rare; Explosive/Chain legendary; Split/Rubbery/Phantom/Energize/Leech uncommon")
+	begin("milestone ball rarities: Volatile rare; Explosive/Chain/Constellation legendary; Split/Rubbery/Phantom/Energize/Leech uncommon")
 	GameState.start_run(42)
 	var rh := _make_handler()
 	var rare: Array = ["Volatile"]
-	var legendary: Array = ["Explosive", "Chain Lightning"]
+	var legendary: Array = ["Explosive", "Chain Lightning", "Constellation"]
 	for def in rh._ball_candidates:
 		if not def is BallDefinition:
 			continue
