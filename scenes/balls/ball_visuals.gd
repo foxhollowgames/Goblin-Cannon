@@ -3,11 +3,11 @@ extends RefCounted
 ## Shared ball representation: alignment color, per-ability icon from res://icons inside a glass bubble shell.
 ## Used on board and in reward draft.
 
-## Main = Yellow, Sidearm = Red, Defense = Blue (alignment index 0, 1, 2)
+## Main / Sidearm / Defense — Lospec "Monsters Also Die" (cream / rust / mint).
 const ALIGNMENT_COLORS: Array[Color] = [
-	Color(0.95, 0.85, 0.2, 1),   # 0 Main cannon - Yellow
-	Color(0.9, 0.25, 0.2, 1),    # 1 Sidearm - Red
-	Color(0.25, 0.5, 0.95, 1),  # 2 Defense - Blue
+	ColorPalette.ALIGN_MAIN,
+	ColorPalette.ALIGN_SIDEARM,
+	ColorPalette.ALIGN_DEFENSE,
 ]
 
 enum ShapeType {
@@ -82,31 +82,31 @@ static func get_ability_theme_color(ability_key: String) -> Color:
 		k = "Plain"
 	match k:
 		"Plain":
-			return Color(0.52, 0.86, 0.98, 1.0)
+			return ColorPalette.MINT
 		"Split":
-			return Color(0.98, 0.55, 0.28, 1.0)
+			return ColorPalette.WARM_BROWN
 		"Energize":
-			return Color(0.62, 0.42, 0.98, 1.0)
+			return ColorPalette.INDIGO.lerp(ColorPalette.TAN, 0.35)
 		"Explosive":
-			return Color(1.0, 0.38, 0.22, 1.0)
+			return ColorPalette.RUST
 		"Chain Lightning":
-			return Color(0.98, 0.92, 0.38, 1.0)
+			return ColorPalette.CREAM
 		"Leech":
-			return Color(0.88, 0.22, 0.58, 1.0)
+			return ColorPalette.DUSTY_ROSE
 		"Rubbery":
-			return Color(0.32, 0.9, 0.55, 1.0)
+			return ColorPalette.OLIVE
 		"Phantom":
-			return Color(0.58, 0.48, 0.98, 1.0)
+			return ColorPalette.INDIGO
 		"Volatile":
-			return Color(0.42, 0.88, 0.4, 1.0)
+			return ColorPalette.FOREST
 		"Constellation":
-			return Color(0.55, 0.82, 1.0, 1.0)
+			return ColorPalette.MINT.lerp(ColorPalette.CREAM, 0.4)
 		"Binary":
-			return Color(0.95, 0.42, 0.58, 1.0)
+			return ColorPalette.TAN.lerp(ColorPalette.RUST, 0.45)
 		"Bloom":
-			return Color(1.0, 0.62, 0.45, 1.0)
+			return ColorPalette.CREAM.lerp(ColorPalette.DUSTY_ROSE, 0.35)
 		_:
-			return Color(0.85, 0.85, 0.88, 1.0)
+			return ColorPalette.TAN
 
 static func _resolve_ability_for_drawing(ability_name: String, shape: int) -> String:
 	var ab: String = ability_name.strip_edges()
@@ -134,8 +134,9 @@ static func draw_ball(canvas: CanvasItem, center: Vector2, radius: float, alignm
 
 static func _draw_full_bubble(canvas: CanvasItem, center: Vector2, r: float, base_color: Color, icon: Texture2D) -> void:
 	canvas.draw_circle(center, r * 1.08, Color(base_color.r, base_color.g, base_color.b, 0.13))
-	canvas.draw_circle(center, r * 0.99, Color(0.82, 0.9, 0.98, 0.26))
-	canvas.draw_circle(center + Vector2(0, r * 0.36), r * 0.55, Color(0.32, 0.4, 0.52, 0.1))
+	var glass: Color = ColorPalette.SLATE.lerp(ColorPalette.CREAM, 0.22)
+	canvas.draw_circle(center, r * 0.99, Color(glass.r, glass.g, glass.b, 0.26))
+	canvas.draw_circle(center + Vector2(0, r * 0.36), r * 0.55, Color(ColorPalette.INDIGO.r, ColorPalette.INDIGO.g, ColorPalette.INDIGO.b, 0.1))
 	canvas.draw_arc(center, r * 0.99, 0.0, TAU, 56, Color(1, 1, 1, 0.3), 1.15, true)
 	canvas.draw_arc(center, r * 0.96, 0.85, 2.35, 20, Color(base_color.r, base_color.g, base_color.b, 0.2), 0.85, true)
 	canvas.draw_circle(center + Vector2(-r * 0.36, -r * 0.34), r * 0.17, Color(1, 1, 1, 0.42))
@@ -148,7 +149,8 @@ static func _draw_half_bubble(canvas: CanvasItem, center: Vector2, r: float, bas
 	for i in segments + 1:
 		var a: float = -PI / 2.0 + (float(i) / float(segments)) * PI
 		pts.append(center + Vector2(cos(a) * r, sin(a) * r))
-	canvas.draw_colored_polygon(pts, Color(0.76, 0.87, 0.98, 0.3))
+	var half_fill: Color = ColorPalette.SLATE.lerp(ColorPalette.CREAM, 0.35)
+	canvas.draw_colored_polygon(pts, Color(half_fill.r, half_fill.g, half_fill.b, 0.3))
 	canvas.draw_line(center + Vector2(0, r), center + Vector2(0, -r), Color(1, 1, 1, 0.36), 1.15)
 	canvas.draw_arc(center, r * 0.99, -PI / 2.0, PI / 2.0, 30, Color(1, 1, 1, 0.34), 1.15, true)
 	canvas.draw_arc(center, r * 0.99, -PI / 2.0, PI / 2.0, 30, Color(base_color.r, base_color.g, base_color.b, 0.22), 0.85, true)

@@ -21,6 +21,7 @@ config/features=PackedStringArray("4.6", "Forward Plus")
 
 [autoload]
 
+ColorPalette="*res://autoloads/color_palette.gd"
 GameState="*res://autoloads/game_state.gd"
 Constants="*res://autoloads/constants.gd"
 MilestoneShopData="*res://autoloads/milestone_shop_data.gd"

@@ -51,7 +51,7 @@ func _rebuild() -> void:
 
 	var dim: ColorRect = ColorRect.new()
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.color = Color(0.0, 0.0, 0.0, 0.55)
+	dim.color = Color(ColorPalette.VOID.r, ColorPalette.VOID.g, ColorPalette.VOID.b, 0.55)
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	dim.gui_input.connect(_on_dim_input)
 	add_child(dim)
@@ -65,12 +65,12 @@ func _rebuild() -> void:
 	panel.custom_minimum_size = Vector2(460, 540)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = Color(0.1, 0.12, 0.16, 0.98)
+	style.bg_color = ColorPalette.UI_PANEL_BG
 	style.border_width_left = 2
 	style.border_width_right = 2
 	style.border_width_top = 2
 	style.border_width_bottom = 2
-	style.border_color = Color(0.45, 0.52, 0.62, 1)
+	style.border_color = ColorPalette.UI_PANEL_BORDER
 	style.set_corner_radius_all(8)
 	panel.add_theme_stylebox_override("panel", style)
 	center.add_child(panel)
@@ -91,7 +91,7 @@ func _rebuild() -> void:
 	var title: Label = Label.new()
 	title.text = "ALMANAC"
 	title.add_theme_font_size_override("font_size", 22)
-	title.add_theme_color_override("font_color", Color(0.75, 0.88, 0.95, 1))
+	title.add_theme_color_override("font_color", ColorPalette.CREAM)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title)
 	var close_btn: Button = Button.new()
@@ -105,12 +105,12 @@ func _rebuild() -> void:
 	hint.text = "Everything you can earn this run — numbers are how many you hold (balls / peg unlocks) or stacks (wall) or taken once (boss)."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.add_theme_font_size_override("font_size", 11)
-	hint.add_theme_color_override("font_color", Color(0.65, 0.68, 0.75, 1))
+	hint.add_theme_color_override("font_color", ColorPalette.TAN)
 	root_vbox.add_child(hint)
 
 	var sep: ColorRect = ColorRect.new()
 	sep.custom_minimum_size = Vector2(0, 1)
-	sep.color = Color(0.4, 0.42, 0.5, 0.8)
+	sep.color = Color(ColorPalette.FOREST.r, ColorPalette.FOREST.g, ColorPalette.FOREST.b, 0.8)
 	root_vbox.add_child(sep)
 
 	var scroll: ScrollContainer = ScrollContainer.new()
@@ -158,7 +158,7 @@ func _build_balls_section(parent: VBoxContainer) -> void:
 				if _game_coordinator:
 					_game_coordinator.remove_one_ball_for_ability(ledger_key)
 				_rebuild()
-		var name_color: Color = BallVisuals.get_ability_theme_color(lk).lerp(Color(0.88, 0.88, 0.9, 1), 0.38)
+		var name_color: Color = BallVisuals.get_ability_theme_color(lk).lerp(ColorPalette.CREAM, 0.38)
 		_add_tally_row(parent, label, n, remove_cb, name_color)
 
 func _build_pegs_section(parent: VBoxContainer) -> void:
@@ -309,10 +309,10 @@ func _add_section_header(parent: VBoxContainer, text: String) -> void:
 	var label: Label = Label.new()
 	label.text = text
 	label.add_theme_font_size_override("font_size", 16)
-	label.add_theme_color_override("font_color", Color(0.78, 0.72, 0.95, 1))
+	label.add_theme_color_override("font_color", ColorPalette.MINT.lerp(ColorPalette.CREAM, 0.4))
 	parent.add_child(label)
 
-func _add_tally_row(parent: VBoxContainer, label_text: String, count: int, on_remove: Callable = Callable(), label_color: Color = Color(0.88, 0.88, 0.9, 1)) -> void:
+func _add_tally_row(parent: VBoxContainer, label_text: String, count: int, on_remove: Callable = Callable(), label_color: Color = ColorPalette.CREAM) -> void:
 	var row: HBoxContainer = HBoxContainer.new()
 	parent.add_child(row)
 	var name_label: Label = Label.new()
@@ -325,7 +325,7 @@ func _add_tally_row(parent: VBoxContainer, label_text: String, count: int, on_re
 	var tally: Label = Label.new()
 	tally.text = "×%d" % count
 	tally.add_theme_font_size_override("font_size", 13)
-	tally.add_theme_color_override("font_color", Color(0.55, 0.95, 0.65, 1) if count > 0 else Color(0.5, 0.48, 0.52, 1))
+	tally.add_theme_color_override("font_color", ColorPalette.MINT if count > 0 else ColorPalette.UI_TEXT_MUTED)
 	row.add_child(tally)
 	if count > 0 and on_remove.is_valid():
 		var del_btn: Button = Button.new()
@@ -335,8 +335,8 @@ func _add_tally_row(parent: VBoxContainer, label_text: String, count: int, on_re
 		del_btn.custom_minimum_size = Vector2(28, 24)
 		del_btn.process_mode = Node.PROCESS_MODE_ALWAYS
 		del_btn.add_theme_font_size_override("font_size", 16)
-		del_btn.add_theme_color_override("font_color", Color(0.95, 0.45, 0.45, 1))
-		del_btn.add_theme_color_override("font_hover_color", Color(1.0, 0.65, 0.65, 1))
+		del_btn.add_theme_color_override("font_color", ColorPalette.RUST)
+		del_btn.add_theme_color_override("font_hover_color", ColorPalette.DUSTY_ROSE.lerp(ColorPalette.CREAM, 0.35))
 		del_btn.pressed.connect(on_remove)
 		row.add_child(del_btn)
 	else:

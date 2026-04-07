@@ -1,5 +1,5 @@
 extends Control
-## Single wall section bubble for the conquest path. Draws a circle; current wall = orange, others = reddish-brown.
+## Single wall section bubble for the conquest path. Draws a circle; current wall = rust highlight, others = warm brown.
 
 var is_current: bool = false:
 	set(v):
@@ -7,10 +7,10 @@ var is_current: bool = false:
 		queue_redraw()
 
 const BUBBLE_SIZE: int = 42  # 25% smaller than original 56
-const COLOR_CURRENT: Color = Color(0.87, 0.45, 0.13, 1)       # bright orange
-const COLOR_CURRENT_HIGHLIGHT: Color = Color(0.96, 0.69, 0.52, 1)  # lighter orange outline
-const COLOR_DEFAULT: Color = Color(0.36, 0.18, 0.18, 1)      # dark reddish-brown
-const COLOR_DEFAULT_HIGHLIGHT: Color = Color(0.55, 0.28, 0.28, 1)   # lighter reddish-brown outline
+const COLOR_CURRENT: Color = ColorPalette.CONQUEST_CURRENT
+const COLOR_CURRENT_HIGHLIGHT: Color = ColorPalette.CONQUEST_CURRENT_HIGHLIGHT
+const COLOR_DEFAULT: Color = ColorPalette.CONQUEST_INACTIVE
+const COLOR_DEFAULT_HIGHLIGHT: Color = ColorPalette.CONQUEST_INACTIVE_HIGHLIGHT
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(BUBBLE_SIZE, BUBBLE_SIZE)

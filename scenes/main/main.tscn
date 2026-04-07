@@ -26,12 +26,12 @@
 [ext_resource type="Script" path="res://scenes/board/black_hole_controller.gd" id="25_bhc"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_buckets_panel"]
-bg_color = Color(0.12, 0.1, 0.16, 0.95)
+bg_color = Color(0.133333, 0.203922, 0.239216, 0.95)
 border_width_left = 2
 border_width_top = 2
 border_width_right = 2
 border_width_bottom = 2
-border_color = Color(0.35, 0.3, 0.45, 1)
+border_color = Color(0.25098, 0.223529, 0.12549, 1)
 corner_radius_top_left = 6
 corner_radius_top_right = 6
 corner_radius_bottom_right = 6
@@ -55,18 +55,18 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.1, 0.08, 0.14, 1)
+color = Color(0.023529, 0.070588, 0.090196, 1)
 
 [node name="LeftPanelBg" type="ColorRect" parent="BackgroundLayer" unique_id=1944894009]
 offset_right = 960.0
 offset_bottom = 720.0
-color = Color(0.18, 0.14, 0.12, 1)
+color = Color(0.188235, 0.109804, 0.062745, 1)
 
 [node name="RightPanelBg" type="ColorRect" parent="BackgroundLayer" unique_id=1897018250]
 offset_left = 960.0
 offset_right = 1280.0
 offset_bottom = 720.0
-color = Color(0.14, 0.12, 0.18, 1)
+color = Color(0.133333, 0.14902, 0.25098, 1)
 
 [node name="UILayer" type="CanvasLayer" parent="." unique_id=1561640443]
 
@@ -82,7 +82,7 @@ offset_left = 400.0
 offset_top = 8.0
 offset_right = 560.0
 offset_bottom = 40.0
-theme_override_colors/font_color = Color(0.95, 0.82, 0.35, 1)
+theme_override_colors/font_color = Color(1, 0.92549, 0.6, 1)
 theme_override_font_sizes/font_size = 18
 text = "Gold: 0"
 horizontal_alignment = 1
@@ -121,7 +121,7 @@ grow_vertical = 0
 
 [node name="BagLabel" type="Label" parent="UILayer/CenterPanel/BagPanel" unique_id=1900000002]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.85, 0.75, 0.5, 1)
+theme_override_colors/font_color = Color(0.819608, 0.662745, 0.564706, 1)
 theme_override_font_sizes/font_size = 14
 text = "BAG: 0"
 
@@ -163,7 +163,7 @@ offset_right = 28.0
 offset_bottom = 8.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.95, 0.5, 0.4, 1)
+theme_override_colors/font_color = Color(0.619608, 0.45098, 0.407843, 1)
 theme_override_font_sizes/font_size = 12
 text = "100/100"
 horizontal_alignment = 1
@@ -180,7 +180,7 @@ alignment = 1
 
 [node name="ConquestGoalLabel" type="Label" parent="UILayer/CenterPanel/ConquestBar/ConquestContentCenter/ConquestContent" unique_id=634639352]
 layout_mode = 2
-theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_color = Color(1, 0.92549, 0.6, 1)
 theme_override_font_sizes/font_size = 12
 text = "Halflings"
 horizontal_alignment = 1
@@ -228,7 +228,7 @@ alignment = 1
 
 [node name="Label" type="Label" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/HealthBucket" unique_id=1611307587]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.4, 0.9, 0.5, 1)
+theme_override_colors/font_color = Color(0.364706, 0.458824, 0.270588, 1)
 theme_override_font_sizes/font_size = 12
 text = "HEALTH"
 horizontal_alignment = 1
@@ -277,7 +277,7 @@ offset_right = 24.0
 offset_bottom = 10.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.5, 1, 0.65, 1)
+theme_override_colors/font_color = Color(0.305882, 0.6, 0.498039, 1)
 theme_override_font_sizes/font_size = 14
 text = "95/100"
 horizontal_alignment = 1
@@ -290,7 +290,7 @@ alignment = 1
 
 [node name="Label" type="Label" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/ChargeBucket" unique_id=1611307593]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.9, 0.8, 0.3, 1)
+theme_override_colors/font_color = Color(1, 0.92549, 0.6, 1)
 theme_override_font_sizes/font_size = 12
 text = "CHARGE"
 horizontal_alignment = 1
@@ -327,7 +327,7 @@ offset_right = 20.0
 offset_bottom = 10.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(0.95, 0.9, 0.6, 1)
+theme_override_colors/font_color = Color(1, 0.92549, 0.6, 1)
 theme_override_font_sizes/font_size = 14
 text = "0"
 horizontal_alignment = 1
@@ -340,7 +340,7 @@ alignment = 1
 
 [node name="Label" type="Label" parent="UILayer/CenterPanel/BottomEnergyPools/BucketsPanel/HBox/SidearmBucket" unique_id=1611307603]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.95, 0.35, 0.3, 1)
+theme_override_colors/font_color = Color(0.631373, 0.258824, 0.176471, 1)
 theme_override_font_sizes/font_size = 12
 text = "SIDEARM"
 horizontal_alignment = 1
@@ -376,7 +376,7 @@ offset_right = 20.0
 offset_bottom = 10.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_colors/font_color = Color(1, 0.5, 0.45, 1)
+theme_override_colors/font_color = Color(0.619608, 0.45098, 0.407843, 1)
 theme_override_font_sizes/font_size = 14
 text = "0"
 horizontal_alignment = 1
@@ -496,7 +496,7 @@ offset_top = 350.0
 offset_right = 1250.0
 offset_bottom = 382.0
 grow_horizontal = 2
-theme_override_colors/font_color = Color(0.6, 0.65, 0.75, 1)
+theme_override_colors/font_color = Color(0.819608, 0.662745, 0.564706, 1)
 theme_override_font_sizes/font_size = 12
 text = "Energy: 0 | Sidearm: 0 | Shield: 0"
 horizontal_alignment = 1
