@@ -6,9 +6,6 @@ signal wall_destroyed
 signal time_expired
 
 const TICKS_PER_SECOND: int = 60
-## Per-wall round length by index within a city (0 = first wall). Baseline 180s at city 1 wall 1;
-## walls 2–3 scale by the same 1:3:2 ratio as the former 60/180/120 tuning.
-const WALL_TIME_SECONDS: Array[int] = [180, 540, 360]
 ## Endless mode: ramp difficulty (testing). HP rises; timer tightens toward a floor.
 const ENDLESS_HP_GROWTH: float = 1.12
 const ENDLESS_TIMER_SHRINK: float = 0.94
@@ -115,12 +112,12 @@ func _get_wall_time_ticks(wall_index: int) -> int:
 			return TestScenario.timer_override_seconds * TICKS_PER_SECOND
 	if _endless_active and _endless_wave > 0:
 		var last_idx: int = maxi(0, _wall_names.size() - 1)
-		var base_sec: int = WALL_TIME_SECONDS[clampi(last_idx, 0, WALL_TIME_SECONDS.size() - 1)]
+		var base_sec: int = Constants.WALL_TIME_SECONDS[clampi(last_idx, 0, Constants.WALL_TIME_SECONDS.size() - 1)]
 		var sec: int = int(roundf(float(base_sec) * pow(ENDLESS_TIMER_SHRINK, float(_endless_wave - 1))))
 		sec = maxi(ENDLESS_MIN_TIMER_SEC, sec)
 		return sec * TICKS_PER_SECOND
-	var idx: int = clampi(wall_index, 0, WALL_TIME_SECONDS.size() - 1)
-	return WALL_TIME_SECONDS[idx] * TICKS_PER_SECOND
+	var idx: int = clampi(wall_index, 0, Constants.WALL_TIME_SECONDS.size() - 1)
+	return Constants.WALL_TIME_SECONDS[idx] * TICKS_PER_SECOND
 
 func _advance_to_next_wall() -> void:
 	_current_wall_index += 1
