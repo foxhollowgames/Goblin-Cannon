@@ -25,15 +25,13 @@ var _fragment_echo_used: bool = false  ## Fragment Echo (wall break): once per f
 var _echo_floating: bool = false
 var _echo_pulse_tween: Tween = null
 var _is_phantom: bool = false
-var _phantom_trail_positions: Array[Vector2] = []
+var _phantom_trail_particles: CPUParticles2D
 var _in_hopper_bin: bool = false
 ## Reagent gas (Volatile clouds): stack counts from distinct clouds entered this visit; cleared when scoring at bottom.
 var _gas_damage_cloud_stacks: int = 0
 var _gas_energy_cloud_stacks: int = 0
 var _gas_clouds_claimed: Dictionary = {}  # cloud_id -> true
-const PHANTOM_TRAIL_MAX: int = 12
-const PHANTOM_TRAIL_INTERVAL_PX: float = 14.0
-## Same band as recording: below this, trail is cleared so it does not freeze as a static tail when the ball rests.
+## Phantom trail: emit only when moving fast enough so idle balls do not leave a frozen tail.
 const PHANTOM_TRAIL_MIN_SPEED_PX: float = 30.0
 
 func _ready() -> void:
@@ -53,18 +51,14 @@ func _ready() -> void:
 	physics_material_override = _board_material
 
 func _physics_process(delta: float) -> void:
-	if _is_phantom:
+	if _is_phantom and _phantom_trail_particles:
 		var speed: float = linear_velocity.length()
 		if speed > PHANTOM_TRAIL_MIN_SPEED_PX:
-			var last_pos: Vector2 = _phantom_trail_positions[_phantom_trail_positions.size() - 1] if _phantom_trail_positions.size() > 0 else Vector2(-9999, -9999)
-			if global_position.distance_to(last_pos) >= PHANTOM_TRAIL_INTERVAL_PX:
-				_phantom_trail_positions.append(global_position)
-				if _phantom_trail_positions.size() > PHANTOM_TRAIL_MAX:
-					_phantom_trail_positions.remove_at(0)
-				queue_redraw()
-		elif _phantom_trail_positions.size() > 0:
-			_phantom_trail_positions.clear()
-			queue_redraw()
+			var back: Vector2 = -linear_velocity.normalized()
+			_phantom_trail_particles.direction = Vector3(back.x, back.y, 0.0)
+			_phantom_trail_particles.emitting = not _in_hopper_bin
+		else:
+			_phantom_trail_particles.emitting = false
 	# Spin: drive rotation via angular_velocity so linear motion is never touched; end spin after duration
 	if _split_spin_elapsed >= 0.0:
 		_split_spin_elapsed += delta
@@ -99,8 +93,6 @@ func _physics_process(delta: float) -> void:
 		_was_in_vertical_bounce = false
 
 func _draw() -> void:
-	if _is_phantom and _phantom_trail_positions.size() > 1:
-		_draw_phantom_trail()
 	var alignment: int = 0
 	var shape_override: int = -1
 	var ability_name: String = ""
@@ -110,17 +102,8 @@ func _draw() -> void:
 		ability_name = _definition.ability_name
 	if _is_split_twin:
 		shape_override = BallVisuals.ShapeType.HALF_CIRCLE
-	BallVisuals.draw_ball(self, Vector2.ZERO, Constants.BALL_RADIUS, alignment, shape_override, ability_name)
-
-func _draw_phantom_trail() -> void:
-	var count: int = _phantom_trail_positions.size()
-	for i in count:
-		var t: float = float(i) / float(count)
-		var alpha: float = t * 0.4
-		var r: float = Constants.BALL_RADIUS * (0.3 + 0.7 * t)
-		var trail_pos: Vector2 = _phantom_trail_positions[i] - global_position
-		var color := Color(0.45, 0.75, 0.95, alpha)
-		draw_circle(trail_pos, r, color)
+	var gas_on: bool = _gas_damage_cloud_stacks > 0 or _gas_energy_cloud_stacks > 0
+	BallVisuals.draw_ball(self, Vector2.ZERO, Constants.BALL_RADIUS, alignment, shape_override, ability_name, gas_on)
 
 ## Called once per sim tick by Board. Ball does NOT move here – physics engine does.
 ## Returns one peg we're colliding with (for Board hit/energy).
@@ -172,6 +155,10 @@ func set_definition(def: Resource) -> void:
 	_definition = def
 	_is_rubbery = (def is BallDefinition and (def as BallDefinition).ability_name == "Rubbery")
 	_is_phantom = (def is BallDefinition and (def as BallDefinition).ability_name == "Phantom")
+	if not _is_phantom:
+		_free_phantom_trail_particles()
+	elif _phantom_trail_particles == null:
+		_create_phantom_trail_particles()
 	reset_gas_buff_state_for_board_visit()
 	if _is_phantom:
 		collision_mask = 2
@@ -242,6 +229,7 @@ func try_claim_gas_cloud(cloud_id: int, is_damage_cloud: bool) -> void:
 		_gas_damage_cloud_stacks += 1
 	else:
 		_gas_energy_cloud_stacks += 1
+	queue_redraw()
 
 func get_gas_damage_stack_count() -> int:
 	return _gas_damage_cloud_stacks
@@ -254,6 +242,7 @@ func clear_gas_buffs_on_score() -> void:
 	_gas_damage_cloud_stacks = 0
 	_gas_energy_cloud_stacks = 0
 	_gas_clouds_claimed.clear()
+	queue_redraw()
 
 ## Use low bounce and high damp in the hopper so balls settle; restore when leaving for the board.
 ## Rotation is unlocked in the hopper so spheres roll and stacks collapse (locked on board for stable peg play).
@@ -265,7 +254,8 @@ func apply_hopper_physics(inside: bool) -> void:
 		linear_damp = 3.0
 		lock_rotation = false
 		angular_damp = 6.0
-		_phantom_trail_positions.clear()
+		if _phantom_trail_particles:
+			_phantom_trail_particles.emitting = false
 	else:
 		physics_material_override = _rubbery_material if _is_rubbery else _board_material
 		linear_damp = 0.0
@@ -273,3 +263,36 @@ func apply_hopper_physics(inside: bool) -> void:
 		lock_rotation = true
 		angular_velocity = 0.0
 		rotation = 0.0
+
+func _create_phantom_trail_particles() -> void:
+	if _phantom_trail_particles:
+		return
+	var p: CPUParticles2D = CPUParticles2D.new()
+	p.name = "PhantomTrailParticles"
+	p.show_behind_parent = true
+	p.z_index = -2
+	p.local_coords = true
+	p.emitting = false
+	p.amount = 56
+	p.lifetime = 0.45
+	p.one_shot = false
+	p.explosiveness = 0.0
+	p.randomness = 0.5
+	p.direction = Vector3(0.0, 1.0, 0.0)
+	p.spread = 22.0
+	p.flatness = 0.0
+	p.initial_velocity_min = 40.0
+	p.initial_velocity_max = 95.0
+	p.angular_velocity_min = -1.5
+	p.angular_velocity_max = 1.5
+	p.gravity = Vector3(0.0, 0.0, 0.0)
+	p.scale_amount_min = 0.4
+	p.scale_amount_max = 0.85
+	p.color = Color(0.5, 0.82, 0.98, 0.55)
+	add_child(p)
+	_phantom_trail_particles = p
+
+func _free_phantom_trail_particles() -> void:
+	if _phantom_trail_particles:
+		_phantom_trail_particles.queue_free()
+		_phantom_trail_particles = null

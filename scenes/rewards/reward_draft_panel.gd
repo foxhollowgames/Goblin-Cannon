@@ -678,7 +678,7 @@ func _make_basic_batch_card(index: int, price: int) -> Control:
 	var title_label: Label = Label.new()
 	title_label.text = "+%d Plain Balls" % RewardGeneration.BASIC_BATCH_SIZE
 	title_label.add_theme_font_size_override("font_size", SHOP_CARD_TITLE_FONT)
-	title_label.add_theme_color_override("font_color", border_color)
+	title_label.add_theme_color_override("font_color", border_color.lerp(BallVisuals.get_ability_theme_color("Plain"), 0.5))
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	card_vbox.add_child(title_label)
 	card_vbox.add_child(_shop_category_label("BALL"))
@@ -719,7 +719,10 @@ func _make_ball_card(def: BallDefinition, index: int, price: int) -> Control:
 	var title_label: Label = Label.new()
 	title_label.text = ability
 	title_label.add_theme_font_size_override("font_size", SHOP_CARD_TITLE_FONT)
-	title_label.add_theme_color_override("font_color", border_color)
+	var ab_for_title: String = def.ability_name if def != null and not def.ability_name.is_empty() else "Plain"
+	if ability == "Ball":
+		ab_for_title = "Plain"
+	title_label.add_theme_color_override("font_color", border_color.lerp(BallVisuals.get_ability_theme_color(ab_for_title), 0.5))
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	card_vbox.add_child(title_label)
 	card_vbox.add_child(_shop_category_label("BALL"))
