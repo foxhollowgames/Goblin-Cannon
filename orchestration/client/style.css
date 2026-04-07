@@ -230,6 +230,119 @@ button.secondary {
   font-size: 0.85rem;
 }
 
+.model-phases-card {
+  margin: 0.5rem 0 0.75rem;
+  padding: 0.65rem 0.75rem;
+  background: #12151c;
+  border: 1px solid #2d3340;
+  border-radius: 8px;
+}
+
+.model-phases-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.model-phases-lead,
+.model-phases-foot {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.model-phases-foot {
+  margin-bottom: 0;
+  margin-top: 0.5rem;
+}
+
+.model-phase-row {
+  display: grid;
+  grid-template-columns: minmax(5.5rem, 7rem) 1fr;
+  align-items: start;
+  gap: 0.4rem 0.65rem;
+  margin-bottom: 0.45rem;
+}
+
+.model-phase-row label {
+  font-size: 0.82rem;
+  color: var(--muted);
+  padding-top: 0.35rem;
+}
+
+.model-phase-row--fallback label {
+  color: #8b9bab;
+}
+
+.model-combo {
+  position: relative;
+  min-width: 0;
+}
+
+.model-combo-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.35rem 0.5rem;
+  background: #0a0c10;
+  border: 1px solid #3d4654;
+  border-radius: 6px;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.model-combo-input:focus {
+  outline: none;
+  border-color: var(--accent, #7cb342);
+}
+
+.model-suggestions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  z-index: 20;
+  margin: 2px 0 0;
+  padding: 0.2rem 0;
+  max-height: 220px;
+  overflow: auto;
+  list-style: none;
+  background: #1a1f28;
+  border: 1px solid #3d4654;
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.model-suggestions[hidden] {
+  display: none !important;
+}
+
+.model-suggestions.open {
+  display: block;
+}
+
+.model-suggestions li {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.82rem;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.model-suggestions li:hover,
+.model-suggestions li:focus {
+  background: #2a3340;
+}
+
+.model-quick-actions {
+  margin-top: 0.35rem;
+}
+
+.model-quick-actions .secondary {
+  font-size: 0.78rem;
+  padding: 0.3rem 0.55rem;
+}
+
 .parallel-cap-note {
   font-size: 0.78rem;
   flex: 1 1 12rem;

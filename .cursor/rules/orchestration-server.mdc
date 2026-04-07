@@ -21,7 +21,7 @@ If the Cursor **agent** returns no stdout/stderr on Windows, the planner uses **
 
 After execution, **`requireExecutionGitChanges`** (default true) fails the pipeline if the worktree has no new commits and no dirty files — catches silent no-ops when the CLI exits 0 without editing. Env: `ORCH_REQUIRE_EXEC_GIT_CHANGES=0` to disable (e.g. debugging).
 
-After Godot tests pass, **`autoMergeOnPass`** (default true) merges the task branch into `main`/`master` in the main repo, removes the worktree, and frees the capacity slot. Set **`autoMergeOnPass`: false** in config to keep branches for manual merge. If tests fail (non-timeout), **`godotTestFixRetries`** (default **2**) re-runs execution with the failing log, then Godot again, up to that many extra rounds. Failed tests after retries, **timeouts**, or merge conflicts leave the task failed and release the slot (worktree may remain until you remove it via the API).
+After Godot tests pass, **`autoMergeOnPass`** (default true) merges the task branch into `main`/`master` in the main repo, removes the worktree, and frees the capacity slot. Set **`autoMergeOnPass`: false** in config to keep branches for manual merge. If tests fail (non-timeout), **`godotTestFixRetries`** (default **-1** = unlimited) re-runs execution with the failing log, then Godot again until tests pass or you stop the run; set a non-negative number to cap extra rounds. Failed tests after retries, **timeouts**, or merge conflicts leave the task failed and release the slot (worktree may remain until you remove it via the API).
 
 **`limits.maxParallelWorktrees`** (default **4** in `orchestration.config.example.json`) controls how many agent worktrees may run at once; completed tasks release slots automatically.
 

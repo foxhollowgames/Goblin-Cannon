@@ -78,29 +78,81 @@
             />
             <span class="muted parallel-cap-note">Independent tasks can run together; chained <code>dependsOn</code> in the plan still runs in order.</span>
           </div>
-          <div class="parallel-cap-row model-row">
-            <label for="agentModel">AI model</label>
-            <div class="model-picker">
-              <select
-                id="agentModel"
-                name="agentModel"
-                title="Cursor agent --model (planner, execution, communication report)"
-              >
-                <option value="">Default (CLI)</option>
-              </select>
-              <input
-                type="text"
-                id="agentModelCustom"
-                name="agentModelCustom"
-                class="agent-model-custom"
-                placeholder="Custom model id…"
-                autocomplete="off"
-                title="If set, overrides the dropdown"
-              />
+          <div class="model-phases-card">
+            <p class="model-phases-title">AI models (Cursor <code>--model</code>)</p>
+            <p class="muted model-phases-lead">
+              Pick per phase to match complexity: faster models for planning, strongest for execution and fixes. Empty
+              fields use the fallback row, then the CLI default. Type to filter the list.
+            </p>
+            <div class="model-phase-row">
+              <label for="agentModelPlannerInput">Planning</label>
+              <div class="model-combo">
+                <input
+                  type="text"
+                  id="agentModelPlannerInput"
+                  name="agentModelPlanner"
+                  class="model-combo-input"
+                  placeholder="Default"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+                <ul class="model-suggestions" id="agentModelPlannerSuggest" role="listbox" hidden></ul>
+              </div>
             </div>
-            <span class="muted parallel-cap-note"
-              >Preset list comes from <code>agentModelOptions</code> in config. Custom field overrides the dropdown. Passed as
-              <code>--model</code> when not Default.</span>
+            <div class="model-phase-row">
+              <label for="agentModelExecutionInput">Execution</label>
+              <div class="model-combo">
+                <input
+                  type="text"
+                  id="agentModelExecutionInput"
+                  name="agentModelExecution"
+                  class="model-combo-input"
+                  placeholder="Default"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+                <ul class="model-suggestions" id="agentModelExecutionSuggest" role="listbox" hidden></ul>
+              </div>
+            </div>
+            <div class="model-phase-row">
+              <label for="agentModelCommunicationInput">Report</label>
+              <div class="model-combo">
+                <input
+                  type="text"
+                  id="agentModelCommunicationInput"
+                  name="agentModelCommunication"
+                  class="model-combo-input"
+                  placeholder="Default"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+                <ul class="model-suggestions" id="agentModelCommunicationSuggest" role="listbox" hidden></ul>
+              </div>
+            </div>
+            <div class="model-phase-row model-phase-row--fallback">
+              <label for="agentModelFallbackInput">Fallback (all phases)</label>
+              <div class="model-combo">
+                <input
+                  type="text"
+                  id="agentModelFallbackInput"
+                  name="agentModel"
+                  class="model-combo-input"
+                  placeholder="Optional — used when a phase above is empty"
+                  autocomplete="off"
+                  spellcheck="false"
+                />
+                <ul class="model-suggestions" id="agentModelFallbackSuggest" role="listbox" hidden></ul>
+              </div>
+            </div>
+            <div class="model-quick-actions">
+              <button type="button" class="secondary" id="btnModelCopyExecToAll" title="Copy Execution value into Planning, Report, and Fallback">
+                Use execution model everywhere
+              </button>
+            </div>
+            <p class="muted model-phases-foot">
+              Catalog = built-in list + <code>agentModelOptions</code> in config. Any valid id can be typed; add extras in
+              <code>orchestration.config.local.json</code>.
+            </p>
           </div>
           <div class="row row-actions">
             <button type="button" id="btnSend" class="btn-primary">Send</button>
@@ -127,7 +179,7 @@
             <dd id="pipelineStep">—</dd>
             <dt>Concurrency cap (this run)</dt>
             <dd id="runConcurrency">—</dd>
-            <dt>AI model (this run)</dt>
+            <dt>AI models (this run)</dt>
             <dd id="runAgentModel">—</dd>
           </dl>
         </section>

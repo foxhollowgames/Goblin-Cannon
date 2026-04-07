@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { promptPath } from "../paths.js";
 import { runCursorAgent } from "./cursor-cli.js";
+import { resolveAgentModelForPhase } from "../agent-model.js";
 import { loadConfig } from "../config.js";
 import type { Task, RunState, TaskStatus } from "../types.js";
 import { getRun, newId, appendOutcome, touchRun, updateTask } from "../store.js";
@@ -17,7 +18,7 @@ const TEST_FAILURE_LOG_MAX = 10_000;
 export type TestFailureRetryContext = {
   /** 1-based index of this execution round (matches dashboard messaging). */
   executionRound: number;
-  /** Total execution+test rounds allowed for this task (including the first). */
+  /** Total execution+test rounds allowed for this task (including the first). `Infinity` when unlimited retries. */
   maxRounds: number;
   outcomeSummary: string;
   logExcerpt: string;
@@ -32,9 +33,12 @@ export function formatTestFailureRetryBlock(ctx: TestFailureRetryContext): strin
       "",
     ].join("\n");
   }
+  const totalLabel = Number.isFinite(ctx.maxRounds)
+    ? String(Math.trunc(ctx.maxRounds))
+    : "unlimited";
   return [
     "## PREVIOUS GODOT TEST RUN FAILED (automated retry)",
-    `This is execution round **${ctx.executionRound}** of **${ctx.maxRounds}** for this task. The last headless test run did not pass.`,
+    `This is execution round **${ctx.executionRound}** of **${totalLabel}** for this task. The last headless test run did not pass.`,
     "",
     "Fix the implementation **or** update tests/assertions if they are wrong or outdated. Edits must be under this worktree. Another test run will execute automatically after you finish.",
     "If the last failure was due to a hung Cursor agent (`agent.cmd` with no exit), prefer `%LOCALAPPDATA%\\\\cursor-agent\\\\agent.exe` (set `CURSOR_AGENT_BIN` or `cursorCli.command`) so stdin mode exits cleanly on Windows.",
@@ -106,12 +110,14 @@ export async function runExecution(
   run.phase = "executing";
   run.currentTaskId = task.id;
   touchRun(run);
-  publish(
-    run.id,
-    execOpts?.testFailureRetry
-      ? `--- Execution (fix retry ${execOpts.testFailureRetry.executionRound}/${execOpts.testFailureRetry.maxRounds}): ${task.title} ---\n`
-      : `--- Execution: task ${task.title} ---\n`
-  );
+  const retryHdr = execOpts?.testFailureRetry
+    ? (() => {
+        const mr = execOpts.testFailureRetry.maxRounds;
+        const mrLbl = Number.isFinite(mr) ? String(Math.trunc(mr)) : "∞";
+        return `--- Execution (fix retry ${execOpts.testFailureRetry.executionRound}/${mrLbl}): ${task.title} ---\n`;
+      })()
+    : `--- Execution: task ${task.title} ---\n`;
+  publish(run.id, retryHdr);
 
   const headBefore = getWorktreeHead(task.assignedWorktreePath);
   if (headBefore === null) {
@@ -132,7 +138,7 @@ export async function runExecution(
     onChunk: (c) => publish(run.id, c),
     pipelineRunId,
     phase: "execution",
-    model: run.agentModel,
+    model: resolveAgentModelForPhase(run, "execution"),
   });
 
   const delta =
@@ -178,7 +184,8 @@ export async function runExecution(
   });
   if (execOpts?.testFailureRetry) {
     metadata.testFixRetryExecutionRound = execOpts.testFailureRetry.executionRound;
-    metadata.testFixRetryMaxRounds = execOpts.testFailureRetry.maxRounds;
+    const mr = execOpts.testFailureRetry.maxRounds;
+    metadata.testFixRetryMaxRounds = Number.isFinite(mr) ? mr : "unlimited";
   }
   appendOutcome(run, {
     id: newId("out"),

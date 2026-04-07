@@ -2,6 +2,7 @@ import { readFileSync, existsSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { OrchestrationConfig } from "./types.js";
+import { CURSOR_AGENT_MODEL_CATALOG_BASE } from "./cursor-model-catalog.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -64,17 +65,10 @@ const DEFAULTS: OrchestrationConfig = {
   deleteRemoteAgentBranch: true,
   /** 10 minutes — enough for a full suite; prevents hung Godot from blocking the pipeline forever */
   godotHeadlessTimeoutMs: 600_000,
-  /** Extra execution+test rounds after a failed Godot run (agent fixes using stderr/stdout). Default 5 ⇒ up to 6 Godot runs per task. */
-  godotTestFixRetries: 5,
-  /** Dashboard + `/api/config` — Cursor `--model` presets (extend in local JSON). */
-  agentModelOptions: [
-    "gpt-5",
-    "gpt-5.1",
-    "gpt-5.2",
-    "sonnet-4.5",
-    "opus-4.5",
-    "composer-1",
-  ],
+  /** Extra execution+test rounds after a failed Godot run, or **-1** for unlimited until pass. Default **-1**. */
+  godotTestFixRetries: -1,
+  /** Extra `--model` ids merged into the dashboard catalog (`cursor-model-catalog.ts` + this). */
+  agentModelOptions: [],
 };
 
 function normalizeConfig(
@@ -195,9 +189,9 @@ function normalizeConfig(
         fromEnv !== undefined
           ? Number(fromEnv)
           : Number(raw.godotTestFixRetries ?? DEFAULTS.godotTestFixRetries);
-      return Number.isFinite(n)
-        ? Math.max(0, Math.floor(n))
-        : DEFAULTS.godotTestFixRetries;
+      if (n === -1) return -1;
+      if (!Number.isFinite(n)) return DEFAULTS.godotTestFixRetries;
+      return Math.max(0, Math.floor(n));
     })(),
     agentModelOptions: (() => {
       const ro = raw.agentModelOptions;
@@ -213,6 +207,17 @@ function normalizeConfig(
 }
 
 let cached: OrchestrationConfig | null = null;
+
+/** Built-in Cursor model list + `agentModelOptions` from config, sorted for the UI. */
+export function buildAgentModelCatalog(c: OrchestrationConfig): string[] {
+  const set = new Set<string>();
+  for (const x of CURSOR_AGENT_MODEL_CATALOG_BASE) set.add(x);
+  for (const x of c.agentModelOptions) {
+    const t = x.trim();
+    if (t) set.add(t);
+  }
+  return [...set].sort((a, b) => a.localeCompare(b));
+}
 
 export function loadConfig(): OrchestrationConfig {
   if (cached) return cached;

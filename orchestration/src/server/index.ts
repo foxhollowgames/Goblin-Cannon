@@ -6,7 +6,11 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { existsSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
-import { loadConfig, resetConfigCache } from "../lib/config.js";
+import {
+  loadConfig,
+  resetConfigCache,
+  buildAgentModelCatalog,
+} from "../lib/config.js";
 import {
   resolveCursorCommand,
   describeCursorResolution,
@@ -43,6 +47,7 @@ import { runGodotTests, captureBaseline } from "../lib/runners/testing.js";
 import { runCommunication } from "../lib/runners/communication.js";
 import { subscribe, getLogBuffer } from "../lib/log-bus.js";
 import type { RunState } from "../lib/types.js";
+import { parseRunAgentModelsFromBody } from "../lib/agent-model.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -92,8 +97,8 @@ async function buildServer() {
     limits: {
       fileSize: 25 * 1024 * 1024,
       files: 16,
-      fields: 16,
-      parts: 48,
+      fields: 32,
+      parts: 56,
     },
   });
 
@@ -122,6 +127,8 @@ async function buildServer() {
       worktreeParentDir: c.worktreeParentDir,
       dryRun: c.dryRun,
       limits: c.limits,
+      agentModelCatalog: buildAgentModelCatalog(c),
+      agentModelOptions: c.agentModelOptions,
       autoMergeOnPass: c.autoMergeOnPass,
       pushAfterMerge: c.pushAfterMerge,
       gitRemote: c.gitRemote,
@@ -161,6 +168,10 @@ async function buildServer() {
     Body: {
       problem?: string;
       maxParallelWorktrees?: number;
+      agentModel?: string;
+      agentModelPlanner?: string;
+      agentModelExecution?: string;
+      agentModelCommunication?: string;
     };
   }>("/api/runs", async (req, reply) => {
     resetConfigCache();
@@ -170,6 +181,7 @@ async function buildServer() {
     if (contentType.includes("multipart/form-data")) {
       let problem = "";
       let maxParallel: number | undefined;
+      const modelFields: Record<string, unknown> = {};
       const fileBuffers: {
         filename: string;
         mimetype: string;
@@ -183,6 +195,13 @@ async function buildServer() {
           } else if (part.fieldname === "maxParallelWorktrees") {
             const n = parseInt(String(part.value ?? ""), 10);
             if (Number.isFinite(n)) maxParallel = n;
+          } else if (
+            part.fieldname === "agentModel" ||
+            part.fieldname === "agentModelPlanner" ||
+            part.fieldname === "agentModelExecution" ||
+            part.fieldname === "agentModelCommunication"
+          ) {
+            modelFields[part.fieldname] = String(part.value ?? "");
           }
         } else if (part.type === "file") {
           const filename = part.filename || "upload";
@@ -203,6 +222,11 @@ async function buildServer() {
         });
       }
 
+      const modelsParsed = parseRunAgentModelsFromBody(modelFields);
+      if (!modelsParsed.ok) {
+        return reply.code(400).send({ error: modelsParsed.error });
+      }
+
       const max = clampParallelWorktrees(
         maxParallel,
         cfg.limits.maxParallelWorktrees
@@ -212,7 +236,9 @@ async function buildServer() {
           (fileBuffers.length
             ? "(Problem text empty — see attached media.)"
             : "Describe your goal in the Problem step."),
-        max
+        max,
+        undefined,
+        modelsParsed.value
       );
       appendPruneOutcomeOnNewRun(run);
 
@@ -228,11 +254,22 @@ async function buildServer() {
     }
 
     const problem = (req.body?.problem ?? "").trim();
+    const modelsParsed = parseRunAgentModelsFromBody(
+      (req.body ?? {}) as Record<string, unknown>
+    );
+    if (!modelsParsed.ok) {
+      return reply.code(400).send({ error: modelsParsed.error });
+    }
     const max = clampParallelWorktrees(
       req.body?.maxParallelWorktrees,
       cfg.limits.maxParallelWorktrees
     );
-    const run = createRun(problem || "Describe your goal in the Problem step.", max);
+    const run = createRun(
+      problem || "Describe your goal in the Problem step.",
+      max,
+      undefined,
+      modelsParsed.value
+    );
     appendPruneOutcomeOnNewRun(run);
     return reply.code(201).send(run);
   });

@@ -9,6 +9,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomBytes } from "node:crypto";
 import type { ProblemAttachment, RunState, Task, Outcome } from "./types.js";
+import type { RunAgentModelsPayload } from "./agent-model.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -94,13 +95,22 @@ export function createRun(
   problem: string,
   maxParallel: number,
   attachments?: ProblemAttachment[],
-  agentModel?: string
+  models?: RunAgentModelsPayload
 ): RunState {
   const now = new Date().toISOString();
   const run: RunState = {
     id: newId("run"),
     problem: problem.trim(),
-    ...(agentModel ? { agentModel } : {}),
+    ...(models?.agentModel ? { agentModel: models.agentModel } : {}),
+    ...(models?.agentModelPlanner
+      ? { agentModelPlanner: models.agentModelPlanner }
+      : {}),
+    ...(models?.agentModelExecution
+      ? { agentModelExecution: models.agentModelExecution }
+      : {}),
+    ...(models?.agentModelCommunication
+      ? { agentModelCommunication: models.agentModelCommunication }
+      : {}),
     attachments: attachments?.length ? [...attachments] : undefined,
     phase: "idle",
     pipelineStatus: "idle",

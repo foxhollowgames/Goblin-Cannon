@@ -44,10 +44,20 @@ function setProblemStatus(
 }
 
 const RUN_STORAGE_KEY = "goblinOrchRunId";
-const AGENT_MODEL_LS = "goblinOrchAgentModel";
-const AGENT_MODEL_OVERRIDE_LS = "goblinOrchAgentModelOverride";
 
 const AGENT_MODEL_ID_RE = /^[a-zA-Z0-9._-]{1,128}$/;
+
+/** Built-in + config; used for searchable suggestions. */
+let lastAgentModelCatalog: string[] = [];
+let modelCombosInitialized = false;
+let modelComboDocListener = false;
+
+const MODEL_INPUT_LS: Record<string, string> = {
+  agentModelPlannerInput: "goblinOrchAgentModelPlanner",
+  agentModelExecutionInput: "goblinOrchAgentModelExecution",
+  agentModelCommunicationInput: "goblinOrchAgentModelCommunication",
+  agentModelFallbackInput: "goblinOrchAgentModel",
+};
 
 function persistRunId(id: string | null) {
   try {
@@ -154,6 +164,7 @@ async function refreshConfig() {
     hasGodotPath: boolean;
     limits: { maxParallelWorktrees: number };
     dryRun: boolean;
+    agentModelCatalog?: string[];
     agentModelOptions?: string[];
     cursorCliResolved?: string;
     cursorCliFoundOnDisk?: boolean;
@@ -187,12 +198,11 @@ async function refreshConfig() {
     "maxParallelInput"
   ) as HTMLInputElement | null;
   if (parInp) parInp.value = String(lastConfigMaxParallel);
-  populateAgentModelSelect(
-    Array.isArray(c.agentModelOptions) && c.agentModelOptions.length > 0
-      ? c.agentModelOptions
-      : []
-  );
-  syncAgentModelFieldsFromStorage();
+  lastAgentModelCatalog = Array.isArray(c.agentModelCatalog)
+    ? c.agentModelCatalog
+    : [];
+  initModelCombos();
+  restoreModelInputsFromStorage();
 }
 
 function parallelLimitForNewRun(): number {
@@ -206,70 +216,160 @@ function parallelLimitForNewRun(): number {
   return lastConfigMaxParallel;
 }
 
-function populateAgentModelSelect(modelIds: string[]) {
-  const sel = document.getElementById("agentModel") as HTMLSelectElement | null;
-  if (!sel) return;
-  const previous = sel.value;
-  sel.innerHTML = "";
-  const def = document.createElement("option");
-  def.value = "";
-  def.textContent = "Default (CLI)";
-  sel.appendChild(def);
-  for (const id of modelIds) {
-    const o = document.createElement("option");
-    o.value = id;
-    o.textContent = id;
-    sel.appendChild(o);
-  }
-  try {
-    const stored = localStorage.getItem(AGENT_MODEL_LS);
-    const pick =
-      stored !== null &&
-      (stored === "" || [...sel.options].some((op) => op.value === stored))
-        ? stored
-        : [...sel.options].some((op) => op.value === previous)
-          ? previous
-          : "";
-    sel.value = pick;
-  } catch {
-    sel.value = [...sel.options].some((op) => op.value === previous)
-      ? previous
-      : "";
+function restoreModelInputsFromStorage() {
+  for (const [inputId, lsKey] of Object.entries(MODEL_INPUT_LS)) {
+    const inp = document.getElementById(inputId) as HTMLInputElement | null;
+    if (!inp) continue;
+    try {
+      const v = localStorage.getItem(lsKey);
+      if (v !== null) inp.value = v;
+    } catch {
+      /* ignore */
+    }
   }
 }
 
-function syncAgentModelFieldsFromStorage() {
+function persistModelInput(inputId: string, value: string) {
+  const key = MODEL_INPUT_LS[inputId];
+  if (!key) return;
   try {
-    const o = localStorage.getItem(AGENT_MODEL_OVERRIDE_LS);
-    const inp = document.getElementById(
-      "agentModelCustom"
-    ) as HTMLInputElement | null;
-    if (inp && o !== null) inp.value = o;
+    localStorage.setItem(key, value);
   } catch {
     /* ignore */
   }
 }
 
-/**
- * Custom input overrides the dropdown. Empty custom → use select (empty = CLI default).
- */
-function agentModelForSubmit(): { model?: string; error?: string } {
-  const customInp = document.getElementById(
-    "agentModelCustom"
-  ) as HTMLInputElement | null;
-  const custom = customInp?.value?.trim() ?? "";
-  if (custom) {
-    if (!AGENT_MODEL_ID_RE.test(custom)) {
+function initModelCombos() {
+  const pairs: [string, string][] = [
+    ["agentModelPlannerInput", "agentModelPlannerSuggest"],
+    ["agentModelExecutionInput", "agentModelExecutionSuggest"],
+    ["agentModelCommunicationInput", "agentModelCommunicationSuggest"],
+    ["agentModelFallbackInput", "agentModelFallbackSuggest"],
+  ];
+  const combos = pairs
+    .map(([inputId, ulId]) => ({
+      inputId,
+      input: document.getElementById(inputId) as HTMLInputElement | null,
+      ul: document.getElementById(ulId) as HTMLUListElement | null,
+    }))
+    .filter((x) => x.input && x.ul) as Array<{
+    inputId: string;
+    input: HTMLInputElement;
+    ul: HTMLUListElement;
+  }>;
+
+  if (combos.length === 0) return;
+
+  const getCatalog = () => lastAgentModelCatalog;
+
+  const closeAll = () => {
+    for (const { ul } of combos) {
+      ul.hidden = true;
+      ul.classList.remove("open");
+    }
+  };
+
+  const render = (input: HTMLInputElement, ul: HTMLUListElement) => {
+    const q = input.value.trim().toLowerCase();
+    const cat = getCatalog();
+    const filtered = !q
+      ? cat
+      : cat.filter((id) => id.toLowerCase().includes(q));
+    const take = filtered.slice(0, 80);
+    ul.innerHTML = take
+      .map((id) => {
+        const safe = escapeAttr(id);
+        return `<li role="option" tabindex="-1" data-id="${safe}">${escapeHtml(id)}</li>`;
+      })
+      .join("");
+  };
+
+  if (!modelCombosInitialized) {
+    modelCombosInitialized = true;
+    for (const { inputId, input, ul } of combos) {
+      const open = () => {
+        render(input, ul);
+        ul.hidden = false;
+        ul.classList.add("open");
+      };
+
+      input.addEventListener("focus", open);
+      input.addEventListener("input", () => {
+        open();
+        persistModelInput(inputId, input.value);
+      });
+      ul.addEventListener("mousedown", (e) => {
+        const li = (e.target as HTMLElement).closest("li[data-id]");
+        if (!li) return;
+        e.preventDefault();
+        const id = li.getAttribute("data-id") ?? "";
+        input.value = id;
+        persistModelInput(inputId, id);
+        closeAll();
+      });
+    }
+  }
+
+  if (!modelComboDocListener) {
+    modelComboDocListener = true;
+    document.addEventListener("click", (e) => {
+      const t = e.target as Node;
+      if (
+        [...document.querySelectorAll(".model-combo")].some((c) =>
+          c.contains(t)
+        )
+      ) {
+        return;
+      }
+      closeAll();
+    });
+  }
+}
+
+function agentModelsForSubmit(): {
+  payload: Record<string, string>;
+  error?: string;
+} {
+  const fields: [key: string, inputId: string][] = [
+    ["agentModel", "agentModelFallbackInput"],
+    ["agentModelPlanner", "agentModelPlannerInput"],
+    ["agentModelExecution", "agentModelExecutionInput"],
+    ["agentModelCommunication", "agentModelCommunicationInput"],
+  ];
+  const payload: Record<string, string> = {};
+  for (const [key, inputId] of fields) {
+    const v =
+      (document.getElementById(inputId) as HTMLInputElement | null)?.value?.trim() ??
+      "";
+    if (!v) continue;
+    if (!AGENT_MODEL_ID_RE.test(v)) {
       return {
-        error:
-          "Custom model: use letters, digits, dots, underscores, or hyphens only (1–128 characters).",
+        payload: {},
+        error: `Model id (${key}): use letters, digits, . _ - only (1–128 characters), or leave empty.`,
       };
     }
-    return { model: custom };
+    payload[key] = v;
   }
-  const sel = document.getElementById("agentModel") as HTMLSelectElement | null;
-  const v = sel?.value?.trim() ?? "";
-  return { model: v || undefined };
+  return { payload };
+}
+
+function formatRunModelsLine(run: {
+  agentModel?: string;
+  agentModelPlanner?: string;
+  agentModelExecution?: string;
+  agentModelCommunication?: string;
+}): string {
+  const t = (s?: string) => s?.trim() ?? "";
+  const fb = t(run.agentModel);
+  const hasPhase =
+    t(run.agentModelPlanner) ||
+    t(run.agentModelExecution) ||
+    t(run.agentModelCommunication);
+  if (!fb && !hasPhase) return "Default (CLI)";
+  const plan = t(run.agentModelPlanner) || fb || "CLI default";
+  const exec = t(run.agentModelExecution) || fb || "CLI default";
+  const rep = t(run.agentModelCommunication) || fb || "CLI default";
+  return `Plan: ${plan} · Exec: ${exec} · Report: ${rep}`;
 }
 
 /** Session run id, or the Run id field when you paste a run without using Send in this tab. */
@@ -310,6 +410,9 @@ async function loadRun() {
     id: string;
     problem: string;
     agentModel?: string;
+    agentModelPlanner?: string;
+    agentModelExecution?: string;
+    agentModelCommunication?: string;
     limits?: { maxParallelWorktrees: number };
     attachments?: { id: string; name: string; mime: string }[];
     phase: string;
@@ -350,10 +453,25 @@ async function loadRun() {
 
   const ram = document.getElementById("runAgentModel");
   if (ram) {
-    ram.textContent = run.agentModel?.trim()
-      ? run.agentModel.trim()
-      : "Default (CLI)";
+    ram.textContent = formatRunModelsLine(run);
   }
+
+  const mp = document.getElementById(
+    "agentModelPlannerInput"
+  ) as HTMLInputElement | null;
+  if (mp) mp.value = run.agentModelPlanner ?? "";
+  const me = document.getElementById(
+    "agentModelExecutionInput"
+  ) as HTMLInputElement | null;
+  if (me) me.value = run.agentModelExecution ?? "";
+  const mc = document.getElementById(
+    "agentModelCommunicationInput"
+  ) as HTMLInputElement | null;
+  if (mc) mc.value = run.agentModelCommunication ?? "";
+  const mf = document.getElementById(
+    "agentModelFallbackInput"
+  ) as HTMLInputElement | null;
+  if (mf) mf.value = run.agentModel ?? "";
 
   const banner = document.getElementById("pipelineBanner");
   if (banner) {
@@ -720,13 +838,9 @@ async function submitProblem() {
     ta?.focus();
     return;
   }
-  const am = agentModelForSubmit();
+  const am = agentModelsForSubmit();
   if (am.error) {
     setProblemStatus(am.error, "error");
-    const cInp = document.getElementById(
-      "agentModelCustom"
-    ) as HTMLInputElement | null;
-    cInp?.focus();
     return;
   }
 
@@ -744,7 +858,9 @@ async function submitProblem() {
               "maxParallelWorktrees",
               String(parallelLimitForNewRun())
             );
-            if (am.model) fd.append("agentModel", am.model);
+            for (const [k, v] of Object.entries(am.payload)) {
+              fd.append(k, v);
+            }
             for (const f of pendingAttachments) {
               fd.append("files", f, f.name);
             }
@@ -756,7 +872,7 @@ async function submitProblem() {
           body: JSON.stringify({
             problem: prob,
             maxParallelWorktrees: parallelLimitForNewRun(),
-            ...(am.model ? { agentModel: am.model } : {}),
+            ...am.payload,
           }),
         });
     const body = (await r.json()) as { id: string };
@@ -909,6 +1025,15 @@ document.getElementById("btnStartOver")?.addEventListener("click", async () => {
   if (rc) rc.textContent = "—";
   const ram = document.getElementById("runAgentModel");
   if (ram) ram.textContent = "—";
+  for (const id of [
+    "agentModelPlannerInput",
+    "agentModelExecutionInput",
+    "agentModelCommunicationInput",
+    "agentModelFallbackInput",
+  ]) {
+    const el = document.getElementById(id) as HTMLInputElement | null;
+    if (el) el.value = "";
+  }
   const banner = document.getElementById("pipelineBanner");
   if (banner) {
     banner.textContent = "";
@@ -923,25 +1048,28 @@ problemTa?.addEventListener("keydown", (ev) => {
   void submitProblem();
 });
 
-document.getElementById("agentModel")?.addEventListener("change", () => {
-  try {
-    const sel = document.getElementById("agentModel") as HTMLSelectElement;
-    localStorage.setItem(AGENT_MODEL_LS, sel.value);
-  } catch {
-    /* ignore */
+document.getElementById("btnModelCopyExecToAll")?.addEventListener(
+  "click",
+  () => {
+    const ex = (
+      document.getElementById(
+        "agentModelExecutionInput"
+      ) as HTMLInputElement | null
+    )?.value;
+    const v = ex ?? "";
+    for (const id of [
+      "agentModelPlannerInput",
+      "agentModelCommunicationInput",
+      "agentModelFallbackInput",
+    ]) {
+      const el = document.getElementById(id) as HTMLInputElement | null;
+      if (el) {
+        el.value = v;
+        persistModelInput(id, v);
+      }
+    }
   }
-});
-
-document.getElementById("agentModelCustom")?.addEventListener("input", () => {
-  try {
-    const inp = document.getElementById(
-      "agentModelCustom"
-    ) as HTMLInputElement;
-    localStorage.setItem(AGENT_MODEL_OVERRIDE_LS, inp.value);
-  } catch {
-    /* ignore */
-  }
-});
+);
 
 void (async () => {
   await refreshConfig();

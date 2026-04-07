@@ -29,4 +29,17 @@ describe("formatTestFailureRetryBlock", () => {
     };
     expect(formatTestFailureRetryBlock(ctx)).toContain("TIMEOUT");
   });
+
+  it("shows unlimited when maxRounds is Infinity", () => {
+    const ctx: TestFailureRetryContext = {
+      executionRound: 4,
+      maxRounds: Number.POSITIVE_INFINITY,
+      outcomeSummary: "fail",
+      logExcerpt: "",
+      killedByTimeout: false,
+    };
+    const s = formatTestFailureRetryBlock(ctx);
+    expect(s).toContain("execution round **4**");
+    expect(s).toContain("**unlimited**");
+  });
 });

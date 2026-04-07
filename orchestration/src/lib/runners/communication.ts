@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { stripElectronCliNoise } from "../electron-cli-noise.js";
 import { promptPath } from "../paths.js";
 import { runCursorAgent } from "./cursor-cli.js";
+import { resolveAgentModelForPhase } from "../agent-model.js";
 import { loadConfig } from "../config.js";
 import type { RunState } from "../types.js";
 import { getRun, newId, appendOutcome, touchRun } from "../store.js";
@@ -40,7 +41,7 @@ export async function runCommunication(
     onChunk: (c) => publish(run.id, c),
     pipelineRunId,
     phase: "communication",
-    model: run.agentModel,
+    model: resolveAgentModelForPhase(run, "communication"),
   });
 
   const reportOut = stripElectronCliNoise(res.stdout).trim();

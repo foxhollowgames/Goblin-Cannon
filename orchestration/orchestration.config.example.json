@@ -19,15 +19,8 @@
   "gitRemote": "origin",
   "deleteRemoteAgentBranch": true,
   "godotHeadlessTimeoutMs": 600000,
-  "godotTestFixRetries": 5,
-  "agentModelOptions": [
-    "gpt-5",
-    "gpt-5.1",
-    "gpt-5.2",
-    "sonnet-4.5",
-    "opus-4.5",
-    "composer-1"
-  ],
+  "godotTestFixRetries": -1,
+  "agentModelOptions": [],
   "limits": {
     "maxParallelWorktrees": 4
   },

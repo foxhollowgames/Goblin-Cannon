@@ -155,22 +155,27 @@ async function executePipeline(
 
     const runOneTask = async (taskId: string): Promise<void> => {
       const cfgTask = loadConfig();
-      const maxRounds = Math.max(
-        1,
-        1 + Math.max(0, cfgTask.godotTestFixRetries)
-      );
+      const unlimitedFixRetries = cfgTask.godotTestFixRetries < 0;
+      const maxRounds = unlimitedFixRetries
+        ? Number.POSITIVE_INFINITY
+        : Math.max(1, 1 + Math.max(0, cfgTask.godotTestFixRetries));
       let testFailureRetry: TestFailureRetryContext | undefined;
+      let round = 0;
 
-      for (let round = 1; round <= maxRounds; round++) {
+      while (true) {
+        round += 1;
         const rLoop = getRun(runId);
         if (!rLoop || pipelineAbort) return;
         const loopTask = rLoop.backlog.find((x) => x.id === taskId);
         if (!loopTask?.assignedWorktreePath) return;
 
+        const roundLabel = unlimitedFixRetries
+          ? `${round} (∞)`
+          : `${round}/${maxRounds}`;
         rLoop.pipelineMessage =
           round === 1
             ? `Executing: ${loopTask.title}`
-            : `Fix retry ${round}/${maxRounds}: ${loopTask.title}`;
+            : `Fix retry ${roundLabel}: ${loopTask.title}`;
         touchRun(rLoop);
 
         const execResult = await runExecution(
@@ -199,9 +204,13 @@ async function executePipeline(
 
         const r1 = getRun(runId);
         if (r1) {
-          r1.pipelineMessage = `Testing: ${afterExec.title}${
-            maxRounds > 1 ? ` (${round}/${maxRounds})` : ""
-          }`;
+          const testRoundLabel =
+            unlimitedFixRetries || maxRounds > 1
+              ? unlimitedFixRetries
+                ? ` (${round}, ∞)`
+                : ` (${round}/${maxRounds})`
+              : "";
+          r1.pipelineMessage = `Testing: ${afterExec.title}${testRoundLabel}`;
           touchRun(r1);
         }
 
@@ -210,7 +219,10 @@ async function executePipeline(
           afterExec,
           afterExec.assignedWorktreePath,
           runId,
-          { retainWorktreeSlotOnFailure: round < maxRounds }
+          {
+            retainWorktreeSlotOnFailure:
+              unlimitedFixRetries || round < maxRounds,
+          }
         );
 
         if (testRes.pass) {
@@ -223,7 +235,7 @@ async function executePipeline(
           return;
         }
 
-        if (round >= maxRounds) {
+        if (!unlimitedFixRetries && round >= maxRounds) {
           pipelineAbort =
             "Task failed — Godot tests did not pass after automated fix retries. See testing outcomes in the log.";
           return;
@@ -243,9 +255,12 @@ async function executePipeline(
           killedByTimeout: false,
         };
 
+        const nextLabel = unlimitedFixRetries
+          ? `${round + 1} (∞)`
+          : `${round + 1}/${maxRounds}`;
         publish(
           runId,
-          `\n--- Godot tests failed — automated fix retry, execution round ${round + 1}/${maxRounds} ---\n`
+          `\n--- Godot tests failed — automated fix retry, execution round ${nextLabel} ---\n`
         );
       }
     };

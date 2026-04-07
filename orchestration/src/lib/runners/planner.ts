@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { stripElectronCliNoise } from "../electron-cli-noise.js";
 import { promptPath } from "../paths.js";
 import { runCursorAgent } from "./cursor-cli.js";
+import { resolveAgentModelForPhase } from "../agent-model.js";
 import { loadConfig } from "../config.js";
 import type { Task, RunState } from "../types.js";
 import { getRun, newId, touchRun, appendOutcome } from "../store.js";
@@ -258,7 +259,7 @@ export async function runPlanner(
     onChunk: (c) => publish(run.id, c),
     pipelineRunId,
     phase: "planner",
-    model: run.agentModel,
+    model: resolveAgentModelForPhase(run, "planner"),
   });
 
   let summary = "Planner finished with exit " + res.exitCode;

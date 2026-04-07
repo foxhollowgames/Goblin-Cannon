@@ -71,10 +71,15 @@ export interface RunState {
   id: string;
   problem: string;
   /**
-   * When set, the orchestration server passes `cursor agent --model <id>` (or standalone `agent --model`)
-   * for planner, execution, and communication. Omitted when the dashboard uses “Default (CLI)”.
+   * Fallback `--model` when a phase-specific field below is empty (dashboard or API can set any subset).
    */
   agentModel?: string;
+  /** Planner step only — use a smaller/faster model for easy problems; leave empty to use `agentModel` or CLI default. */
+  agentModelPlanner?: string;
+  /** Task execution + fixes — prefer your strongest model for hard / complex work. */
+  agentModelExecution?: string;
+  /** Final communication / report step. */
+  agentModelCommunication?: string;
   /** Optional screenshots, video, PDF, etc. for multimodal context (like Cursor chat attachments). */
   attachments?: ProblemAttachment[];
   phase: Phase;
@@ -168,7 +173,8 @@ export interface OrchestrationConfig {
   godotHeadlessTimeoutMs: number;
   /**
    * After Godot tests fail, how many **extra** execution+test rounds to run (agent sees failing output and must fix code or tests).
-   * Example: **5** ⇒ up to **6** Godot runs total (initial + 5 retries). **0** disables retries. Env: `ORCH_GODOT_TEST_FIX_RETRIES`.
+   * Example: **5** ⇒ up to **6** Godot runs total (initial + 5 retries). **0** = one Godot run only (no fix retries).
+   * **-1** = retry until tests pass or the run is stopped (timeouts still abort). Env: `ORCH_GODOT_TEST_FIX_RETRIES`.
    */
   godotTestFixRetries: number;
   /**
