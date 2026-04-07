@@ -437,12 +437,13 @@ func _finalize_shop_offer(panel: PanelContainer, price: int, index: int) -> Cont
 	_wire_shop_offer_interactions(col, index)
 	return col
 
-func _make_ball_preview_icon(alignment: int, shape_type: int, px: int) -> Control:
+func _make_ball_preview_icon(alignment: int, shape_type: int, px: int, ability: String = "") -> Control:
 	var preview: Control = Control.new()
 	preview.set_script(load("res://scenes/balls/ball_preview_control.gd") as GDScript)
 	preview.custom_minimum_size = Vector2(px, px)
 	preview.alignment = alignment
 	preview.shape_type = shape_type
+	preview.ability_name = ability
 	return preview
 
 ## Renders the same peg visuals as the board, for milestone shop peg offers.
@@ -728,6 +729,7 @@ func _make_ball_card(def: BallDefinition, index: int, price: int) -> Control:
 	preview.custom_minimum_size = Vector2(38, 38)
 	preview.alignment = alignment
 	preview.shape_type = def.shape_type if def != null else -1
+	preview.ability_name = def.ability_name if def != null else ""
 	var preview_center: CenterContainer = CenterContainer.new()
 	preview_center.add_child(preview)
 	card_vbox.add_child(preview_center)

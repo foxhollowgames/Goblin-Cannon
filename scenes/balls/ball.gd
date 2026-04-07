@@ -103,12 +103,14 @@ func _draw() -> void:
 		_draw_phantom_trail()
 	var alignment: int = 0
 	var shape_override: int = -1
+	var ability_name: String = ""
 	if _definition is BallDefinition:
 		alignment = _definition.alignment
 		shape_override = _definition.shape_type
+		ability_name = _definition.ability_name
 	if _is_split_twin:
 		shape_override = BallVisuals.ShapeType.HALF_CIRCLE
-	BallVisuals.draw_ball(self, Vector2.ZERO, Constants.BALL_RADIUS, alignment, shape_override)
+	BallVisuals.draw_ball(self, Vector2.ZERO, Constants.BALL_RADIUS, alignment, shape_override, ability_name)
 
 func _draw_phantom_trail() -> void:
 	var count: int = _phantom_trail_positions.size()

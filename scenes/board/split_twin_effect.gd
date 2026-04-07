@@ -7,12 +7,13 @@ const MIN_SPEED: float = 120.0  # so twin is always visible even if ball was slo
 var _velocity: Vector2 = Vector2.ZERO
 var _alignment: int = 0
 var _shape_type: int = -1
+var _ability_name: String = ""
 var _elapsed: float = 0.0
 
 func _ready() -> void:
 	pass
 
-func setup(start_global_pos: Vector2, velocity_opposite: Vector2, alignment: int, shape_type: int) -> void:
+func setup(start_global_pos: Vector2, velocity_opposite: Vector2, alignment: int, shape_type: int, ability_name: String = "") -> void:
 	global_position = start_global_pos
 	_velocity = velocity_opposite
 	if _velocity.length_squared() < 1.0:
@@ -21,6 +22,7 @@ func setup(start_global_pos: Vector2, velocity_opposite: Vector2, alignment: int
 		_velocity = _velocity.normalized() * maxf(MIN_SPEED, _velocity.length())
 	_alignment = alignment
 	_shape_type = shape_type
+	_ability_name = ability_name
 	queue_redraw()
 
 func _process(delta: float) -> void:
@@ -33,4 +35,4 @@ func _process(delta: float) -> void:
 		queue_free()
 
 func _draw() -> void:
-	BallVisuals.draw_ball(self, Vector2.ZERO, Constants.BALL_RADIUS, _alignment, BallVisuals.ShapeType.HALF_CIRCLE)
+	BallVisuals.draw_ball(self, Vector2.ZERO, Constants.BALL_RADIUS, _alignment, BallVisuals.ShapeType.HALF_CIRCLE, _ability_name)
