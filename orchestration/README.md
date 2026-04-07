@@ -50,11 +50,18 @@ Open http://127.0.0.1:8787 (or set `ORCH_PORT`).
 | `cursorCli.args` | Argument list; include `{{PROMPT}}` where the composed prompt is injected |
 | `cursorCli.env` | Optional extra env vars for the Cursor child (e.g. `CURSOR_API_KEY`) |
 | `cursorCli.headlessAgent` | If `true`, injects `--print` and (on execution) `--force` / `--yolo` so the agent **applies** edits. **Required** for meaningful execution with standalone **`agent.cmd`** — if `false`, the agent may reply without touching files. |
-| `limits.maxParallelWorktrees` | Capacity guard (default `1`) |
+| `limits.maxParallelWorktrees` | Default cap on **concurrent** task worktrees (typical **`4`** in `orchestration.config.example.json`). Each **run** can override via `POST /api/runs` body `maxParallelWorktrees` or the dashboard number field. Tasks still run **one after another** if the planner links them with **`dependsOn`**, or if this value is **`1`**. |
 | `plannerFallback` | If `true` (default), create a single task from the problem when planner output is **empty** or **not parseable JSON** (prose instead of `tasks[]`). Set `false` to fail the run when JSON is missing. |
 | `dryRun` | If `true`, prints commands instead of running Cursor/Godot |
 
 Environment overrides: `GOBLIN_CANNON_ROOT`, `ORCH_WORKTREE_PARENT`, `GODOT_PATH`, **`CURSOR_AGENT_BIN`** (preferred) or **`CURSOR_CLI`**, `ORCH_PORT`, `ORCH_HOST`. **`CURSOR_AGENT_BIN`** is checked **first**: use it for the standalone **`agent.cmd`** path so a user-level **`CURSOR_CLI`** pointing at **`cursor.cmd`** does not override your config.
+
+### Parallel task execution
+
+The pipeline **already** runs up to **`limits.maxParallelWorktrees`** tasks **concurrently** when the backlog has **multiple `pending` tasks** whose **`dependsOn`** prerequisites are satisfied. If everything looks serial:
+
+1. **`limits.maxParallelWorktrees` is `1`** in `orchestration.config.local.json` — raise it (or set **Concurrent agent tasks** on the dashboard when starting a run).
+2. The **planner JSON** chained tasks with **`dependsOn`** (e.g. task 2 waits for task 1) — only independent tasks can overlap; adjust the plan or the prompt so unrelated work uses **`dependsOn: []`**.
 
 ### Headless agent (no git changes / empty planner output / empty window)
 
@@ -64,7 +71,7 @@ Running **`cursor agent "…"`** from Node (no TTY) often returns little or no s
 2. Keep **`headlessAgent: false`** if you see the **`print` / Electron** warning above.
 3. Keep **`CURSOR_CLI`** pointing at **`cursor.cmd`** on Windows — unless you use the standalone binary below.
 
-**Standalone `agent` vs `cursor agent`:** The **`agent`** executable (e.g. `%LOCALAPPDATA%\cursor-agent\agent.cmd` when on `PATH`) runs the Cursor Agent CLI **directly**, so flags like **`--print`** are not forwarded through Electron the way **`cursor agent …`** sometimes is on Windows. In **`orchestration.config.local.json`**, set **`cursorCli.command`** to **`agent`** or the full path to **`agent.cmd`**, **`cursorCli.args`** to **`["{{PROMPT}}"]`** (do **not** include a literal **`agent`** token in `args` — the binary already is `agent`). Use **`headlessAgent: true`** so the server injects **`--print`** and **`--force`** on execution. For unattended runs, add workspace trust flags your CLI printed (e.g. **`--trust`**, **`-f`**, or **`--yolo`**) to **`args`** before **`{{PROMPT}}`**. If PowerShell blocks **`agent.ps1`**, call **`agent.cmd`** with a full path or run the server via **`cmd /c`**.
+**Standalone `agent` vs `cursor agent`:** The **`agent`** executable (e.g. `%LOCALAPPDATA%\cursor-agent\agent.cmd` when on `PATH`) runs the Cursor Agent CLI **directly**, so flags like **`--print`** are not forwarded through Electron the way **`cursor agent …`** sometimes is on Windows. In **`orchestration.config.local.json`**, set **`cursorCli.command`** to **`agent`** or the full path to **`agent.cmd`**, **`cursorCli.args`** to **`["{{PROMPT}}"]`** (do **not** include a literal **`agent`** token in `args` — the binary already is `agent`). Prefer **`headlessAgent: true`** so the server injects **`--print`** (and **`--force`** on execution) for **all** phases. **Important:** Even if **`headlessAgent`** is **`false`**, when the resolved executable is the **standalone `agent`**, the server **still injects `--print` and `--force` for the execution phase only** so the agent **applies file edits** instead of answering in prose only (which would pass **`exit 0`** but fail Godot tests). Opt out of that behavior: **`ORCH_STANDALONE_NO_FORCE_PRINT=1`**. For unattended runs, add workspace trust flags your CLI printed (e.g. **`--trust`**, **`-f`**, or **`--yolo`**) to **`args`** before **`{{PROMPT}}`**. If PowerShell blocks **`agent.ps1`**, call **`agent.cmd`** with a full path or run the server via **`cmd /c`**.
 
 If the dashboard still shows **`Cursor CLI: …\cursor.cmd`** (under **`Programs\cursor\...`**), the server is **not** using standalone `agent` — you get GUI “agent” tabs and flaky I/O. Resolution order: **`CURSOR_AGENT_BIN`** → a **config file path** to **`agent.cmd` / `agent.exe`** (wins over **`CURSOR_CLI`**) → **`CURSOR_CLI`** → **`%LOCALAPPDATA%\cursor-agent\agent.cmd`** if installed → `where cursor`. Set **`CURSOR_AGENT_BIN`** to the standalone agent, or remove a user-level **`CURSOR_CLI`** that points at the IDE, or put the full agent path in **`cursorCli.command`**. Restart **`npm start`** after config edits.
 
@@ -92,6 +99,18 @@ Edits land in the **task worktree** (`goblin-cannon-agent-*`), not your main che
 ## Safety
 
 The Cursor CLI can edit files in the repo or worktree. Use only on trusted clones. Prefer `dryRun: true` to verify commands first.
+
+## Godot tests, auto-merge, and headless quirks
+
+**End-to-end flow:** baseline tests on **main checkout** (optional log) → planner → execution in **git worktree** → **Godot headless tests in that worktree** → on **exit 0**, **`autoMergeOnPass`** (default **true**) merges the task branch into **`main`/`master`**, removes the worktree, optionally **`pushAfterMerge`**. You do **not** need to merge by hand for normal passes.
+
+**When a task fails** with *“Task failed (Godot tests or auto-merge after tests)”*, open the **task outcome** in the dashboard log: **`testing`** outcomes show the suite summary; **`orchestrator`** outcomes show merge/snapshot/push errors (e.g. conflict, no commits ahead of main).
+
+**Keeping main green:** Planner (`orchestration/prompts/planner.md`) and execution (`orchestration/prompts/execution.md`) instruct the agents to **update/add headless tests** and align assertions with shared constants. That avoids the common failure mode: gameplay constants change but **`tests/`** still expect old values.
+
+**Fresh worktrees:** The server seeds a minimal **`.godot`** cache from the main repo so `class_name` and globals resolve. If you see missing-type errors only in worktrees, run tests once in the **main** project in the editor or headless so caches exist, then re-run the pipeline.
+
+**SVG / textures in headless:** Godot may print import or loader warnings for **`.svg`** or other resources during headless runs; the **authoritative** pass signal is **`tests/run_tests.gd` exit code 0** and the **`Total: … passed, … failed`** line. In-editor rendering can still be fine when CI shows warnings.
 
 ## Tests (orchestration logic)
 

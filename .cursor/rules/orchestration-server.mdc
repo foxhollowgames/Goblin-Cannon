@@ -27,9 +27,13 @@ After Godot tests pass, **`autoMergeOnPass`** (default true) merges the task bra
 
 If logs show **empty planner stdout**, **`Warning: 'print'… Electron`**, **no git changes**, or a stray **`agent`** tab, **`cursor.cmd`** is often forwarding flags to Electron. Prefer the standalone **`agent`** binary (see **`orchestration/README.md`** Headless agent): env **`CURSOR_AGENT_BIN`**, or a **full path** to **`agent.cmd`/`agent.exe`** in **`cursorCli.command`** (that path wins over user **`CURSOR_CLI`**), or rely on **`%LOCALAPPDATA%\cursor-agent\agent.cmd`** before `where cursor`. Plus **`CURSOR_API_KEY`** in **`cursorCli.env`** or the process environment.
 
+With the **standalone** `agent` binary, the server **always injects `--print` and `--force` for the execution phase** (even if **`headlessAgent`** is false) so the agent applies edits instead of prose-only runs that fail tests. Opt out: **`ORCH_STANDALONE_NO_FORCE_PRINT=1`**.
+
 ## Restart the server
 
 1. Find the listener on **8787** (`netstat -ano | findstr ":8787"`), then `taskkill /PID <pid> /F`.
 2. From `orchestration/`: `npm start` (serves `http://127.0.0.1:8787`).
 
 Godot path for tests: see `godot-path.mdc` and `orchestration/orchestration.config.local.json`.
+
+**Planner / execution prompts** (`orchestration/prompts/planner.md`, `execution.md`) require **headless test updates** with gameplay changes; **`orchestration/README.md`** documents auto-merge and headless quirks (SVG warnings vs exit code).

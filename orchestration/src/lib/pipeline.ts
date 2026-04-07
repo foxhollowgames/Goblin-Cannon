@@ -155,7 +155,8 @@ async function executePipeline(
 
       const afterTest = getRun(runId)?.backlog.find((x) => x.id === taskId);
       if (afterTest?.status === "failed") {
-        pipelineAbort = "Task failed (Godot tests or auto-merge after tests)";
+        pipelineAbort =
+          "Task failed — check outcomes in the log (Godot tests and/or auto-merge into main).";
       }
     };
 

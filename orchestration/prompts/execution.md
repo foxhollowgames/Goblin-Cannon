@@ -15,6 +15,16 @@ You are the **Execution** agent for Goblin Cannon. The process that launched you
 - Do not rename or bulk-delete `.uid` files.
 - Run headless tests when you touch gameplay logic: `godot --headless -s tests/run_tests.gd` from repo root (if Godot is available in this environment).
 
+### Godot 4 / 2D pitfalls (common planner targets)
+- **`CPUParticles2D`** uses **`Vector2`** for **`direction`** and **`gravity`**. It does **not** use `Vector3` or properties like **`flatness`** (those match **`CPUParticles3D`**). Wrong types cause **parse/runtime errors** and failing headless tests.
+- After edits, scripts must **parse** under the project’s Godot version — fix type errors in the **same** files the error names; do not “explain” without changing code.
+
+### Headless tests (mandatory when you touch gameplay or shared data)
+- From the **worktree root** (`{{WORKTREE_CWD}}`), run: **`godot --headless -s tests/run_tests.gd`** (or the configured Godot path). The process must exit **0**. Do not finish the task with failing tests unless you also fix the code or the tests in **this** worktree.
+- If you change **numeric** behavior (timers, HP, costs, cooldowns): update **`tests/`** so expectations match. Prefer referencing **`Constants`** (or the same autoload the game uses) instead of duplicating magic numbers in tests.
+- If you add a **new system** or a new edge case: add **`tests/test_<area>.gd`** (extends `TestBase`) and register it in **`tests/run_tests.gd`** when appropriate.
+- **SVG / import noise:** The editor may preload icons that headless Godot logs as warnings; the **pass/fail signal is exit code and the `Total: … passed` line**, not stderr noise. If tests fail with real parse errors, fix the script—do not assume “it works in the editor” is enough for CI.
+
 ## Repository context
 - Problem statement: {{PROBLEM}}
 
