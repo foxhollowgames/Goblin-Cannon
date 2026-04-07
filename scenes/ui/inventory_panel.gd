@@ -51,7 +51,7 @@ func _rebuild() -> void:
 
 	var dim: ColorRect = ColorRect.new()
 	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
-	dim.color = Color(ColorPalette.VOID.r, ColorPalette.VOID.g, ColorPalette.VOID.b, 0.55)
+	dim.color = Color(MonsterPalette.VOID.r, MonsterPalette.VOID.g, MonsterPalette.VOID.b, 0.55)
 	dim.mouse_filter = Control.MOUSE_FILTER_STOP
 	dim.gui_input.connect(_on_dim_input)
 	add_child(dim)
@@ -65,12 +65,12 @@ func _rebuild() -> void:
 	panel.custom_minimum_size = Vector2(420, 520)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	var style: StyleBoxFlat = StyleBoxFlat.new()
-	style.bg_color = ColorPalette.UI_PANEL_BG
+	style.bg_color = MonsterPalette.UI_PANEL_BG
 	style.border_width_left = 2
 	style.border_width_right = 2
 	style.border_width_top = 2
 	style.border_width_bottom = 2
-	style.border_color = ColorPalette.UI_PANEL_BORDER
+	style.border_color = MonsterPalette.UI_PANEL_BORDER
 	style.set_corner_radius_all(8)
 	panel.add_theme_stylebox_override("panel", style)
 	center.add_child(panel)
@@ -91,7 +91,7 @@ func _rebuild() -> void:
 	var title: Label = Label.new()
 	title.text = "INVENTORY"
 	title.add_theme_font_size_override("font_size", 22)
-	title.add_theme_color_override("font_color", ColorPalette.CREAM)
+	title.add_theme_color_override("font_color", MonsterPalette.SWATCH_CREAM)
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title)
 	var close_btn: Button = Button.new()
@@ -103,14 +103,14 @@ func _rebuild() -> void:
 
 	var sep: ColorRect = ColorRect.new()
 	sep.custom_minimum_size = Vector2(0, 1)
-	sep.color = Color(ColorPalette.FOREST.r, ColorPalette.FOREST.g, ColorPalette.FOREST.b, 0.8)
+	sep.color = Color(MonsterPalette.FOREST.r, MonsterPalette.FOREST.g, MonsterPalette.FOREST.b, 0.8)
 	root_vbox.add_child(sep)
 
 	if GameState:
 		var gold_lbl: Label = Label.new()
 		gold_lbl.text = "Gold: %d  (milestone shop)" % GameState.run_gold
 		gold_lbl.add_theme_font_size_override("font_size", 16)
-		gold_lbl.add_theme_color_override("font_color", ColorPalette.CREAM)
+		gold_lbl.add_theme_color_override("font_color", MonsterPalette.SWATCH_CREAM)
 		root_vbox.add_child(gold_lbl)
 
 	var scroll: ScrollContainer = ScrollContainer.new()
@@ -149,7 +149,7 @@ func _build_balls_section(parent: VBoxContainer) -> void:
 		var count: int = ball_types[ability_name]
 		_add_body_text(parent, "  %s  ×%d" % [ability_name, count])
 	if bag_count > 0:
-		_add_body_text(parent, "  Bag (overflow)  ×%d" % bag_count, ColorPalette.TAN)
+		_add_body_text(parent, "  Bag (overflow)  ×%d" % bag_count, MonsterPalette.TAN)
 
 func _build_upgrades_section(parent: VBoxContainer) -> void:
 	var wall_upgrades: Dictionary = GameState.applied_wall_break_upgrades
@@ -170,10 +170,10 @@ func _build_upgrades_section(parent: VBoxContainer) -> void:
 			var name_str: String = info.get("name", String(uid))
 			if stacks > 1:
 				name_str += "  ×%d" % stacks
-			_add_body_text(parent, "  %s" % name_str, ColorPalette.CREAM)
+			_add_body_text(parent, "  %s" % name_str, MonsterPalette.SWATCH_CREAM)
 			var desc: String = info.get("description", "")
 			if not desc.is_empty():
-				_add_body_text(parent, "    %s" % desc, ColorPalette.TAN.lerp(ColorPalette.INDIGO, 0.25), 12)
+				_add_body_text(parent, "    %s" % desc, MonsterPalette.TAN.lerp(MonsterPalette.INDIGO, 0.25), 12)
 
 	if not boss_upgrades.is_empty():
 		_add_section_header(parent, "BOSS AMPLIFIERS")
@@ -182,10 +182,10 @@ func _build_upgrades_section(parent: VBoxContainer) -> void:
 		for uid in ids:
 			var info: Dictionary = _get_upgrade_info(uid)
 			var name_str: String = info.get("name", String(uid))
-			_add_body_text(parent, "  %s" % name_str, ColorPalette.RUST)
+			_add_body_text(parent, "  %s" % name_str, MonsterPalette.RUST)
 			var desc: String = info.get("description", "")
 			if not desc.is_empty():
-				_add_body_text(parent, "    %s" % desc, ColorPalette.TAN.lerp(ColorPalette.INDIGO, 0.25), 12)
+				_add_body_text(parent, "    %s" % desc, MonsterPalette.TAN.lerp(MonsterPalette.INDIGO, 0.25), 12)
 
 func _build_stats_section(parent: VBoxContainer) -> void:
 	_add_section_header(parent, "CANNON")
@@ -275,10 +275,10 @@ func _add_section_header(parent: VBoxContainer, text: String) -> void:
 	var label: Label = Label.new()
 	label.text = text
 	label.add_theme_font_size_override("font_size", 16)
-	label.add_theme_color_override("font_color", ColorPalette.MINT.lerp(ColorPalette.CREAM, 0.35))
+	label.add_theme_color_override("font_color", MonsterPalette.MINT.lerp(MonsterPalette.SWATCH_CREAM, 0.35))
 	parent.add_child(label)
 
-func _add_body_text(parent: VBoxContainer, text: String, color: Color = ColorPalette.TAN, font_size: int = 14) -> void:
+func _add_body_text(parent: VBoxContainer, text: String, color: Color = Color("#d1a990"), font_size: int = 14) -> void:
 	var label: Label = Label.new()
 	label.text = text
 	label.add_theme_font_size_override("font_size", font_size)
@@ -292,13 +292,13 @@ func _add_stat_row(parent: VBoxContainer, stat_name: String, value: String) -> v
 	var name_label: Label = Label.new()
 	name_label.text = "  %s" % stat_name
 	name_label.add_theme_font_size_override("font_size", 14)
-	name_label.add_theme_color_override("font_color", ColorPalette.TAN)
+	name_label.add_theme_color_override("font_color", MonsterPalette.TAN)
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.add_child(name_label)
 	var value_label: Label = Label.new()
 	value_label.text = value
 	value_label.add_theme_font_size_override("font_size", 14)
-	value_label.add_theme_color_override("font_color", ColorPalette.CREAM)
+	value_label.add_theme_color_override("font_color", MonsterPalette.SWATCH_CREAM)
 	row.add_child(value_label)
 
 func _get_upgrade_info(upgrade_id: StringName) -> Dictionary:

@@ -7,10 +7,10 @@ var is_current: bool = false:
 		queue_redraw()
 
 const BUBBLE_SIZE: int = 42  # 25% smaller than original 56
-const COLOR_CURRENT: Color = ColorPalette.CONQUEST_CURRENT
-const COLOR_CURRENT_HIGHLIGHT: Color = ColorPalette.CONQUEST_CURRENT_HIGHLIGHT
-const COLOR_DEFAULT: Color = ColorPalette.CONQUEST_INACTIVE
-const COLOR_DEFAULT_HIGHLIGHT: Color = ColorPalette.CONQUEST_INACTIVE_HIGHLIGHT
+const COLOR_CURRENT: Color = Color("#a1422d")
+const COLOR_CURRENT_HIGHLIGHT: Color = Color("#d1a990")
+const COLOR_DEFAULT: Color = Color("#301c10")
+const COLOR_DEFAULT_HIGHLIGHT: Color = Color("#9e7368")
 
 func _ready() -> void:
 	custom_minimum_size = Vector2(BUBBLE_SIZE, BUBBLE_SIZE)

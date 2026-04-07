@@ -71,7 +71,8 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	if _flash_alpha > 0.0:
-		draw_rect(Rect2(-20, -20, WALL_WIDTH + 40, WALL_HEIGHT + 40), Color(1.0, 0.95, 0.7, _flash_alpha))
+		var fl: Color = Constants.gameplay_wall_flash()
+		draw_rect(Rect2(-20, -20, WALL_WIDTH + 40, WALL_HEIGHT + 40), Color(fl.r, fl.g, fl.b, _flash_alpha))
 
 	if _exploding:
 		for piece in _debris:

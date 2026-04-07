@@ -25,5 +25,7 @@ func _on_reached_wall() -> void:
 	queue_free()
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, BALL_RADIUS, Color(0.95, 0.75, 0.25, 1))
-	draw_arc(Vector2.ZERO, BALL_RADIUS, 0, TAU, 16, Color(1.0, 0.85, 0.4, 1), 2.0)
+	var core: Color = Constants.gameplay_cannon_shot_core()
+	var ring: Color = Constants.gameplay_cannon_shot_ring()
+	draw_circle(Vector2.ZERO, BALL_RADIUS, Color(core.r, core.g, core.b, 1))
+	draw_arc(Vector2.ZERO, BALL_RADIUS, 0, TAU, 16, Color(ring.r, ring.g, ring.b, 1), 2.0)

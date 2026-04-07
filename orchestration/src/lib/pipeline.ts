@@ -1,4 +1,9 @@
-import { getRun, touchRun, updateTask } from "./store.js";
+import {
+  collectReferencedWorktreePaths,
+  getRun,
+  touchRun,
+  updateTask,
+} from "./store.js";
 import { publish } from "./log-bus.js";
 import { runPlanner } from "./runners/planner.js";
 import {
@@ -16,6 +21,7 @@ import {
   isPipelineRunning,
 } from "./pipeline-controller.js";
 import { loadConfig, resetConfigCache } from "./config.js";
+import { pruneUnreferencedAgentWorktrees } from "./worktree.js";
 import type { Outcome, PipelineStatus, RunState } from "./types.js";
 
 function latestTestingOutcomeForTask(
@@ -74,6 +80,24 @@ async function executePipeline(
 
   try {
     const cfg = loadConfig();
+    if (!cfg.dryRun) {
+      const pr = pruneUnreferencedAgentWorktrees(
+        cfg.repoRoot,
+        cfg.worktreeParentDir,
+        collectReferencedWorktreePaths()
+      );
+      if (pr.removed.length > 0) {
+        publish(
+          runId,
+          `--- Pruned ${pr.removed.length} unreferenced agent worktree folder(s) (no persisted task references them). ---\n`
+        );
+      }
+      if (pr.warnings.length > 0) {
+        for (const w of pr.warnings.slice(0, 16)) {
+          publish(runId, `--- Prune: ${w} ---\n`);
+        }
+      }
+    }
     if (mode === "full" && cfg.godotPath) {
       run = getRun(runId)!;
       run.pipelineMessage = "Capturing test baseline on main repo…";

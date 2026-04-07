@@ -20,14 +20,14 @@ var _conquest_animate_next: bool = false
 var _wall_cleared_flash_tween: Tween
 const ENERGY_GAIN_LABEL_FADE_DURATION: float = 1.2
 const ENERGY_GAIN_ACCUMULATE_THRESHOLD: float = 0.5
-const COLOR_MAIN: Color = ColorPalette.CREAM
-const COLOR_CLEARED: Color = ColorPalette.OLIVE
+const COLOR_MAIN: Color = Color("#ffec99")
+const COLOR_CLEARED: Color = Color("#5d7545")
 
 func _apply_progress_bar_theme(bar: ProgressBar, fill_color: Color) -> void:
 	if not bar:
 		return
 	var bg: StyleBoxFlat = StyleBoxFlat.new()
-	bg.bg_color = Color(ColorPalette.SLATE.r, ColorPalette.SLATE.g, ColorPalette.SLATE.b, 1)
+	bg.bg_color = Color(MonsterPalette.SLATE.r, MonsterPalette.SLATE.g, MonsterPalette.SLATE.b, 1)
 	bg.set_corner_radius_all(3)
 	bar.add_theme_stylebox_override("background", bg)
 	var fill: StyleBoxFlat = StyleBoxFlat.new()
@@ -42,7 +42,7 @@ func _ready() -> void:
 		_wall_health_label = wall_under.get_node_or_null("ValueLabel") as Label
 		_wall_health_bar = wall_under.get_node_or_null("WallHealthBar") as ProgressBar
 		if _wall_health_bar:
-			_apply_progress_bar_theme(_wall_health_bar, ColorPalette.DUSTY_ROSE)
+			_apply_progress_bar_theme(_wall_health_bar, MonsterPalette.DUSTY_ROSE)
 	# Hide the health and sidearm buckets (no longer used)
 	var health_bucket: Control = get_node_or_null("BottomEnergyPools/BucketsPanel/HBox/HealthBucket") as Control
 	if health_bucket:
@@ -78,7 +78,7 @@ func _create_timer_label() -> void:
 	_timer_label.name = "TimerLabel"
 	_timer_label.text = "3:00"
 	_timer_label.add_theme_font_size_override("font_size", 32)
-	_timer_label.add_theme_color_override("font_color", ColorPalette.CREAM)
+	_timer_label.add_theme_color_override("font_color", MonsterPalette.SWATCH_CREAM)
 	_timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_timer_label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	# Insert at the top of the CenterPanel
@@ -119,10 +119,10 @@ func set_conquest_walls(wall_names: Array, current_index: int, goal_name: String
 		wall_label.custom_minimum_size.x = WALL_LABEL_MIN_WIDTH
 		if is_current:
 			wall_label.text = "Wall %d" % (idx + 1)
-			wall_label.add_theme_color_override("font_color", ColorPalette.CREAM)
+			wall_label.add_theme_color_override("font_color", MonsterPalette.SWATCH_CREAM)
 			wall_label.add_theme_font_size_override("font_size", 12)
 		elif is_cleared:
-			wall_label.add_theme_color_override("font_color", Color(ColorPalette.MINT.r, ColorPalette.MINT.g, ColorPalette.MINT.b, 0.6))
+			wall_label.add_theme_color_override("font_color", Color(MonsterPalette.MINT.r, MonsterPalette.MINT.g, MonsterPalette.MINT.b, 0.6))
 			wall_label.add_theme_font_size_override("font_size", 10)
 		row.add_child(wall_label)
 		var bubble: Control = Control.new()
@@ -159,13 +159,13 @@ func animate_wall_cleared() -> void:
 					break
 			if bubble:
 				var pulse: Tween = create_tween()
-				pulse.tween_property(bubble, "modulate", Color(ColorPalette.MINT.r, ColorPalette.MINT.g, ColorPalette.MINT.b, 1.0), 0.3).set_ease(Tween.EASE_OUT)
+				pulse.tween_property(bubble, "modulate", Color(MonsterPalette.MINT.r, MonsterPalette.MINT.g, MonsterPalette.MINT.b, 1.0), 0.3).set_ease(Tween.EASE_OUT)
 				pulse.tween_property(bubble, "modulate", Color(1, 1, 1, 0.5), 0.8).set_ease(Tween.EASE_IN)
 				break
 
 func _restore_health_bar_color() -> void:
 	if _wall_health_bar:
-		_apply_progress_bar_theme(_wall_health_bar, ColorPalette.DUSTY_ROSE)
+		_apply_progress_bar_theme(_wall_health_bar, MonsterPalette.DUSTY_ROSE)
 
 func set_fortification(current: int, maximum: int) -> void:
 	var text: String = "%d/%d" % [current, maximum]
@@ -201,11 +201,11 @@ func set_timer(seconds_remaining: float) -> void:
 	_timer_label.text = "%d:%02d" % [mins, secs]
 	# Color shifts to red when under 30 seconds
 	if seconds_remaining <= 30.0:
-		_timer_label.add_theme_color_override("font_color", ColorPalette.RUST)
+		_timer_label.add_theme_color_override("font_color", MonsterPalette.RUST)
 	elif seconds_remaining <= 60.0:
-		_timer_label.add_theme_color_override("font_color", ColorPalette.TAN.lerp(ColorPalette.RUST, 0.35))
+		_timer_label.add_theme_color_override("font_color", MonsterPalette.TAN.lerp(MonsterPalette.RUST, 0.35))
 	else:
-		_timer_label.add_theme_color_override("font_color", ColorPalette.CREAM)
+		_timer_label.add_theme_color_override("font_color", MonsterPalette.SWATCH_CREAM)
 
 ## Energy gain VFX (only main cannon now).
 func show_energy_gain(main_internal: int, _sidearm_internal: int, _shield_internal: int, exit_position: Vector2, _alignment: int = 0) -> void:

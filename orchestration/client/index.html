@@ -78,6 +78,30 @@
             />
             <span class="muted parallel-cap-note">Independent tasks can run together; chained <code>dependsOn</code> in the plan still runs in order.</span>
           </div>
+          <div class="parallel-cap-row model-row">
+            <label for="agentModel">AI model</label>
+            <div class="model-picker">
+              <select
+                id="agentModel"
+                name="agentModel"
+                title="Cursor agent --model (planner, execution, communication report)"
+              >
+                <option value="">Default (CLI)</option>
+              </select>
+              <input
+                type="text"
+                id="agentModelCustom"
+                name="agentModelCustom"
+                class="agent-model-custom"
+                placeholder="Custom model id…"
+                autocomplete="off"
+                title="If set, overrides the dropdown"
+              />
+            </div>
+            <span class="muted parallel-cap-note"
+              >Preset list comes from <code>agentModelOptions</code> in config. Custom field overrides the dropdown. Passed as
+              <code>--model</code> when not Default.</span>
+          </div>
           <div class="row row-actions">
             <button type="button" id="btnSend" class="btn-primary">Send</button>
             <button type="button" id="btnStop" class="btn-danger" disabled>
@@ -103,6 +127,8 @@
             <dd id="pipelineStep">—</dd>
             <dt>Concurrency cap (this run)</dt>
             <dd id="runConcurrency">—</dd>
+            <dt>AI model (this run)</dt>
+            <dd id="runAgentModel">—</dd>
           </dl>
         </section>
 

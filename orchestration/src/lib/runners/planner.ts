@@ -258,6 +258,7 @@ export async function runPlanner(
     onChunk: (c) => publish(run.id, c),
     pipelineRunId,
     phase: "planner",
+    model: run.agentModel,
   });
 
   let summary = "Planner finished with exit " + res.exitCode;

@@ -4,6 +4,7 @@ import { loadConfig } from "../config.js";
 import {
   applyHeadlessAgentFlags,
   ensureStandaloneWorkspaceTrust,
+  insertAgentModelFlag,
   isStandaloneAgentExecutablePath,
   isStandaloneExecutionHeadlessForced,
   stripStandaloneAgentSubcommandIfNeeded,
@@ -56,6 +57,8 @@ export async function runCursorAgent(options: {
   pipelineRunId?: string;
   /** Controls `--print` / `--force` injection for headless CLI (see cursor-agent-args.ts). */
   phase?: CursorAgentPhase;
+  /** When set, inserts `--model` after leading flags (Cursor / standalone agent). */
+  model?: string;
 }): Promise<CursorRunResult> {
   const cfg = loadConfig();
   const dry = options.dryRunOverride ?? cfg.dryRun;
@@ -65,6 +68,12 @@ export async function runCursorAgent(options: {
   let baseArgs = stripStandaloneAgentSubcommandIfNeeded(exe, cfg.cursorCli.args);
   if (standaloneExecutable) {
     baseArgs = ensureStandaloneWorkspaceTrust(baseArgs);
+  }
+  baseArgs = insertAgentModelFlag(baseArgs, options.model);
+  if (options.model?.trim()) {
+    options.onChunk?.(
+      `--- Cursor CLI: using --model ${options.model.trim()} ---\n`
+    );
   }
   const argTemplate = applyHeadlessAgentFlags(
     baseArgs,

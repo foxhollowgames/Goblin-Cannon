@@ -680,7 +680,7 @@ func _show_wall_title_card(title_text: String, subtitle_text: String, on_finishe
 
 	# Gradient band via GradientTexture2D for soft top/bottom edges
 	var grad: Gradient = Gradient.new()
-	var v: Color = ColorPalette.VOID
+	var v: Color = MonsterPalette.VOID
 	grad.colors = PackedColorArray([Color(v.r, v.g, v.b, 0), Color(v.r, v.g, v.b, 0.88), Color(v.r, v.g, v.b, 0.88), Color(v.r, v.g, v.b, 0)])
 	grad.offsets = PackedFloat32Array([0.0, 0.22, 0.78, 1.0])
 	var grad_tex: GradientTexture2D = GradientTexture2D.new()
@@ -700,7 +700,7 @@ func _show_wall_title_card(title_text: String, subtitle_text: String, on_finishe
 
 	# Decorative line above title
 	var line_top: ColorRect = ColorRect.new()
-	line_top.color = ColorPalette.TITLE_CARD_LINE
+	line_top.color = MonsterPalette.TITLE_CARD_LINE
 	line_top.size = Vector2(340, 1)
 	line_top.position = Vector2(470, center_y + 58)
 	line_top.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -711,7 +711,7 @@ func _show_wall_title_card(title_text: String, subtitle_text: String, on_finishe
 	var title_label: Label = Label.new()
 	title_label.text = title_text
 	title_label.add_theme_font_size_override("font_size", 44)
-	title_label.add_theme_color_override("font_color", ColorPalette.TITLE_CARD_TITLE)
+	title_label.add_theme_color_override("font_color", MonsterPalette.TITLE_CARD_TITLE)
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	title_label.position = Vector2(40, center_y + 64)
 	title_label.size = Vector2(1280, 54)
@@ -721,7 +721,7 @@ func _show_wall_title_card(title_text: String, subtitle_text: String, on_finishe
 
 	# Decorative line below title
 	var line_bottom: ColorRect = ColorRect.new()
-	line_bottom.color = ColorPalette.TITLE_CARD_LINE
+	line_bottom.color = MonsterPalette.TITLE_CARD_LINE
 	line_bottom.size = Vector2(340, 1)
 	line_bottom.position = Vector2(470, center_y + 122)
 	line_bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -734,7 +734,7 @@ func _show_wall_title_card(title_text: String, subtitle_text: String, on_finishe
 		sub_label = Label.new()
 		sub_label.text = subtitle_text
 		sub_label.add_theme_font_size_override("font_size", 20)
-		sub_label.add_theme_color_override("font_color", ColorPalette.TITLE_CARD_SUB)
+		sub_label.add_theme_color_override("font_color", MonsterPalette.TITLE_CARD_SUB)
 		sub_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		sub_label.position = Vector2(0, center_y + 126)
 		sub_label.size = Vector2(1280, 30)
@@ -781,7 +781,7 @@ func _on_time_expired() -> void:
 
 func _show_fail_screen() -> void:
 	GameState.paused = true
-	_fail_screen = _build_end_screen("TIME'S UP!", ColorPalette.RUST, "Restart")
+	_fail_screen = _build_end_screen("TIME'S UP!", MonsterPalette.RUST, "Restart")
 	var main: Node = get_parent()
 	if main:
 		var overlay: CanvasLayer = CanvasLayer.new()
@@ -803,7 +803,7 @@ func _show_victory_screen() -> void:
 
 func _build_victory_screen() -> Control:
 	var root: ColorRect = ColorRect.new()
-	root.color = ColorPalette.UI_DIM
+	root.color = MonsterPalette.UI_DIM
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -819,7 +819,7 @@ func _build_victory_screen() -> Control:
 	var title: Label = Label.new()
 	title.text = "VICTORY!"
 	title.add_theme_font_size_override("font_size", 64)
-	title.add_theme_color_override("font_color", ColorPalette.MINT)
+	title.add_theme_color_override("font_color", MonsterPalette.MINT)
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	vbox.add_child(title)
 
@@ -859,7 +859,7 @@ func _on_endless_mode_pressed() -> void:
 
 func _build_end_screen(title_text: String, title_color: Color, button_text: String) -> Control:
 	var root: ColorRect = ColorRect.new()
-	root.color = ColorPalette.UI_DIM
+	root.color = MonsterPalette.UI_DIM
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	root.mouse_filter = Control.MOUSE_FILTER_STOP
 	root.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -961,19 +961,19 @@ func _build_debug_tool_button(text: String, tooltip: String) -> Button:
 	btn.custom_minimum_size = Vector2(112, 28)
 	btn.process_mode = Node.PROCESS_MODE_ALWAYS
 	var btn_style: StyleBoxFlat = StyleBoxFlat.new()
-	btn_style.bg_color = ColorPalette.DEBUG_BTN_BG
+	btn_style.bg_color = MonsterPalette.DEBUG_BTN_BG
 	btn_style.border_width_left = 1
 	btn_style.border_width_right = 1
 	btn_style.border_width_top = 1
 	btn_style.border_width_bottom = 1
-	btn_style.border_color = ColorPalette.DEBUG_BTN_BORDER
+	btn_style.border_color = MonsterPalette.DEBUG_BTN_BORDER
 	btn_style.set_corner_radius_all(4)
 	btn.add_theme_stylebox_override("normal", btn_style)
 	var btn_hover: StyleBoxFlat = btn_style.duplicate()
-	btn_hover.bg_color = ColorPalette.DEBUG_BTN_HOVER
+	btn_hover.bg_color = MonsterPalette.DEBUG_BTN_HOVER
 	btn.add_theme_stylebox_override("hover", btn_hover)
 	var btn_pressed_style: StyleBoxFlat = btn_style.duplicate()
-	btn_pressed_style.bg_color = ColorPalette.RUST.lerp(ColorPalette.WARM_BROWN, 0.25)
+	btn_pressed_style.bg_color = MonsterPalette.RUST.lerp(MonsterPalette.WARM_BROWN, 0.25)
 	btn.add_theme_stylebox_override("pressed", btn_pressed_style)
 	btn.add_theme_font_size_override("font_size", 13)
 	return btn
@@ -1146,20 +1146,20 @@ func _build_almanac_button() -> Button:
 	btn.position = Vector2(198, 8)
 	btn.process_mode = Node.PROCESS_MODE_ALWAYS
 	var btn_style: StyleBoxFlat = StyleBoxFlat.new()
-	btn_style.bg_color = ColorPalette.ALMANAC_BTN_BG
+	btn_style.bg_color = MonsterPalette.ALMANAC_BTN_BG
 	btn_style.border_width_left = 1
 	btn_style.border_width_right = 1
 	btn_style.border_width_top = 1
 	btn_style.border_width_bottom = 1
-	btn_style.border_color = ColorPalette.ALMANAC_BTN_BORDER
+	btn_style.border_color = MonsterPalette.ALMANAC_BTN_BORDER
 	btn_style.set_corner_radius_all(4)
 	btn.add_theme_stylebox_override("normal", btn_style)
 	var btn_hover: StyleBoxFlat = btn_style.duplicate()
-	var hc: Color = ColorPalette.SLATE.lerp(ColorPalette.INDIGO, 0.4)
+	var hc: Color = MonsterPalette.SLATE.lerp(MonsterPalette.INDIGO, 0.4)
 	btn_hover.bg_color = Color(hc.r, hc.g, hc.b, 0.95)
 	btn.add_theme_stylebox_override("hover", btn_hover)
 	var btn_pressed_style: StyleBoxFlat = btn_style.duplicate()
-	var pc: Color = ColorPalette.INDIGO.lerp(ColorPalette.VOID, 0.2)
+	var pc: Color = MonsterPalette.INDIGO.lerp(MonsterPalette.VOID, 0.2)
 	btn_pressed_style.bg_color = Color(pc.r, pc.g, pc.b, 0.95)
 	btn.add_theme_stylebox_override("pressed", btn_pressed_style)
 	var book_icon: Image = _create_book_icon_image()
@@ -1171,8 +1171,8 @@ func _build_almanac_button() -> Button:
 func _create_book_icon_image() -> Image:
 	var s: int = 20
 	var img: Image = Image.create(s, s, false, Image.FORMAT_RGBA8)
-	var paper: Color = ColorPalette.CREAM
-	var ink: Color = ColorPalette.INDIGO
+	var paper: Color = MonsterPalette.SWATCH_CREAM
+	var ink: Color = MonsterPalette.INDIGO
 	for y in range(4, 17):
 		for x in range(5, 10):
 			img.set_pixel(x, y, paper)
@@ -1197,20 +1197,20 @@ func _build_bag_button() -> Button:
 	btn.position = Vector2(240, 8)  # to the right of almanac (198 + 36 + 6 gap)
 	btn.process_mode = Node.PROCESS_MODE_ALWAYS
 	var btn_style: StyleBoxFlat = StyleBoxFlat.new()
-	btn_style.bg_color = ColorPalette.BAG_BTN_BG
+	btn_style.bg_color = MonsterPalette.BAG_BTN_BG
 	btn_style.border_width_left = 1
 	btn_style.border_width_right = 1
 	btn_style.border_width_top = 1
 	btn_style.border_width_bottom = 1
-	btn_style.border_color = ColorPalette.BAG_BTN_BORDER
+	btn_style.border_color = MonsterPalette.BAG_BTN_BORDER
 	btn_style.set_corner_radius_all(4)
 	btn.add_theme_stylebox_override("normal", btn_style)
 	var btn_hover: StyleBoxFlat = btn_style.duplicate()
-	var bag_h: Color = ColorPalette.INDIGO.lerp(ColorPalette.TAN, 0.15)
+	var bag_h: Color = MonsterPalette.INDIGO.lerp(MonsterPalette.TAN, 0.15)
 	btn_hover.bg_color = Color(bag_h.r, bag_h.g, bag_h.b, 0.95)
 	btn.add_theme_stylebox_override("hover", btn_hover)
 	var btn_pressed_style: StyleBoxFlat = btn_style.duplicate()
-	var bag_p: Color = ColorPalette.WARM_BROWN.lerp(ColorPalette.INDIGO, 0.35)
+	var bag_p: Color = MonsterPalette.WARM_BROWN.lerp(MonsterPalette.INDIGO, 0.35)
 	btn_pressed_style.bg_color = Color(bag_p.r, bag_p.g, bag_p.b, 0.95)
 	btn.add_theme_stylebox_override("pressed", btn_pressed_style)
 	var bag_icon: Image = _create_bag_icon_image()
@@ -1222,8 +1222,8 @@ func _build_bag_button() -> Button:
 func _create_bag_icon_image() -> Image:
 	var s: int = 20
 	var img: Image = Image.create(s, s, false, Image.FORMAT_RGBA8)
-	var gold: Color = ColorPalette.CREAM
-	var dark_gold: Color = ColorPalette.DARK_OLIVE
+	var gold: Color = MonsterPalette.SWATCH_CREAM
+	var dark_gold: Color = MonsterPalette.DARK_OLIVE
 	# Bag body (trapezoid: narrow top, wider bottom)
 	for y in range(8, 18):
 		var t: float = float(y - 8) / 9.0

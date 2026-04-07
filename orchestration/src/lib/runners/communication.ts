@@ -40,6 +40,7 @@ export async function runCommunication(
     onChunk: (c) => publish(run.id, c),
     pipelineRunId,
     phase: "communication",
+    model: run.agentModel,
   });
 
   const reportOut = stripElectronCliNoise(res.stdout).trim();

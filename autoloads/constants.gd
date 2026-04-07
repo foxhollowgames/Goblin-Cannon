@@ -276,3 +276,280 @@ const MASS_CASCADE_PROXIMITY_PX: float = 50.0  ## Two fragments must be within t
 
 ## Debug peg/ball overrides have moved to TestScenario autoload.
 ## Edit autoloads/test_scenario.gd and set enabled = true.
+
+# -----------------------------------------------------------------------------
+# Monsters Also Die — Lospec palette (canonical UI / theme colors)
+# https://lospec.com/palette-list/monsters-also-die
+# Index order matches the Lospec page listing (top → bottom): 0 .. 11.
+# -----------------------------------------------------------------------------
+
+const MONSTERS_ALSO_DIE_PALETTE_COUNT: int = 12
+
+## Lowercase hex without "#" — use with Color.html("#" + s) via monsters_also_die_color().
+const MONSTERS_ALSO_DIE_PALETTE_HEX: Array[String] = [
+	"061217",
+	"301c10",
+	"222640",
+	"22343d",
+	"364f48",
+	"5d7545",
+	"4e997f",
+	"ffec99",
+	"d1a990",
+	"9e7368",
+	"a1422d",
+	"403920",
+]
+
+## Named indices (same order as MONSTERS_ALSO_DIE_PALETTE_HEX).
+const MAD_IDX_BG_DEEP: int = 0
+const MAD_IDX_SURFACE_WARM: int = 1
+const MAD_IDX_INDIGO: int = 2
+const MAD_IDX_SLATE: int = 3
+const MAD_IDX_MUTED_GREEN: int = 4
+const MAD_IDX_OLIVE: int = 5
+const MAD_IDX_TEAL: int = 6
+const MAD_IDX_CREAM: int = 7
+const MAD_IDX_TAN: int = 8
+const MAD_IDX_DUST: int = 9
+const MAD_IDX_RUST: int = 10
+const MAD_IDX_MUD: int = 11
+
+## Shop card / draft rarity tier 0..5 → Lospec indices (distinct on-screen tiers).
+const MAD_SHOP_RARITY_PALETTE_INDEX: Array[int] = [7, 5, 6, 2, 4, 10]
+
+static func monsters_also_die_color(index: int) -> Color:
+	var i: int = clampi(index, 0, MONSTERS_ALSO_DIE_PALETTE_COUNT - 1)
+	return Color.html("#" + String(MONSTERS_ALSO_DIE_PALETTE_HEX[i]))
+
+static func shop_rarity_accent_color(tier: int) -> Color:
+	var t: int = clampi(tier, 0, MAD_SHOP_RARITY_PALETTE_INDEX.size() - 1)
+	return monsters_also_die_color(MAD_SHOP_RARITY_PALETTE_INDEX[t])
+
+## Ball alignment display: Main / Sidearm / Defense → cream / rust / indigo. Out-of-range → main (cream).
+static func ball_alignment_color(alignment: int) -> Color:
+	if alignment < 0 or alignment > 2:
+		return monsters_also_die_color(MAD_IDX_CREAM)
+	match alignment:
+		1:
+			return monsters_also_die_color(MAD_IDX_RUST)
+		2:
+			return monsters_also_die_color(MAD_IDX_INDIGO)
+		_:
+			return monsters_also_die_color(MAD_IDX_CREAM)
+
+## One Lospec index per ability for BallVisuals.get_ability_theme_color (0..11 cover all swatches).
+static func ball_ability_theme_palette_index(ability_key: String) -> int:
+	var k: String = ability_key.strip_edges()
+	if k.is_empty():
+		k = "Plain"
+	match k:
+		"Plain":
+			return MAD_IDX_SLATE
+		"Split":
+			return MAD_IDX_SURFACE_WARM
+		"Energize":
+			return MAD_IDX_INDIGO
+		"Explosive":
+			return MAD_IDX_MUTED_GREEN
+		"Chain Lightning":
+			return MAD_IDX_OLIVE
+		"Leech":
+			return MAD_IDX_TEAL
+		"Rubbery":
+			return MAD_IDX_CREAM
+		"Phantom":
+			return MAD_IDX_TAN
+		"Volatile":
+			return MAD_IDX_DUST
+		"Constellation":
+			return MAD_IDX_RUST
+		"Binary":
+			return MAD_IDX_MUD
+		"Bloom":
+			return MAD_IDX_BG_DEEP
+		_:
+			return MAD_IDX_TAN
+
+static func ball_ability_theme_color(ability_key: String) -> Color:
+	return monsters_also_die_color(ball_ability_theme_palette_index(ability_key))
+
+## Multiply RGB by luminance; keeps alpha unless alpha_scale >= 0 (then sets alpha).
+static func color_with_luminance(base: Color, luminance: float, alpha_scale: float = -1.0) -> Color:
+	var a: float = base.a if alpha_scale < 0.0 else alpha_scale
+	return Color(base.r * luminance, base.g * luminance, base.b * luminance, a)
+
+static func ui_main_background() -> Color:
+	return monsters_also_die_color(MAD_IDX_BG_DEEP)
+
+static func ui_main_panel_left() -> Color:
+	return monsters_also_die_color(MAD_IDX_SURFACE_WARM)
+
+static func ui_main_panel_right() -> Color:
+	return monsters_also_die_color(MAD_IDX_INDIGO)
+
+static func ui_buckets_panel_bg() -> Color:
+	return monsters_also_die_color(MAD_IDX_SLATE)
+
+static func ui_buckets_panel_border() -> Color:
+	return monsters_also_die_color(MAD_IDX_INDIGO)
+
+static func ui_run_gold_text() -> Color:
+	return monsters_also_die_color(MAD_IDX_CREAM)
+
+static func ui_bag_label_text() -> Color:
+	return monsters_also_die_color(MAD_IDX_TAN)
+
+static func ui_wall_value_text() -> Color:
+	return monsters_also_die_color(MAD_IDX_RUST)
+
+static func ui_charge_accent() -> Color:
+	return monsters_also_die_color(MAD_IDX_CREAM)
+
+static func ui_charge_vfx_particle() -> Color:
+	var b: Color = ui_charge_accent()
+	return Color(b.r, b.g, b.b, 0.95)
+
+static func ui_charge_value_text() -> Color:
+	return monsters_also_die_color(MAD_IDX_CREAM)
+
+static func ui_sidearm_label_text() -> Color:
+	return monsters_also_die_color(MAD_IDX_RUST)
+
+static func ui_sidearm_value_text() -> Color:
+	return monsters_also_die_color(MAD_IDX_RUST)
+
+static func ui_health_label_text() -> Color:
+	return monsters_also_die_color(MAD_IDX_TEAL)
+
+static func ui_health_value_text() -> Color:
+	return monsters_also_die_color(MAD_IDX_OLIVE)
+
+static func ui_conquest_goal_text() -> Color:
+	return monsters_also_die_color(MAD_IDX_CREAM)
+
+static func ui_debug_energy_hud_text() -> Color:
+	return monsters_also_die_color(MAD_IDX_SLATE)
+
+static func ui_milestone_shop_title_text() -> Color:
+	return monsters_also_die_color(MAD_IDX_CREAM)
+
+static func ui_milestone_shop_desc_text() -> Color:
+	return monsters_also_die_color(MAD_IDX_DUST)
+
+static func ui_shop_icon_neutral_tint() -> Color:
+	return monsters_also_die_color(MAD_IDX_TAN)
+
+static func ui_shop_price_normal() -> Color:
+	return monsters_also_die_color(MAD_IDX_CREAM)
+
+static func ui_shop_price_error() -> Color:
+	return monsters_also_die_color(MAD_IDX_RUST)
+
+static func ui_shop_price_purchased() -> Color:
+	return monsters_also_die_color(MAD_IDX_DUST)
+
+static func ui_wall_health_bar_fill() -> Color:
+	return monsters_also_die_color(MAD_IDX_RUST)
+
+static func ui_progress_bar_track() -> Color:
+	return monsters_also_die_color(MAD_IDX_SLATE)
+
+static func ui_timer_critical() -> Color:
+	return monsters_also_die_color(MAD_IDX_RUST)
+
+static func ui_timer_warning() -> Color:
+	return monsters_also_die_color(MAD_IDX_TAN)
+
+static func ui_timer_normal() -> Color:
+	return monsters_also_die_color(MAD_IDX_CREAM)
+
+static func ui_conquest_wall_current_text() -> Color:
+	return monsters_also_die_color(MAD_IDX_CREAM)
+
+static func ui_conquest_wall_cleared_text() -> Color:
+	return monsters_also_die_color(MAD_IDX_OLIVE)
+
+static func ui_conquest_wall_cleared_text_dim() -> Color:
+	var c: Color = ui_conquest_wall_cleared_text()
+	return Color(c.r, c.g, c.b, 0.6)
+
+static func ui_conquest_bubble_pulse_fade_modulate() -> Color:
+	var c: Color = ui_conquest_wall_current_text()
+	return Color(c.r, c.g, c.b, 0.5)
+
+static func ui_wall_cleared_flash_fill() -> Color:
+	return monsters_also_die_color(MAD_IDX_TEAL)
+
+static func ui_conquest_bubble_current() -> Color:
+	return monsters_also_die_color(MAD_IDX_TAN)
+
+static func ui_conquest_bubble_current_ring() -> Color:
+	return monsters_also_die_color(MAD_IDX_CREAM)
+
+static func ui_conquest_bubble_default() -> Color:
+	return monsters_also_die_color(MAD_IDX_RUST)
+
+static func ui_conquest_bubble_default_ring() -> Color:
+	return monsters_also_die_color(MAD_IDX_DUST)
+
+static func ui_conquest_segment_fill() -> Color:
+	return monsters_also_die_color(MAD_IDX_RUST)
+
+static func ui_conquest_segment_border() -> Color:
+	return monsters_also_die_color(MAD_IDX_DUST)
+
+## Board peg “plain” body: tan/cream stone.
+static func gameplay_peg_plain_body() -> Color:
+	return monsters_also_die_color(MAD_IDX_TAN).lerp(monsters_also_die_color(MAD_IDX_DUST), 0.35)
+
+static func gameplay_chain_lightning_glow_outer() -> Color:
+	return monsters_also_die_color(MAD_IDX_INDIGO).lerp(monsters_also_die_color(MAD_IDX_TEAL), 0.45)
+
+static func gameplay_chain_lightning_glow_inner() -> Color:
+	return monsters_also_die_color(MAD_IDX_CREAM).lerp(monsters_also_die_color(MAD_IDX_TEAL), 0.5)
+
+static func gameplay_leech_pulse_outer() -> Color:
+	return monsters_also_die_color(MAD_IDX_INDIGO).lerp(monsters_also_die_color(MAD_IDX_RUST), 0.4)
+
+static func gameplay_leech_pulse_inner() -> Color:
+	return monsters_also_die_color(MAD_IDX_DUST).lerp(monsters_also_die_color(MAD_IDX_CREAM), 0.35)
+
+static func gameplay_board_popup_gold() -> Color:
+	return monsters_also_die_color(MAD_IDX_CREAM).lerp(monsters_also_die_color(MAD_IDX_SURFACE_WARM), 0.25)
+
+static func gameplay_board_energy_popup() -> Color:
+	return monsters_also_die_color(MAD_IDX_INDIGO).lerp(monsters_also_die_color(MAD_IDX_DUST), 0.3)
+
+static func gameplay_wall_flash() -> Color:
+	return monsters_also_die_color(MAD_IDX_CREAM)
+
+static func gameplay_cannon_metal_dark() -> Color:
+	return monsters_also_die_color(MAD_IDX_MUD).lerp(monsters_also_die_color(MAD_IDX_SURFACE_WARM), 0.35)
+
+static func gameplay_cannon_metal_mid() -> Color:
+	return monsters_also_die_color(MAD_IDX_SURFACE_WARM).lerp(monsters_also_die_color(MAD_IDX_DUST), 0.4)
+
+static func gameplay_cannon_barrel_accent() -> Color:
+	return monsters_also_die_color(MAD_IDX_RUST).lerp(monsters_also_die_color(MAD_IDX_TAN), 0.35)
+
+static func gameplay_cannon_muzzle_glow() -> Color:
+	return monsters_also_die_color(MAD_IDX_DUST).lerp(monsters_also_die_color(MAD_IDX_CREAM), 0.45)
+
+static func gameplay_cannon_shot_core() -> Color:
+	return monsters_also_die_color(MAD_IDX_CREAM)
+
+static func gameplay_cannon_shot_ring() -> Color:
+	return monsters_also_die_color(MAD_IDX_TAN).lerp(monsters_also_die_color(MAD_IDX_CREAM), 0.4)
+
+static func gameplay_wall_impact_core() -> Color:
+	return monsters_also_die_color(MAD_IDX_RUST).lerp(monsters_also_die_color(MAD_IDX_CREAM), 0.25)
+
+static func gameplay_wall_impact_ring() -> Color:
+	return monsters_also_die_color(MAD_IDX_CREAM).lerp(monsters_also_die_color(MAD_IDX_TAN), 0.35)
+
+static func gameplay_minion_body() -> Color:
+	return monsters_also_die_color(MAD_IDX_MUTED_GREEN).lerp(monsters_also_die_color(MAD_IDX_SLATE), 0.35)
+
+static func gameplay_black_hole_warning_arc() -> Color:
+	return monsters_also_die_color(MAD_IDX_INDIGO).lerp(monsters_also_die_color(MAD_IDX_BG_DEEP), 0.2)

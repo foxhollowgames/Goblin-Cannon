@@ -37,6 +37,7 @@ export function formatTestFailureRetryBlock(ctx: TestFailureRetryContext): strin
     `This is execution round **${ctx.executionRound}** of **${ctx.maxRounds}** for this task. The last headless test run did not pass.`,
     "",
     "Fix the implementation **or** update tests/assertions if they are wrong or outdated. Edits must be under this worktree. Another test run will execute automatically after you finish.",
+    "If the last failure was due to a hung Cursor agent (`agent.cmd` with no exit), prefer `%LOCALAPPDATA%\\\\cursor-agent\\\\agent.exe` (set `CURSOR_AGENT_BIN` or `cursorCli.command`) so stdin mode exits cleanly on Windows.",
     "",
     "**Summary:** " + ctx.outcomeSummary,
     "",
@@ -131,6 +132,7 @@ export async function runExecution(
     onChunk: (c) => publish(run.id, c),
     pipelineRunId,
     phase: "execution",
+    model: run.agentModel,
   });
 
   const delta =

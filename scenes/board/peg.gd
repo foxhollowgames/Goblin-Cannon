@@ -593,14 +593,21 @@ func _draw_trampoline() -> void:
 	if _recovery_ticks_remaining <= 0:
 		var ratio: float = 1.0 if _max_durability <= 0 else (float(_durability) / float(_max_durability))
 		luminance = lerpf(0.25, 1.0, ratio * _vibrancy_scale)
-	# Frame/rim: dark blue-gray ring
-	var rim_color := Color(0.25, 0.35, 0.5, 1.0)
-	rim_color = Color(rim_color.r * luminance, rim_color.g * luminance, rim_color.b * luminance, rim_color.a)
+	# Frame/rim: slate / indigo (Lospec)
+	var rim_base: Color = Constants.monsters_also_die_color(Constants.MAD_IDX_SLATE).lerp(
+		Constants.monsters_also_die_color(Constants.MAD_IDX_INDIGO), 0.45
+	)
+	var rim_color: Color = Constants.color_with_luminance(rim_base, luminance)
 	draw_arc(Vector2.ZERO, r + 2.0, 0.0, TAU, 32, rim_color, 4.0)
-	# Mat: curved surface (bowl) – green/teal, drawn with vertical squash for bounce
-	var mat_color := Color(0.2, 0.7, 0.45, 1.0)
-	mat_color = Color(mat_color.r * luminance, mat_color.g * luminance, mat_color.b * luminance, mat_color.a)
-	var mat_highlight := Color(0.4, 0.88, 0.6, 0.9 * luminance)
+	# Mat: teal / olive bowl
+	var mat_base: Color = Constants.monsters_also_die_color(Constants.MAD_IDX_TEAL).lerp(
+		Constants.monsters_also_die_color(Constants.MAD_IDX_OLIVE), 0.5
+	)
+	var mat_color: Color = Constants.color_with_luminance(mat_base, luminance)
+	var mat_hi_base: Color = Constants.monsters_also_die_color(Constants.MAD_IDX_CREAM).lerp(
+		Constants.monsters_also_die_color(Constants.MAD_IDX_TEAL), 0.55
+	)
+	var mat_highlight: Color = Color(mat_hi_base.r, mat_hi_base.g, mat_hi_base.b, 0.9 * luminance)
 	# Draw mat as filled arc (bottom half of circle), Y scaled by _trampoline_squash for bounce
 	var pts: PackedVector2Array = []
 	var segs: int = 24
@@ -1007,14 +1014,14 @@ func _draw() -> void:
 	elif peg_extra_kind == "sticky_slime":
 		_draw_sticky_slime()
 	else:
-		var base_color := Color(0.72, 0.68, 0.55, 1.0)
+		var base_color: Color = Constants.gameplay_peg_plain_body()
 		var luminance: float
 		if _recovery_ticks_remaining > 0:
 			luminance = 0.15
 		else:
 			var ratio: float = 1.0 if _max_durability <= 0 else (float(_durability) / float(_max_durability))
 			luminance = lerpf(0.25, 1.0, ratio * _vibrancy_scale)
-		var c := Color(base_color.r * luminance, base_color.g * luminance, base_color.b * luminance, base_color.a)
+		var c: Color = Constants.color_with_luminance(base_color, luminance)
 		draw_circle(Vector2.ZERO, Constants.PEG_RADIUS, c)
 	# Crackling energy aura while peg has extra HP from Energize
 	if _energized_durability > 0:
@@ -1023,13 +1030,18 @@ func _draw() -> void:
 	elif _aura_elapsed > 0.0:
 		var aura_alpha: float = (_aura_elapsed / AURA_DURATION_SEC) * 0.5
 		var aura_r: float = Constants.PEG_RADIUS + 4.0 + (1.0 - _aura_elapsed / AURA_DURATION_SEC) * 8.0
-		draw_arc(Vector2.ZERO, aura_r, 0.0, TAU, 32, Color(0.95, 0.85, 0.4, aura_alpha), 3.0)
+		var aura_col: Color = Constants.monsters_also_die_color(Constants.MAD_IDX_CREAM).lerp(
+			Constants.monsters_also_die_color(Constants.MAD_IDX_TAN), 0.35
+		)
+		draw_arc(Vector2.ZERO, aura_r, 0.0, TAU, 32, Color(aura_col.r, aura_col.g, aura_col.b, aura_alpha), 3.0)
 	# Blue glow during chain lightning shock
 	if _lightning_glow_elapsed > 0.0:
 		var glow_alpha: float = (_lightning_glow_elapsed / LIGHTNING_GLOW_DURATION_SEC) * 0.7
 		var glow_r: float = Constants.PEG_RADIUS + 6.0
-		draw_arc(Vector2.ZERO, glow_r, 0.0, TAU, 24, Color(0.4, 0.7, 1.0, glow_alpha), 4.0)
-		draw_arc(Vector2.ZERO, glow_r + 4.0, 0.0, TAU, 24, Color(0.6, 0.85, 1.0, glow_alpha * 0.5), 2.0)
+		var g1: Color = Constants.gameplay_chain_lightning_glow_outer()
+		var g2: Color = Constants.gameplay_chain_lightning_glow_inner()
+		draw_arc(Vector2.ZERO, glow_r, 0.0, TAU, 24, Color(g1.r, g1.g, g1.b, glow_alpha), 4.0)
+		draw_arc(Vector2.ZERO, glow_r + 4.0, 0.0, TAU, 24, Color(g2.r, g2.g, g2.b, glow_alpha * 0.5), 2.0)
 	# Leech cone on top of peg (siphon visual)
 	if _leech_stacks > 0:
 		_draw_leech_cone()
@@ -1037,8 +1049,10 @@ func _draw() -> void:
 	if _leech_pulse_elapsed > 0.0:
 		var pulse_alpha: float = (_leech_pulse_elapsed / LEECH_PULSE_DURATION_SEC) * 0.75
 		var pulse_r: float = Constants.PEG_RADIUS + 6.0
-		draw_arc(Vector2.ZERO, pulse_r, 0.0, TAU, 16, Color(0.7, 0.45, 1.0, pulse_alpha), 4.0)
-		draw_arc(Vector2.ZERO, pulse_r + 4.0, 0.0, TAU, 16, Color(0.85, 0.65, 1.0, pulse_alpha * 0.5), 2.0)
+		var p1: Color = Constants.gameplay_leech_pulse_outer()
+		var p2: Color = Constants.gameplay_leech_pulse_inner()
+		draw_arc(Vector2.ZERO, pulse_r, 0.0, TAU, 16, Color(p1.r, p1.g, p1.b, pulse_alpha), 4.0)
+		draw_arc(Vector2.ZERO, pulse_r + 4.0, 0.0, TAU, 16, Color(p2.r, p2.g, p2.b, pulse_alpha * 0.5), 2.0)
 	if _ghost_trail_active:
 		_draw_ghost_trail_glow()
 	if _hover_highlight:

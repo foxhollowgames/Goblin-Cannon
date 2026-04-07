@@ -44,6 +44,10 @@ function setProblemStatus(
 }
 
 const RUN_STORAGE_KEY = "goblinOrchRunId";
+const AGENT_MODEL_LS = "goblinOrchAgentModel";
+const AGENT_MODEL_OVERRIDE_LS = "goblinOrchAgentModelOverride";
+
+const AGENT_MODEL_ID_RE = /^[a-zA-Z0-9._-]{1,128}$/;
 
 function persistRunId(id: string | null) {
   try {
@@ -150,6 +154,7 @@ async function refreshConfig() {
     hasGodotPath: boolean;
     limits: { maxParallelWorktrees: number };
     dryRun: boolean;
+    agentModelOptions?: string[];
     cursorCliResolved?: string;
     cursorCliFoundOnDisk?: boolean;
     cursorApiKeyConfigured?: boolean;
@@ -182,6 +187,12 @@ async function refreshConfig() {
     "maxParallelInput"
   ) as HTMLInputElement | null;
   if (parInp) parInp.value = String(lastConfigMaxParallel);
+  populateAgentModelSelect(
+    Array.isArray(c.agentModelOptions) && c.agentModelOptions.length > 0
+      ? c.agentModelOptions
+      : []
+  );
+  syncAgentModelFieldsFromStorage();
 }
 
 function parallelLimitForNewRun(): number {
@@ -193,6 +204,72 @@ function parallelLimitForNewRun(): number {
     return Math.min(32, raw);
   }
   return lastConfigMaxParallel;
+}
+
+function populateAgentModelSelect(modelIds: string[]) {
+  const sel = document.getElementById("agentModel") as HTMLSelectElement | null;
+  if (!sel) return;
+  const previous = sel.value;
+  sel.innerHTML = "";
+  const def = document.createElement("option");
+  def.value = "";
+  def.textContent = "Default (CLI)";
+  sel.appendChild(def);
+  for (const id of modelIds) {
+    const o = document.createElement("option");
+    o.value = id;
+    o.textContent = id;
+    sel.appendChild(o);
+  }
+  try {
+    const stored = localStorage.getItem(AGENT_MODEL_LS);
+    const pick =
+      stored !== null &&
+      (stored === "" || [...sel.options].some((op) => op.value === stored))
+        ? stored
+        : [...sel.options].some((op) => op.value === previous)
+          ? previous
+          : "";
+    sel.value = pick;
+  } catch {
+    sel.value = [...sel.options].some((op) => op.value === previous)
+      ? previous
+      : "";
+  }
+}
+
+function syncAgentModelFieldsFromStorage() {
+  try {
+    const o = localStorage.getItem(AGENT_MODEL_OVERRIDE_LS);
+    const inp = document.getElementById(
+      "agentModelCustom"
+    ) as HTMLInputElement | null;
+    if (inp && o !== null) inp.value = o;
+  } catch {
+    /* ignore */
+  }
+}
+
+/**
+ * Custom input overrides the dropdown. Empty custom → use select (empty = CLI default).
+ */
+function agentModelForSubmit(): { model?: string; error?: string } {
+  const customInp = document.getElementById(
+    "agentModelCustom"
+  ) as HTMLInputElement | null;
+  const custom = customInp?.value?.trim() ?? "";
+  if (custom) {
+    if (!AGENT_MODEL_ID_RE.test(custom)) {
+      return {
+        error:
+          "Custom model: use letters, digits, dots, underscores, or hyphens only (1–128 characters).",
+      };
+    }
+    return { model: custom };
+  }
+  const sel = document.getElementById("agentModel") as HTMLSelectElement | null;
+  const v = sel?.value?.trim() ?? "";
+  return { model: v || undefined };
 }
 
 /** Session run id, or the Run id field when you paste a run without using Send in this tab. */
@@ -232,6 +309,7 @@ async function loadRun() {
   const run = (await r.json()) as {
     id: string;
     problem: string;
+    agentModel?: string;
     limits?: { maxParallelWorktrees: number };
     attachments?: { id: string; name: string; mime: string }[];
     phase: string;
@@ -268,6 +346,13 @@ async function loadRun() {
     rc.textContent = run.limits?.maxParallelWorktrees != null
       ? String(run.limits.maxParallelWorktrees)
       : "—";
+  }
+
+  const ram = document.getElementById("runAgentModel");
+  if (ram) {
+    ram.textContent = run.agentModel?.trim()
+      ? run.agentModel.trim()
+      : "Default (CLI)";
   }
 
   const banner = document.getElementById("pipelineBanner");
@@ -635,6 +720,16 @@ async function submitProblem() {
     ta?.focus();
     return;
   }
+  const am = agentModelForSubmit();
+  if (am.error) {
+    setProblemStatus(am.error, "error");
+    const cInp = document.getElementById(
+      "agentModelCustom"
+    ) as HTMLInputElement | null;
+    cInp?.focus();
+    return;
+  }
+
   btn?.setAttribute("disabled", "true");
   setProblemStatus("Starting run and pipeline…", "info");
   stopPolling();
@@ -649,6 +744,7 @@ async function submitProblem() {
               "maxParallelWorktrees",
               String(parallelLimitForNewRun())
             );
+            if (am.model) fd.append("agentModel", am.model);
             for (const f of pendingAttachments) {
               fd.append("files", f, f.name);
             }
@@ -660,6 +756,7 @@ async function submitProblem() {
           body: JSON.stringify({
             problem: prob,
             maxParallelWorktrees: parallelLimitForNewRun(),
+            ...(am.model ? { agentModel: am.model } : {}),
           }),
         });
     const body = (await r.json()) as { id: string };
@@ -810,6 +907,8 @@ document.getElementById("btnStartOver")?.addEventListener("click", async () => {
   if (pm) pm.textContent = "—";
   const rc = document.getElementById("runConcurrency");
   if (rc) rc.textContent = "—";
+  const ram = document.getElementById("runAgentModel");
+  if (ram) ram.textContent = "—";
   const banner = document.getElementById("pipelineBanner");
   if (banner) {
     banner.textContent = "";
@@ -822,6 +921,26 @@ problemTa?.addEventListener("keydown", (ev) => {
   if (ev.key !== "Enter" || ev.shiftKey) return;
   ev.preventDefault();
   void submitProblem();
+});
+
+document.getElementById("agentModel")?.addEventListener("change", () => {
+  try {
+    const sel = document.getElementById("agentModel") as HTMLSelectElement;
+    localStorage.setItem(AGENT_MODEL_LS, sel.value);
+  } catch {
+    /* ignore */
+  }
+});
+
+document.getElementById("agentModelCustom")?.addEventListener("input", () => {
+  try {
+    const inp = document.getElementById(
+      "agentModelCustom"
+    ) as HTMLInputElement;
+    localStorage.setItem(AGENT_MODEL_OVERRIDE_LS, inp.value);
+  } catch {
+    /* ignore */
+  }
 });
 
 void (async () => {

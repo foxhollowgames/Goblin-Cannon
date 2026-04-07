@@ -70,6 +70,11 @@ export interface ProblemAttachment {
 export interface RunState {
   id: string;
   problem: string;
+  /**
+   * When set, the orchestration server passes `cursor agent --model <id>` (or standalone `agent --model`)
+   * for planner, execution, and communication. Omitted when the dashboard uses “Default (CLI)”.
+   */
+  agentModel?: string;
   /** Optional screenshots, video, PDF, etc. for multimodal context (like Cursor chat attachments). */
   attachments?: ProblemAttachment[];
   phase: Phase;
@@ -163,7 +168,12 @@ export interface OrchestrationConfig {
   godotHeadlessTimeoutMs: number;
   /**
    * After Godot tests fail, how many **extra** execution+test rounds to run (agent sees failing output and must fix code or tests).
-   * Example: **2** ⇒ up to **3** Godot runs total (initial + 2 retries). **0** disables retries (same as before). Env: `ORCH_GODOT_TEST_FIX_RETRIES`.
+   * Example: **5** ⇒ up to **6** Godot runs total (initial + 5 retries). **0** disables retries. Env: `ORCH_GODOT_TEST_FIX_RETRIES`.
    */
   godotTestFixRetries: number;
+  /**
+   * Preset model ids shown in the dashboard selector (Cursor CLI `--model`).
+   * Override or extend in `orchestration.config.local.json`.
+   */
+  agentModelOptions: string[];
 }

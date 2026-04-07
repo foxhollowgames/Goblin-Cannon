@@ -5,7 +5,7 @@ import {
   writeFileSync,
   existsSync,
 } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomBytes } from "node:crypto";
 import type { ProblemAttachment, RunState, Task, Outcome } from "./types.js";
@@ -78,15 +78,29 @@ export function listRuns(): RunState[] {
   );
 }
 
+/** Normalized absolute paths of every task worktree still referenced in persisted runs. */
+export function collectReferencedWorktreePaths(): Set<string> {
+  const s = new Set<string>();
+  for (const run of listRuns()) {
+    for (const t of run.backlog) {
+      const p = t.assignedWorktreePath?.trim();
+      if (p) s.add(resolve(p));
+    }
+  }
+  return s;
+}
+
 export function createRun(
   problem: string,
   maxParallel: number,
-  attachments?: ProblemAttachment[]
+  attachments?: ProblemAttachment[],
+  agentModel?: string
 ): RunState {
   const now = new Date().toISOString();
   const run: RunState = {
     id: newId("run"),
     problem: problem.trim(),
+    ...(agentModel ? { agentModel } : {}),
     attachments: attachments?.length ? [...attachments] : undefined,
     phase: "idle",
     pipelineStatus: "idle",

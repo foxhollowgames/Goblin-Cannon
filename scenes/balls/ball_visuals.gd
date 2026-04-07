@@ -3,13 +3,6 @@ extends RefCounted
 ## Shared ball representation: alignment color, per-ability icon from res://icons inside a glass bubble shell.
 ## Used on board and in reward draft.
 
-## Main / Sidearm / Defense — Lospec "Monsters Also Die" (cream / rust / mint).
-const ALIGNMENT_COLORS: Array[Color] = [
-	ColorPalette.ALIGN_MAIN,
-	ColorPalette.ALIGN_SIDEARM,
-	ColorPalette.ALIGN_DEFENSE,
-]
-
 enum ShapeType {
 	CIRCLE,
 	TRIANGLE,
@@ -37,9 +30,7 @@ const _ICON_BINARY: Texture2D = preload("res://icons/ffffff/transparent/1x1/dela
 const _ICON_BLOOM: Texture2D = preload("res://icons/ffffff/transparent/1x1/delapouite/flower-star.svg")
 
 static func get_alignment_color(alignment: int) -> Color:
-	if alignment >= 0 and alignment < ALIGNMENT_COLORS.size():
-		return ALIGNMENT_COLORS[alignment]
-	return ALIGNMENT_COLORS[0]
+	return Constants.ball_alignment_color(alignment)
 
 static func get_shape_for_alignment(alignment: int) -> int:
 	match alignment:
@@ -75,38 +66,9 @@ static func get_icon_texture_for_ability(ability_key: String) -> Texture2D:
 		_:
 			return _TEX_PLAIN_DEFAULT
 
-## Per-ability tint blended with alignment color so lists and ball reads stay distinct.
+## Per-ability tint — one Lospec index per ability (`Constants.ball_ability_theme_color`).
 static func get_ability_theme_color(ability_key: String) -> Color:
-	var k: String = ability_key.strip_edges()
-	if k.is_empty():
-		k = "Plain"
-	match k:
-		"Plain":
-			return ColorPalette.MINT
-		"Split":
-			return ColorPalette.WARM_BROWN
-		"Energize":
-			return ColorPalette.INDIGO.lerp(ColorPalette.TAN, 0.35)
-		"Explosive":
-			return ColorPalette.RUST
-		"Chain Lightning":
-			return ColorPalette.CREAM
-		"Leech":
-			return ColorPalette.DUSTY_ROSE
-		"Rubbery":
-			return ColorPalette.OLIVE
-		"Phantom":
-			return ColorPalette.INDIGO
-		"Volatile":
-			return ColorPalette.FOREST
-		"Constellation":
-			return ColorPalette.MINT.lerp(ColorPalette.CREAM, 0.4)
-		"Binary":
-			return ColorPalette.TAN.lerp(ColorPalette.RUST, 0.45)
-		"Bloom":
-			return ColorPalette.CREAM.lerp(ColorPalette.DUSTY_ROSE, 0.35)
-		_:
-			return ColorPalette.TAN
+	return Constants.ball_ability_theme_color(ability_key)
 
 static func _resolve_ability_for_drawing(ability_name: String, shape: int) -> String:
 	var ab: String = ability_name.strip_edges()
@@ -134,9 +96,12 @@ static func draw_ball(canvas: CanvasItem, center: Vector2, radius: float, alignm
 
 static func _draw_full_bubble(canvas: CanvasItem, center: Vector2, r: float, base_color: Color, icon: Texture2D) -> void:
 	canvas.draw_circle(center, r * 1.08, Color(base_color.r, base_color.g, base_color.b, 0.13))
-	var glass: Color = ColorPalette.SLATE.lerp(ColorPalette.CREAM, 0.22)
+	var slate: Color = Constants.monsters_also_die_color(Constants.MAD_IDX_SLATE)
+	var cream: Color = Constants.monsters_also_die_color(Constants.MAD_IDX_CREAM)
+	var glass: Color = slate.lerp(cream, 0.22)
 	canvas.draw_circle(center, r * 0.99, Color(glass.r, glass.g, glass.b, 0.26))
-	canvas.draw_circle(center + Vector2(0, r * 0.36), r * 0.55, Color(ColorPalette.INDIGO.r, ColorPalette.INDIGO.g, ColorPalette.INDIGO.b, 0.1))
+	var indigo: Color = Constants.monsters_also_die_color(Constants.MAD_IDX_INDIGO)
+	canvas.draw_circle(center + Vector2(0, r * 0.36), r * 0.55, Color(indigo.r, indigo.g, indigo.b, 0.1))
 	canvas.draw_arc(center, r * 0.99, 0.0, TAU, 56, Color(1, 1, 1, 0.3), 1.15, true)
 	canvas.draw_arc(center, r * 0.96, 0.85, 2.35, 20, Color(base_color.r, base_color.g, base_color.b, 0.2), 0.85, true)
 	canvas.draw_circle(center + Vector2(-r * 0.36, -r * 0.34), r * 0.17, Color(1, 1, 1, 0.42))
@@ -149,7 +114,9 @@ static func _draw_half_bubble(canvas: CanvasItem, center: Vector2, r: float, bas
 	for i in segments + 1:
 		var a: float = -PI / 2.0 + (float(i) / float(segments)) * PI
 		pts.append(center + Vector2(cos(a) * r, sin(a) * r))
-	var half_fill: Color = ColorPalette.SLATE.lerp(ColorPalette.CREAM, 0.35)
+	var half_fill: Color = Constants.monsters_also_die_color(Constants.MAD_IDX_SLATE).lerp(
+		Constants.monsters_also_die_color(Constants.MAD_IDX_CREAM), 0.35
+	)
 	canvas.draw_colored_polygon(pts, Color(half_fill.r, half_fill.g, half_fill.b, 0.3))
 	canvas.draw_line(center + Vector2(0, r), center + Vector2(0, -r), Color(1, 1, 1, 0.36), 1.15)
 	canvas.draw_arc(center, r * 0.99, -PI / 2.0, PI / 2.0, 30, Color(1, 1, 1, 0.34), 1.15, true)
