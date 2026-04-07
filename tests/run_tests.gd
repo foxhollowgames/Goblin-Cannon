@@ -23,6 +23,7 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/test_magnet_peg.gd",
 	"res://tests/test_lucky_gold_peg.gd",
 	"res://tests/test_volatile_gas.gd",
+	"res://tests/test_phantom_trail.gd",
 	"res://tests/test_ball_visuals.gd",
 	"res://tests/test_sticky_slime_event.gd",
 	"res://tests/test_black_hole_event.gd",

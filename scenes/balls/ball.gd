@@ -31,6 +31,8 @@ var _echo_floating: bool = false
 var _echo_pulse_tween: Tween = null
 var _is_phantom: bool = false
 var _phantom_trail_particles: CPUParticles2D
+## Soft dot for phantom trail wisps (avoids default square quads reading as a stretched sprite).
+static var _phantom_trail_particle_tex: ImageTexture
 var _in_hopper_bin: bool = false
 ## Reagent gas (Volatile clouds): stack counts from distinct clouds entered this visit; cleared when scoring at bottom.
 var _gas_damage_cloud_stacks: int = 0
@@ -62,8 +64,12 @@ func _physics_process(delta: float) -> void:
 	if _is_phantom and _phantom_trail_particles:
 		var speed: float = linear_velocity.length()
 		if speed > PHANTOM_TRAIL_MIN_SPEED_PX:
-			var back: Vector2 = -linear_velocity.normalized()
-			_phantom_trail_particles.direction = Vector3(back.x, back.y, 0.0)
+			# Rear of ball in parent space so emission stays behind motion through turns/bounces.
+			var back_global: Vector2 = -linear_velocity.normalized()
+			var back_local: Vector2 = global_transform.basis_xform_inv(back_global)
+			var rear_offset: float = Constants.BALL_RADIUS * 0.82
+			_phantom_trail_particles.position = back_local * rear_offset
+			_phantom_trail_particles.direction = Vector3(back_local.x, back_local.y, 0.0)
 			_phantom_trail_particles.emitting = not _in_hopper_bin
 		else:
 			_phantom_trail_particles.emitting = false
@@ -255,6 +261,21 @@ func clear_gas_buffs_on_score() -> void:
 	_sync_volatile_gas_glow_visual()
 	queue_redraw()
 
+static func _phantom_trail_soft_dot_texture() -> ImageTexture:
+	if _phantom_trail_particle_tex == null:
+		var img: Image = Image.create(32, 32, false, Image.FORMAT_RGBA8)
+		var c: float = 15.5
+		var inv_r: float = 1.0 / c
+		for y in 32:
+			for x in 32:
+				var dx: float = float(x) - c
+				var dy: float = float(y) - c
+				var d: float = sqrt(dx * dx + dy * dy) * inv_r
+				var a: float = clampf(1.0 - d * d, 0.0, 1.0)
+				img.set_pixel(x, y, Color(1.0, 1.0, 1.0, a))
+		_phantom_trail_particle_tex = ImageTexture.create_from_image(img)
+	return _phantom_trail_particle_tex
+
 static func _volatile_glow_white_unit_texture() -> ImageTexture:
 	if _volatile_glow_white_tex == null:
 		var img: Image = Image.create(8, 8, false, Image.FORMAT_RGBA8)
@@ -319,23 +340,26 @@ func _create_phantom_trail_particles() -> void:
 	p.name = "PhantomTrailParticles"
 	p.show_behind_parent = true
 	p.z_index = -2
-	p.local_coords = true
+	# World-space particles so the trail stays behind the path instead of sliding with the ball.
+	p.local_coords = false
+	p.texture = _phantom_trail_soft_dot_texture()
+	p.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
 	p.emitting = false
-	p.amount = 56
-	p.lifetime = 0.45
+	p.amount = 64
+	p.lifetime = 0.5
 	p.one_shot = false
 	p.explosiveness = 0.0
-	p.randomness = 0.5
+	p.randomness = 0.42
 	p.direction = Vector3(0.0, 1.0, 0.0)
-	p.spread = 22.0
+	p.spread = 18.0
 	p.flatness = 0.0
-	p.initial_velocity_min = 40.0
-	p.initial_velocity_max = 95.0
+	p.initial_velocity_min = 28.0
+	p.initial_velocity_max = 72.0
 	p.angular_velocity_min = -1.5
 	p.angular_velocity_max = 1.5
 	p.gravity = Vector3(0.0, 0.0, 0.0)
-	p.scale_amount_min = 0.4
-	p.scale_amount_max = 0.85
+	p.scale_amount_min = 0.45
+	p.scale_amount_max = 0.95
 	p.color = Color(0.5, 0.82, 0.98, 0.55)
 	add_child(p)
 	_phantom_trail_particles = p
