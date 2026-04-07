@@ -160,6 +160,60 @@ export function getWorktreeHead(worktreeRoot: string): string | null {
   return r.ok ? r.stdout.trim() : null;
 }
 
+/** Which branch is the primary branch in this repo (`main` or `master`). */
+export function resolvePrimaryBranch(repoRoot: string): "main" | "master" | null {
+  const root = resolve(repoRoot);
+  for (const b of ["main", "master"] as const) {
+    const v = git(root, ["rev-parse", "--verify", b]);
+    if (v.ok) return b;
+  }
+  return null;
+}
+
+/**
+ * `git merge` only sees commits; uncommitted edits in the worktree would be lost on merge + remove.
+ * Snapshot them into a single commit so the merge step can land them on main.
+ */
+export function snapshotUncommittedInWorktreeIfNeeded(worktreeRoot: string): {
+  ok: boolean;
+  error?: string;
+  committed?: boolean;
+} {
+  const por = git(worktreeRoot, ["status", "--porcelain"]);
+  if (!por.ok) {
+    return { ok: false, error: (por.stderr || por.stdout).trim() };
+  }
+  if (!por.stdout.trim()) {
+    return { ok: true, committed: false };
+  }
+  const add = git(worktreeRoot, ["add", "-A"]);
+  if (!add.ok) {
+    return { ok: false, error: (add.stderr || add.stdout).trim() };
+  }
+  const commit = git(worktreeRoot, [
+    "commit",
+    "-m",
+    "chore(orchestration): snapshot agent worktree before merge into main",
+  ]);
+  if (!commit.ok) {
+    return { ok: false, error: (commit.stderr || commit.stdout).trim() };
+  }
+  return { ok: true, committed: true };
+}
+
+/** Commits on `branch` not reachable from `primary` (same notion as `git merge` into primary). */
+export function commitCountPrimaryBranchAhead(
+  repoRoot: string,
+  primary: "main" | "master",
+  branch: string
+): number | null {
+  const root = resolve(repoRoot);
+  const r = git(root, ["rev-list", "--count", `${primary}..${branch}`]);
+  if (!r.ok) return null;
+  const n = parseInt(r.stdout.trim(), 10);
+  return Number.isFinite(n) ? n : null;
+}
+
 /**
  * After an agent run, detect whether anything changed vs `headBefore` (new commits or dirty tree).
  */

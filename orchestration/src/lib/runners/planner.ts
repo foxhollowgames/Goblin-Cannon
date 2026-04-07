@@ -7,6 +7,7 @@ import { loadConfig } from "../config.js";
 import type { Task, RunState } from "../types.js";
 import { getRun, newId, touchRun, appendOutcome } from "../store.js";
 import { publish } from "../log-bus.js";
+import { formatAttachmentContextForPrompt } from "../attachments.js";
 
 interface RawTask {
   title: string;
@@ -199,6 +200,12 @@ function rawToTasks(raw: PlannerJson): Task[] {
   return out;
 }
 
+function fallbackProblemBody(r: RunState): string {
+  return [r.problem?.trim() ?? "", formatAttachmentContextForPrompt(r)]
+    .filter(Boolean)
+    .join("\n\n");
+}
+
 export async function runPlanner(
   run: RunState,
   pipelineRunId?: string
@@ -209,21 +216,32 @@ export async function runPlanner(
   const persisted = getRun(run.id);
   if (persisted) {
     run.problem = persisted.problem;
+    run.attachments = persisted.attachments;
   }
-  const problemForPlan = run.problem.trim();
+  const plainProblem = run.problem.trim();
+  const attachmentBlock = formatAttachmentContextForPrompt(run);
+  const problemForPlan = plainProblem || "(no problem text)";
   const template = readFileSync(promptPath("planner.md"), "utf8");
-  const body = template.replace(
-    /\{\{PROBLEM\}\}/g,
-    problemForPlan || "(no problem text)"
-  );
+  const body = template.replace(/\{\{PROBLEM\}\}/g, problemForPlan);
   /** One-line request so the model cannot treat “rules text” as the only payload (see planner parse failures). */
-  const requestOneLine = problemForPlan.replace(/\s+/g, " ").trim() || "(empty)";
-  const prompt = [`USER_REQUEST: ${requestOneLine}`, "", body].join("\n");
+  const requestOneLine =
+    plainProblem.replace(/\s+/g, " ").trim() || "(empty)";
+  const prompt = [
+    `USER_REQUEST: ${requestOneLine}`,
+    "",
+    body,
+    attachmentBlock,
+  ].join("\n");
   publish(run.id, "--- Planner: starting Cursor agent ---\n");
-  if (problemForPlan.length > 0) {
+  if (plainProblem.length > 0) {
     publish(
       run.id,
-      `--- Planner: using problem (${problemForPlan.length} chars): ${problemForPlan.slice(0, 200)}${problemForPlan.length > 200 ? "…" : ""} ---\n`
+      `--- Planner: using problem (${plainProblem.length} chars): ${plainProblem.slice(0, 200)}${plainProblem.length > 200 ? "…" : ""} ---\n`
+    );
+  } else if (run.attachments?.length) {
+    publish(
+      run.id,
+      `--- Planner: problem text empty; ${run.attachments.length} attachment(s) only — ensure the model uses attached media. ---\n`
     );
   } else {
     publish(
@@ -249,7 +267,9 @@ export async function runPlanner(
   const combined = stripElectronCliNoise(rawCombined);
 
   if (combined.length === 0 && cfg.plannerFallback) {
-    tasks = buildFallbackTasks(run.problem || "");
+    tasks = buildFallbackTasks(
+      fallbackProblemBody(run) || "Implement from attached media or problem text."
+    );
     summary = `Planner fallback: Cursor agent returned no output (empty stdout/stderr). Created ${tasks.length} task(s) from the problem text. Disable with plannerFallback: false or env ORCH_PLANNER_FALLBACK=0.`;
     publish(run.id, `--- ${summary} ---\n`);
     publish(
@@ -275,10 +295,7 @@ export async function runPlanner(
     const parsed = parsePlannerOutput(combined);
     tasks = rawToTasks(parsed);
     summary = `Planner produced ${tasks.length} task(s).`;
-    if (
-      tasks.length === 0 &&
-      (run.problem?.trim() ?? "").length > 0
-    ) {
+    if (tasks.length === 0 && fallbackProblemBody(run).trim().length > 0) {
       summary +=
         " Model returned empty tasks[] — output must include at least one task (see planner prompt).";
     }
@@ -296,9 +313,9 @@ export async function runPlanner(
 
     if (
       cfg.plannerFallback &&
-      (run.problem?.trim() ?? "").length > 0
+      fallbackProblemBody(run).trim().length > 0
     ) {
-      tasks = buildFallbackTasks(run.problem || "", parsePrefix);
+      tasks = buildFallbackTasks(fallbackProblemBody(run), parsePrefix);
       plannerMetadata = { fallback: true, parseFallback: true };
       summary = `Planner parse error; created ${tasks.length} fallback task(s). Original error: ${parseErr}. Disable with plannerFallback: false.`;
       if (combined.length > 0) {

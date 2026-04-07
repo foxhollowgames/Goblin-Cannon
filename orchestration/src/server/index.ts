@@ -1,9 +1,11 @@
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import multipart from "@fastify/multipart";
 import fastifyStatic from "@fastify/static";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { existsSync, readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { loadConfig, resetConfigCache } from "../lib/config.js";
 import {
   resolveCursorCommand,
@@ -26,7 +28,13 @@ import {
   appendOutcome,
   touchRun,
   updateTask,
+  saveRun,
+  dataDir,
 } from "../lib/store.js";
+import {
+  isAllowedAttachmentFile,
+  saveProblemAttachment,
+} from "../lib/attachments.js";
 import { removeWorktree } from "../lib/worktree.js";
 import { runPlanner } from "../lib/runners/planner.js";
 import { runExecution } from "../lib/runners/execution.js";
@@ -40,9 +48,29 @@ function packageRoot(): string {
   return join(__dirname, "../..");
 }
 
+/** Per-run cap for parallel worktrees (pipeline + assign). Clamped 1–32. */
+function clampParallelWorktrees(
+  requested: number | undefined,
+  fallback: number
+): number {
+  const base = Number.isFinite(fallback) ? Math.floor(fallback) : 4;
+  if (requested === undefined || !Number.isFinite(requested)) {
+    return Math.max(1, Math.min(32, base));
+  }
+  return Math.max(1, Math.min(32, Math.floor(requested)));
+}
+
 async function buildServer() {
   const app = Fastify({ logger: true });
   await app.register(cors, { origin: true });
+  await app.register(multipart, {
+    limits: {
+      fileSize: 25 * 1024 * 1024,
+      files: 16,
+      fields: 16,
+      parts: 48,
+    },
+  });
 
   const staticRoot = join(packageRoot(), "dist", "client");
   const assetsRoot = join(staticRoot, "assets");
@@ -112,9 +140,72 @@ async function buildServer() {
   }>("/api/runs", async (req, reply) => {
     resetConfigCache();
     const cfg = loadConfig();
+    const contentType = req.headers["content-type"] ?? "";
+
+    if (contentType.includes("multipart/form-data")) {
+      let problem = "";
+      let maxParallel: number | undefined;
+      const fileBuffers: {
+        filename: string;
+        mimetype: string;
+        buffer: Buffer;
+      }[] = [];
+
+      for await (const part of req.parts()) {
+        if (part.type === "field") {
+          if (part.fieldname === "problem") {
+            problem = String(part.value ?? "").trim();
+          } else if (part.fieldname === "maxParallelWorktrees") {
+            const n = parseInt(String(part.value ?? ""), 10);
+            if (Number.isFinite(n)) maxParallel = n;
+          }
+        } else if (part.type === "file") {
+          const filename = part.filename || "upload";
+          const mimetype = part.mimetype || "application/octet-stream";
+          if (!isAllowedAttachmentFile(filename, mimetype)) {
+            return reply.code(400).send({
+              error: `Attachment not allowed (type or extension): ${filename} (${mimetype}). Use images, video, audio, or PDF.`,
+            });
+          }
+          const buffer = await part.toBuffer();
+          fileBuffers.push({ filename, mimetype, buffer });
+        }
+      }
+
+      if (!problem && fileBuffers.length === 0) {
+        return reply.code(400).send({
+          error: "Provide problem text and/or at least one attachment.",
+        });
+      }
+
+      const max = clampParallelWorktrees(
+        maxParallel,
+        cfg.limits.maxParallelWorktrees
+      );
+      const run = createRun(
+        problem ||
+          (fileBuffers.length
+            ? "(Problem text empty — see attached media.)"
+            : "Describe your goal in the Problem step."),
+        max
+      );
+
+      if (fileBuffers.length > 0) {
+        const attachments = fileBuffers.map((b) =>
+          saveProblemAttachment(run.id, b.filename, b.buffer, b.mimetype)
+        );
+        run.attachments = attachments;
+        saveRun(run);
+      }
+
+      return reply.code(201).send(run);
+    }
+
     const problem = (req.body?.problem ?? "").trim();
-    const max =
-      req.body?.maxParallelWorktrees ?? cfg.limits.maxParallelWorktrees;
+    const max = clampParallelWorktrees(
+      req.body?.maxParallelWorktrees,
+      cfg.limits.maxParallelWorktrees
+    );
     const run = createRun(problem || "Describe your goal in the Problem step.", max);
     return reply.code(201).send(run);
   });
@@ -126,6 +217,38 @@ async function buildServer() {
     if (!run) return reply.code(404).send({ error: "Run not found" });
     return run;
   });
+
+  /** Serve saved attachment bytes for dashboard thumbnails (local use). */
+  app.get<{
+    Params: { runId: string; attachmentId: string };
+  }>(
+    "/api/runs/:runId/attachments/:attachmentId",
+    async (req, reply) => {
+      const run = getRun(req.params.runId);
+      if (!run) return reply.code(404).send({ error: "Run not found" });
+      const att = run.attachments?.find((a) => a.id === req.params.attachmentId);
+      if (!att) {
+        return reply.code(404).send({ error: "Attachment not found" });
+      }
+      const prefix = `attachments/${req.params.runId}/`;
+      if (!att.relativePath.replace(/\\/g, "/").startsWith(prefix)) {
+        return reply.code(403).send({ error: "Invalid attachment path" });
+      }
+      const abs = resolve(dataDir(), att.relativePath);
+      if (!existsSync(abs)) {
+        return reply.code(404).send({ error: "File missing" });
+      }
+      try {
+        const buf = readFileSync(abs);
+        return reply
+          .header("Cache-Control", "private, max-age=3600")
+          .type(att.mime || "application/octet-stream")
+          .send(buf);
+      } catch {
+        return reply.code(404).send({ error: "Could not read file" });
+      }
+    }
+  );
 
   app.patch<{
     Params: { id: string };

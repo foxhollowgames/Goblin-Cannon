@@ -67,17 +67,36 @@ function insertIndexAfterLeadingFlags(args: string[]): number {
   return i;
 }
 
+/**
+ * When `headlessAgent` is false in config, `cursor agent` still often needs `--print` for
+ * execution so the model **writes files** (otherwise prose-only replies pass `exit 0` and
+ * fail later at tests). The standalone **`agent` / `agent.exe`** binary does not go through
+ * Electron, so it is safe to always inject `--print` + `--force` on **execution** only.
+ * Opt out: `ORCH_STANDALONE_NO_FORCE_PRINT=1`.
+ */
+export function isStandaloneExecutionHeadlessForced(
+  phase: CursorAgentPhase,
+  standaloneAgentExecutable: boolean
+): boolean {
+  return (
+    standaloneAgentExecutable &&
+    phase === "execution" &&
+    process.env.ORCH_STANDALONE_NO_FORCE_PRINT !== "1"
+  );
+}
+
 export function applyHeadlessAgentFlags(
   args: string[],
   phase: CursorAgentPhase,
   enabled: boolean,
   options?: { standaloneAgentExecutable?: boolean }
 ): string[] {
-  if (!enabled) {
+  const standalone = options?.standaloneAgentExecutable ?? false;
+  const effectiveEnabled =
+    enabled || isStandaloneExecutionHeadlessForced(phase, standalone);
+  if (!effectiveEnabled) {
     return [...args];
   }
-
-  const standalone = options?.standaloneAgentExecutable ?? false;
   const agentIdx = args.indexOf("agent");
 
   /** Standalone `agent` — args are e.g. `["{{PROMPT}}"]` or `["--trust", "-p", "{{PROMPT}}"]` (no `agent` token). */

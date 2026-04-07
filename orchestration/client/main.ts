@@ -55,6 +55,10 @@ function persistRunId(id: string | null) {
 }
 
 let currentRunId: string | null = null;
+/** Default from GET /api/config — used to seed the concurrent-tasks input. */
+let lastConfigMaxParallel = 4;
+/** Local files queued for the next Send (multipart). Cleared after a run is created. */
+let pendingAttachments: File[] = [];
 let eventSource: EventSource | null = null;
 let pollTimer: ReturnType<typeof setInterval> | null = null;
 let dungeonInterval: ReturnType<typeof setInterval> | null = null;
@@ -170,6 +174,25 @@ async function refreshConfig() {
       keyHint.style.color = "var(--danger)";
     }
   }
+  lastConfigMaxParallel = Math.max(
+    1,
+    Math.min(32, c.limits?.maxParallelWorktrees ?? 4)
+  );
+  const parInp = document.getElementById(
+    "maxParallelInput"
+  ) as HTMLInputElement | null;
+  if (parInp) parInp.value = String(lastConfigMaxParallel);
+}
+
+function parallelLimitForNewRun(): number {
+  const inp = document.getElementById(
+    "maxParallelInput"
+  ) as HTMLInputElement | null;
+  const raw = parseInt(inp?.value ?? "", 10);
+  if (Number.isFinite(raw) && raw >= 1) {
+    return Math.min(32, raw);
+  }
+  return lastConfigMaxParallel;
 }
 
 /** Session run id, or the Run id field when you paste a run without using Send in this tab. */
@@ -209,6 +232,8 @@ async function loadRun() {
   const run = (await r.json()) as {
     id: string;
     problem: string;
+    limits?: { maxParallelWorktrees: number };
+    attachments?: { id: string; name: string; mime: string }[];
     phase: string;
     pipelineStatus?: string;
     pipelineMessage?: string;
@@ -237,6 +262,13 @@ async function loadRun() {
 
   const pm = document.getElementById("pipelineStep");
   if (pm) pm.textContent = run.pipelineMessage ?? "—";
+
+  const rc = document.getElementById("runConcurrency");
+  if (rc) {
+    rc.textContent = run.limits?.maxParallelWorktrees != null
+      ? String(run.limits.maxParallelWorktrees)
+      : "—";
+  }
 
   const banner = document.getElementById("pipelineBanner");
   if (banner) {
@@ -278,6 +310,8 @@ async function loadRun() {
     report.textContent = run.communicationReport ?? "—";
   }
 
+  renderAttachmentStrip(run.attachments, run.id);
+
   syncRecoverPanel();
 }
 
@@ -287,6 +321,223 @@ function escapeHtml(s: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+function escapeAttr(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
+}
+
+type MediaKind = "image" | "video" | "audio" | "pdf" | "other";
+
+function mediaKindFromMimeAndName(mime: string, name: string): MediaKind {
+  const t = (mime || "").toLowerCase();
+  if (t.startsWith("image/")) return "image";
+  if (t.startsWith("video/")) return "video";
+  if (t.startsWith("audio/")) return "audio";
+  if (t === "application/pdf") return "pdf";
+  const ext = (name.split(".").pop() || "").toLowerCase();
+  if (["png", "jpg", "jpeg", "webp", "gif", "bmp", "svg"].includes(ext)) {
+    return "image";
+  }
+  if (["mp4", "webm", "mov", "mkv"].includes(ext)) return "video";
+  if (["mp3", "wav", "ogg", "flac", "m4a"].includes(ext)) return "audio";
+  if (ext === "pdf") return "pdf";
+  return "other";
+}
+
+function placeholderThumbHtml(kind: MediaKind): string {
+  if (kind === "audio") {
+    return `<span class="attachment-chip-thumb-fallback" aria-hidden="true">♪</span>`;
+  }
+  if (kind === "pdf") {
+    return `<span class="attachment-chip-thumb-fallback attachment-chip-thumb-fallback--pdf">PDF</span>`;
+  }
+  return `<span class="attachment-chip-thumb-fallback" aria-hidden="true">▢</span>`;
+}
+
+/** Object URLs for pending File previews — revoked on remove / clear. */
+const pendingPreviewUrls = new Map<File, string>();
+
+function ensurePendingPreviewUrl(file: File): string | null {
+  const kind = mediaKindFromMimeAndName(file.type, file.name);
+  if (kind !== "image" && kind !== "video") return null;
+  if (pendingPreviewUrls.has(file)) {
+    return pendingPreviewUrls.get(file)!;
+  }
+  const url = URL.createObjectURL(file);
+  pendingPreviewUrls.set(file, url);
+  return url;
+}
+
+function revokePendingPreviewUrl(file: File): void {
+  const u = pendingPreviewUrls.get(file);
+  if (u) URL.revokeObjectURL(u);
+  pendingPreviewUrls.delete(file);
+}
+
+function clearPendingPreviewUrls(): void {
+  for (const u of pendingPreviewUrls.values()) URL.revokeObjectURL(u);
+  pendingPreviewUrls.clear();
+}
+
+function pendingChipHtml(file: File, idx: number): string {
+  const kind = mediaKindFromMimeAndName(file.type, file.name);
+  const label = escapeHtml(file.name);
+  let previewInner: string;
+  if (kind === "image" || kind === "video") {
+    const u = ensurePendingPreviewUrl(file);
+    if (u) {
+      const us = escapeAttr(u);
+      previewInner =
+        kind === "image"
+          ? `<img src="${us}" alt="" class="attachment-chip-thumb-img" />`
+          : `<video src="${us}" class="attachment-chip-thumb-video" muted playsinline preload="metadata"></video>`;
+    } else {
+      previewInner = placeholderThumbHtml(kind);
+    }
+  } else {
+    previewInner = placeholderThumbHtml(kind);
+  }
+
+  return `<li class="attachment-chip">
+    <div class="attachment-chip-preview">${previewInner}</div>
+    <div class="attachment-chip-main">
+      <span class="attachment-chip-name" title="${label}">${label}</span>
+      <button type="button" class="attachment-chip-remove" aria-label="Remove ${label}" data-remove="${idx}">×</button>
+    </div>
+  </li>`;
+}
+
+function serverChipHtml(
+  att: { id: string; name: string; mime: string },
+  runId: string
+): string {
+  const kind = mediaKindFromMimeAndName(att.mime, att.name);
+  const label = escapeHtml(att.name);
+  const src = `/api/runs/${encodeURIComponent(runId)}/attachments/${encodeURIComponent(att.id)}`;
+  let previewInner: string;
+  if (kind === "image") {
+    previewInner = `<img src="${escapeAttr(src)}" alt="" class="attachment-chip-thumb-img" loading="lazy" />`;
+  } else if (kind === "video") {
+    previewInner = `<video src="${escapeAttr(src)}" class="attachment-chip-thumb-video" muted playsinline preload="metadata"></video>`;
+  } else {
+    previewInner = placeholderThumbHtml(kind);
+  }
+  return `<li class="attachment-chip attachment-chip--server">
+    <div class="attachment-chip-preview">${previewInner}</div>
+    <div class="attachment-chip-main">
+      <span class="attachment-chip-name" title="${label}">${label}</span>
+    </div>
+  </li>`;
+}
+
+function isSupportedPasteMediaFile(f: File): boolean {
+  const t = (f.type || "").toLowerCase();
+  if (t.startsWith("image/") || t.startsWith("video/") || t.startsWith("audio/"))
+    return true;
+  if (t === "application/pdf") return true;
+  if (t === "" || t === "application/octet-stream") return true;
+  return false;
+}
+
+/** Clipboard screenshots / copied files — browsers expose `files` and/or `items`. */
+function filesFromClipboard(data: DataTransfer | null): File[] {
+  if (!data) return [];
+  const out: File[] = [];
+  const seen = new Set<string>();
+  const pushUnique = (raw: File) => {
+    if (!isSupportedPasteMediaFile(raw)) return;
+    const k = `${raw.size}:${raw.lastModified}:${raw.type}`;
+    if (seen.has(k)) return;
+    seen.add(k);
+    out.push(normalizePastedFileName(raw));
+  };
+
+  if (data.files?.length) {
+    for (let i = 0; i < data.files.length; i++) {
+      const f = data.files.item(i);
+      if (f) pushUnique(f);
+    }
+  }
+  for (let i = 0; i < (data.items?.length ?? 0); i++) {
+    const item = data.items[i];
+    if (item.kind !== "file") continue;
+    const f = item.getAsFile();
+    if (f) pushUnique(f);
+  }
+  return out;
+}
+
+function normalizePastedFileName(f: File): File {
+  const n = (f.name || "").trim().toLowerCase();
+  const generic =
+    !n ||
+    n === "image.png" ||
+    n === "image.jpeg" ||
+    n === "image.jpg" ||
+    n === "pasted_image";
+  if (!generic) return f;
+
+  const t = (f.type || "").toLowerCase();
+  let ext = "bin";
+  if (t === "image/png") ext = "png";
+  else if (t === "image/jpeg" || t === "image/jpg") ext = "jpg";
+  else if (t === "image/webp") ext = "webp";
+  else if (t === "image/gif") ext = "gif";
+  else if (t.startsWith("video/")) ext = "mp4";
+  else if (t.startsWith("audio/")) ext = "mp3";
+  else if (t === "application/pdf") ext = "pdf";
+
+  const label = `pasted-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+  return new File([f], label, {
+    type: f.type || "application/octet-stream",
+  });
+}
+
+function renderAttachmentStrip(
+  server?: { id: string; name: string; mime: string }[] | undefined,
+  runIdForServer?: string
+) {
+  const ul = document.getElementById("attachmentStrip");
+  if (!ul) return;
+  if (pendingAttachments.length > 0) {
+    ul.innerHTML = pendingAttachments
+      .map((file, idx) => pendingChipHtml(file, idx))
+      .join("");
+    ul.querySelectorAll<HTMLButtonElement>(".attachment-chip-remove").forEach(
+      (btn) => {
+        btn.addEventListener("click", () => {
+          const i = parseInt(btn.getAttribute("data-remove") ?? "-1", 10);
+          if (i >= 0 && i < pendingAttachments.length) {
+            const [removed] = pendingAttachments.splice(i, 1);
+            revokePendingPreviewUrl(removed);
+            if (pendingAttachments.length === 0 && currentRunId) {
+              void loadRun();
+            } else {
+              renderAttachmentStrip();
+            }
+          }
+        });
+      }
+    );
+    return;
+  }
+  if (server?.length && runIdForServer) {
+    ul.innerHTML = server
+      .map((a) => serverChipHtml(a, runIdForServer))
+      .join("");
+    return;
+  }
+  if (server?.length) {
+    ul.innerHTML = server
+      .map(
+        (a) =>
+          `<li class="attachment-chip attachment-chip--server"><span class="attachment-chip-name" title="${escapeHtml(a.name)}">${escapeHtml(a.name)}</span> <span class="muted">(${escapeHtml(a.mime)})</span></li>`
+      )
+      .join("");
+    return;
+  }
+  ul.innerHTML = "";
 }
 
 async function recoverUnfinishedForRun() {
@@ -375,8 +626,12 @@ async function submitProblem() {
   const ta = document.getElementById("problem") as HTMLTextAreaElement;
   const btn = document.getElementById("btnSend") as HTMLButtonElement | null;
   const prob = ta?.value.trim() ?? "";
-  if (!prob) {
-    setProblemStatus("Type a problem or goal before sending.", "error");
+  const hasFiles = pendingAttachments.length > 0;
+  if (!prob && !hasFiles) {
+    setProblemStatus(
+      "Type a problem or add at least one attachment before sending.",
+      "error"
+    );
     ta?.focus();
     return;
   }
@@ -384,16 +639,41 @@ async function submitProblem() {
   setProblemStatus("Starting run and pipeline…", "info");
   stopPolling();
   try {
-    const r = await api("/runs", {
-      method: "POST",
-      body: JSON.stringify({ problem: prob }),
-    });
+    const r = hasFiles
+      ? await fetch("/api/runs", {
+          method: "POST",
+          body: (() => {
+            const fd = new FormData();
+            fd.append("problem", prob);
+            fd.append(
+              "maxParallelWorktrees",
+              String(parallelLimitForNewRun())
+            );
+            for (const f of pendingAttachments) {
+              fd.append("files", f, f.name);
+            }
+            return fd;
+          })(),
+        })
+      : await api("/runs", {
+          method: "POST",
+          body: JSON.stringify({
+            problem: prob,
+            maxParallelWorktrees: parallelLimitForNewRun(),
+          }),
+        });
     const body = (await r.json()) as { id: string };
     if (!r.ok) {
       setProblemStatus(await readHttpError(r), "error");
       btn?.removeAttribute("disabled");
       return;
     }
+    clearPendingPreviewUrls();
+    pendingAttachments = [];
+    const fileInput = document.getElementById(
+      "problemFiles"
+    ) as HTMLInputElement | null;
+    if (fileInput) fileInput.value = "";
     currentRunId = body.id;
     persistRunId(body.id);
     await connectLogStream(body.id);
@@ -435,6 +715,48 @@ document.getElementById("btnSend")?.addEventListener("click", () => {
   void submitProblem();
 });
 
+document.getElementById("btnAttach")?.addEventListener("click", () => {
+  document.getElementById("problemFiles")?.click();
+});
+
+document.getElementById("problemFiles")?.addEventListener("change", (ev) => {
+  const input = ev.target as HTMLInputElement;
+  const list = input.files;
+  if (!list?.length) return;
+  pendingAttachments.push(...Array.from(list));
+  input.value = "";
+  renderAttachmentStrip();
+});
+
+const problemCompose = document.getElementById("problemCompose");
+problemCompose?.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  problemCompose.classList.add("problem-compose--drag");
+});
+problemCompose?.addEventListener("dragleave", (e) => {
+  if (e.target === problemCompose) {
+    problemCompose.classList.remove("problem-compose--drag");
+  }
+});
+problemCompose?.addEventListener("drop", (e) => {
+  e.preventDefault();
+  e.stopPropagation();
+  problemCompose?.classList.remove("problem-compose--drag");
+  const dt = e.dataTransfer?.files;
+  if (!dt?.length) return;
+  pendingAttachments.push(...Array.from(dt));
+  renderAttachmentStrip();
+});
+
+problemCompose?.addEventListener("paste", (e) => {
+  const pasted = filesFromClipboard((e as ClipboardEvent).clipboardData);
+  if (pasted.length === 0) return;
+  e.preventDefault();
+  pendingAttachments.push(...pasted);
+  renderAttachmentStrip();
+});
+
 document.getElementById("btnStop")?.addEventListener("click", async () => {
   if (!currentRunId) return;
   const r = await api("/pipeline/stop", {
@@ -467,6 +789,13 @@ document.getElementById("btnStartOver")?.addEventListener("click", async () => {
   syncRecoverPanel();
   eventSource?.close();
   eventSource = null;
+  clearPendingPreviewUrls();
+  pendingAttachments = [];
+  const fileInput = document.getElementById(
+    "problemFiles"
+  ) as HTMLInputElement | null;
+  if (fileInput) fileInput.value = "";
+  renderAttachmentStrip();
   const ta = document.getElementById("problem") as HTMLTextAreaElement;
   if (ta) ta.value = "";
   const rid = document.getElementById("runIdDisplay");
@@ -479,6 +808,8 @@ document.getElementById("btnStartOver")?.addEventListener("click", async () => {
   if (ps) ps.textContent = "—";
   const pm = document.getElementById("pipelineStep");
   if (pm) pm.textContent = "—";
+  const rc = document.getElementById("runConcurrency");
+  if (rc) rc.textContent = "—";
   const banner = document.getElementById("pipelineBanner");
   if (banner) {
     banner.textContent = "";
@@ -499,7 +830,7 @@ void (async () => {
   const restored = await restoreRunIfAny();
   if (!restored) {
     setProblemStatus(
-      "Describe the goal and Send — the full pipeline runs automatically.",
+      "Describe the goal (and optionally attach media), then Send — the full pipeline runs automatically.",
       "info"
     );
     setControlsForPipeline(false);

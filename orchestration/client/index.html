@@ -38,16 +38,46 @@
         <section class="card">
           <h2>Problem &amp; control</h2>
           <label class="sr-only" for="problem">Problem or goal</label>
-          <textarea
-            id="problem"
-            name="problem"
-            rows="5"
-            placeholder="Describe the core problem or feature goal…"
-            autocomplete="off"
-          ></textarea>
+          <div class="problem-compose" id="problemCompose">
+            <textarea
+              id="problem"
+              name="problem"
+              rows="5"
+              placeholder="Describe the core problem or feature goal…"
+              autocomplete="off"
+            ></textarea>
+            <div class="attachment-toolbar">
+              <input
+                type="file"
+                id="problemFiles"
+                class="sr-only"
+                multiple
+                accept="image/*,video/*,audio/*,.pdf,application/pdf"
+              />
+              <button type="button" id="btnAttach" class="secondary btn-attach">
+                Attach media
+              </button>
+              <span class="muted attach-hint">Attach, drag, or paste (e.g. screenshots) — like Cursor chat</span>
+            </div>
+            <ul id="attachmentStrip" class="attachment-strip" aria-label="Pending attachments"></ul>
+          </div>
           <p class="kbd-hint muted">
-            <strong>Enter</strong> to send · <strong>Shift+Enter</strong> for a new line
+            <strong>Enter</strong> to send · <strong>Shift+Enter</strong> for a new line ·
+            <strong>Ctrl+V</strong> / <strong>⌘V</strong> to paste images into the problem box
           </p>
+          <div class="parallel-cap-row">
+            <label for="maxParallelInput">Concurrent agent tasks</label>
+            <input
+              type="number"
+              id="maxParallelInput"
+              name="maxParallelWorktrees"
+              min="1"
+              max="32"
+              value="4"
+              title="Max tasks running at once (independent backlog items only; dependsOn still serializes)"
+            />
+            <span class="muted parallel-cap-note">Independent tasks can run together; chained <code>dependsOn</code> in the plan still runs in order.</span>
+          </div>
           <div class="row row-actions">
             <button type="button" id="btnSend" class="btn-primary">Send</button>
             <button type="button" id="btnStop" class="btn-danger" disabled>
@@ -71,6 +101,8 @@
             <dd id="pipelineState">—</dd>
             <dt>Step</dt>
             <dd id="pipelineStep">—</dd>
+            <dt>Concurrency cap (this run)</dt>
+            <dd id="runConcurrency">—</dd>
           </dl>
         </section>
 

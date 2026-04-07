@@ -21,6 +21,7 @@ You are the **Execution** agent for Goblin Cannon. The process that launched you
 
 ### Headless tests (mandatory when you touch gameplay or shared data)
 - From the **worktree root** (`{{WORKTREE_CWD}}`), run: **`godot --headless -s tests/run_tests.gd`** (or the configured Godot path). The process must exit **0**. Do not finish the task with failing tests unless you also fix the code or the tests in **this** worktree.
+- The orchestration server applies a **wall-clock timeout** to Godot (`godotHeadlessTimeoutMs` in config). If tests **hang** (infinite loop, deadlock), the run will be **killed** and the task will **fail** — fix the hang locally; do not rely on the dashboard waiting forever.
 - If you change **numeric** behavior (timers, HP, costs, cooldowns): update **`tests/`** so expectations match. Prefer referencing **`Constants`** (or the same autoload the game uses) instead of duplicating magic numbers in tests.
 - If you add a **new system** or a new edge case: add **`tests/test_<area>.gd`** (extends `TestBase`) and register it in **`tests/run_tests.gd`** when appropriate.
 - **SVG / import noise:** The editor may preload icons that headless Godot logs as warnings; the **pass/fail signal is exit code and the `Total: … passed` line**, not stderr noise. If tests fail with real parse errors, fix the script—do not assume “it works in the editor” is enough for CI.

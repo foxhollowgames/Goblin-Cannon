@@ -8,7 +8,7 @@ import {
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { randomBytes } from "node:crypto";
-import type { RunState, Task, Outcome } from "./types.js";
+import type { ProblemAttachment, RunState, Task, Outcome } from "./types.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -78,11 +78,16 @@ export function listRuns(): RunState[] {
   );
 }
 
-export function createRun(problem: string, maxParallel: number): RunState {
+export function createRun(
+  problem: string,
+  maxParallel: number,
+  attachments?: ProblemAttachment[]
+): RunState {
   const now = new Date().toISOString();
   const run: RunState = {
     id: newId("run"),
     problem: problem.trim(),
+    attachments: attachments?.length ? [...attachments] : undefined,
     phase: "idle",
     pipelineStatus: "idle",
     pipelineMessage: "",

@@ -53,8 +53,9 @@ Open http://127.0.0.1:8787 (or set `ORCH_PORT`).
 | `limits.maxParallelWorktrees` | Default cap on **concurrent** task worktrees (typical **`4`** in `orchestration.config.example.json`). Each **run** can override via `POST /api/runs` body `maxParallelWorktrees` or the dashboard number field. Tasks still run **one after another** if the planner links them with **`dependsOn`**, or if this value is **`1`**. |
 | `plannerFallback` | If `true` (default), create a single task from the problem when planner output is **empty** or **not parseable JSON** (prose instead of `tasks[]`). Set `false` to fail the run when JSON is missing. |
 | `dryRun` | If `true`, prints commands instead of running Cursor/Godot |
+| `godotHeadlessTimeoutMs` | Max time (ms) for each Godot headless run (baseline + worktree tests); kills the process if exceeded so the pipeline never hangs. Default **600000** (10 min). Env: **`ORCH_GODOT_HEADLESS_TIMEOUT_MS`**. **`0`** disables the limit (not recommended). |
 
-Environment overrides: `GOBLIN_CANNON_ROOT`, `ORCH_WORKTREE_PARENT`, `GODOT_PATH`, **`CURSOR_AGENT_BIN`** (preferred) or **`CURSOR_CLI`**, `ORCH_PORT`, `ORCH_HOST`. **`CURSOR_AGENT_BIN`** is checked **first**: use it for the standalone **`agent.cmd`** path so a user-level **`CURSOR_CLI`** pointing at **`cursor.cmd`** does not override your config.
+Environment overrides: `GOBLIN_CANNON_ROOT`, `ORCH_WORKTREE_PARENT`, `GODOT_PATH`, **`ORCH_GODOT_HEADLESS_TIMEOUT_MS`**, **`CURSOR_AGENT_BIN`** (preferred) or **`CURSOR_CLI`**, `ORCH_PORT`, `ORCH_HOST`. **`CURSOR_AGENT_BIN`** is checked **first**: use it for the standalone **`agent.cmd`** path so a user-level **`CURSOR_CLI`** pointing at **`cursor.cmd`** does not override your config.
 
 ### Parallel task execution
 
@@ -111,6 +112,15 @@ The Cursor CLI can edit files in the repo or worktree. Use only on trusted clone
 **Fresh worktrees:** The server seeds a minimal **`.godot`** cache from the main repo so `class_name` and globals resolve. If you see missing-type errors only in worktrees, run tests once in the **main** project in the editor or headless so caches exist, then re-run the pipeline.
 
 **SVG / textures in headless:** Godot may print import or loader warnings for **`.svg`** or other resources during headless runs; the **authoritative** pass signal is **`tests/run_tests.gd` exit code 0** and the **`Total: … passed, … failed`** line. In-editor rendering can still be fine when CI shows warnings.
+
+**Hangs and forward progress (nothing blocks forever):**
+
+| Stage | Guard | What happens |
+|--------|--------|----------------|
+| **Cursor agent** (planner / execution / report) | `cursorCli.timeoutMs`, `exitAfterOutputIdleMs`, `exitAfterSummaryIdleMs`, `maxExecutionWallMs` | Idle or runaway CLI is terminated; execution may still **continue to tests** if the worktree has file changes (see server log). |
+| **Godot headless** (baseline + worktree tests) | **`godotHeadlessTimeoutMs`** (default **600000** = 10 min; **`ORCH_GODOT_HEADLESS_TIMEOUT_MS`** env; **`0`** = no limit, not recommended) | Process is killed; **worktree tests** count as **failed** (task won’t auto-merge); **baseline** gets a timeout note instead of hanging the run. |
+
+After a failure, the pipeline still **finishes the run** (report phase when applicable), **releases the worktree slot**, and you can fix **`main`**, **delete the bad worktree**, or use **Rerun unfinished → tests**. The dashboard should never sit in **testing** forever.
 
 ## Tests (orchestration logic)
 

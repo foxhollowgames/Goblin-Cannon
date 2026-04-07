@@ -4,8 +4,9 @@ import { promptPath } from "../paths.js";
 import { runCursorAgent } from "./cursor-cli.js";
 import { loadConfig } from "../config.js";
 import type { RunState } from "../types.js";
-import { newId, appendOutcome, touchRun } from "../store.js";
+import { getRun, newId, appendOutcome, touchRun } from "../store.js";
 import { publish } from "../log-bus.js";
+import { formatAttachmentContextForPrompt } from "../attachments.js";
 
 export async function runCommunication(
   run: RunState,
@@ -14,6 +15,11 @@ export async function runCommunication(
   const cfg = loadConfig();
   run.phase = "reporting";
   touchRun(run);
+  const persisted = getRun(run.id);
+  if (persisted) {
+    run.problem = persisted.problem;
+    run.attachments = persisted.attachments;
+  }
   const template = readFileSync(promptPath("communication.md"), "utf8");
   const payload = {
     runId: run.id,
@@ -24,7 +30,8 @@ export async function runCommunication(
     outcomes: run.outcomes,
   };
   const json = JSON.stringify(payload, null, 2);
-  const prompt = template.replace(/\{\{RUN_JSON\}\}/g, json);
+  const attachmentBlock = formatAttachmentContextForPrompt(run);
+  const prompt = template.replace(/\{\{RUN_JSON\}\}/g, json) + attachmentBlock;
   publish(run.id, "--- Communication: generating report ---\n");
 
   const res = await runCursorAgent({

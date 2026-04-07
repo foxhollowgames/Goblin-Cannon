@@ -9,6 +9,7 @@ import {
   getWorktreeHead,
   worktreeGitDelta,
 } from "../worktree.js";
+import { formatAttachmentContextForPrompt } from "../attachments.js";
 
 function buildExecutionPrompt(
   run: RunState,
@@ -18,6 +19,7 @@ function buildExecutionPrompt(
   const acc = task.acceptance.map((a) => `- ${a}`).join("\n");
   const hints = (task.filesHint ?? []).join(", ") || "(none)";
   const worktree = task.assignedWorktreePath ?? "";
+  const attachmentBlock = formatAttachmentContextForPrompt(run);
   const body = template
     .replace(/\{\{PROBLEM\}\}/g, run.problem || "")
     .replace(/\{\{TASK_TITLE\}\}/g, task.title)
@@ -33,6 +35,7 @@ function buildExecutionPrompt(
     "Worktree root (pipeline checks git only here): " + worktree,
     "",
     body,
+    attachmentBlock,
   ].join("\n");
 }
 
@@ -51,6 +54,7 @@ export async function runExecution(
   const persisted = getRun(run.id);
   if (persisted) {
     run.problem = persisted.problem;
+    run.attachments = persisted.attachments;
   }
   if (!task.assignedWorktreePath) {
     throw new Error("Task has no worktree path; assign worktree first.");

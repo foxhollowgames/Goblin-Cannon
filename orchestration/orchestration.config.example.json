@@ -18,6 +18,7 @@
   "pushAfterMerge": true,
   "gitRemote": "origin",
   "deleteRemoteAgentBranch": true,
+  "godotHeadlessTimeoutMs": 600000,
   "limits": {
     "maxParallelWorktrees": 4
   },

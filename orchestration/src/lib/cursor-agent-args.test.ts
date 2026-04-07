@@ -34,6 +34,23 @@ describe("applyHeadlessAgentFlags", () => {
     expect(applyHeadlessAgentFlags(a, "execution", false)).toEqual(a);
   });
 
+  it("standalone agent: execution still gets --print/--force when headlessAgent config is false", () => {
+    expect(
+      applyHeadlessAgentFlags(["--trust", "{{PROMPT}}"], "execution", false, {
+        standaloneAgentExecutable: true,
+      })
+    ).toEqual(["--trust", "--print", "--force", "{{PROMPT}}"]);
+  });
+
+  it("standalone agent: planner does not force flags when headlessAgent is false", () => {
+    const a = ["--trust", "{{PROMPT}}"];
+    expect(
+      applyHeadlessAgentFlags(a, "planner", false, {
+        standaloneAgentExecutable: true,
+      })
+    ).toEqual(a);
+  });
+
   it("no-ops when agent subcommand missing", () => {
     const a = ["chat", "{{PROMPT}}"];
     expect(applyHeadlessAgentFlags(a, "execution", true)).toEqual(a);
@@ -63,6 +80,28 @@ describe("applyHeadlessAgentFlags", () => {
         standaloneAgentExecutable: true,
       })
     ).toEqual(["--trust", "--print", "--force", "{{PROMPT}}"]);
+  });
+});
+
+describe("applyHeadlessAgentFlags ORCH_STANDALONE_NO_FORCE_PRINT", () => {
+  const prev = process.env.ORCH_STANDALONE_NO_FORCE_PRINT;
+
+  afterEach(() => {
+    if (prev === undefined) {
+      delete process.env.ORCH_STANDALONE_NO_FORCE_PRINT;
+    } else {
+      process.env.ORCH_STANDALONE_NO_FORCE_PRINT = prev;
+    }
+  });
+
+  it("disables standalone execution force when set to 1", () => {
+    process.env.ORCH_STANDALONE_NO_FORCE_PRINT = "1";
+    const a = ["--trust", "{{PROMPT}}"];
+    expect(
+      applyHeadlessAgentFlags(a, "execution", false, {
+        standaloneAgentExecutable: true,
+      })
+    ).toEqual(a);
   });
 });
 

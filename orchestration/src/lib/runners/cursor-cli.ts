@@ -5,6 +5,7 @@ import {
   applyHeadlessAgentFlags,
   ensureStandaloneWorkspaceTrust,
   isStandaloneAgentExecutablePath,
+  isStandaloneExecutionHeadlessForced,
   stripStandaloneAgentSubcommandIfNeeded,
   type CursorAgentPhase,
 } from "../cursor-agent-args.js";
@@ -122,13 +123,19 @@ export async function runCursorAgent(options: {
       "--- Warning: headlessAgent injects --print, but the resolved executable is not the standalone agent binary. On Windows, cursor.cmd often forwards that flag to Electron (empty I/O, stray agent tab, Warning: print / Electron). Set cursorCli.command to %LOCALAPPDATA%\\cursor-agent\\agent.cmd with args [\"--trust\",\"{{PROMPT}}\"] or similar, or set env CURSOR_AGENT_BIN to that path (overrides CURSOR_CLI). ---\n"
     );
   }
-  if (
+  if (isStandaloneExecutionHeadlessForced(phase, standaloneExecutable)) {
+    if (!cfg.cursorCli.headlessAgent) {
+      options.onChunk?.(
+        "--- Standalone Cursor Agent: applying --print/--force for execution even though cursorCli.headlessAgent is false (safe for agent.exe/agent.cmd; not forwarded through Electron). Disable with ORCH_STANDALONE_NO_FORCE_PRINT=1. ---\n"
+      );
+    }
+  } else if (
     !cfg.cursorCli.headlessAgent &&
-    standaloneExecutable &&
+    !standaloneExecutable &&
     phase === "execution"
   ) {
     options.onChunk?.(
-      "--- Warning: cursorCli.headlessAgent is false — execution does not get --print/--force; the agent may answer in prose without editing files. Set headlessAgent to true in orchestration.config.local.json. ---\n"
+      "--- Warning: cursorCli.headlessAgent is false and the resolved CLI is not the standalone agent — execution does not get --print/--force; the agent may answer in prose without editing files. Point cursorCli.command at agent.cmd/agent.exe and/or set headlessAgent to true. See orchestration/README.md (Headless agent). ---\n"
     );
   }
 

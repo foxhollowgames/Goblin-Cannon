@@ -9,7 +9,12 @@ import {
   touchRun,
   updateTask,
 } from "./store.js";
-import { removeWorktree } from "./worktree.js";
+import {
+  commitCountPrimaryBranchAhead,
+  removeWorktree,
+  resolvePrimaryBranch,
+  snapshotUncommittedInWorktreeIfNeeded,
+} from "./worktree.js";
 function git(
   repoRoot: string,
   args: string[]
@@ -218,6 +223,88 @@ export async function finalizeTaskAfterGodotTests(
         summary: `Auto-merge skipped — task state changed before merge ran (status=${t?.status ?? "missing"}, hasWorktreePath=${Boolean(t?.assignedWorktreePath)}). No merge into main was performed.`,
         metadata: { branch, repoRoot: repoResolved },
       });
+      touchRun(fresh);
+      return;
+    }
+
+    const primaryForAhead = resolvePrimaryBranch(cfg.repoRoot);
+    if (!primaryForAhead) {
+      appendOutcome(fresh, {
+        id: newId("out"),
+        kind: "orchestrator",
+        taskId,
+        at: new Date().toISOString(),
+        summary: `Auto-merge skipped — no main or master branch in repo at ${repoResolved}.`,
+        metadata: { branch, repoRoot: repoResolved },
+      });
+      updateTask(fresh, taskId, { status: "failed" });
+      releaseActiveWorktreeSlot(runId, pathForSlot);
+      touchRun(fresh);
+      return;
+    }
+
+    const snap = snapshotUncommittedInWorktreeIfNeeded(wtPath);
+    if (!snap.ok) {
+      appendOutcome(fresh, {
+        id: newId("out"),
+        kind: "orchestrator",
+        taskId,
+        at: new Date().toISOString(),
+        summary: `Auto-merge failed: could not snapshot worktree before merge (${snap.error ?? "unknown"}). Uncommitted agent edits would be dropped by merge.`,
+        metadata: { branch, repoRoot: repoResolved },
+      });
+      updateTask(fresh, taskId, { status: "failed" });
+      releaseActiveWorktreeSlot(runId, pathForSlot);
+      touchRun(fresh);
+      return;
+    }
+    if (snap.committed) {
+      appendOutcome(fresh, {
+        id: newId("out"),
+        kind: "orchestrator",
+        taskId,
+        at: new Date().toISOString(),
+        summary:
+          "Committed previously uncommitted worktree changes so `git merge` can include them (merge only sees commits).",
+        metadata: { branch, repoRoot: repoResolved },
+      });
+    }
+
+    const ahead = commitCountPrimaryBranchAhead(
+      cfg.repoRoot,
+      primaryForAhead,
+      branch
+    );
+    if (ahead === null) {
+      appendOutcome(fresh, {
+        id: newId("out"),
+        kind: "orchestrator",
+        taskId,
+        at: new Date().toISOString(),
+        summary: `Auto-merge failed: could not count commits ahead of ${primaryForAhead} for ${branch}.`,
+        metadata: { branch, repoRoot: repoResolved },
+      });
+      updateTask(fresh, taskId, { status: "failed" });
+      releaseActiveWorktreeSlot(runId, pathForSlot);
+      touchRun(fresh);
+      return;
+    }
+    if (ahead === 0) {
+      appendOutcome(fresh, {
+        id: newId("out"),
+        kind: "orchestrator",
+        taskId,
+        at: new Date().toISOString(),
+        summary: `Auto-merge skipped — branch ${branch} has no commits ahead of ${primaryForAhead}; merge would be a no-op and game files would not change. The agent may have reported success without leaving commits, or main already contained this branch.`,
+        metadata: {
+          branch,
+          repoRoot: repoResolved,
+          primary: primaryForAhead,
+          commitsAhead: 0,
+        },
+      });
+      updateTask(fresh, taskId, { status: "failed" });
+      releaseActiveWorktreeSlot(runId, pathForSlot);
       touchRun(fresh);
       return;
     }

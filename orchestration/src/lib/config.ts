@@ -45,10 +45,10 @@ const DEFAULTS: OrchestrationConfig = {
   godotPath: "",
   cursorCli: {
     command: "cursor",
-    /** Base args; `headlessAgent` injects `--print` (+ `--force` on execution). See cursor-agent-args.ts. */
+    /** Base args; `headlessAgent` injects `--print` (+ `--force` on execution). Standalone `agent` also forces print/force on execution when false — see cursor-agent-args.ts. */
     args: ["agent", "{{PROMPT}}"],
     timeoutMs: 3_600_000,
-    /** When true, injects `cursor agent --print` (see cursor-agent-args.ts). Many Windows installs show "Warning: 'print' is not in the list of known options" — leave false unless your Cursor build supports headless per docs. */
+    /** When true, injects `cursor agent --print` (see cursor-agent-args.ts). Many Windows installs show "Warning: 'print' is not in the list of known options" — leave false unless your Cursor build supports headless per docs. Standalone agent.exe/cmd still gets execution --print/--force automatically. */
     headlessAgent: false,
     exitAfterSummaryIdleMs: 60_000,
     exitAfterOutputIdleMs: 180_000,
@@ -62,6 +62,8 @@ const DEFAULTS: OrchestrationConfig = {
   pushAfterMerge: true,
   gitRemote: "origin",
   deleteRemoteAgentBranch: true,
+  /** 10 minutes — enough for a full suite; prevents hung Godot from blocking the pipeline forever */
+  godotHeadlessTimeoutMs: 600_000,
 };
 
 function normalizeConfig(
@@ -166,6 +168,16 @@ function normalizeConfig(
         ? raw.deleteRemoteAgentBranch
         : DEFAULTS.deleteRemoteAgentBranch
     ),
+    godotHeadlessTimeoutMs: (() => {
+      const fromEnv = process.env.ORCH_GODOT_HEADLESS_TIMEOUT_MS;
+      const n =
+        fromEnv !== undefined
+          ? Number(fromEnv)
+          : Number(
+              raw.godotHeadlessTimeoutMs ?? DEFAULTS.godotHeadlessTimeoutMs
+            );
+      return Number.isFinite(n) ? Math.max(0, n) : DEFAULTS.godotHeadlessTimeoutMs;
+    })(),
   };
 }
 

@@ -57,9 +57,21 @@ export type PipelineStatus =
   | "completed"
   | "failed";
 
+/** Files saved under `orchestration/data/` — referenced by planner / execution / report prompts. */
+export interface ProblemAttachment {
+  id: string;
+  /** Original filename for display */
+  name: string;
+  mime: string;
+  /** Path relative to the orchestration `data/` directory (e.g. `attachments/run_…/…`). */
+  relativePath: string;
+}
+
 export interface RunState {
   id: string;
   problem: string;
+  /** Optional screenshots, video, PDF, etc. for multimodal context (like Cursor chat attachments). */
+  attachments?: ProblemAttachment[];
   phase: Phase;
   /** Automated pipeline (planner → tasks → report) */
   pipelineStatus?: PipelineStatus;
@@ -143,4 +155,10 @@ export interface OrchestrationConfig {
    * Failures are ignored (branch usually exists only locally).
    */
   deleteRemoteAgentBranch: boolean;
+  /**
+   * Max wall time for each `godot --headless -s tests/run_tests.gd` (worktree + baseline capture).
+   * If exceeded, the child is SIGTERM/SIGKILL'd and tests are treated as failed so the pipeline never
+   * blocks forever. 0 disables (not recommended). Env: `ORCH_GODOT_HEADLESS_TIMEOUT_MS`.
+   */
+  godotHeadlessTimeoutMs: number;
 }

@@ -36,4 +36,4 @@ With the **standalone** `agent` binary, the server **always injects `--print` an
 
 Godot path for tests: see `godot-path.mdc` and `orchestration/orchestration.config.local.json`.
 
-**Planner / execution prompts** (`orchestration/prompts/planner.md`, `execution.md`) require **headless test updates** with gameplay changes; **`orchestration/README.md`** documents auto-merge and headless quirks (SVG warnings vs exit code).
+**Planner / execution prompts** (`orchestration/prompts/planner.md`, `execution.md`) require **headless test updates** with gameplay changes; **`orchestration/README.md`** documents auto-merge, headless quirks, and **timeouts** (`cursorCli.*`, **`godotHeadlessTimeoutMs`**) so Godot/Cursor cannot block the pipeline indefinitely.

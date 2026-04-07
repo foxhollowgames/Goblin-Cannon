@@ -11,6 +11,7 @@ import {
   clearPipelineChild,
   isPipelineCancelled,
 } from "../pipeline-controller.js";
+import { killChildProcessGracefully } from "../kill-child-process.js";
 
 const LOG_TAIL = 12_000;
 
@@ -135,6 +136,21 @@ export async function runGodotTests(
     if (pipelineRunId) registerPipelineChild(pipelineRunId, child);
     let stdout = "";
     let stderr = "";
+    let killedByTimeout = false;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const timeoutMs = cfg.godotHeadlessTimeoutMs;
+    if (timeoutMs > 0) {
+      timeoutId = setTimeout(() => {
+        killedByTimeout = true;
+        publish(
+          run.id,
+          `--- Godot tests: exceeded godotHeadlessTimeoutMs (${timeoutMs}ms) — terminating so the pipeline does not hang ---\n`
+        );
+        killChildProcessGracefully(child, {
+          onLog: (m) => publish(run.id, m),
+        });
+      }, timeoutMs);
+    }
     child.stdout?.on("data", (b: Buffer) => {
       const s = b.toString("utf8");
       stdout += s;
@@ -146,17 +162,21 @@ export async function runGodotTests(
       publish(run.id, s);
     });
     child.on("error", (err) => {
+      if (timeoutId !== undefined) clearTimeout(timeoutId);
       if (pipelineRunId) clearPipelineChild(pipelineRunId);
       reject(err);
     });
     child.on("close", (code) => {
       void (async () => {
+        if (timeoutId !== undefined) clearTimeout(timeoutId);
         if (pipelineRunId) clearPipelineChild(pipelineRunId);
-        const exitCode = code ?? 1;
+        const exitCode =
+          killedByTimeout || code === null ? 1 : (code ?? 1);
         const summaryLine = parseTestSummary(stdout);
-        const pass = exitCode === 0;
+        const pass = exitCode === 0 && !killedByTimeout;
         const meta: Record<string, unknown> = {};
         if (summaryLine) meta.summaryLine = summaryLine;
+        if (killedByTimeout) meta.killedByTimeout = true;
         if (run.baselineTestSummary && summaryLine) {
           meta.baseline = run.baselineTestSummary;
           meta.regressionHint =
@@ -173,9 +193,11 @@ export async function runGodotTests(
           taskId: task.id,
           at: new Date().toISOString(),
           exitCode,
-          summary: pass
-            ? `Tests passed (${summaryLine ?? "exit 0"})`
-            : `Tests failed (${summaryLine ?? "exit " + exitCode})`,
+          summary: killedByTimeout
+            ? `Tests aborted: Godot exceeded godotHeadlessTimeoutMs (${timeoutMs}ms) — fix hangs locally or raise timeout in config`
+            : pass
+              ? `Tests passed (${summaryLine ?? "exit 0"})`
+              : `Tests failed (${summaryLine ?? "exit " + exitCode})`,
           logTail: (stdout + "\n" + stderr).slice(-LOG_TAIL),
           metadata: meta,
         });
@@ -215,6 +237,21 @@ export async function captureBaseline(
     });
     if (pipelineRunId) registerPipelineChild(pipelineRunId, child);
     let stdout = "";
+    let killedByTimeout = false;
+    let timeoutId: ReturnType<typeof setTimeout> | undefined;
+    const timeoutMs = cfg.godotHeadlessTimeoutMs;
+    if (timeoutMs > 0) {
+      timeoutId = setTimeout(() => {
+        killedByTimeout = true;
+        publish(
+          run.id,
+          `--- Baseline Godot: exceeded godotHeadlessTimeoutMs (${timeoutMs}ms) — terminating ---\n`
+        );
+        killChildProcessGracefully(child, {
+          onLog: (m) => publish(run.id, m),
+        });
+      }, timeoutMs);
+    }
     child.stdout?.on("data", (b: Buffer) => {
       stdout += b.toString("utf8");
     });
@@ -222,13 +259,20 @@ export async function captureBaseline(
       publish(run.id, b.toString("utf8"));
     });
     child.on("error", (err) => {
+      if (timeoutId !== undefined) clearTimeout(timeoutId);
       if (pipelineRunId) clearPipelineChild(pipelineRunId);
       reject(err);
     });
     child.on("close", () => {
+      if (timeoutId !== undefined) clearTimeout(timeoutId);
       if (pipelineRunId) clearPipelineChild(pipelineRunId);
-      const line = parseTestSummary(stdout);
-      run.baselineTestSummary = line ?? stdout.slice(-2000);
+      if (killedByTimeout) {
+        run.baselineTestSummary =
+          "[timeout] baseline Godot exceeded godotHeadlessTimeoutMs — compare worktree tests manually";
+      } else {
+        const line = parseTestSummary(stdout);
+        run.baselineTestSummary = line ?? stdout.slice(-2000);
+      }
       touchRun(run);
       resolvePromise(run);
     });
