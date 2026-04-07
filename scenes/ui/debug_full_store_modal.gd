@@ -14,6 +14,57 @@ const _MILESTONE_STAT_UI: Dictionary = {
 	"hopper_width": {"name": "Wider Hopper", "desc": "+10% hopper width (max 2×)"}
 }
 
+## Same strings as reward_draft_panel.gd PEG_SHOP_DISPLAY (peg milestone shop cards).
+const _PEG_SHOP_DISPLAY: Dictionary = {
+	"bomb": {"name": "Bomb Peg", "desc": "Blasts on hit. Place on an empty peg."},
+	"trampoline": {"name": "Trampoline Peg", "desc": "Launches balls upward hard."},
+	"goblin_reset": {"name": "Goblin Reset", "desc": "Catches balls and sends them to the top."},
+	"gold": {"name": "Gold Peg", "desc": "3× energy when hit."},
+	"splitter": {"name": "Splitter Peg", "desc": "Splits any ball into two."},
+	"eternal": {"name": "Eternal Peg", "desc": "At 0 HP: refills at once (no rest)."},
+	"extreme_bouncer": {"name": "Extreme Bouncer", "desc": "Very strong bounce."},
+	"magnet": {"name": "Magnet Peg", "desc": "Pulls nearby balls in."},
+	"lucky_gold": {"name": "Lucky Gold Peg", "desc": "Extra gold (1 or 5; better odds for 5)."},
+	"phase": {"name": "Phase Peg", "desc": "Turns solid and ghost on a timer."},
+	"wrench": {"name": "Wrench Peg", "desc": "Fixes nearby broken pegs when hit."},
+	"gravity_well": {"name": "Gravity Well Peg", "desc": "Slows balls near it."}
+}
+
+## One-line blurbs for ball rows (matches ability set in BallVisuals).
+const _BALL_ABILITY_BLURB: Dictionary = {
+	"Plain": "Standard ball; hit pegs to send energy to the main cannon.",
+	"Split": "Splits into two balls when it hits pegs (once per peg visit).",
+	"Energize": "Pegs you hit charge faster for the main cannon.",
+	"Explosive": "Damages pegs in a radius on impact.",
+	"Chain Lightning": "Chains lightning to nearby pegs.",
+	"Leech": "Applies a draining status to pegs you hit.",
+	"Rubbery": "Extra bouncy; keeps speed across hits.",
+	"Phantom": "Passes through pegs while phasing.",
+	"Volatile": "Leaves buff gas clouds when you score.",
+	"Constellation": "Fires lasers between pegs.",
+	"Binary": "Splits paired balls on collision.",
+	"Bloom": "Bloom-themed bonus interactions on hits."
+}
+
+const _STAT_ICON_MAIN_CHARGE = preload("res://icons/ffffff/transparent/1x1/lorc/energy-arrow.svg")
+const _STAT_ICON_DOOR_INTERVAL = preload("res://icons/ffffff/transparent/1x1/delapouite/speedometer.svg")
+const _STAT_ICON_DOOR_DURATION = preload("res://icons/ffffff/transparent/1x1/lorc/hourglass.svg")
+const _STAT_ICON_CANNON_DAMAGE = preload("res://icons/ffffff/transparent/1x1/lorc/cannon-shot.svg")
+const _STAT_ICON_CANNON_ENERGY = preload("res://icons/ffffff/transparent/1x1/priorblue/battery-100.svg")
+const _STAT_ICON_HOPPER_WIDTH = preload("res://icons/ffffff/transparent/1x1/delapouite/expand.svg")
+const _STAT_ICONS: Dictionary = {
+	"main_charge": _STAT_ICON_MAIN_CHARGE,
+	"door_interval": _STAT_ICON_DOOR_INTERVAL,
+	"door_duration": _STAT_ICON_DOOR_DURATION,
+	"cannon_damage": _STAT_ICON_CANNON_DAMAGE,
+	"cannon_energy": _STAT_ICON_CANNON_ENERGY,
+	"hopper_width": _STAT_ICON_HOPPER_WIDTH
+}
+
+const _ICON_WALL_BREAK = preload("res://icons/ffffff/transparent/1x1/willdabeast/round-shield.svg")
+const _ICON_BOSS = preload("res://icons/ffffff/transparent/1x1/lorc/skull-crossed-bones.svg")
+const _ICON_ONBOARD = preload("res://icons/ffffff/transparent/1x1/willdabeast/white-book.svg")
+
 var _coordinator: Node
 var _reward_handler: Node
 var _tab_container: TabContainer
@@ -227,6 +278,60 @@ func _milestone_stat_rarity_label(stat_id: String) -> String:
 		_:
 			return "Common"
 
+func _style_desc_label(lbl: Label) -> void:
+	lbl.add_theme_font_size_override("font_size", 11)
+	lbl.add_theme_color_override("font_color", Color(0.82, 0.8, 0.86, 1))
+	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+func _ball_blurb(ability_key: String) -> String:
+	var k: String = ability_key.strip_edges()
+	if k.is_empty():
+		k = "Plain"
+	return String(_BALL_ABILITY_BLURB.get(k, "Ball upgrade for your hopper."))
+
+func _make_ball_preview(def: BallDefinition) -> Control:
+	var preview: Control = Control.new()
+	preview.set_script(load("res://scenes/balls/ball_preview_control.gd") as GDScript)
+	preview.custom_minimum_size = Vector2(40, 40)
+	if def:
+		preview.alignment = def.alignment
+		preview.shape_type = def.shape_type
+		preview.ability_name = def.ability_name
+	var wrap: CenterContainer = CenterContainer.new()
+	wrap.custom_minimum_size = Vector2(44, 44)
+	wrap.add_child(preview)
+	return wrap
+
+## Same approach as reward_draft_panel._make_peg_shop_sprite_preview (board peg visuals).
+func _make_peg_shop_sprite_preview(peg_kind: String) -> Control:
+	var holder: Control = Control.new()
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.custom_minimum_size = Vector2(44, 44)
+	holder.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	holder.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	holder.clip_contents = true
+	var peg_scene: PackedScene = load("res://scenes/board/peg.tscn") as PackedScene
+	var peg: StaticBody2D = peg_scene.instantiate() as StaticBody2D
+	if peg:
+		peg.set_meta("shop_preview", true)
+		peg.peg_extra_kind = peg_kind
+		peg.position = Vector2(18, 18)
+		holder.add_child(peg)
+	return holder
+
+func _make_icon_tile(tex: Texture2D, tint: Color) -> Control:
+	var holder: CenterContainer = CenterContainer.new()
+	holder.custom_minimum_size = Vector2(44, 44)
+	var tr: TextureRect = TextureRect.new()
+	tr.texture = tex
+	tr.custom_minimum_size = Vector2(36, 36)
+	tr.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	tr.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tr.modulate = tint
+	holder.add_child(tr)
+	return holder
+
 func _refresh_tab(tab_idx: int) -> void:
 	var host: VBoxContainer = _scroll_hosts[tab_idx]
 	if not host:
@@ -243,6 +348,8 @@ func _refresh_tab(tab_idx: int) -> void:
 	var end: int = mini(start + ITEMS_PER_PAGE, items.size())
 	for j in range(start, end):
 		var row: HBoxContainer = HBoxContainer.new()
+		row.add_theme_constant_override("separation", 10)
+		row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		host.add_child(row)
 		var item = items[j]
 		match tab_idx:
@@ -265,12 +372,20 @@ func _add_ball_row(row: HBoxContainer, def: BallDefinition) -> void:
 	if not def:
 		return
 	var ab: String = def.ability_name if not def.ability_name.is_empty() else "Plain"
-	var lbl: Label = Label.new()
-	lbl.text = "%s, %s" % [ab, Constants.ball_rarity_display_name(def.ability_name, def.rarity)]
-	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	lbl.add_theme_font_size_override("font_size", 13)
-	row.add_child(lbl)
+	row.add_child(_make_ball_preview(def))
+	var text_col: VBoxContainer = VBoxContainer.new()
+	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_col.add_theme_constant_override("separation", 2)
+	var title: Label = Label.new()
+	title.text = "%s · %s" % [ab, Constants.ball_rarity_display_name(def.ability_name, def.rarity)]
+	title.add_theme_font_size_override("font_size", 14)
+	title.add_theme_color_override("font_color", BallVisuals.get_ability_theme_color(ab).lerp(Color(0.92, 0.92, 0.95, 1), 0.35))
+	var desc: Label = Label.new()
+	desc.text = _ball_blurb(ab)
+	_style_desc_label(desc)
+	text_col.add_child(title)
+	text_col.add_child(desc)
+	row.add_child(text_col)
 	var btn: Button = Button.new()
 	btn.text = "Add"
 	btn.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -288,13 +403,24 @@ func _add_stat_row(row: HBoxContainer, stat_id: String) -> void:
 	if stat_id.is_empty():
 		return
 	var ui: Dictionary = _MILESTONE_STAT_UI.get(stat_id, {"name": stat_id, "desc": ""})
-	var lbl: Label = Label.new()
-	lbl.text = "%s, %s" % [ui.get("name", stat_id), _milestone_stat_rarity_label(stat_id)]
-	lbl.tooltip_text = String(ui.get("desc", ""))
-	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	lbl.add_theme_font_size_override("font_size", 13)
-	row.add_child(lbl)
+	var icon_tex: Texture2D = _STAT_ICONS.get(stat_id) as Texture2D
+	if icon_tex == null:
+		icon_tex = _STAT_ICON_MAIN_CHARGE
+	var tint: Color = Color(0.85, 0.78, 0.95, 1)
+	row.add_child(_make_icon_tile(icon_tex, tint))
+	var text_col: VBoxContainer = VBoxContainer.new()
+	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_col.add_theme_constant_override("separation", 2)
+	var title: Label = Label.new()
+	title.text = "%s · %s" % [ui.get("name", stat_id), _milestone_stat_rarity_label(stat_id)]
+	title.add_theme_font_size_override("font_size", 14)
+	title.add_theme_color_override("font_color", Color(0.95, 0.88, 1.0, 1))
+	var desc: Label = Label.new()
+	desc.text = String(ui.get("desc", ""))
+	_style_desc_label(desc)
+	text_col.add_child(title)
+	text_col.add_child(desc)
+	row.add_child(text_col)
 	var btn: Button = Button.new()
 	btn.text = "Apply"
 	btn.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -311,13 +437,20 @@ func _on_apply_stat(stat_id: String) -> void:
 func _add_onboard_row(row: HBoxContainer, def: MajorUpgradeDefinition) -> void:
 	if not def:
 		return
-	var lbl: Label = Label.new()
-	lbl.text = def.display_name
-	lbl.tooltip_text = def.description
-	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	lbl.add_theme_font_size_override("font_size", 13)
-	row.add_child(lbl)
+	row.add_child(_make_icon_tile(_ICON_ONBOARD, Color(0.9, 0.82, 0.55, 1)))
+	var text_col: VBoxContainer = VBoxContainer.new()
+	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_col.add_theme_constant_override("separation", 2)
+	var title: Label = Label.new()
+	title.text = def.display_name
+	title.add_theme_font_size_override("font_size", 14)
+	title.add_theme_color_override("font_color", Color(0.95, 0.88, 1.0, 1))
+	var desc: Label = Label.new()
+	desc.text = def.description
+	_style_desc_label(desc)
+	text_col.add_child(title)
+	text_col.add_child(desc)
+	row.add_child(text_col)
 	var btn: Button = Button.new()
 	btn.text = "Apply"
 	btn.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -334,15 +467,25 @@ func _on_apply_onboard(def: MajorUpgradeDefinition) -> void:
 func _add_peg_row(row: HBoxContainer, opt: MilestoneOption) -> void:
 	if not opt:
 		return
-	var lbl: Label = Label.new()
-	lbl.text = opt.peg_kind.capitalize().replace("_", " ")
-	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lbl.add_theme_font_size_override("font_size", 13)
-	row.add_child(lbl)
+	var kind: String = opt.peg_kind
+	var info: Dictionary = _PEG_SHOP_DISPLAY.get(kind, {"name": kind.capitalize().replace("_", " "), "desc": "Place on the board after purchase."})
+	row.add_child(_make_peg_shop_sprite_preview(kind))
+	var text_col: VBoxContainer = VBoxContainer.new()
+	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_col.add_theme_constant_override("separation", 2)
+	var title: Label = Label.new()
+	title.text = String(info.get("name", kind))
+	title.add_theme_font_size_override("font_size", 14)
+	title.add_theme_color_override("font_color", Color(0.95, 0.88, 1.0, 1))
+	var desc: Label = Label.new()
+	desc.text = String(info.get("desc", ""))
+	_style_desc_label(desc)
+	text_col.add_child(title)
+	text_col.add_child(desc)
+	row.add_child(text_col)
 	var btn: Button = Button.new()
 	btn.text = "Unlock"
 	btn.process_mode = Node.PROCESS_MODE_ALWAYS
-	var kind: String = opt.peg_kind
 	btn.pressed.connect(func(): _on_apply_peg(kind))
 	row.add_child(btn)
 
@@ -371,12 +514,20 @@ func _on_apply_peg(kind: String) -> void:
 func _add_wall_row(row: HBoxContainer, def: MajorUpgradeDefinition) -> void:
 	if not def:
 		return
-	var lbl: Label = Label.new()
-	lbl.text = def.display_name
-	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	lbl.add_theme_font_size_override("font_size", 13)
-	row.add_child(lbl)
+	row.add_child(_make_icon_tile(_ICON_WALL_BREAK, Color(0.85, 0.75, 0.95, 1)))
+	var text_col: VBoxContainer = VBoxContainer.new()
+	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_col.add_theme_constant_override("separation", 2)
+	var title: Label = Label.new()
+	title.text = def.display_name
+	title.add_theme_font_size_override("font_size", 14)
+	title.add_theme_color_override("font_color", Color(0.95, 0.82, 0.55, 1))
+	var desc: Label = Label.new()
+	desc.text = def.description
+	_style_desc_label(desc)
+	text_col.add_child(title)
+	text_col.add_child(desc)
+	row.add_child(text_col)
 	var btn: Button = Button.new()
 	btn.text = "Apply"
 	btn.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -393,12 +544,20 @@ func _on_apply_wall(def: MajorUpgradeDefinition) -> void:
 func _add_boss_row(row: HBoxContainer, def: MajorUpgradeDefinition) -> void:
 	if not def:
 		return
-	var lbl: Label = Label.new()
-	lbl.text = def.display_name
-	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	lbl.add_theme_font_size_override("font_size", 13)
-	row.add_child(lbl)
+	row.add_child(_make_icon_tile(_ICON_BOSS, Color(0.95, 0.55, 0.4, 1)))
+	var text_col: VBoxContainer = VBoxContainer.new()
+	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	text_col.add_theme_constant_override("separation", 2)
+	var title: Label = Label.new()
+	title.text = def.display_name
+	title.add_theme_font_size_override("font_size", 14)
+	title.add_theme_color_override("font_color", Color(0.95, 0.65, 0.45, 1))
+	var desc: Label = Label.new()
+	desc.text = def.description
+	_style_desc_label(desc)
+	text_col.add_child(title)
+	text_col.add_child(desc)
+	row.add_child(text_col)
 	var btn: Button = Button.new()
 	btn.text = "Apply"
 	btn.process_mode = Node.PROCESS_MODE_ALWAYS

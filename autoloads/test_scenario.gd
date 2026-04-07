@@ -53,7 +53,7 @@ var starting_wall_index: int = -1
 ## TIMER
 ## ──────────────────────────────────────────────
 ## Override the wall timer (applies to ALL walls).
-## -1 = use per-wall defaults (60s / 180s / 120s)
+## -1 = use per-wall defaults (180s / 540s / 360s)
 ##  0 = infinite (no timer — play as long as you want)
 ## >0 = that many seconds per wall
 var timer_override_seconds: int = -1
