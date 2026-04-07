@@ -399,6 +399,18 @@ func _unhandled_input(event: InputEvent) -> void:
 	elif key_event.keycode == KEY_I:
 		_on_inventory_pressed()
 		get_viewport().set_input_as_handled()
+	elif key_event.keycode == KEY_ESCAPE:
+		# Open inventory; let other ESC handlers (almanac, inventory close, debug modals) run first.
+		if _game_over or _victory:
+			return
+		if _almanac_panel and _almanac_panel.visible:
+			return
+		if _inventory_panel and _inventory_panel.visible:
+			return
+		if _debug_event_spawn_modal and _debug_event_spawn_modal.visible:
+			return
+		_on_inventory_pressed()
+		get_viewport().set_input_as_handled()
 	elif key_event.keycode == KEY_A:
 		_on_almanac_pressed()
 		get_viewport().set_input_as_handled()
@@ -1171,7 +1183,7 @@ func _create_book_icon_image() -> Image:
 func _build_bag_button() -> Button:
 	var btn: Button = Button.new()
 	btn.text = ""
-	btn.tooltip_text = "Inventory (I)"
+	btn.tooltip_text = "Inventory (I / Esc)"
 	btn.custom_minimum_size = Vector2(36, 32)
 	btn.position = Vector2(240, 8)  # to the right of almanac (198 + 36 + 6 gap)
 	btn.process_mode = Node.PROCESS_MODE_ALWAYS

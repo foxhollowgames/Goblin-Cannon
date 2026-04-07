@@ -272,6 +272,83 @@ button.secondary {
   padding: 0.5rem 0;
   border-bottom: 1px solid #2d3340;
   font-size: 0.9rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.5rem 0.75rem;
+}
+
+.task-list li .task-line {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.recover-hint {
+  margin: 0 0 0.5rem;
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+button.btn-recover {
+  flex: 0 0 auto;
+  background: #37474f;
+  border-color: #7cb342;
+  font-size: 0.82rem;
+  padding: 0.35rem 0.65rem;
+}
+
+button.btn-recover:hover:not(:disabled) {
+  background: #455a64;
+}
+
+.recover-manual {
+  margin: 0.75rem 0 0.5rem;
+  padding: 0.65rem 0.75rem;
+  background: #12151c;
+  border: 1px solid #2d3340;
+  border-radius: 6px;
+}
+
+.recover-manual-title {
+  margin: 0 0 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.recover-field-label {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0.5rem 0 0.2rem;
+}
+
+.recover-manual-inputs .recover-run-input {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+.recover-manual-hint {
+  margin: 0 0 0.4rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+.recover-manual-inputs {
+  margin-top: 0;
+  align-items: stretch;
+}
+
+.recover-task-input {
+  flex: 1 1 12rem;
+  min-width: 0;
+  background: #12151c;
+  border: 1px solid #3d4654;
+  color: var(--text);
+  border-radius: 6px;
+  padding: 0.45rem 0.65rem;
+  font: inherit;
+  font-size: 0.85rem;
 }
 
 .report {

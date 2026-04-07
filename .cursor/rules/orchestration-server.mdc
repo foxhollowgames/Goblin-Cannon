@@ -19,9 +19,13 @@ If you only changed **config JSON** (`orchestration.config.local.json`) or **pro
 
 If the Cursor **agent** returns no stdout/stderr on Windows, the planner uses **`plannerFallback`** (default true) to create one task from the problem text so the pipeline can run. Env: `ORCH_PLANNER_FALLBACK=0` to disable.
 
-After execution, **`requireExecutionGitChanges`** (default true) fails the pipeline if the worktree has no new commits and no dirty files — catches silent no-ops when the CLI exits 0 without editing. Env: `ORCH_REQUIRE_EXEC_GIT_CHANGES=0` to disable (e.g. debugging). Work stays in the worktree branch until you merge manually; the main checkout is never auto-updated.
+After execution, **`requireExecutionGitChanges`** (default true) fails the pipeline if the worktree has no new commits and no dirty files — catches silent no-ops when the CLI exits 0 without editing. Env: `ORCH_REQUIRE_EXEC_GIT_CHANGES=0` to disable (e.g. debugging).
 
-If logs show **empty planner stdout** and **no git changes** after execution, the Node-spawned `cursor agent` is not the same as running `cursor agent` in an interactive terminal (no TTY). Set **`cursorCli.command`** to **`cursor.cmd`**, use **`cursorCli.env`** or the shell environment for **`CURSOR_API_KEY`** per Cursor headless docs, and see **`orchestration/README.md`** (Headless agent).
+After Godot tests pass, **`autoMergeOnPass`** (default true) merges the task branch into `main`/`master` in the main repo, removes the worktree, and frees the capacity slot. Set **`autoMergeOnPass`: false** in config to keep branches for manual merge. Failed tests or merge conflicts leave the task failed and release the slot (worktree may remain until you remove it via the API).
+
+**`limits.maxParallelWorktrees`** (default **4** in `orchestration.config.example.json`) controls how many agent worktrees may run at once; completed tasks release slots automatically.
+
+If logs show **empty planner stdout**, **`Warning: 'print'… Electron`**, **no git changes**, or a stray **`agent`** tab, **`cursor.cmd`** is often forwarding flags to Electron. Prefer the standalone **`agent`** binary (see **`orchestration/README.md`** Headless agent): env **`CURSOR_AGENT_BIN`**, or a **full path** to **`agent.cmd`/`agent.exe`** in **`cursorCli.command`** (that path wins over user **`CURSOR_CLI`**), or rely on **`%LOCALAPPDATA%\cursor-agent\agent.cmd`** before `where cursor`. Plus **`CURSOR_API_KEY`** in **`cursorCli.env`** or the process environment.
 
 ## Restart the server
 

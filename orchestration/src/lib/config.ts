@@ -45,14 +45,23 @@ const DEFAULTS: OrchestrationConfig = {
   godotPath: "",
   cursorCli: {
     command: "cursor",
-    /** No `--print` here: Cursor 3.0.x often treats unknown flags as Electron args; use plannerFallback if agent prints nothing. */
+    /** Base args; `headlessAgent` injects `--print` (+ `--force` on execution). See cursor-agent-args.ts. */
     args: ["agent", "{{PROMPT}}"],
     timeoutMs: 3_600_000,
+    /** When true, injects `cursor agent --print` (see cursor-agent-args.ts). Many Windows installs show "Warning: 'print' is not in the list of known options" — leave false unless your Cursor build supports headless per docs. */
+    headlessAgent: false,
+    exitAfterSummaryIdleMs: 60_000,
+    exitAfterOutputIdleMs: 180_000,
+    maxExecutionWallMs: 420_000,
   },
-  limits: { maxParallelWorktrees: 1 },
+  limits: { maxParallelWorktrees: 4 },
   dryRun: false,
   plannerFallback: true,
   requireExecutionGitChanges: true,
+  autoMergeOnPass: true,
+  pushAfterMerge: true,
+  gitRemote: "origin",
+  deleteRemoteAgentBranch: true,
 };
 
 function normalizeConfig(
@@ -85,6 +94,46 @@ function normalizeConfig(
         !Array.isArray(cursorRaw.env)
           ? (cursorRaw.env as Record<string, string>)
           : undefined,
+      headlessAgent: Boolean(
+        cursorRaw.headlessAgent !== undefined
+          ? cursorRaw.headlessAgent
+          : DEFAULTS.cursorCli.headlessAgent
+      ),
+      exitAfterSummaryIdleMs: (() => {
+        const fromEnv = process.env.ORCH_EXIT_AFTER_SUMMARY_IDLE_MS;
+        const n =
+          fromEnv !== undefined
+            ? Number(fromEnv)
+            : Number(
+                cursorRaw.exitAfterSummaryIdleMs ??
+                  DEFAULTS.cursorCli.exitAfterSummaryIdleMs
+              );
+        return Number.isFinite(n) ? n : DEFAULTS.cursorCli.exitAfterSummaryIdleMs;
+      })(),
+      exitAfterOutputIdleMs: (() => {
+        const fromEnv = process.env.ORCH_EXIT_AFTER_OUTPUT_IDLE_MS;
+        const n =
+          fromEnv !== undefined
+            ? Number(fromEnv)
+            : Number(
+                cursorRaw.exitAfterOutputIdleMs ??
+                  DEFAULTS.cursorCli.exitAfterOutputIdleMs
+              );
+        return Number.isFinite(n)
+          ? n
+          : DEFAULTS.cursorCli.exitAfterOutputIdleMs;
+      })(),
+      maxExecutionWallMs: (() => {
+        const fromEnv = process.env.ORCH_MAX_EXECUTION_WALL_MS;
+        const n =
+          fromEnv !== undefined
+            ? Number(fromEnv)
+            : Number(
+                cursorRaw.maxExecutionWallMs ??
+                  DEFAULTS.cursorCli.maxExecutionWallMs
+              );
+        return Number.isFinite(n) ? n : DEFAULTS.cursorCli.maxExecutionWallMs;
+      })(),
     },
     limits: {
       maxParallelWorktrees: Number(
@@ -95,6 +144,27 @@ function normalizeConfig(
     plannerFallback: Boolean(raw.plannerFallback ?? DEFAULTS.plannerFallback),
     requireExecutionGitChanges: Boolean(
       raw.requireExecutionGitChanges ?? DEFAULTS.requireExecutionGitChanges
+    ),
+    autoMergeOnPass: Boolean(
+      raw.autoMergeOnPass !== undefined
+        ? raw.autoMergeOnPass
+        : DEFAULTS.autoMergeOnPass
+    ),
+    pushAfterMerge: (() => {
+      const e = process.env.ORCH_PUSH_AFTER_MERGE;
+      if (e === "0" || e === "false") return false;
+      if (e === "1" || e === "true") return true;
+      return Boolean(
+        raw.pushAfterMerge !== undefined
+          ? raw.pushAfterMerge
+          : DEFAULTS.pushAfterMerge
+      );
+    })(),
+    gitRemote: String(raw.gitRemote ?? DEFAULTS.gitRemote),
+    deleteRemoteAgentBranch: Boolean(
+      raw.deleteRemoteAgentBranch !== undefined
+        ? raw.deleteRemoteAgentBranch
+        : DEFAULTS.deleteRemoteAgentBranch
     ),
   };
 }

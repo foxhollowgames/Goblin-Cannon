@@ -1,9 +1,11 @@
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { stripElectronCliNoise } from "../electron-cli-noise.js";
 import { promptPath } from "../paths.js";
 import { runCursorAgent } from "./cursor-cli.js";
 import { loadConfig } from "../config.js";
 import type { Task, RunState } from "../types.js";
-import { newId, touchRun, appendOutcome } from "../store.js";
+import { getRun, newId, touchRun, appendOutcome } from "../store.js";
 import { publish } from "../log-bus.js";
 
 interface RawTask {
@@ -142,16 +144,20 @@ function parsePlannerOutput(combined: string): PlannerJson {
   return parsed;
 }
 
-function buildFallbackTasks(problem: string): Task[] {
+function buildFallbackTasks(
+  problem: string,
+  descriptionPrefix?: string
+): Task[] {
   const now = new Date().toISOString();
   const firstLine = problem.trim().split("\n")[0] || "Implement requested change";
+  const defaultPrefix =
+    "Planner fallback: the Cursor agent returned no captured stdout/stderr (typical for non-TTY / some Windows CLI builds). Implement the following.\n\n";
   return [
     {
       id: newId("task"),
       title: firstLine.slice(0, 200),
       description:
-        "Planner fallback: the Cursor agent returned no captured stdout/stderr (typical for non-TTY / some Windows CLI builds). Implement the following.\n\n" +
-        problem.trim(),
+        (descriptionPrefix ?? defaultPrefix) + problem.trim(),
       acceptance: [
         "Behavior matches the problem statement",
         "Godot project still loads and tests pass where applicable",
@@ -200,20 +206,47 @@ export async function runPlanner(
   const cfg = loadConfig();
   run.phase = "planning";
   touchRun(run);
+  const persisted = getRun(run.id);
+  if (persisted) {
+    run.problem = persisted.problem;
+  }
+  const problemForPlan = run.problem.trim();
   const template = readFileSync(promptPath("planner.md"), "utf8");
-  const prompt = template.replace(/\{\{PROBLEM\}\}/g, run.problem || "(no problem text)");
+  const body = template.replace(
+    /\{\{PROBLEM\}\}/g,
+    problemForPlan || "(no problem text)"
+  );
+  /** One-line request so the model cannot treat “rules text” as the only payload (see planner parse failures). */
+  const requestOneLine = problemForPlan.replace(/\s+/g, " ").trim() || "(empty)";
+  const prompt = [`USER_REQUEST: ${requestOneLine}`, "", body].join("\n");
   publish(run.id, "--- Planner: starting Cursor agent ---\n");
+  if (problemForPlan.length > 0) {
+    publish(
+      run.id,
+      `--- Planner: using problem (${problemForPlan.length} chars): ${problemForPlan.slice(0, 200)}${problemForPlan.length > 200 ? "…" : ""} ---\n`
+    );
+  } else {
+    publish(
+      run.id,
+      "--- Planner: warning — run.problem is empty; model may invent filler tasks. Set problem text in the dashboard before Send. ---\n"
+    );
+  }
 
+  /** Planner must not default-write into `scenes/`; cwd is the orchestration package so stray edits stay tooling-local. Game reads still use `../` from here. */
+  const plannerCwd = join(cfg.repoRoot, "orchestration");
   const res = await runCursorAgent({
     prompt,
-    cwd: cfg.repoRoot,
+    cwd: plannerCwd,
     onChunk: (c) => publish(run.id, c),
     pipelineRunId,
+    phase: "planner",
   });
 
   let summary = "Planner finished with exit " + res.exitCode;
   let tasks: Task[] = [];
-  const combined = `${res.stdout}\n\n${res.stderr}`.trim();
+  let plannerMetadata: Record<string, unknown> | undefined;
+  const rawCombined = `${res.stdout}\n\n${res.stderr}`.trim();
+  const combined = stripElectronCliNoise(rawCombined);
 
   if (combined.length === 0 && cfg.plannerFallback) {
     tasks = buildFallbackTasks(run.problem || "");
@@ -253,20 +286,43 @@ export async function runPlanner(
       summary = `Planner CLI exited ${res.exitCode}; parsed backlog anyway. ${summary}`;
     }
   } catch (e) {
-    const hint =
-      combined.length === 0
-        ? " (no stdout/stderr from Cursor agent — check CLI login and agent args.)"
-        : "";
+    const parseErr = e instanceof Error ? e.message : String(e);
     const preview =
       combined.length > 600
         ? `${combined.slice(0, 600)}…`
         : combined;
-    summary = `Planner parse error: ${e instanceof Error ? e.message : String(e)}${hint}`;
-    if (combined.length > 0) {
-      summary += ` Output preview: ${preview.replace(/\s+/g, " ").trim()}`;
-    }
-    if (res.exitCode !== 0) {
-      summary = `Planner CLI exited ${res.exitCode}. ${summary}`;
+    const parsePrefix =
+      "Planner fallback: agent output did not contain valid JSON with a tasks array (model returned prose or invalid format). Implement the following.\n\n";
+
+    if (
+      cfg.plannerFallback &&
+      (run.problem?.trim() ?? "").length > 0
+    ) {
+      tasks = buildFallbackTasks(run.problem || "", parsePrefix);
+      plannerMetadata = { fallback: true, parseFallback: true };
+      summary = `Planner parse error; created ${tasks.length} fallback task(s). Original error: ${parseErr}. Disable with plannerFallback: false.`;
+      if (combined.length > 0) {
+        summary += ` Output preview: ${preview.replace(/\s+/g, " ").trim()}`;
+      }
+      if (res.exitCode !== 0) {
+        summary = `Planner CLI exited ${res.exitCode}. ${summary}`;
+      }
+      publish(
+        run.id,
+        "--- Hint: tighten orchestration/prompts/planner.md or retry; output must be only a ```json fenced block with tasks[]. ---\n"
+      );
+    } else {
+      const hint =
+        combined.length === 0
+          ? " (no stdout/stderr from Cursor agent — check CLI login and agent args.)"
+          : "";
+      summary = `Planner parse error: ${parseErr}${hint}`;
+      if (combined.length > 0) {
+        summary += ` Output preview: ${preview.replace(/\s+/g, " ").trim()}`;
+      }
+      if (res.exitCode !== 0) {
+        summary = `Planner CLI exited ${res.exitCode}. ${summary}`;
+      }
     }
   }
 
@@ -281,6 +337,7 @@ export async function runPlanner(
     exitCode: res.exitCode,
     summary,
     logTail: (res.stdout + "\n" + res.stderr).slice(-8000),
+    metadata: plannerMetadata,
   });
   touchRun(run);
   return run;

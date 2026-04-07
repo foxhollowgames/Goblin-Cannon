@@ -12,7 +12,7 @@ import {
   isPipelineCancelled,
   isPipelineRunning,
 } from "./pipeline-controller.js";
-import { loadConfig } from "./config.js";
+import { loadConfig, resetConfigCache } from "./config.js";
 import type { PipelineStatus } from "./types.js";
 
 function pipelineFinish(
@@ -30,7 +30,13 @@ function pipelineFinish(
   publish(runId, `\n--- Pipeline ${status}: ${message} ---\n`);
 }
 
-async function executePipeline(runId: string): Promise<void> {
+export type PipelineStartMode = "full" | "fromBacklogOnly";
+
+async function executePipeline(
+  runId: string,
+  mode: PipelineStartMode = "full"
+): Promise<void> {
+  resetConfigCache();
   let run = getRun(runId);
   if (!run) {
     publish(
@@ -40,13 +46,21 @@ async function executePipeline(runId: string): Promise<void> {
     return;
   }
   run.pipelineStatus = "running";
-  run.pipelineMessage = "Starting automated pipeline…";
+  run.pipelineMessage =
+    mode === "fromBacklogOnly"
+      ? "Resuming backlog (skipping planner)…"
+      : "Starting automated pipeline…";
   touchRun(run);
-  publish(runId, "--- Automated pipeline started ---\n");
+  publish(
+    runId,
+    mode === "fromBacklogOnly"
+      ? "--- Backlog-only pipeline started (skipping planner) ---\n"
+      : "--- Automated pipeline started ---\n"
+  );
 
   try {
     const cfg = loadConfig();
-    if (cfg.godotPath) {
+    if (mode === "full" && cfg.godotPath) {
       run = getRun(runId)!;
       run.pipelineMessage = "Capturing test baseline on main repo…";
       touchRun(run);
@@ -66,16 +80,18 @@ async function executePipeline(runId: string): Promise<void> {
     }
 
     run = getRun(runId)!;
-    run.pipelineMessage = "Running planner (Cursor CLI)…";
-    touchRun(run);
-    await runPlanner(run, runId);
+    if (mode === "full") {
+      run.pipelineMessage = "Running planner (Cursor CLI)…";
+      touchRun(run);
+      await runPlanner(run, runId);
 
-    if (isPipelineCancelled(runId)) {
-      pipelineFinish(runId, "stopped", "Stopped by user");
-      return;
+      if (isPipelineCancelled(runId)) {
+        pipelineFinish(runId, "stopped", "Stopped by user");
+        return;
+      }
+
+      run = getRun(runId)!;
     }
-
-    run = getRun(runId)!;
     if (!run.backlog.length) {
       run.pipelineMessage = "No tasks planned; generating report…";
       touchRun(run);
@@ -95,74 +111,94 @@ async function executePipeline(runId: string): Promise<void> {
       return;
     }
 
-    while (true) {
-      if (isPipelineCancelled(runId)) {
-        pipelineFinish(runId, "stopped", "Stopped by user");
-        return;
-      }
+    const maxParallel = Math.max(1, getRun(runId)!.limits.maxParallelWorktrees);
+    const inFlight = new Set<Promise<void>>();
+    let pipelineAbort: string | undefined;
 
-      run = getRun(runId)!;
-      const task = nextAssignableTask(run);
-      if (!task) break;
+    const runOneTask = async (taskId: string): Promise<void> => {
+      const r0 = getRun(runId);
+      if (!r0 || pipelineAbort) return;
+      const execTask = r0.backlog.find((x) => x.id === taskId);
+      if (!execTask) return;
 
-      run.pipelineMessage = `Assigning worktree: ${task.title}`;
-      touchRun(run);
-      const assign = performAssignNext(run);
-      if (!assign.ok) {
-        pipelineFinish(runId, "failed", assign.error);
-        return;
-      }
+      r0.pipelineMessage = `Executing: ${execTask.title}`;
+      touchRun(r0);
 
-      run = getRun(runId)!;
-      const execTask = run.backlog.find((x) => x.id === assign.task.id);
-      if (!execTask) break;
-
-      run.pipelineMessage = `Executing: ${execTask.title}`;
-      touchRun(run);
-      const execResult = await runExecution(run, execTask, runId);
+      const execResult = await runExecution(r0, execTask, runId);
       if (execResult.pipelineAbort) {
-        pipelineFinish(runId, "failed", execResult.pipelineAbort);
+        pipelineAbort = execResult.pipelineAbort;
         return;
       }
 
-      if (isPipelineCancelled(runId)) {
-        pipelineFinish(runId, "stopped", "Stopped by user");
-        return;
-      }
+      if (isPipelineCancelled(runId)) return;
 
-      run = getRun(runId)!;
-      const afterExec = run.backlog.find((x) => x.id === execTask.id);
-      if (!afterExec) break;
+      const afterExec = getRun(runId)?.backlog.find((x) => x.id === taskId);
+      if (!afterExec) return;
       if (afterExec.status === "failed") {
-        pipelineFinish(
-          runId,
-          "failed",
-          "Execution agent failed (non-zero exit)"
-        );
+        pipelineAbort = "Execution agent failed (non-zero exit)";
         return;
       }
 
       if (afterExec.status === "testing" && afterExec.assignedWorktreePath) {
-        run.pipelineMessage = `Testing: ${afterExec.title}`;
-        touchRun(run);
+        const r1 = getRun(runId);
+        if (r1) {
+          r1.pipelineMessage = `Testing: ${afterExec.title}`;
+          touchRun(r1);
+        }
         await runGodotTests(
-          run,
+          getRun(runId)!,
           afterExec,
           afterExec.assignedWorktreePath,
           runId
         );
       }
 
-      run = getRun(runId)!;
-      const afterTest = run.backlog.find((x) => x.id === execTask.id);
+      const afterTest = getRun(runId)?.backlog.find((x) => x.id === taskId);
       if (afterTest?.status === "failed") {
-        pipelineFinish(runId, "failed", "Godot tests failed");
-        return;
+        pipelineAbort = "Task failed (Godot tests or auto-merge after tests)";
+      }
+    };
+
+    while (!pipelineAbort && !isPipelineCancelled(runId)) {
+      while (
+        inFlight.size < maxParallel &&
+        !pipelineAbort &&
+        !isPipelineCancelled(runId)
+      ) {
+        const assign = await performAssignNext(getRun(runId)!);
+        if (!assign.ok) {
+          if (assign.error.includes("No pending task ready")) {
+            break;
+          }
+          pipelineAbort = assign.error;
+          break;
+        }
+        const p = runOneTask(assign.task.id);
+        inFlight.add(p);
+        void p.finally(() => inFlight.delete(p));
+      }
+
+      const snapshot = getRun(runId)!;
+      if (inFlight.size === 0 && !nextAssignableTask(snapshot)) {
+        break;
+      }
+
+      if (inFlight.size > 0) {
+        await Promise.race(inFlight);
+      } else {
+        break;
       }
     }
 
+    await Promise.allSettled(Array.from(inFlight));
+
     if (isPipelineCancelled(runId)) {
       pipelineFinish(runId, "stopped", "Stopped by user");
+      return;
+    }
+
+    if (pipelineAbort) {
+      pipelineFinish(runId, "failed", pipelineAbort);
       return;
     }
 
@@ -171,7 +207,13 @@ async function executePipeline(runId: string): Promise<void> {
     touchRun(run);
     await runCommunication(run, runId);
 
-    pipelineFinish(runId, "completed", "All automated steps finished");
+    pipelineFinish(
+      runId,
+      "completed",
+      mode === "fromBacklogOnly"
+        ? "Backlog steps finished"
+        : "All automated steps finished"
+    );
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
     const r = getRun(runId);
@@ -186,11 +228,14 @@ async function executePipeline(runId: string): Promise<void> {
   }
 }
 
-export function startPipelineJob(runId: string): void {
+export function startPipelineJob(
+  runId: string,
+  mode: PipelineStartMode = "full"
+): void {
   if (!getRun(runId)) throw new Error("Run not found");
   if (isPipelineRunning(runId)) throw new Error("Pipeline already running");
   beginPipelineRun(runId);
-  void executePipeline(runId).finally(() => endPipelineRun(runId));
+  void executePipeline(runId, mode).finally(() => endPipelineRun(runId));
 }
 
 export { isPipelineRunning, stopPipelineRun } from "./pipeline-controller.js";

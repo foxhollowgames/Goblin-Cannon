@@ -3,7 +3,7 @@ import { promptPath } from "../paths.js";
 import { runCursorAgent } from "./cursor-cli.js";
 import { loadConfig } from "../config.js";
 import type { Task, RunState, TaskStatus } from "../types.js";
-import { newId, appendOutcome, touchRun, updateTask } from "../store.js";
+import { getRun, newId, appendOutcome, touchRun, updateTask } from "../store.js";
 import { publish } from "../log-bus.js";
 import {
   getWorktreeHead,
@@ -17,12 +17,23 @@ function buildExecutionPrompt(
   const template = readFileSync(promptPath("execution.md"), "utf8");
   const acc = task.acceptance.map((a) => `- ${a}`).join("\n");
   const hints = (task.filesHint ?? []).join(", ") || "(none)";
-  return template
+  const worktree = task.assignedWorktreePath ?? "";
+  const body = template
     .replace(/\{\{PROBLEM\}\}/g, run.problem || "")
     .replace(/\{\{TASK_TITLE\}\}/g, task.title)
     .replace(/\{\{TASK_DESCRIPTION\}\}/g, task.description)
     .replace(/\{\{TASK_ACCEPTANCE\}\}/g, acc)
-    .replace(/\{\{TASK_FILES_HINT\}\}/g, hints);
+    .replace(/\{\{TASK_FILES_HINT\}\}/g, hints)
+    .replace(/\{\{WORKTREE_CWD\}\}/g, worktree);
+  return [
+    "### AUTOMATION — DO NOT ASK FOR THE ASSIGNMENT",
+    "The task below is complete and authoritative. There is no human to answer questions.",
+    "Original user goal: " + (run.problem.trim() || "(none)"),
+    "Task id: " + task.id,
+    "Worktree root (pipeline checks git only here): " + worktree,
+    "",
+    body,
+  ].join("\n");
 }
 
 export type ExecutionResult = {
@@ -37,6 +48,10 @@ export async function runExecution(
   pipelineRunId?: string
 ): Promise<ExecutionResult> {
   const cfg = loadConfig();
+  const persisted = getRun(run.id);
+  if (persisted) {
+    run.problem = persisted.problem;
+  }
   if (!task.assignedWorktreePath) {
     throw new Error("Task has no worktree path; assign worktree first.");
   }
@@ -59,7 +74,13 @@ export async function runExecution(
     cwd: task.assignedWorktreePath,
     onChunk: (c) => publish(run.id, c),
     pipelineRunId,
+    phase: "execution",
   });
+
+  const delta =
+    !cfg.dryRun && headBefore !== null
+      ? worktreeGitDelta(task.assignedWorktreePath, headBefore)
+      : null;
 
   let finalStatus: TaskStatus = res.exitCode === 0 ? "testing" : "failed";
   let summary: string;
@@ -67,13 +88,19 @@ export async function runExecution(
   const metadata: Record<string, unknown> = {};
 
   if (res.exitCode !== 0) {
-    summary = `Execution agent exited ${res.exitCode} for task "${task.title}".`;
+    if (delta?.changed) {
+      finalStatus = "testing";
+      summary =
+        `Execution agent exited ${res.exitCode} for task "${task.title}", but the worktree has changes (${delta.detail}) — ` +
+        `treating as success (e.g. Stop after a hung agent, or timeout after edits). Proceeding to Godot tests.`;
+      publish(run.id, `--- ${summary} ---\n`);
+    } else {
+      summary = `Execution agent exited ${res.exitCode} for task "${task.title}".`;
+    }
   } else {
-    const delta =
-      cfg.requireExecutionGitChanges && !cfg.dryRun && headBefore !== null
-        ? worktreeGitDelta(task.assignedWorktreePath, headBefore)
-        : null;
-    if (delta && !delta.changed) {
+    const strictNoChange =
+      cfg.requireExecutionGitChanges && delta && !delta.changed;
+    if (strictNoChange) {
       finalStatus = "failed";
       summary =
         `Execution produced no git changes (${delta.detail}). ` +

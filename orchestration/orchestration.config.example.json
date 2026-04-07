@@ -6,12 +6,20 @@
     "command": "cursor",
     "args": ["agent", "{{PROMPT}}"],
     "timeoutMs": 3600000,
+    "exitAfterSummaryIdleMs": 60000,
+    "exitAfterOutputIdleMs": 180000,
+    "maxExecutionWallMs": 420000,
+    "headlessAgent": false,
     "env": {}
   },
   "plannerFallback": true,
   "requireExecutionGitChanges": true,
+  "autoMergeOnPass": true,
+  "pushAfterMerge": true,
+  "gitRemote": "origin",
+  "deleteRemoteAgentBranch": true,
   "limits": {
-    "maxParallelWorktrees": 1
+    "maxParallelWorktrees": 4
   },
   "dryRun": false
 }

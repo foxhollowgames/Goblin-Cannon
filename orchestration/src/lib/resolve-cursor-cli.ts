@@ -1,6 +1,7 @@
 import { statSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { spawnSync } from "node:child_process";
+import { isStandaloneAgentExecutablePath } from "./cursor-agent-args.js";
 
 function isFile(path: string): boolean {
   try {
@@ -48,26 +49,66 @@ function finalizeWin(p: string): string {
   return winTryCursorBin(p) ?? p;
 }
 
+/** `agent.cmd` often delegates to PowerShell `cursor-agent.ps1`, which mishandles a lone `-` stdin marker. Prefer a native `agent.exe` in the same folder when present. */
+function winPreferAgentExeOverCmd(resolved: string): string {
+  if (process.platform !== "win32") return resolved;
+  if (basename(resolved).toLowerCase() !== "agent.cmd") return resolved;
+  const dir = dirname(resolved);
+  for (const name of ["agent.exe", "cursor-agent.exe"]) {
+    const p = join(dir, name);
+    if (isFile(p)) return p;
+  }
+  return resolved;
+}
+
 /**
  * Resolves the Cursor CLI executable. On Windows, `spawn("cursor")` often fails
  * with ENOENT because the shim is `cursor.cmd` and may not resolve without a full path.
+ *
+ * **Precedence (important):** `CURSOR_AGENT_BIN` is the only env that should force a
+ * binary when you also have a misleading `CURSOR_CLI` pointing at the **IDE** `cursor.cmd`
+ * (that override used to win and spawned GUI “agent” tabs). A **full path in config** to
+ * the standalone `agent` wins over `CURSOR_CLI`. The default Windows install of the
+ * headless agent (`%LOCALAPPDATA%\\cursor-agent\\agent.cmd`) is tried before `where cursor`.
  */
 export function resolveCursorCommand(configured: string): string {
-  const envPath =
-    process.env.CURSOR_CLI?.trim() || process.env.CURSOR_AGENT_BIN?.trim();
-  if (envPath) {
-    if (isFile(envPath)) return finalizeWin(envPath);
-    const fixed = winTryCursorBin(envPath);
-    if (fixed) return fixed;
+  const cfg = configured?.trim() ?? "";
+
+  const agentBin = process.env.CURSOR_AGENT_BIN?.trim();
+  if (agentBin) {
+    if (isFile(agentBin)) return winPreferAgentExeOverCmd(finalizeWin(agentBin));
+    const fixed = winTryCursorBin(agentBin);
+    if (fixed) return winPreferAgentExeOverCmd(fixed);
   }
 
-  if (configured && (configured.includes("\\") || configured.includes("/"))) {
-    if (isFile(configured)) return finalizeWin(configured);
-    const fixed = winTryCursorBin(configured);
-    if (fixed) return fixed;
+  if (cfg && (cfg.includes("\\") || cfg.includes("/"))) {
+    if (isFile(cfg) && isStandaloneAgentExecutablePath(cfg)) {
+      return winPreferAgentExeOverCmd(finalizeWin(cfg));
+    }
+  }
+
+  const cursorCliEnv = process.env.CURSOR_CLI?.trim();
+  if (cursorCliEnv) {
+    if (isFile(cursorCliEnv)) return winPreferAgentExeOverCmd(finalizeWin(cursorCliEnv));
+    const fixed = winTryCursorBin(cursorCliEnv);
+    if (fixed) return winPreferAgentExeOverCmd(fixed);
+  }
+
+  if (cfg && (cfg.includes("\\") || cfg.includes("/"))) {
+    if (isFile(cfg)) return winPreferAgentExeOverCmd(finalizeWin(cfg));
+    const fixed = winTryCursorBin(cfg);
+    if (fixed) return winPreferAgentExeOverCmd(fixed);
   }
 
   if (process.platform === "win32") {
+    const local = process.env.LOCALAPPDATA;
+    if (local) {
+      const bundledAgent = join(local, "cursor-agent", "agent.cmd");
+      if (isFile(bundledAgent)) {
+        return winPreferAgentExeOverCmd(finalizeWin(bundledAgent));
+      }
+    }
+
     const where = spawnSync("where.exe", ["cursor"], {
       encoding: "utf8",
       shell: false,
@@ -78,13 +119,12 @@ export function resolveCursorCommand(configured: string): string {
         .map((l) => l.trim())
         .find((l) => l.length > 0);
       if (first) {
-        if (isFile(first)) return finalizeWin(first);
+        if (isFile(first)) return winPreferAgentExeOverCmd(finalizeWin(first));
         const fixed = winTryCursorBin(first);
-        if (fixed) return fixed;
+        if (fixed) return winPreferAgentExeOverCmd(fixed);
       }
     }
 
-    const local = process.env.LOCALAPPDATA;
     if (local) {
       const candidates = [
         join(local, "Programs", "cursor", "resources", "app", "bin", "cursor.cmd"),
@@ -92,7 +132,7 @@ export function resolveCursorCommand(configured: string): string {
         join(local, "Programs", "cursor", "resources", "app", "bin", "Cursor.exe"),
       ];
       for (const p of candidates) {
-        if (isFile(p)) return p;
+        if (isFile(p)) return winPreferAgentExeOverCmd(p);
       }
     }
   } else {
@@ -106,7 +146,7 @@ export function resolveCursorCommand(configured: string): string {
     }
   }
 
-  return finalizeWin(configured || "cursor");
+  return winPreferAgentExeOverCmd(finalizeWin(configured || "cursor"));
 }
 
 /** True when `resolved` is a concrete path that exists as a file (not a directory name). */

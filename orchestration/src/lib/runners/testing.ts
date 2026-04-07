@@ -3,7 +3,8 @@ import { copyFileSync, existsSync, mkdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { loadConfig } from "../config.js";
 import type { Task, RunState } from "../types.js";
-import { newId, appendOutcome, touchRun, updateTask } from "../store.js";
+import { newId, appendOutcome, touchRun, updateTask, getRun } from "../store.js";
+import { finalizeTaskAfterGodotTests } from "../task-merge.js";
 import { publish } from "../log-bus.js";
 import {
   registerPipelineChild,
@@ -116,10 +117,12 @@ export async function runGodotTests(
       metadata: { dryRun: true },
     });
     updateTask(run, task.id, { status: "done" });
-    run.phase = "orchestrating";
-    delete run.currentTaskId;
-    touchRun(run);
-    return run;
+    await finalizeTaskAfterGodotTests(run.id, task.id, true);
+    const dryAfter = getRun(run.id) ?? run;
+    dryAfter.phase = "orchestrating";
+    delete dryAfter.currentTaskId;
+    touchRun(dryAfter);
+    return dryAfter;
   }
 
   return new Promise((resolvePromise, reject) => {
@@ -147,38 +150,42 @@ export async function runGodotTests(
       reject(err);
     });
     child.on("close", (code) => {
-      if (pipelineRunId) clearPipelineChild(pipelineRunId);
-      const exitCode = code ?? 1;
-      const summaryLine = parseTestSummary(stdout);
-      const pass = exitCode === 0;
-      const meta: Record<string, unknown> = {};
-      if (summaryLine) meta.summaryLine = summaryLine;
-      if (run.baselineTestSummary && summaryLine) {
-        meta.baseline = run.baselineTestSummary;
-        meta.regressionHint =
-          summaryLine === run.baselineTestSummary
-            ? "same as baseline"
-            : "differs from baseline — review";
-      }
-      updateTask(run, task.id, {
-        status: pass ? "done" : "failed",
-      });
-      appendOutcome(run, {
-        id: newId("out"),
-        kind: "testing",
-        taskId: task.id,
-        at: new Date().toISOString(),
-        exitCode,
-        summary: pass
-          ? `Tests passed (${summaryLine ?? "exit 0"})`
-          : `Tests failed (${summaryLine ?? "exit " + exitCode})`,
-        logTail: (stdout + "\n" + stderr).slice(-LOG_TAIL),
-        metadata: meta,
-      });
-      run.phase = "orchestrating";
-      delete run.currentTaskId;
-      touchRun(run);
-      resolvePromise(run);
+      void (async () => {
+        if (pipelineRunId) clearPipelineChild(pipelineRunId);
+        const exitCode = code ?? 1;
+        const summaryLine = parseTestSummary(stdout);
+        const pass = exitCode === 0;
+        const meta: Record<string, unknown> = {};
+        if (summaryLine) meta.summaryLine = summaryLine;
+        if (run.baselineTestSummary && summaryLine) {
+          meta.baseline = run.baselineTestSummary;
+          meta.regressionHint =
+            summaryLine === run.baselineTestSummary
+              ? "same as baseline"
+              : "differs from baseline — review";
+        }
+        updateTask(run, task.id, {
+          status: pass ? "done" : "failed",
+        });
+        appendOutcome(run, {
+          id: newId("out"),
+          kind: "testing",
+          taskId: task.id,
+          at: new Date().toISOString(),
+          exitCode,
+          summary: pass
+            ? `Tests passed (${summaryLine ?? "exit 0"})`
+            : `Tests failed (${summaryLine ?? "exit " + exitCode})`,
+          logTail: (stdout + "\n" + stderr).slice(-LOG_TAIL),
+          metadata: meta,
+        });
+        await finalizeTaskAfterGodotTests(run.id, task.id, pass);
+        const after = getRun(run.id) ?? run;
+        after.phase = "orchestrating";
+        delete after.currentTaskId;
+        touchRun(after);
+        resolvePromise(after);
+      })().catch(reject);
     });
   });
 }

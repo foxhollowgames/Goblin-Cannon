@@ -10,7 +10,13 @@ import {
   describeCursorResolution,
   isCursorCliPathRunnable,
 } from "../lib/resolve-cursor-cli.js";
-import { startPipelineJob, stopPipelineRun } from "../lib/pipeline.js";
+import {
+  startPipelineJob,
+  stopPipelineRun,
+  type PipelineStartMode,
+} from "../lib/pipeline.js";
+import { recoverTaskToTestingAndRunTests } from "../lib/recover-task.js";
+import { recoverUnfinishedTasksForRun } from "../lib/recover-unfinished.js";
 import { performAssignNext } from "../lib/assign-next.js";
 import {
   getRun,
@@ -45,19 +51,55 @@ async function buildServer() {
 
   app.get("/api/health", async () => ({ ok: true }));
 
-  app.get("/api/config", async () => {
+  /** Common mistake: `/config` is not the API (that serves the SPA). Send browsers to JSON. */
+  app.get("/config", async (_req, reply) =>
+    reply.redirect("/api/config", 302)
+  );
+
+  app.get("/api/config", async (req, reply) => {
     resetConfigCache();
     const c = loadConfig();
     const resolved = resolveCursorCommand(c.cursorCli.command);
-    return {
+    const cursorApiKeyConfigured = Boolean(
+      (process.env.CURSOR_API_KEY?.trim() ||
+        c.cursorCli.env?.CURSOR_API_KEY?.trim())?.length
+    );
+    const payload = {
       repoRoot: c.repoRoot,
       worktreeParentDir: c.worktreeParentDir,
       dryRun: c.dryRun,
       limits: c.limits,
+      autoMergeOnPass: c.autoMergeOnPass,
+      pushAfterMerge: c.pushAfterMerge,
+      gitRemote: c.gitRemote,
+      deleteRemoteAgentBranch: c.deleteRemoteAgentBranch,
       hasGodotPath: Boolean(c.godotPath),
       cursorCliResolved: describeCursorResolution(resolved),
       cursorCliFoundOnDisk: isCursorCliPathRunnable(resolved),
+      cursorApiKeyConfigured,
     };
+
+    /** Firefox’s JSON viewer often shows only the “Pretty-print” bar with no body; plain text is readable in the tab. */
+    const q = req.query as Record<string, string | undefined>;
+    const isAddressBarNavigation =
+      req.headers["sec-fetch-mode"] === "navigate" &&
+      req.headers["sec-fetch-dest"] === "document";
+    const wantPlainText =
+      q?.text === "1" ||
+      q?.raw === "1" ||
+      isAddressBarNavigation;
+
+    if (wantPlainText) {
+      return reply
+        .header("Cache-Control", "no-store")
+        .type("text/plain; charset=utf-8")
+        .send(`${JSON.stringify(payload, null, 2)}\n`);
+    }
+
+    return reply
+      .header("Cache-Control", "no-store")
+      .type("application/json; charset=utf-8")
+      .send(payload);
   });
 
   app.get("/api/runs", async () => ({ runs: listRuns() }));
@@ -100,7 +142,7 @@ async function buildServer() {
 
   /** Flat paths — avoid `/runs/:id/pipeline/start` (some routers miss multi-segment routes after a param → 404 Not found). */
   app.post<{
-    Body: { runId?: string };
+    Body: { runId?: string; fromBacklogOnly?: boolean };
   }>("/api/pipeline/start", async (req, reply) => {
     const runId =
       typeof req.body?.runId === "string" ? req.body.runId.trim() : "";
@@ -110,11 +152,17 @@ async function buildServer() {
     const run = getRun(runId);
     if (!run) return reply.code(404).send({ error: "Run not found" });
     resetConfigCache();
+    const mode: PipelineStartMode = req.body?.fromBacklogOnly
+      ? "fromBacklogOnly"
+      : "full";
     try {
-      startPipelineJob(runId);
+      startPipelineJob(runId, mode);
       return reply.code(202).send({
         runId,
-        message: "Pipeline started",
+        message:
+          mode === "fromBacklogOnly"
+            ? "Backlog-only pipeline started (planner skipped)"
+            : "Pipeline started",
       });
     } catch (e) {
       return reply.code(409).send({
@@ -183,7 +231,7 @@ async function buildServer() {
     resetConfigCache();
     const run = getRun(req.params.id);
     if (!run) return reply.code(404).send({ error: "Run not found" });
-    const outcome = performAssignNext(run);
+    const outcome = await performAssignNext(run);
     if (!outcome.ok) {
       return reply.code(400).send({ error: outcome.error });
     }
@@ -214,6 +262,52 @@ async function buildServer() {
         error: e instanceof Error ? e.message : String(e),
       });
     }
+  });
+
+  /**
+   * If execution failed or Stop left the task in `failed`/`assigned` but the worktree has real
+   * changes, run Godot tests and advance the task. If the task is already `testing`, re-runs
+   * Godot tests in that worktree only.
+   */
+  app.post<{
+    Params: { id: string };
+    Body: { taskId?: string };
+  }>("/api/runs/:id/recover-task", async (req, reply) => {
+    const run = getRun(req.params.id);
+    if (!run) return reply.code(404).send({ error: "Run not found" });
+    const taskId =
+      typeof req.body?.taskId === "string" ? req.body.taskId.trim() : "";
+    if (!taskId) {
+      return reply.code(400).send({ error: "taskId required" });
+    }
+    resetConfigCache();
+    const result = await recoverTaskToTestingAndRunTests(run, taskId);
+    if (!result.ok) {
+      return reply.code(400).send({ error: result.error });
+    }
+    return result.run;
+  });
+
+  /**
+   * For each backlog task that is not done and has a worktree in failed/assigned/testing,
+   * runs the same recovery as POST /recover-task (Godot tests, status updates). Skips pending
+   * tasks until they have a worktree.
+   */
+  app.post<{
+    Params: { id: string };
+  }>("/api/runs/:id/recover-unfinished", async (req, reply) => {
+    resetConfigCache();
+    const result = await recoverUnfinishedTasksForRun(req.params.id);
+    if (!result.ok) {
+      const code = result.error === "Run not found" ? 404 : 500;
+      return reply.code(code).send({ error: result.error });
+    }
+    return {
+      run: result.run,
+      attempted: result.attempted,
+      skippedLabels: result.skippedLabels,
+      failures: result.failures,
+    };
   });
 
   app.post<{

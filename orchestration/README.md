@@ -49,18 +49,45 @@ Open http://127.0.0.1:8787 (or set `ORCH_PORT`).
 | `cursorCli.command` | CLI binary (e.g. `cursor`) |
 | `cursorCli.args` | Argument list; include `{{PROMPT}}` where the composed prompt is injected |
 | `cursorCli.env` | Optional extra env vars for the Cursor child (e.g. `CURSOR_API_KEY`) |
+| `cursorCli.headlessAgent` | If `true`, injects `--print` and (on execution) `--force` / `--yolo` so the agent **applies** edits. **Required** for meaningful execution with standalone **`agent.cmd`** — if `false`, the agent may reply without touching files. |
 | `limits.maxParallelWorktrees` | Capacity guard (default `1`) |
+| `plannerFallback` | If `true` (default), create a single task from the problem when planner output is **empty** or **not parseable JSON** (prose instead of `tasks[]`). Set `false` to fail the run when JSON is missing. |
 | `dryRun` | If `true`, prints commands instead of running Cursor/Godot |
 
-Environment overrides: `GOBLIN_CANNON_ROOT`, `ORCH_WORKTREE_PARENT`, `GODOT_PATH`, `CURSOR_CLI`, `CURSOR_AGENT_BIN`, `ORCH_PORT`, `ORCH_HOST`.
+Environment overrides: `GOBLIN_CANNON_ROOT`, `ORCH_WORKTREE_PARENT`, `GODOT_PATH`, **`CURSOR_AGENT_BIN`** (preferred) or **`CURSOR_CLI`**, `ORCH_PORT`, `ORCH_HOST`. **`CURSOR_AGENT_BIN`** is checked **first**: use it for the standalone **`agent.cmd`** path so a user-level **`CURSOR_CLI`** pointing at **`cursor.cmd`** does not override your config.
 
-### Headless agent (no git changes / empty planner output)
+### Headless agent (no git changes / empty planner output / empty window)
 
-Running **`cursor agent "…"` in an interactive terminal** can open Cursor and show a reply, but the orchestration server **spawns the same CLI as a background child** (no TTY). On Windows that often exits **0** with little or no stdout and **no file edits** unless headless auth is set up.
+Running **`cursor agent "…"`** from Node (no TTY) often returns little or no stdout unless **`CURSOR_API_KEY`** is set (see below). **`cursorCli.headlessAgent`** defaults to **`false`**: on many Windows installs, **`cursor agent --print`** is **not** supported and you get `Warning: 'print' is not in the list of known options` (the flag is passed to Electron), which breaks planner JSON parsing. Set **`headlessAgent: true`** only after you confirm your Cursor build supports **`cursor agent --print`** per [Using Headless CLI](https://cursor.com/docs/cli/headless) (then execution gets **`--print --force`** automatically).
 
-1. Follow **Cursor’s CLI / headless** documentation (e.g. [CLI overview](https://cursor.com/docs/cli/overview)) and set **`CURSOR_API_KEY`** for the process that runs `npm start` (or add it under **`cursorCli.env`** in `orchestration.config.local.json` — that file is gitignored).
-2. **Upgrade Cursor** if stderr shows unknown flags (e.g. `--print`) passed through to Electron — newer builds may support documented headless flags.
-3. Keep **`CURSOR_CLI`** pointing at **`cursor.cmd`** on Windows.
+1. Set **`CURSOR_API_KEY`** for the process that runs `npm start` (or under **`cursorCli.env`** in `orchestration.config.local.json` — that file is gitignored).
+2. Keep **`headlessAgent: false`** if you see the **`print` / Electron** warning above.
+3. Keep **`CURSOR_CLI`** pointing at **`cursor.cmd`** on Windows — unless you use the standalone binary below.
+
+**Standalone `agent` vs `cursor agent`:** The **`agent`** executable (e.g. `%LOCALAPPDATA%\cursor-agent\agent.cmd` when on `PATH`) runs the Cursor Agent CLI **directly**, so flags like **`--print`** are not forwarded through Electron the way **`cursor agent …`** sometimes is on Windows. In **`orchestration.config.local.json`**, set **`cursorCli.command`** to **`agent`** or the full path to **`agent.cmd`**, **`cursorCli.args`** to **`["{{PROMPT}}"]`** (do **not** include a literal **`agent`** token in `args` — the binary already is `agent`). Use **`headlessAgent: true`** so the server injects **`--print`** and **`--force`** on execution. For unattended runs, add workspace trust flags your CLI printed (e.g. **`--trust`**, **`-f`**, or **`--yolo`**) to **`args`** before **`{{PROMPT}}`**. If PowerShell blocks **`agent.ps1`**, call **`agent.cmd`** with a full path or run the server via **`cmd /c`**.
+
+If the dashboard still shows **`Cursor CLI: …\cursor.cmd`** (under **`Programs\cursor\...`**), the server is **not** using standalone `agent` — you get GUI “agent” tabs and flaky I/O. Resolution order: **`CURSOR_AGENT_BIN`** → a **config file path** to **`agent.cmd` / `agent.exe`** (wins over **`CURSOR_CLI`**) → **`CURSOR_CLI`** → **`%LOCALAPPDATA%\cursor-agent\agent.cmd`** if installed → `where cursor`. Set **`CURSOR_AGENT_BIN`** to the standalone agent, or remove a user-level **`CURSOR_CLI`** that points at the IDE, or put the full agent path in **`cursorCli.command`**. Restart **`npm start`** after config edits.
+
+**`cursor-agent.ps1` / “name argument is not valid”** when using stdin: **`agent.cmd`** cannot use a lone `-` in argv; the server omits that token and sends the prompt on stdin only. **`agent.exe`** uses the normal **`-` + stdin** contract. Prefer **`agent.exe`** when possible — with **`.cmd` only**, long execution with no progress may mean the agent never got a proper stdin handshake; install/update Cursor Agent so **`agent.exe`** exists next to **`agent.cmd`**, or set **`CURSOR_AGENT_BIN`** to that **`.exe`**.
+
+**Execution seems stuck (many minutes):** Large tasks can run a long time. The live log emits a **“still running”** line every **2 minutes** with the agent **`cwd`** (the task worktree) and a **`git status --short`** command you can paste in a terminal to confirm real file changes.
+
+### How to validate execution is doing real work
+
+1. **Use the heartbeat line** — It includes **`cwd:`** pointing at `...\goblin-cannon-agent-task_...`. That is where the agent should edit files (not your main repo folder unless you merged).
+2. **Check git in the worktree** (PowerShell or cmd):
+   ```powershell
+   git -C "c:\path\to\goblin-cannon-agent-task_..." status --short
+   ```
+   You should see modified/new files while the agent is working (or after it finishes).
+3. **If the log already shows a complete “Summary” / test results but “still running” never stops** — The CLI child often **did not exit** (typical with **`agent.cmd`** without a clean stdin handshake). Click **Stop**, set **`CURSOR_AGENT_BIN`** to **`%LOCALAPPDATA%\cursor-agent\agent.exe`** if that file exists, restart **`npm start`**, and run again.
+4. **Task Manager** — While a run is active, you may see **Cursor / agent** processes using CPU occasionally; flat idle CPU with endless heartbeats usually means a hung child (same fix as step 3).
+
+Edits land in the **task worktree** (`goblin-cannon-agent-*`), not your main checkout, until you merge. Use **Stop** to kill the subprocess.
+
+**“No git changes” but you see edits in the main repo:** The pipeline only checks the **task worktree** (`goblin-cannon-agent-*`). Execution’s agent must change files **under that worktree path** (relative paths from `cwd`). Edits applied via absolute paths to the parent checkout do **not** count. On Windows, the full prompt is always sent via **stdin** so the agent receives the task body (not just the first line). The planner runs with **`cwd`** = **`orchestration/`** so accidental writes from planning stay out of `scenes/`.
+
+**If `cursor agent "…"` opens empty editor tabs** named `agent`, `say hi`, etc., the CLI is treating those tokens as **file paths** (same as `cursor <path> <path>`), not as the agent subcommand. That usually means the **`agent` subcommand is not active** in that Cursor build (despite appearing in `--help`) — update Cursor from [cursor.com](https://cursor.com) or ask [Cursor support](https://forum.cursor.com); the Goblin Cannon pipeline cannot automate the agent until **`cursor agent`** actually runs the agent instead of opening buffers.
 
 ## Safety
 

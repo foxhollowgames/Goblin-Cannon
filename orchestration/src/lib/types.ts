@@ -91,6 +91,28 @@ export interface OrchestrationConfig {
     timeoutMs: number;
     /** Merged into the child process env (e.g. pass secrets only via local config + gitignore). */
     env?: Record<string, string>;
+    /**
+     * When true, inject `cursor agent --print` (+ `--force` on execution). Default false: many
+     * Windows CLI builds do not support `--print` and show "Warning: 'print' is not in the list
+     * of known options" (flag is passed to Electron). Enable only if your Cursor version supports it.
+     */
+    headlessAgent: boolean;
+    /**
+     * Execution phase only: if output contains a markdown `## Summary` block and then no stdout/stderr
+     * for this many ms, send SIGTERM (Windows `agent.cmd` often never exits after printing Summary).
+     * Set to 0 to disable. Env: `ORCH_EXIT_AFTER_SUMMARY_IDLE_MS`.
+     */
+    exitAfterSummaryIdleMs: number;
+    /**
+     * Execution phase only: SIGTERM if **no** stdout/stderr bytes for this long (catches hangs
+     * that never print `## Summary`). 0 disables. Env: `ORCH_EXIT_AFTER_OUTPUT_IDLE_MS`.
+     */
+    exitAfterOutputIdleMs: number;
+    /**
+     * Execution phase only: SIGTERM after this wall time since spawn regardless of output
+     * (use when the agent streams keepalives forever). 0 disables. Env: `ORCH_MAX_EXECUTION_WALL_MS`.
+     */
+    maxExecutionWallMs: number;
   };
   limits: { maxParallelWorktrees: number };
   dryRun: boolean;
@@ -104,4 +126,21 @@ export interface OrchestrationConfig {
    * dirty files (detects silent no-op runs on Windows). Set false for dry runs or debugging.
    */
   requireExecutionGitChanges: boolean;
+  /**
+   * When true (default), after Godot tests pass, merge the task branch into main/master and remove the worktree.
+   * Set false to leave branches for manual merge (worktree slot is still released).
+   */
+  autoMergeOnPass: boolean;
+  /**
+   * After a successful local merge into main/master, run `git push <gitRemote> <primary>` so GitHub stays in sync.
+   * Requires credentials (credential manager, SSH remote, etc.). Env: `ORCH_PUSH_AFTER_MERGE=0` to disable.
+   */
+  pushAfterMerge: boolean;
+  /** Remote name for push and optional remote agent-branch delete (default `origin`). */
+  gitRemote: string;
+  /**
+   * After merge, attempt `git push <gitRemote> --delete <agent-branch>` if the agent branch was ever pushed.
+   * Failures are ignored (branch usually exists only locally).
+   */
+  deleteRemoteAgentBranch: boolean;
 }

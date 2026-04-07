@@ -6,7 +6,7 @@ signal wall_destroyed
 signal time_expired
 
 const TICKS_PER_SECOND: int = 60
-const WALL_TIME_SECONDS: Array[int] = [300, 180, 120]  # 5 min, 3 min, 2 min
+const WALL_TIME_SECONDS: Array[int] = [60, 180, 120]  # 1 min, 3 min, 2 min
 ## Endless mode: ramp difficulty (testing). HP rises; timer tightens toward a floor.
 const ENDLESS_HP_GROWTH: float = 1.12
 const ENDLESS_TIMER_SHRINK: float = 0.94

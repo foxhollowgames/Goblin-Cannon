@@ -43,6 +43,17 @@ function setProblemStatus(
   if (kind === "error") el.classList.add("error");
 }
 
+const RUN_STORAGE_KEY = "goblinOrchRunId";
+
+function persistRunId(id: string | null) {
+  try {
+    if (id) sessionStorage.setItem(RUN_STORAGE_KEY, id);
+    else sessionStorage.removeItem(RUN_STORAGE_KEY);
+  } catch {
+    /* storage blocked */
+  }
+}
+
 let currentRunId: string | null = null;
 let eventSource: EventSource | null = null;
 let pollTimer: ReturnType<typeof setInterval> | null = null;
@@ -137,6 +148,7 @@ async function refreshConfig() {
     dryRun: boolean;
     cursorCliResolved?: string;
     cursorCliFoundOnDisk?: boolean;
+    cursorApiKeyConfigured?: boolean;
   };
   const hint = document.getElementById("cursorHint");
   if (hint && c.cursorCliResolved) {
@@ -146,10 +158,52 @@ async function refreshConfig() {
       : `Cursor CLI not found — set env CURSOR_CLI to the full path. (${c.cursorCliResolved})`;
     hint.style.color = ok ? "" : "var(--danger)";
   }
+  const keyHint = document.getElementById("apiKeyHint");
+  if (keyHint) {
+    if (c.cursorApiKeyConfigured) {
+      keyHint.textContent =
+        "CURSOR_API_KEY: configured (process environment or cursorCli.env in orchestration.config.local.json)";
+      keyHint.style.color = "";
+    } else {
+      keyHint.textContent =
+        "CURSOR_API_KEY: not detected — set in User env vars or under cursorCli.env in orchestration.config.local.json, then restart npm start";
+      keyHint.style.color = "var(--danger)";
+    }
+  }
+}
+
+/** Session run id, or the Run id field when you paste a run without using Send in this tab. */
+function effectiveRecoverRunId(): string {
+  if (currentRunId) return currentRunId;
+  return (
+    document.getElementById("recoverRunIdInput") as HTMLInputElement | null
+  )?.value.trim() ?? "";
+}
+
+function syncRecoverPanel() {
+  const btn = document.getElementById(
+    "btnRecoverManual"
+  ) as HTMLButtonElement | null;
+  const hint = document.getElementById("recoverManualHint");
+  const runId = effectiveRecoverRunId().trim();
+  const canSubmit = Boolean(runId);
+  if (btn) {
+    btn.disabled = !canSubmit;
+    btn.title = canSubmit
+      ? "Run Godot tests for every recoverable unfinished task (worktree + failed/assigned/testing)."
+      : "Paste Run id (run_…) or use Send above.";
+  }
+  if (hint) {
+    hint.textContent =
+      "Uses Run id only. After Send, it is filled automatically. Skips pending tasks until they have a worktree.";
+  }
 }
 
 async function loadRun() {
-  if (!currentRunId) return;
+  if (!currentRunId) {
+    syncRecoverPanel();
+    return;
+  }
   const r = await api(`/runs/${currentRunId}`);
   if (!r.ok) return;
   const run = (await r.json()) as {
@@ -172,6 +226,11 @@ async function loadRun() {
 
   const rid = document.getElementById("runIdDisplay");
   if (rid) rid.textContent = `Active run: ${run.id}`;
+
+  const runField = document.getElementById(
+    "recoverRunIdInput"
+  ) as HTMLInputElement | null;
+  if (runField) runField.value = run.id;
 
   const ps = document.getElementById("pipelineState");
   if (ps) ps.textContent = run.pipelineStatus ?? "—";
@@ -205,10 +264,12 @@ async function loadRun() {
   const tl = document.getElementById("taskList");
   if (tl) {
     tl.innerHTML = run.backlog
-      .map(
-        (t) =>
-          `<li><strong>${escapeHtml(t.title)}</strong> — ${escapeHtml(t.status)}${t.assignedWorktreePath ? ` — ${escapeHtml(t.assignedWorktreePath)}` : ""}</li>`
-      )
+      .map((t) => {
+        const path = t.assignedWorktreePath
+          ? ` — ${escapeHtml(t.assignedWorktreePath)}`
+          : "";
+        return `<li><span class="task-line"><strong>${escapeHtml(t.title)}</strong> — ${escapeHtml(t.status)}${path}</span></li>`;
+      })
       .join("");
   }
 
@@ -216,6 +277,8 @@ async function loadRun() {
   if (report) {
     report.textContent = run.communicationReport ?? "—";
   }
+
+  syncRecoverPanel();
 }
 
 function escapeHtml(s: string): string {
@@ -224,6 +287,88 @@ function escapeHtml(s: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
+}
+
+async function recoverUnfinishedForRun() {
+  const runId = effectiveRecoverRunId().trim();
+  if (!runId) return;
+  const btn = document.getElementById(
+    "btnRecoverManual"
+  ) as HTMLButtonElement | null;
+  if (btn) btn.disabled = true;
+  try {
+    const r = await api(`/runs/${runId}/recover-unfinished`, {
+      method: "POST",
+      body: "{}",
+    });
+    let body: {
+      error?: string;
+      run?: { id: string };
+      attempted?: string[];
+      skippedLabels?: string[];
+      failures?: { title: string; error: string }[];
+    };
+    try {
+      body = (await r.json()) as typeof body;
+    } catch {
+      setProblemStatus(`HTTP ${r.status}`, "error");
+      return;
+    }
+    if (!r.ok) {
+      setProblemStatus(body.error ?? `HTTP ${r.status}`, "error");
+      return;
+    }
+    if (!currentRunId && body.run?.id) {
+      currentRunId = body.run.id;
+      persistRunId(body.run.id);
+    }
+    const n = body.attempted?.length ?? 0;
+    const failed = body.failures?.length ?? 0;
+    const skipN = body.skippedLabels?.length ?? 0;
+    const parts = [
+      `Batch recover: ${n} recoverable task(s) processed.`,
+      failed ? `${failed} failed (see outcomes).` : "All attempts finished.",
+      skipN
+        ? `${skipN} other unfinished task(s) skipped (no worktree or not failed/assigned/testing).`
+        : "",
+    ].filter(Boolean);
+    setProblemStatus(
+      parts.join(" ") +
+        " Merge agent branches into main to update your main game files.",
+      failed ? "error" : "ok"
+    );
+    await loadRun();
+  } catch (e) {
+    setProblemStatus(
+      e instanceof Error ? e.message : "Batch recover failed",
+      "error"
+    );
+  } finally {
+    syncRecoverPanel();
+  }
+}
+
+async function restoreRunIfAny(): Promise<boolean> {
+  let id: string | null = null;
+  try {
+    id = sessionStorage.getItem(RUN_STORAGE_KEY);
+  } catch {
+    return false;
+  }
+  if (!id) return false;
+  const r = await api(`/runs/${id}`);
+  if (!r.ok) {
+    persistRunId(null);
+    return false;
+  }
+  currentRunId = id;
+  await connectLogStream(id);
+  await loadRun();
+  setProblemStatus(
+    "Restored this tab’s last run (refresh keeps backlog + Recover). Send again to start a new run.",
+    "info"
+  );
+  return true;
 }
 
 async function submitProblem() {
@@ -250,6 +395,7 @@ async function submitProblem() {
       return;
     }
     currentRunId = body.id;
+    persistRunId(body.id);
     await connectLogStream(body.id);
     const ps = await api("/pipeline/start", {
       method: "POST",
@@ -276,6 +422,14 @@ async function submitProblem() {
     btn?.removeAttribute("disabled");
   }
 }
+
+document.getElementById("btnRecoverManual")?.addEventListener("click", () => {
+  void recoverUnfinishedForRun();
+});
+
+document.getElementById("recoverRunIdInput")?.addEventListener("input", () => {
+  syncRecoverPanel();
+});
 
 document.getElementById("btnSend")?.addEventListener("click", () => {
   void submitProblem();
@@ -305,6 +459,12 @@ document.getElementById("btnStartOver")?.addEventListener("click", async () => {
   }
   stopPolling();
   currentRunId = null;
+  persistRunId(null);
+  const runInp = document.getElementById(
+    "recoverRunIdInput"
+  ) as HTMLInputElement | null;
+  if (runInp) runInp.value = "";
+  syncRecoverPanel();
   eventSource?.close();
   eventSource = null;
   const ta = document.getElementById("problem") as HTMLTextAreaElement;
@@ -333,9 +493,16 @@ problemTa?.addEventListener("keydown", (ev) => {
   void submitProblem();
 });
 
-void refreshConfig();
-setProblemStatus(
-  "Describe the goal and Send — the full pipeline runs automatically.",
-  "info"
-);
-setControlsForPipeline(false);
+void (async () => {
+  await refreshConfig();
+  syncRecoverPanel();
+  const restored = await restoreRunIfAny();
+  if (!restored) {
+    setProblemStatus(
+      "Describe the goal and Send — the full pipeline runs automatically.",
+      "info"
+    );
+    setControlsForPipeline(false);
+  }
+  syncRecoverPanel();
+})();

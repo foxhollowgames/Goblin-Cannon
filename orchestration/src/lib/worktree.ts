@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
+import { existsSync, rmSync } from "node:fs";
+import { basename, join, resolve } from "node:path";
 
 function git(
   repoRoot: string,
@@ -73,29 +73,80 @@ export function createWorktree(
   return { ok: true, path, branch };
 }
 
+/** Only paths under this folder name pattern may get a filesystem fallback delete (never arbitrary dirs). */
+export function isAgentWorktreeFolderName(name: string): boolean {
+  return name.startsWith("goblin-cannon-agent-");
+}
+
+function removeAgentWorktreeDirIfPresent(absPath: string): string | undefined {
+  if (!existsSync(absPath)) return undefined;
+  const base = basename(absPath);
+  if (!isAgentWorktreeFolderName(base)) {
+    return `refusing non-agent path for fs cleanup: ${absPath}`;
+  }
+  try {
+    rmSync(absPath, { recursive: true, force: true });
+  } catch (e) {
+    return e instanceof Error ? e.message : String(e);
+  }
+  return existsSync(absPath) ? `directory still exists after rm: ${absPath}` : undefined;
+}
+
+/**
+ * Remove a registered git worktree, then delete the branch if requested.
+ * Retries after `git worktree prune`. If the directory still exists (Windows sync, etc.),
+ * removes it only when the folder name matches `goblin-cannon-agent-*`.
+ */
 export function removeWorktree(
   repoRoot: string,
   worktreePathArg: string,
   deleteBranch: boolean,
   branchName?: string
 ): { ok: boolean; error?: string } {
-  const rm = git(repoRoot, ["worktree", "remove", "--force", worktreePathArg]);
-  if (!rm.ok) {
+  const repo = resolve(repoRoot);
+  const absWt = resolve(worktreePathArg);
+  const tryGitRemove = (): { ok: boolean; err: string } => {
+    const rm = git(repo, ["worktree", "remove", "--force", absWt]);
+    if (rm.ok) return { ok: true, err: "" };
     return {
       ok: false,
-      error: rm.stderr || rm.stdout || `git worktree remove failed (${rm.status})`,
+      err: rm.stderr || rm.stdout || `git worktree remove failed (${rm.status})`,
     };
+  };
+
+  let first = tryGitRemove();
+  if (!first.ok) {
+    git(repo, ["worktree", "prune"]);
+    first = tryGitRemove();
   }
+  if (!first.ok) {
+    return { ok: false, error: first.err };
+  }
+
+  git(repo, ["worktree", "prune"]);
+
+  let branchWarning: string | undefined;
   if (deleteBranch && branchName) {
-    const br = git(repoRoot, ["branch", "-D", branchName]);
+    const br = git(repo, ["branch", "-D", branchName]);
     if (!br.ok) {
-      return {
-        ok: true,
-        error: `Worktree removed; branch delete warning: ${br.stderr || br.stdout}`,
-      };
+      branchWarning = `branch delete warning: ${br.stderr || br.stdout}`;
     }
   }
-  return { ok: true };
+
+  const fsErr = removeAgentWorktreeDirIfPresent(absWt);
+  if (fsErr) {
+    return {
+      ok: false,
+      error: [
+        `git removed worktree but folder cleanup failed: ${fsErr}`,
+        branchWarning,
+      ]
+        .filter(Boolean)
+        .join(" — "),
+    };
+  }
+
+  return branchWarning ? { ok: true, error: branchWarning } : { ok: true };
 }
 
 export function listWorktrees(repoRoot: string): string {
@@ -136,4 +187,21 @@ export function worktreeGitDelta(
     return { changed: true, detail: "uncommitted changes in worktree" };
   }
   return { changed: false, detail: "clean tree, same HEAD as before agent" };
+}
+
+/**
+ * True if the worktree has uncommitted changes or local commits ahead of `main` / `master`.
+ * Used to recover a task marked failed after Stop/timeout when HEAD-before was not persisted.
+ */
+export function worktreeHasSubstantiveWork(worktreeRoot: string): boolean {
+  const por = git(worktreeRoot, ["status", "--porcelain"]);
+  if (por.ok && por.stdout.trim().length > 0) return true;
+  for (const ref of ["main", "master"] as const) {
+    const br = git(worktreeRoot, ["rev-parse", "--verify", ref]);
+    if (!br.ok) continue;
+    const base = br.stdout.trim();
+    const cnt = git(worktreeRoot, ["rev-list", "--count", `${base}..HEAD`]);
+    if (cnt.ok && parseInt(cnt.stdout.trim(), 10) > 0) return true;
+  }
+  return false;
 }

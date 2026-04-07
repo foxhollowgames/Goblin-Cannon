@@ -1,4 +1,5 @@
 import type { ChildProcess } from "node:child_process";
+import { killChildProcessGracefully } from "./kill-child-process.js";
 
 interface Slot {
   cancelled: boolean;
@@ -54,20 +55,8 @@ export function stopPipelineRun(runId: string): boolean {
   const s = slots.get(runId);
   if (!s?.running) return false;
   s.cancelled = true;
-  try {
-    s.child?.kill("SIGTERM");
-  } catch {
-    /* ignore */
-  }
-  const ch = s.child;
-  if (ch?.pid) {
-    setTimeout(() => {
-      try {
-        ch.kill("SIGKILL");
-      } catch {
-        /* ignore */
-      }
-    }, 4000);
+  if (s.child) {
+    killChildProcessGracefully(s.child);
   }
   return true;
 }

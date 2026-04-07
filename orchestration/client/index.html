@@ -65,6 +65,7 @@
         <section class="card">
           <h2>Status</h2>
           <p class="muted config-hint" id="cursorHint"></p>
+          <p class="muted config-hint" id="apiKeyHint"></p>
           <dl class="status-grid">
             <dt>Pipeline</dt>
             <dd id="pipelineState">—</dd>
@@ -75,6 +76,29 @@
 
         <section class="card">
           <h2>Backlog &amp; tasks</h2>
+          <p class="muted recover-hint">
+            <strong>Rerun unfinished</strong> runs Godot tests for every task that already has a
+            worktree and is not <code>done</code> (failed / assigned / testing). Pending tasks are
+            skipped until the pipeline assigns them. Does not merge into your main checkout.
+          </p>
+          <div class="recover-manual" id="recoverManualRow">
+            <p class="recover-manual-title">Rerun unfinished tasks</p>
+            <p class="muted recover-manual-hint" id="recoverManualHint"></p>
+            <label for="recoverRunIdInput" class="recover-field-label">Run id</label>
+            <div class="row recover-manual-inputs">
+              <input
+                type="text"
+                id="recoverRunIdInput"
+                class="recover-task-input recover-run-input"
+                placeholder="run_… (from Active run above, or paste)"
+                spellcheck="false"
+                autocomplete="off"
+              />
+              <button type="button" id="btnRecoverManual" class="btn-recover">
+                Rerun unfinished → tests
+              </button>
+            </div>
+          </div>
           <pre id="backlogPreview" class="preview">(empty)</pre>
           <ul id="taskList" class="task-list"></ul>
         </section>

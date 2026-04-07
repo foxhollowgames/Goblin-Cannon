@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { stripElectronCliNoise } from "../electron-cli-noise.js";
 import { promptPath } from "../paths.js";
 import { runCursorAgent } from "./cursor-cli.js";
 import { loadConfig } from "../config.js";
@@ -31,12 +32,15 @@ export async function runCommunication(
     cwd: cfg.repoRoot,
     onChunk: (c) => publish(run.id, c),
     pipelineRunId,
+    phase: "communication",
   });
 
+  const reportOut = stripElectronCliNoise(res.stdout).trim();
+  const reportErr = stripElectronCliNoise(res.stderr);
   run.communicationReport =
     res.exitCode === 0
-      ? res.stdout.trim()
-      : `Report generation failed (exit ${res.exitCode}).\n\n${res.stderr.slice(-4000)}`;
+      ? reportOut
+      : `Report generation failed (exit ${res.exitCode}).\n\n${reportErr.slice(-4000)}`;
   appendOutcome(run, {
     id: newId("out"),
     kind: "communication",

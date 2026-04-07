@@ -49,15 +49,15 @@ func test_init_from_city_sets_timer() -> void:
 	begin("init_from_city sets timer for first wall")
 	var cm := _make_combat_manager()
 	cm.init_from_city(_make_city())
-	# Wall 0 = 300 seconds * 60 ticks/sec = 18000 ticks → 300.0 seconds
-	assert_approx(cm.get_timer_seconds_remaining(), 300.0, 0.1, "first wall timer = 300s")
+	# Wall 0 = 60 seconds * 60 ticks/sec = 3600 ticks → 60.0 seconds
+	assert_approx(cm.get_timer_seconds_remaining(), 60.0, 0.1, "first wall timer = 60s")
 
 func test_wall_time_constants() -> void:
-	begin("WALL_TIME_SECONDS matches spec (5min, 3min, 2min)")
+	begin("WALL_TIME_SECONDS matches spec (1min, 3min, 2min)")
 	var cm := _make_combat_manager()
 	cm.init_from_city(_make_city())
 	# Read the constant indirectly via _get_wall_time_ticks
-	assert_approx(cm.get_timer_seconds_remaining(), 300.0, 0.1, "wall 0 = 5 min")
+	assert_approx(cm.get_timer_seconds_remaining(), 60.0, 0.1, "wall 0 = 1 min")
 
 func test_on_main_fired_reduces_hp() -> void:
 	begin("_on_main_fired reduces wall HP")
@@ -112,7 +112,7 @@ func test_time_expired_signal() -> void:
 	cm.init_from_city(_make_city())
 	var count := [0]
 	cm.time_expired.connect(func(): count[0] += 1)
-	for i in 18000:
+	for i in 3600:
 		cm.sim_tick(i)
 	assert_eq(count[0], 1, "time_expired emitted")
 	assert_true(cm.is_time_expired(), "is_time_expired flag set")
@@ -122,7 +122,7 @@ func test_time_expired_blocks_further_damage() -> void:
 	var cm := _make_combat_manager()
 	cm.init_from_city(_make_city())
 	# Force timer to expire
-	for i in 18000:
+	for i in 3600:
 		cm.sim_tick(i)
 	var hp_before: int = cm.get_wall_hp()
 	cm._on_main_fired(10)
@@ -169,10 +169,10 @@ func test_timer_seconds_remaining() -> void:
 	begin("timer_seconds_remaining returns correct float")
 	var cm := _make_combat_manager()
 	cm.init_from_city(_make_city())
-	assert_approx(cm.get_timer_seconds_remaining(), 300.0, 0.1, "300.0 seconds at start")
+	assert_approx(cm.get_timer_seconds_remaining(), 60.0, 0.1, "60.0 seconds at start")
 	for i in 30:
 		cm.sim_tick(i)
-	assert_approx(cm.get_timer_seconds_remaining(), 299.5, 0.1, "0.5 seconds elapsed after 30 ticks")
+	assert_approx(cm.get_timer_seconds_remaining(), 59.5, 0.1, "0.5 seconds elapsed after 30 ticks")
 
 func test_get_wall_names() -> void:
 	begin("get_wall_names returns city wall names")

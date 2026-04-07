@@ -23,19 +23,12 @@ export function canAssignWorktree(run: RunState): {
   ok: boolean;
   reason?: string;
 } {
-  const cfg = loadConfig();
   const limit = run.limits.maxParallelWorktrees;
   const active = run.activeWorktreePaths.length;
   if (active >= limit) {
     return {
       ok: false,
       reason: `At worktree capacity (${active}/${limit}). Remove a worktree or raise maxParallelWorktrees in config.`,
-    };
-  }
-  if (run.runLock) {
-    return {
-      ok: false,
-      reason: `Run lock held by ${run.runLock.holder} since ${run.runLock.since}`,
     };
   }
   return { ok: true };
