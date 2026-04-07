@@ -453,8 +453,12 @@ async function buildServer() {
     }
     resetConfigCache();
     try {
-      const updated = await runGodotTests(run, task, task.assignedWorktreePath);
-      return updated;
+      const testResult = await runGodotTests(
+        run,
+        task,
+        task.assignedWorktreePath
+      );
+      return testResult.run;
     } catch (e) {
       return reply.code(500).send({
         error: e instanceof Error ? e.message : String(e),

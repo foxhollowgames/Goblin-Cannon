@@ -11,9 +11,47 @@ import {
 } from "../worktree.js";
 import { formatAttachmentContextForPrompt } from "../attachments.js";
 
+const TEST_FAILURE_LOG_MAX = 10_000;
+
+/** Injected into the execution prompt after a failed Godot run when the pipeline retries. */
+export type TestFailureRetryContext = {
+  /** 1-based index of this execution round (matches dashboard messaging). */
+  executionRound: number;
+  /** Total execution+test rounds allowed for this task (including the first). */
+  maxRounds: number;
+  outcomeSummary: string;
+  logExcerpt: string;
+  killedByTimeout: boolean;
+};
+
+export function formatTestFailureRetryBlock(ctx: TestFailureRetryContext): string {
+  if (ctx.killedByTimeout) {
+    return [
+      "## PREVIOUS GODOT RUN HIT THE WALL-CLOCK TIMEOUT",
+      "The test process was killed because it exceeded `godotHeadlessTimeoutMs`. Fix infinite loops or deadlocks, or raise the timeout in orchestration config only if the suite legitimately needs longer.",
+      "",
+    ].join("\n");
+  }
+  return [
+    "## PREVIOUS GODOT TEST RUN FAILED (automated retry)",
+    `This is execution round **${ctx.executionRound}** of **${ctx.maxRounds}** for this task. The last headless test run did not pass.`,
+    "",
+    "Fix the implementation **or** update tests/assertions if they are wrong or outdated. Edits must be under this worktree. Another test run will execute automatically after you finish.",
+    "",
+    "**Summary:** " + ctx.outcomeSummary,
+    "",
+    "**Recent stdout/stderr (tail):**",
+    "```",
+    ctx.logExcerpt.slice(-TEST_FAILURE_LOG_MAX),
+    "```",
+    "",
+  ].join("\n");
+}
+
 function buildExecutionPrompt(
   run: RunState,
-  task: Task
+  task: Task,
+  testFailureRetry?: TestFailureRetryContext
 ): string {
   const template = readFileSync(promptPath("execution.md"), "utf8");
   const acc = task.acceptance.map((a) => `- ${a}`).join("\n");
@@ -27,6 +65,9 @@ function buildExecutionPrompt(
     .replace(/\{\{TASK_ACCEPTANCE\}\}/g, acc)
     .replace(/\{\{TASK_FILES_HINT\}\}/g, hints)
     .replace(/\{\{WORKTREE_CWD\}\}/g, worktree);
+  const retryBlock = testFailureRetry
+    ? "\n\n" + formatTestFailureRetryBlock(testFailureRetry) + "\n"
+    : "";
   return [
     "### AUTOMATION — DO NOT ASK FOR THE ASSIGNMENT",
     "The task below is complete and authoritative. There is no human to answer questions.",
@@ -36,6 +77,7 @@ function buildExecutionPrompt(
     "",
     body,
     attachmentBlock,
+    retryBlock,
   ].join("\n");
 }
 
@@ -48,7 +90,8 @@ export type ExecutionResult = {
 export async function runExecution(
   run: RunState,
   task: Task,
-  pipelineRunId?: string
+  pipelineRunId?: string,
+  execOpts?: { testFailureRetry?: TestFailureRetryContext }
 ): Promise<ExecutionResult> {
   const cfg = loadConfig();
   const persisted = getRun(run.id);
@@ -62,7 +105,12 @@ export async function runExecution(
   run.phase = "executing";
   run.currentTaskId = task.id;
   touchRun(run);
-  publish(run.id, `--- Execution: task ${task.title} ---\n`);
+  publish(
+    run.id,
+    execOpts?.testFailureRetry
+      ? `--- Execution (fix retry ${execOpts.testFailureRetry.executionRound}/${execOpts.testFailureRetry.maxRounds}): ${task.title} ---\n`
+      : `--- Execution: task ${task.title} ---\n`
+  );
 
   const headBefore = getWorktreeHead(task.assignedWorktreePath);
   if (headBefore === null) {
@@ -72,7 +120,11 @@ export async function runExecution(
     );
   }
 
-  const prompt = buildExecutionPrompt(run, task);
+  const prompt = buildExecutionPrompt(
+    run,
+    task,
+    execOpts?.testFailureRetry
+  );
   const res = await runCursorAgent({
     prompt,
     cwd: task.assignedWorktreePath,
@@ -122,6 +174,10 @@ export async function runExecution(
   updateTask(run, task.id, {
     status: finalStatus,
   });
+  if (execOpts?.testFailureRetry) {
+    metadata.testFixRetryExecutionRound = execOpts.testFailureRetry.executionRound;
+    metadata.testFixRetryMaxRounds = execOpts.testFailureRetry.maxRounds;
+  }
   appendOutcome(run, {
     id: newId("out"),
     kind: "execution",

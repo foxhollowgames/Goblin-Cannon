@@ -4,7 +4,10 @@ import { join } from "node:path";
 import { loadConfig } from "../config.js";
 import type { Task, RunState } from "../types.js";
 import { newId, appendOutcome, touchRun, updateTask, getRun } from "../store.js";
-import { finalizeTaskAfterGodotTests } from "../task-merge.js";
+import {
+  finalizeTaskAfterGodotTests,
+  type FinalizeAfterGodotOptions,
+} from "../task-merge.js";
 import { publish } from "../log-bus.js";
 import {
   registerPipelineChild,
@@ -64,6 +67,20 @@ function seedWorktreeGodotClassCache(
   }
 }
 
+export type GodotTestRunOptions = {
+  /**
+   * When tests fail, keep the worktree in the parallel capacity pool until a follow-up execution runs.
+   * Default false (release slot on failure).
+   */
+  retainWorktreeSlotOnFailure?: boolean;
+};
+
+export type GodotTestResult = {
+  run: RunState;
+  pass: boolean;
+  killedByTimeout: boolean;
+};
+
 function parseTestSummary(stdout: string): string | undefined {
   const lines = stdout.split("\n");
   for (const line of lines) {
@@ -78,8 +95,9 @@ export async function runGodotTests(
   run: RunState,
   task: Task,
   worktreeRoot: string,
-  pipelineRunId?: string
-): Promise<RunState> {
+  pipelineRunId?: string,
+  testOptions?: GodotTestRunOptions
+): Promise<GodotTestResult> {
   const cfg = loadConfig();
   if (!cfg.godotPath) {
     throw new Error(
@@ -90,7 +108,7 @@ export async function runGodotTests(
     run.phase = "orchestrating";
     delete run.currentTaskId;
     touchRun(run);
-    return run;
+    return { run, pass: false, killedByTimeout: false };
   }
   run.phase = "testing";
   run.currentTaskId = task.id;
@@ -123,10 +141,10 @@ export async function runGodotTests(
     dryAfter.phase = "orchestrating";
     delete dryAfter.currentTaskId;
     touchRun(dryAfter);
-    return dryAfter;
+    return { run: dryAfter, pass: true, killedByTimeout: false };
   }
 
-  return new Promise((resolvePromise, reject) => {
+  return new Promise<GodotTestResult>((resolvePromise, reject) => {
     const child = spawn(cfg.godotPath, args, {
       cwd: worktreeRoot,
       stdio: ["ignore", "pipe", "pipe"],
@@ -201,12 +219,21 @@ export async function runGodotTests(
           logTail: (stdout + "\n" + stderr).slice(-LOG_TAIL),
           metadata: meta,
         });
-        await finalizeTaskAfterGodotTests(run.id, task.id, pass);
+        const failFinalize: FinalizeAfterGodotOptions | undefined = pass
+          ? undefined
+          : {
+              releaseSlotOnFailure: !testOptions?.retainWorktreeSlotOnFailure,
+            };
+        await finalizeTaskAfterGodotTests(run.id, task.id, pass, failFinalize);
         const after = getRun(run.id) ?? run;
         after.phase = "orchestrating";
         delete after.currentTaskId;
         touchRun(after);
-        resolvePromise(after);
+        resolvePromise({
+          run: after,
+          pass,
+          killedByTimeout,
+        });
       })().catch(reject);
     });
   });

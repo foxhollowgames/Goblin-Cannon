@@ -54,8 +54,9 @@ Open http://127.0.0.1:8787 (or set `ORCH_PORT`).
 | `plannerFallback` | If `true` (default), create a single task from the problem when planner output is **empty** or **not parseable JSON** (prose instead of `tasks[]`). Set `false` to fail the run when JSON is missing. |
 | `dryRun` | If `true`, prints commands instead of running Cursor/Godot |
 | `godotHeadlessTimeoutMs` | Max time (ms) for each Godot headless run (baseline + worktree tests); kills the process if exceeded so the pipeline never hangs. Default **600000** (10 min). Env: **`ORCH_GODOT_HEADLESS_TIMEOUT_MS`**. **`0`** disables the limit (not recommended). |
+| `godotTestFixRetries` | After a **failed** Godot test run (non-zero exit, not timeout), how many **extra** execution+test rounds to run. The next execution prompt includes the failing log tail so the agent can fix code or tests. Default **2** (up to **3** Godot runs per task). **`0`** = one shot (legacy behavior). Env: **`ORCH_GODOT_TEST_FIX_RETRIES`**. **Timeouts** do not trigger retries (fix hangs or raise `godotHeadlessTimeoutMs`). |
 
-Environment overrides: `GOBLIN_CANNON_ROOT`, `ORCH_WORKTREE_PARENT`, `GODOT_PATH`, **`ORCH_GODOT_HEADLESS_TIMEOUT_MS`**, **`CURSOR_AGENT_BIN`** (preferred) or **`CURSOR_CLI`**, `ORCH_PORT`, `ORCH_HOST`. **`CURSOR_AGENT_BIN`** is checked **first**: use it for the standalone **`agent.cmd`** path so a user-level **`CURSOR_CLI`** pointing at **`cursor.cmd`** does not override your config.
+Environment overrides: `GOBLIN_CANNON_ROOT`, `ORCH_WORKTREE_PARENT`, `GODOT_PATH`, **`ORCH_GODOT_HEADLESS_TIMEOUT_MS`**, **`ORCH_GODOT_TEST_FIX_RETRIES`**, **`CURSOR_AGENT_BIN`** (preferred) or **`CURSOR_CLI`**, `ORCH_PORT`, `ORCH_HOST`. **`CURSOR_AGENT_BIN`** is checked **first**: use it for the standalone **`agent.cmd`** path so a user-level **`CURSOR_CLI`** pointing at **`cursor.cmd`** does not override your config.
 
 ### Parallel task execution
 
@@ -103,7 +104,7 @@ The Cursor CLI can edit files in the repo or worktree. Use only on trusted clone
 
 ## Godot tests, auto-merge, and headless quirks
 
-**End-to-end flow:** baseline tests on **main checkout** (optional log) → planner → execution in **git worktree** → **Godot headless tests in that worktree** → on **exit 0**, **`autoMergeOnPass`** (default **true**) merges the task branch into **`main`/`master`**, removes the worktree, optionally **`pushAfterMerge`**. You do **not** need to merge by hand for normal passes.
+**End-to-end flow:** baseline tests on **main checkout** (optional log) → planner → execution in **git worktree** → **Godot headless tests in that worktree** → if tests fail (and retries remain), **another execution** with the failing log in the prompt, then **re-test** → on **exit 0**, **`autoMergeOnPass`** (default **true**) merges the task branch into **`main`/`master`**, removes the worktree, optionally **`pushAfterMerge`**. You do **not** need to merge by hand for normal passes.
 
 **When a task fails** with *“Task failed (Godot tests or auto-merge after tests)”*, open the **task outcome** in the dashboard log: **`testing`** outcomes show the suite summary; **`orchestrator`** outcomes show merge/snapshot/push errors (e.g. conflict, no commits ahead of main).
 

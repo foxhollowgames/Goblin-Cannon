@@ -64,6 +64,8 @@ const DEFAULTS: OrchestrationConfig = {
   deleteRemoteAgentBranch: true,
   /** 10 minutes — enough for a full suite; prevents hung Godot from blocking the pipeline forever */
   godotHeadlessTimeoutMs: 600_000,
+  /** Extra execution+test rounds after a failed Godot run (agent fixes using stderr/stdout). */
+  godotTestFixRetries: 2,
 };
 
 function normalizeConfig(
@@ -177,6 +179,16 @@ function normalizeConfig(
               raw.godotHeadlessTimeoutMs ?? DEFAULTS.godotHeadlessTimeoutMs
             );
       return Number.isFinite(n) ? Math.max(0, n) : DEFAULTS.godotHeadlessTimeoutMs;
+    })(),
+    godotTestFixRetries: (() => {
+      const fromEnv = process.env.ORCH_GODOT_TEST_FIX_RETRIES;
+      const n =
+        fromEnv !== undefined
+          ? Number(fromEnv)
+          : Number(raw.godotTestFixRetries ?? DEFAULTS.godotTestFixRetries);
+      return Number.isFinite(n)
+        ? Math.max(0, Math.floor(n))
+        : DEFAULTS.godotTestFixRetries;
     })(),
   };
 }

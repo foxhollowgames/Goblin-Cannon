@@ -161,4 +161,9 @@ export interface OrchestrationConfig {
    * blocks forever. 0 disables (not recommended). Env: `ORCH_GODOT_HEADLESS_TIMEOUT_MS`.
    */
   godotHeadlessTimeoutMs: number;
+  /**
+   * After Godot tests fail, how many **extra** execution+test rounds to run (agent sees failing output and must fix code or tests).
+   * Example: **2** ⇒ up to **3** Godot runs total (initial + 2 retries). **0** disables retries (same as before). Env: `ORCH_GODOT_TEST_FIX_RETRIES`.
+   */
+  godotTestFixRetries: number;
 }

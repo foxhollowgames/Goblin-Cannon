@@ -19,6 +19,7 @@
   "gitRemote": "origin",
   "deleteRemoteAgentBranch": true,
   "godotHeadlessTimeoutMs": 600000,
+  "godotTestFixRetries": 2,
   "limits": {
     "maxParallelWorktrees": 4
   },

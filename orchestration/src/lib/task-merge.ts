@@ -120,13 +120,23 @@ export function releaseActiveWorktreeSlot(
   touchRun(run);
 }
 
+/** Options for {@link finalizeTaskAfterGodotTests} when tests fail. */
+export type FinalizeAfterGodotOptions = {
+  /**
+   * When tests fail, release the parallel worktree capacity slot (default true).
+   * Set false when another execution+test round will run in the same worktree.
+   */
+  releaseSlotOnFailure?: boolean;
+};
+
 /**
  * After Godot tests: release capacity slot; if tests passed and autoMerge, merge into main and remove worktree.
  */
 export async function finalizeTaskAfterGodotTests(
   runId: string,
   taskId: string,
-  testsPassed: boolean
+  testsPassed: boolean,
+  finalizeOpts?: FinalizeAfterGodotOptions
 ): Promise<void> {
   const cfg = loadConfig();
   const run = getRun(runId);
@@ -138,7 +148,9 @@ export async function finalizeTaskAfterGodotTests(
   const branch = task.branchName;
 
   if (!testsPassed) {
-    releaseActiveWorktreeSlot(runId, wtPath);
+    if (finalizeOpts?.releaseSlotOnFailure !== false) {
+      releaseActiveWorktreeSlot(runId, wtPath);
+    }
     return;
   }
 

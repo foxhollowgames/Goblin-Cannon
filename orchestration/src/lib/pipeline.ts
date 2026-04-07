@@ -1,7 +1,10 @@
-import { getRun, touchRun } from "./store.js";
+import { getRun, touchRun, updateTask } from "./store.js";
 import { publish } from "./log-bus.js";
 import { runPlanner } from "./runners/planner.js";
-import { runExecution } from "./runners/execution.js";
+import {
+  runExecution,
+  type TestFailureRetryContext,
+} from "./runners/execution.js";
 import { runGodotTests, captureBaseline } from "./runners/testing.js";
 import { runCommunication } from "./runners/communication.js";
 import { performAssignNext } from "./assign-next.js";
@@ -13,7 +16,18 @@ import {
   isPipelineRunning,
 } from "./pipeline-controller.js";
 import { loadConfig, resetConfigCache } from "./config.js";
-import type { PipelineStatus } from "./types.js";
+import type { Outcome, PipelineStatus, RunState } from "./types.js";
+
+function latestTestingOutcomeForTask(
+  run: RunState,
+  taskId: string
+): Outcome | undefined {
+  for (let i = run.outcomes.length - 1; i >= 0; i--) {
+    const o = run.outcomes[i]!;
+    if (o.kind === "testing" && o.taskId === taskId) return o;
+  }
+  return undefined;
+}
 
 function pipelineFinish(
   runId: string,
@@ -116,47 +130,99 @@ async function executePipeline(
     let pipelineAbort: string | undefined;
 
     const runOneTask = async (taskId: string): Promise<void> => {
-      const r0 = getRun(runId);
-      if (!r0 || pipelineAbort) return;
-      const execTask = r0.backlog.find((x) => x.id === taskId);
-      if (!execTask) return;
+      const cfgTask = loadConfig();
+      const maxRounds = Math.max(
+        1,
+        1 + Math.max(0, cfgTask.godotTestFixRetries)
+      );
+      let testFailureRetry: TestFailureRetryContext | undefined;
 
-      r0.pipelineMessage = `Executing: ${execTask.title}`;
-      touchRun(r0);
+      for (let round = 1; round <= maxRounds; round++) {
+        const rLoop = getRun(runId);
+        if (!rLoop || pipelineAbort) return;
+        const loopTask = rLoop.backlog.find((x) => x.id === taskId);
+        if (!loopTask?.assignedWorktreePath) return;
 
-      const execResult = await runExecution(r0, execTask, runId);
-      if (execResult.pipelineAbort) {
-        pipelineAbort = execResult.pipelineAbort;
-        return;
-      }
+        rLoop.pipelineMessage =
+          round === 1
+            ? `Executing: ${loopTask.title}`
+            : `Fix retry ${round}/${maxRounds}: ${loopTask.title}`;
+        touchRun(rLoop);
 
-      if (isPipelineCancelled(runId)) return;
+        const execResult = await runExecution(
+          rLoop,
+          loopTask,
+          runId,
+          testFailureRetry ? { testFailureRetry } : undefined
+        );
+        if (execResult.pipelineAbort) {
+          pipelineAbort = execResult.pipelineAbort;
+          return;
+        }
 
-      const afterExec = getRun(runId)?.backlog.find((x) => x.id === taskId);
-      if (!afterExec) return;
-      if (afterExec.status === "failed") {
-        pipelineAbort = "Execution agent failed (non-zero exit)";
-        return;
-      }
+        if (isPipelineCancelled(runId)) return;
 
-      if (afterExec.status === "testing" && afterExec.assignedWorktreePath) {
+        const afterExec = getRun(runId)?.backlog.find((x) => x.id === taskId);
+        if (!afterExec) return;
+        if (afterExec.status === "failed") {
+          pipelineAbort = "Execution agent failed (non-zero exit)";
+          return;
+        }
+
+        if (afterExec.status !== "testing" || !afterExec.assignedWorktreePath) {
+          return;
+        }
+
         const r1 = getRun(runId);
         if (r1) {
-          r1.pipelineMessage = `Testing: ${afterExec.title}`;
+          r1.pipelineMessage = `Testing: ${afterExec.title}${
+            maxRounds > 1 ? ` (${round}/${maxRounds})` : ""
+          }`;
           touchRun(r1);
         }
-        await runGodotTests(
+
+        const testRes = await runGodotTests(
           getRun(runId)!,
           afterExec,
           afterExec.assignedWorktreePath,
-          runId
+          runId,
+          { retainWorktreeSlotOnFailure: round < maxRounds }
         );
-      }
 
-      const afterTest = getRun(runId)?.backlog.find((x) => x.id === taskId);
-      if (afterTest?.status === "failed") {
-        pipelineAbort =
-          "Task failed — check outcomes in the log (Godot tests and/or auto-merge into main).";
+        if (testRes.pass) {
+          return;
+        }
+
+        if (testRes.killedByTimeout) {
+          pipelineAbort =
+            "Godot tests exceeded godotHeadlessTimeoutMs — automated retries are skipped for timeouts. Fix the hang or raise the timeout.";
+          return;
+        }
+
+        if (round >= maxRounds) {
+          pipelineAbort =
+            "Task failed — Godot tests did not pass after automated fix retries. See testing outcomes in the log.";
+          return;
+        }
+
+        const fresh = getRun(runId);
+        if (!fresh) return;
+        const outcome = latestTestingOutcomeForTask(fresh, taskId);
+        updateTask(fresh, taskId, { status: "testing" });
+        touchRun(fresh);
+
+        testFailureRetry = {
+          executionRound: round + 1,
+          maxRounds,
+          outcomeSummary: outcome?.summary ?? "(no summary)",
+          logExcerpt: outcome?.logTail ?? "",
+          killedByTimeout: false,
+        };
+
+        publish(
+          runId,
+          `\n--- Godot tests failed — automated fix retry, execution round ${round + 1}/${maxRounds} ---\n`
+        );
       }
     };
 

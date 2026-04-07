@@ -42,8 +42,8 @@ export async function recoverTaskToTestingAndRunTests(
     if (!t2?.assignedWorktreePath) {
       return { ok: false, error: "Task has no worktree after update" };
     }
-    await runGodotTests(fresh, t2, t2.assignedWorktreePath);
-    const after = getRun(run.id);
+    const tr = await runGodotTests(fresh, t2, t2.assignedWorktreePath);
+    const after = getRun(tr.run.id);
     return after ? { ok: true, run: after } : { ok: false, error: "Run disappeared" };
   }
 
@@ -68,7 +68,7 @@ export async function recoverTaskToTestingAndRunTests(
   if (!t2?.assignedWorktreePath) {
     return { ok: false, error: "Task has no worktree after update" };
   }
-  await runGodotTests(fresh, t2, t2.assignedWorktreePath);
-  const after = getRun(run.id);
+  const tr = await runGodotTests(fresh, t2, t2.assignedWorktreePath);
+  const after = getRun(tr.run.id);
   return after ? { ok: true, run: after } : { ok: false, error: "Run disappeared" };
 }
