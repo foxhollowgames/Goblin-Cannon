@@ -35,5 +35,7 @@ func _tween_particle(p: Dictionary, start_pos: Vector2, end_pos: Vector2, t: flo
 
 func _draw() -> void:
 	for p in _particles:
-		draw_circle(p.pos, PARTICLE_SIZE, Color(1.0, 0.6, 0.15, 0.95))
-		draw_arc(p.pos, PARTICLE_SIZE, 0, TAU, 10, Color(1.0, 0.8, 0.3, 0.8), 1.5)
+		var c0: Color = Constants.gameplay_wall_impact_core()
+		var c1: Color = Constants.gameplay_wall_impact_ring()
+		draw_circle(p.pos, PARTICLE_SIZE, Color(c0.r, c0.g, c0.b, 0.95))
+		draw_arc(p.pos, PARTICLE_SIZE, 0, TAU, 10, Color(c1.r, c1.g, c1.b, 0.8), 1.5)

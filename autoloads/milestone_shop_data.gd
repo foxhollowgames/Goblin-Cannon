@@ -1,10 +1,17 @@
 extends Node
 ## Autoload: milestone shop fixed text colors + display strings (same source as `reward_draft_panel` + headless tests).
 
-const TITLE_TEXT_COLOR: Color = Color(0.92, 0.92, 0.96, 1)
-const DESC_TEXT_COLOR: Color = Color(0.78, 0.78, 0.82, 1)
+## Lospec palette via Constants (Monsters Also Die).
+var TITLE_TEXT_COLOR: Color:
+	get:
+		return Constants.ui_milestone_shop_title_text()
+var DESC_TEXT_COLOR: Color:
+	get:
+		return Constants.ui_milestone_shop_desc_text()
 ## Stat/peg row icons: neutral (not rarity / border color).
-const SHOP_ICON_NEUTRAL_TINT: Color = Color(0.88, 0.88, 0.92, 1)
+var SHOP_ICON_NEUTRAL_TINT: Color:
+	get:
+		return Constants.ui_shop_icon_neutral_tint()
 
 const STAT_DISPLAY: Dictionary = {
 	"main_charge": {"name": "Main Charge", "desc": "+5% energy to the main cannon per ball"},

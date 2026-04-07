@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { existsSync, rmSync } from "node:fs";
+import { existsSync, readdirSync, rmSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
 
 function git(
@@ -39,6 +39,138 @@ export function branchNameForTask(taskId: string): string {
   return `agent/task-${slugTaskId(taskId)}`;
 }
 
+/**
+ * From a folder basename `goblin-cannon-agent-<slug>`, derive the agent branch name
+ * (`agent/task-<slug>`) for git cleanup.
+ */
+export function branchNameFromAgentWorktreeFolder(folderBasename: string): string | null {
+  const prefix = "goblin-cannon-agent-";
+  if (!folderBasename.startsWith(prefix)) return null;
+  const slug = folderBasename.slice(prefix.length);
+  if (!slug.length) return null;
+  return `agent/task-${slug}`;
+}
+
+/** Which branch is the primary branch in this repo (`main` or `master`). */
+export function resolvePrimaryBranch(repoRoot: string): "main" | "master" | null {
+  const root = resolve(repoRoot);
+  for (const b of ["main", "master"] as const) {
+    const v = git(root, ["rev-parse", "--verify", b]);
+    if (v.ok) return b;
+  }
+  return null;
+}
+
+/**
+ * Ensure the **primary** working tree at `repoRoot` is checked out to `main` or `master`.
+ * New agent worktrees branch from `HEAD`; the primary checkout should be main before `worktree add`.
+ * After cleanup, switch back if the repo was left on `agent/task-*`.
+ */
+export function ensurePrimaryBranchCheckedOut(repoRoot: string): {
+  ok: boolean;
+  primary?: "main" | "master";
+  switched?: boolean;
+  error?: string;
+} {
+  const root = resolve(repoRoot);
+  const primary = resolvePrimaryBranch(root);
+  if (!primary) {
+    return { ok: false, error: "No main or master branch in repo" };
+  }
+  const cur = git(root, ["rev-parse", "--abbrev-ref", "HEAD"]);
+  if (!cur.ok) {
+    return {
+      ok: false,
+      error: (cur.stderr || cur.stdout || "rev-parse HEAD failed").trim(),
+    };
+  }
+  const name = cur.stdout.trim();
+  if (name === primary) {
+    return { ok: true, primary, switched: false };
+  }
+  const co = git(root, ["checkout", primary]);
+  if (!co.ok) {
+    return {
+      ok: false,
+      primary,
+      error: (co.stderr || co.stdout || `checkout ${primary} failed`).trim(),
+    };
+  }
+  return { ok: true, primary, switched: true };
+}
+
+/**
+ * Remove leftover agent worktree dirs (e.g. failed run, cleared state) that are not referenced
+ * by any persisted task. Uses `deleteBranch: true` so `git worktree add -b …` can recreate the branch.
+ */
+export function pruneUnreferencedAgentWorktrees(
+  repoRoot: string,
+  worktreeParentDir: string,
+  referencedPaths: Set<string>
+): {
+  removed: string[];
+  warnings: string[];
+  /** Present if the primary repo checkout was switched back to main/master. */
+  switchedToPrimary?: "main" | "master";
+} {
+  const removed: string[] = [];
+  const warnings: string[] = [];
+  const parent = resolve(worktreeParentDir);
+  if (!existsSync(parent)) {
+    const idle = ensurePrimaryBranchCheckedOut(repoRoot);
+    return {
+      removed,
+      warnings,
+      ...(idle.switched && idle.primary
+        ? { switchedToPrimary: idle.primary }
+        : {}),
+    };
+  }
+  let entries: string[];
+  try {
+    entries = readdirSync(parent);
+  } catch (e) {
+    warnings.push(
+      `readdir ${parent}: ${e instanceof Error ? e.message : String(e)}`
+    );
+    const afterErr = ensurePrimaryBranchCheckedOut(repoRoot);
+    return {
+      removed,
+      warnings,
+      ...(afterErr.switched && afterErr.primary
+        ? { switchedToPrimary: afterErr.primary }
+        : {}),
+    };
+  }
+  for (const name of entries) {
+    if (!isAgentWorktreeFolderName(name)) continue;
+    const full = resolve(parent, name);
+    const norm = resolve(full);
+    if (referencedPaths.has(norm)) continue;
+    const br = branchNameFromAgentWorktreeFolder(name);
+    if (!br) {
+      warnings.push(`skip ${full}: could not derive branch name`);
+      continue;
+    }
+    const rm = removeWorktree(repoRoot, full, true, br);
+    if (rm.ok) {
+      removed.push(full);
+      if (rm.error) warnings.push(`${full}: ${rm.error}`);
+    } else {
+      warnings.push(`${full}: ${rm.error ?? "git worktree remove failed"}`);
+    }
+  }
+  const back = ensurePrimaryBranchCheckedOut(repoRoot);
+  if (!back.ok && back.error) {
+    warnings.push(`ensurePrimaryBranchCheckedOut: ${back.error}`);
+  }
+  return {
+    removed,
+    warnings,
+    ...(back.switched && back.primary ? { switchedToPrimary: back.primary } : {}),
+  };
+}
+
 export function createWorktree(
   repoRoot: string,
   worktreeParentDir: string,
@@ -46,13 +178,28 @@ export function createWorktree(
 ): { ok: boolean; path: string; branch: string; error?: string } {
   const path = worktreePath(worktreeParentDir, taskId);
   const branch = branchNameForTask(taskId);
-  if (existsSync(path)) {
+  const primaryReady = ensurePrimaryBranchCheckedOut(repoRoot);
+  if (!primaryReady.ok) {
     return {
       ok: false,
       path,
       branch,
-      error: `Worktree path already exists: ${path}`,
+      error:
+        `Primary repo must be on main/master before adding a worktree (${primaryReady.error ?? "unknown"}).`,
     };
+  }
+  if (existsSync(path)) {
+    const rm = removeWorktree(repoRoot, path, true, branch);
+    if (!rm.ok) {
+      return {
+        ok: false,
+        path,
+        branch,
+        error:
+          `Stale worktree at ${path} could not be removed (restart/re-assign needs a clean path): ${rm.error ?? "git worktree remove failed"}`,
+      };
+    }
+    git(repoRoot, ["worktree", "prune"]);
   }
   const add = git(repoRoot, [
     "worktree",
@@ -158,16 +305,6 @@ export function listWorktrees(repoRoot: string): string {
 export function getWorktreeHead(worktreeRoot: string): string | null {
   const r = git(worktreeRoot, ["rev-parse", "HEAD"]);
   return r.ok ? r.stdout.trim() : null;
-}
-
-/** Which branch is the primary branch in this repo (`main` or `master`). */
-export function resolvePrimaryBranch(repoRoot: string): "main" | "master" | null {
-  const root = resolve(repoRoot);
-  for (const b of ["main", "master"] as const) {
-    const v = git(root, ["rev-parse", "--verify", b]);
-    if (v.ok) return b;
-  }
-  return null;
 }
 
 /**

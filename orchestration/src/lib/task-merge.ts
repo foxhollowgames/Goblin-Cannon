@@ -11,6 +11,7 @@ import {
 } from "./store.js";
 import {
   commitCountPrimaryBranchAhead,
+  ensurePrimaryBranchCheckedOut,
   removeWorktree,
   resolvePrimaryBranch,
   snapshotUncommittedInWorktreeIfNeeded,
@@ -197,13 +198,70 @@ export async function finalizeTaskAfterGodotTests(
       });
       releaseActiveWorktreeSlot(runId, pathForRm);
       touchRun(fresh);
+      const prim = ensurePrimaryBranchCheckedOut(cfg.repoRoot);
+      if (!prim.ok && prim.error) {
+        appendOutcome(fresh, {
+          id: newId("out"),
+          kind: "orchestrator",
+          taskId,
+          at: new Date().toISOString(),
+          summary: `Dry-run cleanup: could not restore primary checkout: ${prim.error}`,
+        });
+        touchRun(fresh);
+      }
     });
     return;
   }
 
   const autoMerge = cfg.autoMergeOnPass !== false;
   if (!autoMerge) {
-    releaseActiveWorktreeSlot(runId, wtPath);
+    await enqueueExclusive(`merge:${cfg.repoRoot}`, async () => {
+      const fresh = getRun(runId);
+      if (!fresh) return;
+      const t = fresh.backlog.find((x) => x.id === taskId);
+      if (!t?.assignedWorktreePath) return;
+      const pathForRm = t.assignedWorktreePath;
+      const br = t.branchName;
+      const rm = removeWorktree(cfg.repoRoot, pathForRm, false, br);
+      appendOutcome(fresh, {
+        id: newId("out"),
+        kind: "orchestrator",
+        taskId,
+        at: new Date().toISOString(),
+        summary: rm.ok
+          ? `autoMergeOnPass is false: removed worktree at ${pathForRm}; local branch ${br ?? "(none)"} kept for manual merge.`
+          : `autoMergeOnPass is false: could not remove worktree (${rm.error ?? "unknown"}) — clear it manually or fix git state.`,
+        metadata: { path: pathForRm, branch: br, deleteBranch: false },
+      });
+      if (rm.ok) {
+        updateTask(fresh, taskId, {
+          assignedWorktreePath: undefined,
+          branchName: undefined,
+        });
+      }
+      releaseActiveWorktreeSlot(runId, pathForRm);
+      touchRun(fresh);
+      const prim = ensurePrimaryBranchCheckedOut(cfg.repoRoot);
+      if (!prim.ok && prim.error) {
+        appendOutcome(fresh, {
+          id: newId("out"),
+          kind: "orchestrator",
+          taskId,
+          at: new Date().toISOString(),
+          summary: `Could not restore primary checkout after worktree remove: ${prim.error}`,
+        });
+        touchRun(fresh);
+      } else if (prim.switched) {
+        appendOutcome(fresh, {
+          id: newId("out"),
+          kind: "orchestrator",
+          taskId,
+          at: new Date().toISOString(),
+          summary: `Restored primary repo checkout to ${prim.primary}.`,
+        });
+        touchRun(fresh);
+      }
+    });
     return;
   }
 
@@ -432,5 +490,26 @@ export async function finalizeTaskAfterGodotTests(
       branchName: undefined,
     });
     releaseActiveWorktreeSlot(runId, pathForSlot);
+
+    const prim = ensurePrimaryBranchCheckedOut(cfg.repoRoot);
+    if (!prim.ok && prim.error) {
+      appendOutcome(fresh, {
+        id: newId("out"),
+        kind: "orchestrator",
+        taskId,
+        at: new Date().toISOString(),
+        summary: `After merge: could not ensure primary checkout: ${prim.error}`,
+      });
+      touchRun(fresh);
+    } else if (prim.switched && prim.primary) {
+      appendOutcome(fresh, {
+        id: newId("out"),
+        kind: "orchestrator",
+        taskId,
+        at: new Date().toISOString(),
+        summary: `Restored primary repo checkout to ${prim.primary} after worktree remove.`,
+      });
+      touchRun(fresh);
+    }
   });
 }

@@ -103,7 +103,13 @@ export function resolveCursorCommand(configured: string): string {
   if (process.platform === "win32") {
     const local = process.env.LOCALAPPDATA;
     if (local) {
-      const bundledAgent = join(local, "cursor-agent", "agent.cmd");
+      const agentDir = join(local, "cursor-agent");
+      /** Prefer native `agent.exe` so stdin/`agent -` works and the process exits (agent.cmd + PowerShell often hangs after output). */
+      const bundledExe = join(agentDir, "agent.exe");
+      if (isFile(bundledExe)) {
+        return finalizeWin(bundledExe);
+      }
+      const bundledAgent = join(agentDir, "agent.cmd");
       if (isFile(bundledAgent)) {
         return winPreferAgentExeOverCmd(finalizeWin(bundledAgent));
       }

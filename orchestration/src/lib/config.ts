@@ -64,8 +64,17 @@ const DEFAULTS: OrchestrationConfig = {
   deleteRemoteAgentBranch: true,
   /** 10 minutes — enough for a full suite; prevents hung Godot from blocking the pipeline forever */
   godotHeadlessTimeoutMs: 600_000,
-  /** Extra execution+test rounds after a failed Godot run (agent fixes using stderr/stdout). */
-  godotTestFixRetries: 2,
+  /** Extra execution+test rounds after a failed Godot run (agent fixes using stderr/stdout). Default 5 ⇒ up to 6 Godot runs per task. */
+  godotTestFixRetries: 5,
+  /** Dashboard + `/api/config` — Cursor `--model` presets (extend in local JSON). */
+  agentModelOptions: [
+    "gpt-5",
+    "gpt-5.1",
+    "gpt-5.2",
+    "sonnet-4.5",
+    "opus-4.5",
+    "composer-1",
+  ],
 };
 
 function normalizeConfig(
@@ -189,6 +198,16 @@ function normalizeConfig(
       return Number.isFinite(n)
         ? Math.max(0, Math.floor(n))
         : DEFAULTS.godotTestFixRetries;
+    })(),
+    agentModelOptions: (() => {
+      const ro = raw.agentModelOptions;
+      if (Array.isArray(ro) && ro.every((x) => typeof x === "string")) {
+        const list = (ro as string[])
+          .map((s) => s.trim())
+          .filter((s) => s.length > 0);
+        if (list.length > 0) return list;
+      }
+      return DEFAULTS.agentModelOptions;
     })(),
   };
 }

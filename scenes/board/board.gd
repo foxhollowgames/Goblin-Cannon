@@ -1186,8 +1186,10 @@ func _draw() -> void:
 		for j in range(i + 1, local_pts.size()):
 			var a: Vector2 = local_pts[i]
 			var bpt: Vector2 = local_pts[j]
-			draw_line(a, bpt, Color(0.35, 0.58, 1.0, 0.42), 4.5)
-			draw_line(a, bpt, Color(0.88, 0.96, 1.0, 0.78), 1.6)
+			var ch_out: Color = Constants.gameplay_chain_lightning_glow_outer()
+			var ch_in: Color = Constants.gameplay_chain_lightning_glow_inner()
+			draw_line(a, bpt, Color(ch_out.r, ch_out.g, ch_out.b, 0.42), 4.5)
+			draw_line(a, bpt, Color(ch_in.r, ch_in.g, ch_in.b, 0.78), 1.6)
 
 func explode_at(_peg_id: int) -> void:
 	pass  # future: bomb peg or external trigger; ball-triggered explosive uses _apply_explosive_hits
@@ -1695,7 +1697,7 @@ func _spawn_wrench_repair_effect(world_pos: Vector2) -> void:
 	effect.global_position = world_pos
 	effect.z_index = 100
 	effect.setup_effect(BallHitEffect.EffectType.TRAMPOLINE)
-	effect.modulate = Color(0.85, 0.65, 0.2, 1.0)
+	effect.modulate = Constants.gameplay_board_popup_gold()
 	get_parent().add_child(effect)
 
 ## k nearest pegs by distance — O(n·k) worst case, no full sort of the whole field (was O(n log n)).
@@ -2187,7 +2189,7 @@ func _spawn_leech_popup(peg: Node, amount_display: int) -> void:
 		return
 	popup.setup("+%d" % amount_display)
 	popup.position = peg.position + Vector2(0, -16)
-	popup.modulate = Color(0.82, 0.55, 1.0, 1.0)
+	popup.modulate = Constants.gameplay_board_energy_popup()
 
 func begin_black_hole_event(board_local_center: Vector2, duration_sec: float) -> void:
 	_black_hole_active = true

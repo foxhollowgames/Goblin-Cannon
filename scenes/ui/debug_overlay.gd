@@ -16,7 +16,7 @@ func _ready() -> void:
 		_status_alert_label.name = "StatusAlertLabel"
 		_status_alert_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 		_status_alert_label.add_theme_font_size_override("font_size", 11)
-		_status_alert_label.add_theme_color_override("font_color", ColorPalette.MINT.lerp(ColorPalette.CREAM, 0.25))
+		_status_alert_label.add_theme_color_override("font_color", MonsterPalette.MINT.lerp(MonsterPalette.SWATCH_CREAM, 0.25))
 		_status_alert_label.set_anchors_preset(Control.PRESET_CENTER_TOP)
 		_status_alert_label.position = Vector2(960, 390)
 		_status_alert_label.custom_minimum_size = Vector2(400, 0)

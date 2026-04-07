@@ -157,10 +157,10 @@ func _stack_alpha_sat(stacks: int) -> Vector2:
 
 func _draw() -> void:
 	# State-based tint: wind-up = pulsing orange/red, attacking = held bright flash
-	var body_inner := Color(0.25, 0.35, 0.2, 1)
-	var body_outer := Color(0.35, 0.5, 0.28, 1)
-	var head_inner := Color(0.45, 0.35, 0.25, 1)
-	var head_outer := Color(0.55, 0.42, 0.32, 1)
+	var body_inner: Color = Constants.gameplay_minion_body()
+	var body_outer: Color = body_inner.lightened(0.08)
+	var head_inner: Color = body_inner.lerp(Constants.monsters_also_die_color(Constants.MAD_IDX_TAN), 0.35)
+	var head_outer: Color = body_outer.lerp(Constants.monsters_also_die_color(Constants.MAD_IDX_RUST), 0.25)
 	if _attack_state == AttackState.ABOUT_TO_ATTACK:
 		# Pulsing glow during wind-up (0.6 .. 1.0)
 		var pulse: float = 0.7 + 0.3 * sin(_attack_anim_time * WINDUP_PULSE_SPEED)

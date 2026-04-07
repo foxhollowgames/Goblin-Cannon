@@ -60,28 +60,38 @@ func _process(_delta: float) -> void:
 func _draw() -> void:
 	var center_x: float = 0.0
 	var base_y: float = CANNON_ZONE_HEIGHT * 0.5
+	var metal_dark: Color = Constants.gameplay_cannon_metal_dark()
+	var metal_mid: Color = Constants.gameplay_cannon_metal_mid()
+	var band: Color = Constants.gameplay_cannon_barrel_accent()
+	var muzzle: Color = Constants.gameplay_cannon_muzzle_glow()
 	# Base / wheels (dark metal)
-	draw_circle(Vector2(-18, base_y + 20), 16, Color(0.22, 0.2, 0.18, 1))
-	draw_arc(Vector2(-18, base_y + 20), 16, 0, TAU, 24, Color(0.35, 0.32, 0.3, 1), 2.0)
-	draw_circle(Vector2(18, base_y + 20), 16, Color(0.22, 0.2, 0.18, 1))
-	draw_arc(Vector2(18, base_y + 20), 16, 0, TAU, 24, Color(0.35, 0.32, 0.3, 1), 2.0)
+	draw_circle(Vector2(-18, base_y + 20), 16, metal_dark)
+	draw_arc(Vector2(-18, base_y + 20), 16, 0, TAU, 24, metal_mid, 2.0)
+	draw_circle(Vector2(18, base_y + 20), 16, metal_dark)
+	draw_arc(Vector2(18, base_y + 20), 16, 0, TAU, 24, metal_mid, 2.0)
 	# Chassis
 	var chassis := Rect2(-40, base_y - 8, 80, 28)
-	draw_rect(chassis, Color(0.28, 0.25, 0.22, 1))
-	draw_rect(chassis, Color(0.45, 0.38, 0.3, 1), false, 2.0)
+	draw_rect(chassis, metal_mid)
+	draw_rect(
+		chassis,
+		band,
+		false,
+		2.0
+	)
 	# Barrel (pointing up slightly)
 	var barrel_start := Vector2(0, base_y - 18)
 	var barrel_end := Vector2(0, base_y - 18 - BARREL_LENGTH)
-	draw_line(barrel_start, barrel_end, Color(0.2, 0.18, 0.16, 1))
+	draw_line(barrel_start, barrel_end, metal_dark)
 	for i in range(3):
 		var r: float = BARREL_RADIUS - i * 2.0
-		draw_arc(barrel_start, r, -PI * 0.5 - 0.2, -PI * 0.5 + 0.2, 8, Color(0.25 + i * 0.04, 0.22 + i * 0.04, 0.2, 1))
-		draw_arc(barrel_end, r, PI * 0.5 - 0.2, PI * 0.5 + 0.2, 8, Color(0.25 + i * 0.04, 0.22 + i * 0.04, 0.2, 1))
+		var shade: Color = metal_dark.lerp(metal_mid, float(i) * 0.12)
+		draw_arc(barrel_start, r, -PI * 0.5 - 0.2, -PI * 0.5 + 0.2, 8, shade)
+		draw_arc(barrel_end, r, PI * 0.5 - 0.2, PI * 0.5 + 0.2, 8, shade)
 	# Barrel band (copper/goblin accent)
-	draw_rect(Rect2(-16, base_y - 22, 32, 8), Color(0.55, 0.35, 0.2, 1))
-	draw_rect(Rect2(-16, base_y - 22, 32, 8), Color(0.7, 0.5, 0.3, 1), false, 1.0)
+	draw_rect(Rect2(-16, base_y - 22, 32, 8), band)
+	draw_rect(Rect2(-16, base_y - 22, 32, 8), band.lightened(0.12), false, 1.0)
 	# Muzzle glow (subtle)
-	draw_circle(barrel_end, 6, Color(0.4, 0.35, 0.25, 0.6))
+	draw_circle(barrel_end, 6, Color(muzzle.r, muzzle.g, muzzle.b, 0.6))
 	# --- Status effect overlays (flame, ice, lightning; same style as minions) ---
 	var flame_stacks: int = _status_stacks.get(Constants.STATUS_FIRE, 0)
 	var frozen_stacks: int = _status_stacks.get(Constants.STATUS_FROZEN, 0)

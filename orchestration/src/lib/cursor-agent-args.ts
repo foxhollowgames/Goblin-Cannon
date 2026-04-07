@@ -68,6 +68,28 @@ function insertIndexAfterLeadingFlags(args: string[]): number {
 }
 
 /**
+ * Inserts `--model <id>` after leading flags when the run requested a model.
+ * Skips if args already contain `--model` / `-m` / `--model=` (config wins).
+ */
+export function insertAgentModelFlag(
+  args: string[],
+  model: string | undefined | null
+): string[] {
+  const m = typeof model === "string" ? model.trim() : "";
+  if (!m) return [...args];
+  const out = [...args];
+  for (let i = 0; i < out.length; i++) {
+    const a = out[i];
+    if (a === "--model" || a === "-m" || /^--model=/.test(a)) {
+      return out;
+    }
+  }
+  const idx = insertIndexAfterLeadingFlags(out);
+  out.splice(idx, 0, "--model", m);
+  return out;
+}
+
+/**
  * When `headlessAgent` is false in config, `cursor agent` still often needs `--print` for
  * execution so the model **writes files** (otherwise prose-only replies pass `exit 0` and
  * fail later at tests). The standalone **`agent` / `agent.exe`** binary does not go through

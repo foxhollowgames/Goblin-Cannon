@@ -198,6 +198,38 @@ button.secondary {
   font-size: 0.9rem;
 }
 
+.parallel-cap-row select {
+  min-width: 11rem;
+  max-width: 100%;
+  padding: 0.3rem 0.45rem;
+  background: #12151c;
+  border: 1px solid #3d4654;
+  border-radius: 6px;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.model-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.agent-model-custom {
+  min-width: 9rem;
+  flex: 1 1 10rem;
+  max-width: 22rem;
+  padding: 0.3rem 0.45rem;
+  background: #12151c;
+  border: 1px solid #3d4654;
+  border-radius: 6px;
+  color: var(--text);
+  font: inherit;
+  font-size: 0.85rem;
+}
+
 .parallel-cap-note {
   font-size: 0.78rem;
   flex: 1 1 12rem;

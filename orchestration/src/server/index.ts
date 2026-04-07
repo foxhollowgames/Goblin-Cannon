@@ -30,19 +30,44 @@ import {
   updateTask,
   saveRun,
   dataDir,
+  collectReferencedWorktreePaths,
 } from "../lib/store.js";
 import {
   isAllowedAttachmentFile,
   saveProblemAttachment,
 } from "../lib/attachments.js";
-import { removeWorktree } from "../lib/worktree.js";
+import { pruneUnreferencedAgentWorktrees, removeWorktree } from "../lib/worktree.js";
 import { runPlanner } from "../lib/runners/planner.js";
 import { runExecution } from "../lib/runners/execution.js";
 import { runGodotTests, captureBaseline } from "../lib/runners/testing.js";
 import { runCommunication } from "../lib/runners/communication.js";
 import { subscribe, getLogBuffer } from "../lib/log-bus.js";
+import type { RunState } from "../lib/types.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+function appendPruneOutcomeOnNewRun(run: RunState): void {
+  resetConfigCache();
+  const c = loadConfig();
+  if (c.dryRun) return;
+  const pr = pruneUnreferencedAgentWorktrees(
+    c.repoRoot,
+    c.worktreeParentDir,
+    collectReferencedWorktreePaths()
+  );
+  if (pr.removed.length === 0 && pr.warnings.length === 0) return;
+  appendOutcome(run, {
+    id: newId("out"),
+    kind: "orchestrator",
+    at: new Date().toISOString(),
+    summary:
+      pr.removed.length > 0
+        ? `New run: pruned ${pr.removed.length} unreferenced agent worktree folder(s).`
+        : `New run: prune pass reported ${pr.warnings.length} warning(s).`,
+    metadata: { removed: pr.removed, warnings: pr.warnings },
+  });
+  saveRun(run);
+}
 
 function packageRoot(): string {
   return join(__dirname, "../..");
@@ -189,6 +214,7 @@ async function buildServer() {
             : "Describe your goal in the Problem step."),
         max
       );
+      appendPruneOutcomeOnNewRun(run);
 
       if (fileBuffers.length > 0) {
         const attachments = fileBuffers.map((b) =>
@@ -207,6 +233,7 @@ async function buildServer() {
       cfg.limits.maxParallelWorktrees
     );
     const run = createRun(problem || "Describe your goal in the Problem step.", max);
+    appendPruneOutcomeOnNewRun(run);
     return reply.code(201).send(run);
   });
 

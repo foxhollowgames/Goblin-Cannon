@@ -1,4 +1,6 @@
 extends SceneTree
+## Ensures `class_name MonsterPalette` is registered before any script references it (headless order).
+const _monster_palette_script = preload("res://autoloads/monster_palette.gd")
 ## Test runner. Execute from project root:
 ##   godot --headless -s tests/run_tests.gd
 ##
@@ -7,6 +9,7 @@ extends SceneTree
 
 ## Register test scripts here. Add new test files to this array.
 const TEST_SCRIPTS: Array[String] = [
+	"res://tests/test_monsters_also_die_palette.gd",
 	"res://tests/test_script_parse_smoke.gd",
 	"res://tests/test_energy_routing.gd",
 	"res://tests/test_hit_cooldown.gd",
