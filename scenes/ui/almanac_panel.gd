@@ -158,7 +158,8 @@ func _build_balls_section(parent: VBoxContainer) -> void:
 				if _game_coordinator:
 					_game_coordinator.remove_one_ball_for_ability(ledger_key)
 				_rebuild()
-		_add_tally_row(parent, label, n, remove_cb)
+		var name_color: Color = BallVisuals.get_ability_theme_color(lk).lerp(Color(0.88, 0.88, 0.9, 1), 0.38)
+		_add_tally_row(parent, label, n, remove_cb, name_color)
 
 func _build_pegs_section(parent: VBoxContainer) -> void:
 	_add_section_header(parent, "PEG UNLOCKS (milestone shop)")
@@ -311,13 +312,13 @@ func _add_section_header(parent: VBoxContainer, text: String) -> void:
 	label.add_theme_color_override("font_color", Color(0.78, 0.72, 0.95, 1))
 	parent.add_child(label)
 
-func _add_tally_row(parent: VBoxContainer, label_text: String, count: int, on_remove: Callable = Callable()) -> void:
+func _add_tally_row(parent: VBoxContainer, label_text: String, count: int, on_remove: Callable = Callable(), label_color: Color = Color(0.88, 0.88, 0.9, 1)) -> void:
 	var row: HBoxContainer = HBoxContainer.new()
 	parent.add_child(row)
 	var name_label: Label = Label.new()
 	name_label.text = "  %s" % label_text
 	name_label.add_theme_font_size_override("font_size", 13)
-	name_label.add_theme_color_override("font_color", Color(0.88, 0.88, 0.9, 1))
+	name_label.add_theme_color_override("font_color", label_color)
 	name_label.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	row.add_child(name_label)

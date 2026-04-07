@@ -22,14 +22,14 @@ enum ShapeType {
 	HALF_CIRCLE
 }
 
-## White SVGs from the icon library; tinted by alignment in _draw_icon_glow.
-const _ICON_PLAIN: Texture2D = preload("res://icons/ffffff/transparent/1x1/delapouite/glass-ball.svg")
+## White SVG silhouettes (read as outlines under bloom). Rotated mapping: Energize←shield-bounces, Rubbery←glass, Plain←energy-arrow.
+const _TEX_PLAIN_DEFAULT: Texture2D = preload("res://icons/ffffff/transparent/1x1/lorc/energy-arrow.svg")
 const _ICON_SPLIT: Texture2D = preload("res://icons/ffffff/transparent/1x1/lorc/split-body.svg")
-const _ICON_ENERGIZE: Texture2D = preload("res://icons/ffffff/transparent/1x1/lorc/energy-arrow.svg")
+const _TEX_ENERGIZE: Texture2D = preload("res://icons/ffffff/transparent/1x1/lorc/shield-bounces.svg")
 const _ICON_EXPLOSIVE: Texture2D = preload("res://icons/ffffff/transparent/1x1/lorc/fire-bomb.svg")
 const _ICON_CHAIN: Texture2D = preload("res://icons/ffffff/transparent/1x1/willdabeast/chain-lightning.svg")
 const _ICON_LEECH: Texture2D = preload("res://icons/ffffff/transparent/1x1/lorc/chemical-drop.svg")
-const _ICON_RUBBERY: Texture2D = preload("res://icons/ffffff/transparent/1x1/lorc/shield-bounces.svg")
+const _TEX_RUBBERY: Texture2D = preload("res://icons/ffffff/transparent/1x1/delapouite/glass-ball.svg")
 const _ICON_PHANTOM: Texture2D = preload("res://icons/ffffff/transparent/1x1/lorc/ghost.svg")
 const _ICON_VOLATILE: Texture2D = preload("res://icons/ffffff/transparent/1x1/sbed/poison-cloud.svg")
 
@@ -50,7 +50,7 @@ static func get_icon_texture_for_ability(ability_key: String) -> Texture2D:
 		"Split":
 			return _ICON_SPLIT
 		"Energize":
-			return _ICON_ENERGIZE
+			return _TEX_ENERGIZE
 		"Explosive":
 			return _ICON_EXPLOSIVE
 		"Chain Lightning":
@@ -58,13 +58,40 @@ static func get_icon_texture_for_ability(ability_key: String) -> Texture2D:
 		"Leech":
 			return _ICON_LEECH
 		"Rubbery":
-			return _ICON_RUBBERY
+			return _TEX_RUBBERY
 		"Phantom":
 			return _ICON_PHANTOM
 		"Volatile":
 			return _ICON_VOLATILE
 		_:
-			return _ICON_PLAIN
+			return _TEX_PLAIN_DEFAULT
+
+## Per-ability tint blended with alignment color so lists and ball reads stay distinct.
+static func get_ability_theme_color(ability_key: String) -> Color:
+	var k: String = ability_key.strip_edges()
+	if k.is_empty():
+		k = "Plain"
+	match k:
+		"Plain":
+			return Color(0.52, 0.86, 0.98, 1.0)
+		"Split":
+			return Color(0.98, 0.55, 0.28, 1.0)
+		"Energize":
+			return Color(0.62, 0.42, 0.98, 1.0)
+		"Explosive":
+			return Color(1.0, 0.38, 0.22, 1.0)
+		"Chain Lightning":
+			return Color(0.98, 0.92, 0.38, 1.0)
+		"Leech":
+			return Color(0.88, 0.22, 0.58, 1.0)
+		"Rubbery":
+			return Color(0.32, 0.9, 0.55, 1.0)
+		"Phantom":
+			return Color(0.58, 0.48, 0.98, 1.0)
+		"Volatile":
+			return Color(0.42, 0.88, 0.4, 1.0)
+		_:
+			return Color(0.85, 0.85, 0.88, 1.0)
 
 static func _resolve_ability_for_drawing(ability_name: String, shape: int) -> String:
 	var ab: String = ability_name.strip_edges()
@@ -77,11 +104,16 @@ static func _resolve_ability_for_drawing(ability_name: String, shape: int) -> St
 ## Draw the ball: transparent sphere shell + color-coded, slightly glowing icon inside.
 ## shape_override: -1 = alignment-based shape; HALF_CIRCLE = split-twin / half-disk silhouette.
 ## ability_name: empty with plain circle = generic glass orb; empty with HALF_CIRCLE resolves to Split icon.
-static func draw_ball(canvas: CanvasItem, center: Vector2, radius: float, alignment: int, shape_override: int = -1, ability_name: String = "") -> void:
+## gas_buff_active: Volatile cloud stacks — soft green layered glow (same pass style as icon bloom).
+static func draw_ball(canvas: CanvasItem, center: Vector2, radius: float, alignment: int, shape_override: int = -1, ability_name: String = "", gas_buff_active: bool = false) -> void:
 	var shape: int = shape_override if shape_override >= 0 and shape_override <= ShapeType.HALF_CIRCLE else get_shape_for_alignment(alignment)
 	var ab: String = _resolve_ability_for_drawing(ability_name, shape)
 	var tex: Texture2D = get_icon_texture_for_ability(ab)
-	var base_color: Color = get_alignment_color(alignment)
+	var align_c: Color = get_alignment_color(alignment)
+	var theme_c: Color = get_ability_theme_color(ab)
+	var base_color: Color = align_c.lerp(theme_c, 0.48)
+	if gas_buff_active:
+		draw_volatile_gas_buff_glow(canvas, center, radius)
 	if shape == ShapeType.HALF_CIRCLE:
 		_draw_half_bubble(canvas, center, radius, base_color, tex)
 	else:
@@ -127,3 +159,12 @@ static func _draw_icon_glow(canvas: CanvasItem, center: Vector2, icon_size: floa
 		canvas.draw_texture_rect(tex, rect, false, c)
 	var main_rect := Rect2(center - Vector2(icon_size * 0.5, icon_size * 0.5), Vector2(icon_size, icon_size))
 	canvas.draw_texture_rect(tex, main_rect, false, Color(glow.r, glow.g, glow.b, 0.94))
+
+## Layered soft rings — matches _draw_icon_glow’s multi-pass alpha for Volatile reagent buff on the ball.
+static func draw_volatile_gas_buff_glow(canvas: CanvasItem, center: Vector2, r: float) -> void:
+	var g: Color = Color(0.45, 0.95, 0.55, 1.0)
+	for layer in range(8, 0, -1):
+		var rr: float = r * (1.06 + float(layer) * 0.055)
+		var a: float = 0.022 * float(layer)
+		canvas.draw_circle(center, rr, Color(g.r, g.g, g.b, a))
+	canvas.draw_arc(center, r * 1.12, 0.0, TAU, 48, Color(g.r, g.g, g.b, 0.14), 1.0, true)
