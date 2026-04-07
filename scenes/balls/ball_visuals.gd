@@ -32,6 +32,7 @@ const _ICON_LEECH: Texture2D = preload("res://icons/ffffff/transparent/1x1/lorc/
 const _TEX_RUBBERY: Texture2D = preload("res://icons/ffffff/transparent/1x1/delapouite/glass-ball.svg")
 const _ICON_PHANTOM: Texture2D = preload("res://icons/ffffff/transparent/1x1/lorc/ghost.svg")
 const _ICON_VOLATILE: Texture2D = preload("res://icons/ffffff/transparent/1x1/sbed/poison-cloud.svg")
+const _ICON_CONSTELLATION: Texture2D = preload("res://icons/ffffff/transparent/1x1/delapouite/star-formation.svg")
 
 static func get_alignment_color(alignment: int) -> Color:
 	if alignment >= 0 and alignment < ALIGNMENT_COLORS.size():
@@ -63,6 +64,8 @@ static func get_icon_texture_for_ability(ability_key: String) -> Texture2D:
 			return _ICON_PHANTOM
 		"Volatile":
 			return _ICON_VOLATILE
+		"Constellation":
+			return _ICON_CONSTELLATION
 		_:
 			return _TEX_PLAIN_DEFAULT
 
@@ -90,6 +93,8 @@ static func get_ability_theme_color(ability_key: String) -> Color:
 			return Color(0.58, 0.48, 0.98, 1.0)
 		"Volatile":
 			return Color(0.42, 0.88, 0.4, 1.0)
+		"Constellation":
+			return Color(0.55, 0.82, 1.0, 1.0)
 		_:
 			return Color(0.85, 0.85, 0.88, 1.0)
 
