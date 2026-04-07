@@ -3,6 +3,11 @@ extends RigidBody2D
 ## We only report peg hits for Board (energy, cooldown). No manual movement.
 ## Applies a tiny horizontal nudge after 2 consecutive vertical bounces so balls don't go straight up/down forever.
 
+const GAS_CLOUD_SHADER: Shader = preload("res://scenes/board/gas_cloud.gdshader")
+## Halo slightly wider than the drawn ball so the gas shader reads as a soft ring (same shader as board gas puffs).
+const VOLATILE_GLOW_DIAM_SCALE: float = 2.38
+const VOLATILE_GLOW_TEX_SIZE: float = 8.0
+
 const VERTICAL_VELOCITY_THRESHOLD: float = 15.0  ## px/s; below this horizontal speed counts as "vertical" bounce
 const ANTI_VERTICAL_NUDGE: float = 35.0  ## px/s; small horizontal nudge to break perfect vertical bounces
 const SPLIT_SPIN_DURATION_SEC: float = 0.35  ## When Split happens, both balls spin rapidly for a moment
@@ -31,6 +36,9 @@ var _in_hopper_bin: bool = false
 var _gas_damage_cloud_stacks: int = 0
 var _gas_energy_cloud_stacks: int = 0
 var _gas_clouds_claimed: Dictionary = {}  # cloud_id -> true
+## Soft green halo while gas buffs apply (Sprite2D + same shader as `gas_cloud_visual`).
+var _volatile_gas_glow: Sprite2D = null
+static var _volatile_glow_white_tex: ImageTexture
 ## Phantom trail: emit only when moving fast enough so idle balls do not leave a frozen tail.
 const PHANTOM_TRAIL_MIN_SPEED_PX: float = 30.0
 
@@ -102,8 +110,7 @@ func _draw() -> void:
 		ability_name = _definition.ability_name
 	if _is_split_twin:
 		shape_override = BallVisuals.ShapeType.HALF_CIRCLE
-	var gas_on: bool = _gas_damage_cloud_stacks > 0 or _gas_energy_cloud_stacks > 0
-	BallVisuals.draw_ball(self, Vector2.ZERO, Constants.BALL_RADIUS, alignment, shape_override, ability_name, gas_on)
+	BallVisuals.draw_ball(self, Vector2.ZERO, Constants.BALL_RADIUS, alignment, shape_override, ability_name)
 
 ## Called once per sim tick by Board. Ball does NOT move here – physics engine does.
 ## Returns one peg we're colliding with (for Board hit/energy).
@@ -219,6 +226,8 @@ func reset_gas_buff_state_for_board_visit() -> void:
 	_gas_damage_cloud_stacks = 0
 	_gas_energy_cloud_stacks = 0
 	_gas_clouds_claimed.clear()
+	_sync_volatile_gas_glow_visual()
+	queue_redraw()
 
 ## Each cloud id applies at most once. is_damage_cloud: true = +1 damage stack, false = +1 energy stack.
 func try_claim_gas_cloud(cloud_id: int, is_damage_cloud: bool) -> void:
@@ -229,6 +238,7 @@ func try_claim_gas_cloud(cloud_id: int, is_damage_cloud: bool) -> void:
 		_gas_damage_cloud_stacks += 1
 	else:
 		_gas_energy_cloud_stacks += 1
+	_sync_volatile_gas_glow_visual()
 	queue_redraw()
 
 func get_gas_damage_stack_count() -> int:
@@ -242,7 +252,45 @@ func clear_gas_buffs_on_score() -> void:
 	_gas_damage_cloud_stacks = 0
 	_gas_energy_cloud_stacks = 0
 	_gas_clouds_claimed.clear()
+	_sync_volatile_gas_glow_visual()
 	queue_redraw()
+
+static func _volatile_glow_white_unit_texture() -> ImageTexture:
+	if _volatile_glow_white_tex == null:
+		var img: Image = Image.create(8, 8, false, Image.FORMAT_RGBA8)
+		img.fill(Color.WHITE)
+		_volatile_glow_white_tex = ImageTexture.create_from_image(img)
+	return _volatile_glow_white_tex
+
+func _sync_volatile_gas_glow_visual() -> void:
+	var active: bool = _gas_damage_cloud_stacks > 0 or _gas_energy_cloud_stacks > 0
+	if not active:
+		if _volatile_gas_glow:
+			_volatile_gas_glow.visible = false
+		return
+	if _volatile_gas_glow == null:
+		var sp: Sprite2D = Sprite2D.new()
+		sp.name = "VolatileGasGlow"
+		sp.show_behind_parent = true
+		sp.z_index = -3
+		sp.centered = true
+		sp.texture = _volatile_glow_white_unit_texture()
+		sp.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR
+		var mat: ShaderMaterial = ShaderMaterial.new()
+		mat.shader = GAS_CLOUD_SHADER
+		sp.material = mat
+		# Soft, not overpowering; shader body is already alpha-blended
+		sp.modulate = Color(0.88, 1.0, 0.9, 0.42)
+		add_child(sp)
+		_volatile_gas_glow = sp
+	_volatile_gas_glow.visible = true
+	var mat := _volatile_gas_glow.material as ShaderMaterial
+	if mat:
+		mat.set_shader_parameter("noise_seed", float((_ball_id * 7919 + _gas_damage_cloud_stacks * 31 + _gas_energy_cloud_stacks * 17) % 10000))
+		mat.set_shader_parameter("noise_scale", 6.0)
+		mat.set_shader_parameter("time_speed", 0.08)
+	var d: float = Constants.BALL_RADIUS * 2.0 * VOLATILE_GLOW_DIAM_SCALE
+	_volatile_gas_glow.scale = Vector2(d / VOLATILE_GLOW_TEX_SIZE, d / VOLATILE_GLOW_TEX_SIZE)
 
 ## Use low bounce and high damp in the hopper so balls settle; restore when leaving for the board.
 ## Rotation is unlocked in the hopper so spheres roll and stacks collapse (locked on board for stable peg play).

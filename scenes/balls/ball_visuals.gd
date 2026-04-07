@@ -104,16 +104,14 @@ static func _resolve_ability_for_drawing(ability_name: String, shape: int) -> St
 ## Draw the ball: transparent sphere shell + color-coded, slightly glowing icon inside.
 ## shape_override: -1 = alignment-based shape; HALF_CIRCLE = split-twin / half-disk silhouette.
 ## ability_name: empty with plain circle = generic glass orb; empty with HALF_CIRCLE resolves to Split icon.
-## gas_buff_active: Volatile cloud stacks — soft green layered glow (same pass style as icon bloom).
-static func draw_ball(canvas: CanvasItem, center: Vector2, radius: float, alignment: int, shape_override: int = -1, ability_name: String = "", gas_buff_active: bool = false) -> void:
+## Volatile reagent glow is drawn on the ball node (Sprite2D + gas_cloud.gdshader), not here.
+static func draw_ball(canvas: CanvasItem, center: Vector2, radius: float, alignment: int, shape_override: int = -1, ability_name: String = "") -> void:
 	var shape: int = shape_override if shape_override >= 0 and shape_override <= ShapeType.HALF_CIRCLE else get_shape_for_alignment(alignment)
 	var ab: String = _resolve_ability_for_drawing(ability_name, shape)
 	var tex: Texture2D = get_icon_texture_for_ability(ab)
 	var align_c: Color = get_alignment_color(alignment)
 	var theme_c: Color = get_ability_theme_color(ab)
 	var base_color: Color = align_c.lerp(theme_c, 0.48)
-	if gas_buff_active:
-		draw_volatile_gas_buff_glow(canvas, center, radius)
 	if shape == ShapeType.HALF_CIRCLE:
 		_draw_half_bubble(canvas, center, radius, base_color, tex)
 	else:
@@ -159,12 +157,3 @@ static func _draw_icon_glow(canvas: CanvasItem, center: Vector2, icon_size: floa
 		canvas.draw_texture_rect(tex, rect, false, c)
 	var main_rect := Rect2(center - Vector2(icon_size * 0.5, icon_size * 0.5), Vector2(icon_size, icon_size))
 	canvas.draw_texture_rect(tex, main_rect, false, Color(glow.r, glow.g, glow.b, 0.94))
-
-## Layered soft rings — matches _draw_icon_glow’s multi-pass alpha for Volatile reagent buff on the ball.
-static func draw_volatile_gas_buff_glow(canvas: CanvasItem, center: Vector2, r: float) -> void:
-	var g: Color = Color(0.45, 0.95, 0.55, 1.0)
-	for layer in range(8, 0, -1):
-		var rr: float = r * (1.06 + float(layer) * 0.055)
-		var a: float = 0.022 * float(layer)
-		canvas.draw_circle(center, rr, Color(g.r, g.g, g.b, a))
-	canvas.draw_arc(center, r * 1.12, 0.0, TAU, 48, Color(g.r, g.g, g.b, 0.14), 1.0, true)
