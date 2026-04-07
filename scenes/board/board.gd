@@ -638,6 +638,9 @@ func _finish_buffet_table_sequence(peg_id: int) -> void:
 	for ball in _buffet_affected_balls:
 		if not is_instance_valid(ball):
 			continue
+		if ball.has_method("is_bloom_spawn") and ball.is_bloom_spawn():
+			ball.queue_free()
+			continue
 		if ball.has_method("is_split_twin") and ball.is_split_twin():
 			ball.queue_free()
 			continue
@@ -999,8 +1002,8 @@ func run_ball_steps(sim_tick: int) -> void:
 						var hits: int = _ball_hit_count_this_visit.get(bid, 0)
 						if hits == 5:
 							_overdrive_cascade_end_tick = sim_tick + Constants.SIM_TICKS_PER_SECOND * 3
-					# Bloom: every 5 peg hits on this ball (same counter as visit hits), spawn a random
-					# catalog ball at the Bloom ball’s position; repeats at 10, 15, … (counter not zeroed).
+					# Bloom: every 5 peg hits on this ball (same counter as visit hits). Spawn is at the
+					# Bloom ball’s position; repeats at 10, 15, … (counter not zeroed). Spawns a random catalog ball.
 					if ability_key == "Bloom":
 						var hits_co: int = _ball_hit_count_this_visit.get(bid, 0)
 						if hits_co >= 5 and hits_co % 5 == 0:
@@ -1798,6 +1801,8 @@ func _process_binary_ball_on_ball_splits(sim_tick: int) -> void:
 func _try_binary_split_victim_from_collision(attacker: Node, victim: Node, sim_tick: int) -> void:
 	if not is_instance_valid(attacker) or not is_instance_valid(victim):
 		return
+	if attacker.has_method("is_split_twin") and attacker.is_split_twin():
+		return
 	if victim.has_method("is_split_twin") and victim.is_split_twin():
 		return
 	var aid: int = attacker.get_ball_id() if attacker.has_method("get_ball_id") else 0
@@ -1845,7 +1850,7 @@ func _pick_random_catalog_ball_definition_duplicate() -> BallDefinition:
 	var fallback_abilities: Array[String] = ["Split", "Energize", "Leech", "Rubbery", "Phantom", "Volatile", "Constellation", "Binary", "Bloom"]
 	return TestScenario.make_ball_definition(fallback_abilities[randi() % fallback_abilities.size()])
 
-## Bloom-only: `world_pos` is the Bloom ball’s center (not the peg), matching spawn-at-ball spec.
+## `world_pos` is the Bloom ball's center.
 func _spawn_random_ball_from_bloom_at(world_pos: Vector2, _source_ball: Node, _sim_tick: int) -> void:
 	if get_active_ball_count() >= Constants.MAX_ACTIVE_BALLS:
 		return
@@ -1868,6 +1873,8 @@ func _spawn_random_ball_from_bloom_at(world_pos: Vector2, _source_ball: Node, _s
 	new_ball.global_position = world_pos
 	if "linear_velocity" in new_ball:
 		new_ball.linear_velocity = Vector2(randf_range(-55.0, 55.0), randf_range(60.0, 140.0))
+	if new_ball.has_method("mark_as_bloom_spawn"):
+		new_ball.mark_as_bloom_spawn()
 	_active_balls.append(new_ball)
 	_ball_hit_count_this_visit[new_ball.get_ball_id() if new_ball.has_method("get_ball_id") else 0] = 0
 
@@ -1911,7 +1918,7 @@ func _apply_constellation_laser_segment_hits(ba: Node, bb: Node, pos_a: Vector2,
 			continue
 		var ck: String = "%d|%d|%d" % [k1, k2, pid]
 		var last_l: int = int(_constellation_laser_peg_last_tick.get(ck, -999999999))
-		if sim_tick - last_l < Constants.HIT_COOLDOWN_SIM_TICKS:
+		if sim_tick - last_l < Constants.CONSTELLATION_LASER_PEG_RETRIGGER_SIM_TICKS:
 			continue
 		_constellation_laser_peg_last_tick[ck] = sim_tick
 		var e_half: int = PEG_DISPLAY_ENERGY_PER_HIT / 2

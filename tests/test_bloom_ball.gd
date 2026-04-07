@@ -7,6 +7,7 @@ func run() -> void:
 	test_bloom_peg_hit_block_uses_ball_position_for_spawn()
 	test_bloom_spawn_helper_documents_ball_position()
 	test_bloom_does_not_share_binary_split_codepath()
+	test_bloom_spawn_marks_temporary_for_lifecycle()
 
 func test_bloom_peg_hit_block_uses_ball_position_for_spawn() -> void:
 	begin("Bloom peg-hit handler passes Bloom ball global_position to spawn")
@@ -31,3 +32,12 @@ func test_bloom_does_not_share_binary_split_codepath() -> void:
 	var bloom_i: int = src.find("ability_key == \"Bloom\"")
 	var bin_i: int = src.find("_try_binary_split_victim_from_collision")
 	assert_gt(abs(bloom_i - bin_i), 50, "Bloom and Binary split are distinct regions")
+
+func test_bloom_spawn_marks_temporary_for_lifecycle() -> void:
+	begin("Bloom spawn marks ball so hopper path can exclude it")
+	var board_script: GDScript = load("res://scenes/board/board.gd") as GDScript
+	var src: String = board_script.source_code
+	assert_true(src.contains("mark_as_bloom_spawn"), "spawn marks bloom balls")
+	var gc_script: GDScript = load("res://scenes/main/game_coordinator.gd") as GDScript
+	var gcs: String = gc_script.source_code
+	assert_true(gcs.contains("is_bloom_spawn"), "coordinator checks bloom spawn before hopper return")

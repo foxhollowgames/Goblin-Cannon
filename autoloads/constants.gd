@@ -6,6 +6,8 @@ const MAX_ACTIVE_BALLS: int = 120
 const HIT_COOLDOWN_SIM_TICKS: int = 3
 ## Binary ball: min sim ticks between splitting the same ball pair on collision (ball–ball).
 const BINARY_BALL_PAIR_COOLDOWN_SIM_TICKS: int = 30
+## Constellation laser line: same peg cannot retrigger from the laser within this many sim ticks (0.5s at 60 Hz).
+const CONSTELLATION_LASER_PEG_RETRIGGER_SIM_TICKS: int = SIM_TICKS_PER_SECOND / 2
 ## After Goblin Reset releases the ball at the hopper line, ignore that peg until grace ends (hit cooldown alone is far shorter than the grab tween).
 const GOBLIN_RESET_POST_RELEASE_GRACE_TICKS: int = SIM_TICKS_PER_SECOND / 2
 # Physics (slice defaults; apply per step_one_sim_tick)

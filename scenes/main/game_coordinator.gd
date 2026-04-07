@@ -521,6 +521,9 @@ func _on_ball_exited_board(ball: Node, reason: int) -> void:
 			return
 		ball.queue_free()
 		return
+	if ball.has_method("is_bloom_spawn") and ball.is_bloom_spawn():
+		ball.queue_free()
+		return
 	var gate_open: bool = _hopper.is_gate_open() if _hopper and _hopper.has_method("is_gate_open") else false
 	if not gate_open and _hopper and _hopper.has_method("return_ball"):
 		_hopper.return_ball(ball)
@@ -536,6 +539,9 @@ func _on_ball_exited_board(ball: Node, reason: int) -> void:
 
 func _on_ball_exited_black_hole(ball: Node) -> void:
 	if not ball or not is_instance_valid(ball):
+		return
+	if ball.has_method("is_bloom_spawn") and ball.is_bloom_spawn():
+		ball.queue_free()
 		return
 	if ball.has_method("is_split_twin") and ball.is_split_twin():
 		ball.queue_free()

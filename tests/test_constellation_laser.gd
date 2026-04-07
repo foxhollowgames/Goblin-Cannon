@@ -8,6 +8,7 @@ func run() -> void:
 	test_segment_point_distance_squared_off_segment()
 	test_binary_split_processor_skips_non_binary()
 	test_constellation_laser_applies_to_peg_on_straight_segment()
+	test_constellation_laser_same_peg_retrigger_blocked_within_half_second()
 
 func test_segment_point_distance_squared_on_segment() -> void:
 	begin("Board._segment_point_distance_squared: point on segment -> 0")
@@ -66,7 +67,59 @@ func test_constellation_laser_applies_to_peg_on_straight_segment() -> void:
 	bb.set_definition(cdef.duplicate(true))
 	bb.set_ball_id(2)
 	bb.global_position = Vector2(200, 200)
-	board._active_balls = [ba, bb]
+	var active: Array[Node] = []
+	active.append(ba)
+	active.append(bb)
+	board._active_balls = active
 	board._apply_constellation_laser_hits(100)
 	var last: int = int(board._constellation_laser_peg_last_tick.get("1|2|42", -999999999))
 	assert_eq(last, 100, "laser tick recorded for peg on segment")
+
+func test_constellation_laser_same_peg_retrigger_blocked_within_half_second() -> void:
+	begin("Constellation laser ignores same peg within 0.5s (sim ticks)")
+	if GameState:
+		GameState.start_run(101)
+	var board_script: GDScript = load("res://scenes/board/board.gd") as GDScript
+	var board := Node2D.new()
+	board.set_script(board_script)
+	board._hit_cooldown = HitCooldown.new()
+	var peg_script: GDScript = load("res://scenes/board/peg.gd") as GDScript
+	var peg := StaticBody2D.new()
+	peg.set_script(peg_script)
+	peg.peg_id = 42
+	peg.global_position = Vector2(150, 200)
+	peg._recovery_ticks_remaining = 0
+	board._peg_by_id[42] = peg
+	var cdef := BallDefinition.new()
+	cdef.ability_name = "Constellation"
+	cdef.alignment = Constants.ALIGNMENT_MAIN
+	cdef.base_energy = Constants.legacy_display_energy_to_current(20)
+	cdef.tier = 1
+	cdef.rarity = Constants.RARITY_LEGENDARY
+	cdef.city_weights = {0: 100}
+	cdef.status_effects = {}
+	cdef.shape_type = BallVisuals.ShapeType.PLUS
+	var ball_script: GDScript = load("res://scenes/balls/ball.gd") as GDScript
+	var ba := RigidBody2D.new()
+	ba.set_script(ball_script)
+	ba.set_definition(cdef)
+	ba.set_ball_id(1)
+	ba.global_position = Vector2(100, 200)
+	var bb := RigidBody2D.new()
+	bb.set_script(ball_script)
+	bb.set_definition(cdef.duplicate(true))
+	bb.set_ball_id(2)
+	bb.global_position = Vector2(200, 200)
+	var active: Array[Node] = []
+	active.append(ba)
+	active.append(bb)
+	board._active_balls = active
+	board._apply_constellation_laser_hits(1000)
+	var last_after_first: int = int(board._constellation_laser_peg_last_tick.get("1|2|42", -999999999))
+	assert_eq(last_after_first, 1000, "first hit records tick")
+	board._apply_constellation_laser_hits(1000 + Constants.CONSTELLATION_LASER_PEG_RETRIGGER_SIM_TICKS - 1)
+	var last_blocked: int = int(board._constellation_laser_peg_last_tick.get("1|2|42", -999999999))
+	assert_eq(last_blocked, 1000, "retrigger still blocked one tick before window")
+	board._apply_constellation_laser_hits(1000 + Constants.CONSTELLATION_LASER_PEG_RETRIGGER_SIM_TICKS)
+	var last_ok: int = int(board._constellation_laser_peg_last_tick.get("1|2|42", -999999999))
+	assert_eq(last_ok, 1000 + Constants.CONSTELLATION_LASER_PEG_RETRIGGER_SIM_TICKS, "retrigger allowed after 0.5s")

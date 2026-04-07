@@ -26,6 +26,7 @@ var _is_rubbery: bool = false
 var _split_spin_elapsed: float = -1.0
 var _split_triggered: bool = false  ## true after this ball has been part of a split (original or spawned)
 var _is_split_twin: bool = false  ## true if this ball was spawned by Split (extra ball); never return to hopper, destroy on exit
+var _is_bloom_spawn: bool = false  ## true if spawned by Bloom ability; temporary — no hopper/bag return on exit
 var _fragment_echo_used: bool = false  ## Fragment Echo (wall break): once per fragment; after echo we destroy on next bottom
 var _echo_floating: bool = false
 var _echo_pulse_tween: Tween = null
@@ -69,7 +70,7 @@ func _physics_process(delta: float) -> void:
 			var back_local: Vector2 = global_transform.basis_xform_inv(back_global)
 			var rear_offset: float = Constants.BALL_RADIUS * 0.82
 			_phantom_trail_particles.position = back_local * rear_offset
-			_phantom_trail_particles.direction = Vector3(back_local.x, back_local.y, 0.0)
+			_phantom_trail_particles.direction = back_local
 			_phantom_trail_particles.emitting = not _in_hopper_bin
 		else:
 			_phantom_trail_particles.emitting = false
@@ -204,6 +205,12 @@ func mark_as_split_twin() -> void:
 	_is_split_twin = true
 	modulate = Color(1.0, 1.0, 1.0, 0.75)
 	queue_redraw()
+
+func is_bloom_spawn() -> bool:
+	return _is_bloom_spawn
+
+func mark_as_bloom_spawn() -> void:
+	_is_bloom_spawn = true
 
 ## Fragment Echo (wall break): fragment can only float back to top once; then destroy on next bottom.
 func has_fragment_echo_used() -> bool:
@@ -350,14 +357,14 @@ func _create_phantom_trail_particles() -> void:
 	p.one_shot = false
 	p.explosiveness = 0.0
 	p.randomness = 0.42
-	p.direction = Vector3(0.0, 1.0, 0.0)
+	# CPUParticles2D: direction and gravity are Vector2 (no flatness — that is 3D particles).
+	p.direction = Vector2(0.0, 1.0)
 	p.spread = 18.0
-	p.flatness = 0.0
 	p.initial_velocity_min = 28.0
 	p.initial_velocity_max = 72.0
 	p.angular_velocity_min = -1.5
 	p.angular_velocity_max = 1.5
-	p.gravity = Vector3(0.0, 0.0, 0.0)
+	p.gravity = Vector2.ZERO
 	p.scale_amount_min = 0.45
 	p.scale_amount_max = 0.95
 	p.color = Color(0.5, 0.82, 0.98, 0.55)
