@@ -12,7 +12,7 @@ const DURATION: float = 0.7
 
 var _start_pos: Vector2 = Vector2.ZERO
 var _end_pos: Vector2 = Vector2.ZERO
-var _particle_color: Color = Color(0.95, 0.8, 0.35, 0.95)
+var _particle_color: Color = Color(ColorPalette.CREAM.r, ColorPalette.CREAM.g, ColorPalette.CREAM.b, 0.95)
 var _particles: Array[Control] = []
 var _burst_particles: Array[Control] = []
 var _tween: Tween
