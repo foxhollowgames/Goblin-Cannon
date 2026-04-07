@@ -33,6 +33,8 @@ const _TEX_RUBBERY: Texture2D = preload("res://icons/ffffff/transparent/1x1/dela
 const _ICON_PHANTOM: Texture2D = preload("res://icons/ffffff/transparent/1x1/lorc/ghost.svg")
 const _ICON_VOLATILE: Texture2D = preload("res://icons/ffffff/transparent/1x1/sbed/poison-cloud.svg")
 const _ICON_CONSTELLATION: Texture2D = preload("res://icons/ffffff/transparent/1x1/delapouite/star-formation.svg")
+const _ICON_BINARY: Texture2D = preload("res://icons/ffffff/transparent/1x1/delapouite/stars-stack.svg")
+const _ICON_BLOOM: Texture2D = preload("res://icons/ffffff/transparent/1x1/delapouite/flower-star.svg")
 
 static func get_alignment_color(alignment: int) -> Color:
 	if alignment >= 0 and alignment < ALIGNMENT_COLORS.size():
@@ -66,6 +68,10 @@ static func get_icon_texture_for_ability(ability_key: String) -> Texture2D:
 			return _ICON_VOLATILE
 		"Constellation":
 			return _ICON_CONSTELLATION
+		"Binary":
+			return _ICON_BINARY
+		"Bloom":
+			return _ICON_BLOOM
 		_:
 			return _TEX_PLAIN_DEFAULT
 
@@ -95,6 +101,10 @@ static func get_ability_theme_color(ability_key: String) -> Color:
 			return Color(0.42, 0.88, 0.4, 1.0)
 		"Constellation":
 			return Color(0.55, 0.82, 1.0, 1.0)
+		"Binary":
+			return Color(0.95, 0.42, 0.58, 1.0)
+		"Bloom":
+			return Color(1.0, 0.62, 0.45, 1.0)
 		_:
 			return Color(0.85, 0.85, 0.88, 1.0)
 
