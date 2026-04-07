@@ -370,15 +370,9 @@ func _shop_category_label(category: String) -> Label:
 
 func _shop_style_desc_label(desc_label: Label) -> void:
 	desc_label.add_theme_font_size_override("font_size", SHOP_CARD_DESC_FONT)
+	desc_label.add_theme_color_override("font_color", MilestoneShopData.DESC_TEXT_COLOR)
 	desc_label.custom_minimum_size = Vector2(max(8, SHOP_CARD_WIDTH - 16), SHOP_CARD_DESC_TWO_LINES_H)
 	desc_label.clip_text = true
-
-func _shop_desc_placeholder() -> Label:
-	var lbl: Label = Label.new()
-	lbl.text = ""
-	lbl.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_shop_style_desc_label(lbl)
-	return lbl
 
 func _shop_vbox_fill_spacer() -> Control:
 	var s: Control = Control.new()
@@ -678,14 +672,13 @@ func _make_basic_batch_card(index: int, price: int) -> Control:
 	var title_label: Label = Label.new()
 	title_label.text = "+%d Plain Balls" % RewardGeneration.BASIC_BATCH_SIZE
 	title_label.add_theme_font_size_override("font_size", SHOP_CARD_TITLE_FONT)
-	title_label.add_theme_color_override("font_color", border_color.lerp(BallVisuals.get_ability_theme_color("Plain"), 0.5))
+	title_label.add_theme_color_override("font_color", MilestoneShopData.TITLE_TEXT_COLOR)
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	card_vbox.add_child(title_label)
 	card_vbox.add_child(_shop_category_label("BALL"))
 	card_vbox.add_child(_make_basic_batch_ball_row())
 	var desc_label: Label = Label.new()
 	desc_label.text = "Adds plain balls to your hopper for the rest of this run."
-	desc_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85, 1))
 	desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_shop_style_desc_label(desc_label)
@@ -722,7 +715,7 @@ func _make_ball_card(def: BallDefinition, index: int, price: int) -> Control:
 	var ab_for_title: String = def.ability_name if def != null and not def.ability_name.is_empty() else "Plain"
 	if ability == "Ball":
 		ab_for_title = "Plain"
-	title_label.add_theme_color_override("font_color", border_color.lerp(BallVisuals.get_ability_theme_color(ab_for_title), 0.5))
+	title_label.add_theme_color_override("font_color", MilestoneShopData.TITLE_TEXT_COLOR)
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	card_vbox.add_child(title_label)
 	card_vbox.add_child(_shop_category_label("BALL"))
@@ -736,13 +729,18 @@ func _make_ball_card(def: BallDefinition, index: int, price: int) -> Control:
 	var preview_center: CenterContainer = CenterContainer.new()
 	preview_center.add_child(preview)
 	card_vbox.add_child(preview_center)
-	card_vbox.add_child(_shop_desc_placeholder())
+	var ball_desc: Label = Label.new()
+	ball_desc.text = MilestoneShopData.shop_blurb_for_ball_ability(ab_for_title)
+	ball_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	ball_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	_shop_style_desc_label(ball_desc)
+	card_vbox.add_child(ball_desc)
 	card_vbox.add_child(_shop_vbox_fill_spacer())
 	return _finalize_shop_offer(panel, price, index)
 
 func _make_peg_card(opt: MilestoneOption, index: int, price: int) -> Control:
 	var kind: String = opt.peg_kind if opt else ""
-	var info: Dictionary = PEG_SHOP_DISPLAY.get(kind, { "name": "Special Peg", "desc": "Place on the board after purchase." })
+	var info: Dictionary = MilestoneShopData.PEG_SHOP_DISPLAY.get(kind, { "name": "Special Peg", "desc": "Place on the board after purchase." })
 	var rarity: int = opt.rarity if opt else 0
 	var border_color: Color = _rarity_color(rarity)
 	var panel: PanelContainer = PanelContainer.new()
@@ -765,47 +763,19 @@ func _make_peg_card(opt: MilestoneOption, index: int, price: int) -> Control:
 	var title_label: Label = Label.new()
 	title_label.text = info.get("name", kind)
 	title_label.add_theme_font_size_override("font_size", SHOP_CARD_TITLE_FONT)
-	title_label.add_theme_color_override("font_color", border_color)
+	title_label.add_theme_color_override("font_color", MilestoneShopData.TITLE_TEXT_COLOR)
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	card_vbox.add_child(title_label)
 	card_vbox.add_child(_shop_category_label("PEG"))
 	card_vbox.add_child(_make_peg_shop_sprite_preview(kind))
 	var desc_label: Label = Label.new()
 	desc_label.text = info.get("desc", "")
-	desc_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85, 1))
 	desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_shop_style_desc_label(desc_label)
 	card_vbox.add_child(desc_label)
 	card_vbox.add_child(_shop_vbox_fill_spacer())
 	return _finalize_shop_offer(panel, price, index)
-
-const STAT_DISPLAY: Dictionary = {
-	"main_charge": {
-		"name": "Main Charge",
-		"desc": "+5% energy to the main cannon per ball"
-	},
-	"door_interval": {
-		"name": "Faster Waves",
-		"desc": "10% less wait between waves"
-	},
-	"door_duration": {
-		"name": "Longer Gate",
-		"desc": "Gate stays open 10% longer"
-	},
-	"cannon_damage": {
-		"name": "Cannon Damage",
-		"desc": "+5 damage per wall shot"
-	},
-	"cannon_energy": {
-		"name": "Cannon Energy",
-		"desc": "Main cannon needs less energy to fire"
-	},
-	"hopper_width": {
-		"name": "Wider Hopper",
-		"desc": "+10% hopper width (max 2×)"
-	}
-}
 
 ## Preloaded so icons always resolve in editor/export (runtime load() on SVG paths can fail).
 const _STAT_ICON_MAIN_CHARGE = preload("res://icons/ffffff/transparent/1x1/lorc/energy-arrow.svg")
@@ -824,22 +794,8 @@ const STAT_ICONS: Dictionary = {
 	"hopper_width": _STAT_ICON_HOPPER_WIDTH
 }
 
-const PEG_SHOP_DISPLAY: Dictionary = {
-	"bomb": { "name": "Bomb Peg", "desc": "Blasts on hit. Place on an empty peg." },
-	"trampoline": { "name": "Trampoline Peg", "desc": "Launches balls upward hard." },
-	"goblin_reset": { "name": "Goblin Reset", "desc": "Catches balls and sends them to the top." },
-	"gold": { "name": "Gold Peg", "desc": "3× energy when hit." },
-	"splitter": { "name": "Splitter Peg", "desc": "Splits any ball into two." },
-	"eternal": { "name": "Eternal Peg", "desc": "At 0 HP: refills at once (no rest)." },
-	"extreme_bouncer": { "name": "Extreme Bouncer", "desc": "Very strong bounce." },
-	"magnet": { "name": "Magnet Peg", "desc": "Pulls nearby balls in." },
-	"lucky_gold": { "name": "Lucky Gold Peg", "desc": "Extra gold (1 or 5; better odds for 5)." },
-	"phase": { "name": "Phase Peg", "desc": "Turns solid and ghost on a timer." },
-	"wrench": { "name": "Wrench Peg", "desc": "Fixes nearby broken pegs when hit." },
-	"gravity_well": { "name": "Gravity Well Peg", "desc": "Slows balls near it." }
-}
-
-func _make_stat_upgrade_icon(stat_id: String, tint: Color) -> Control:
+func _make_stat_upgrade_icon(stat_id: String, _tint_unused: Color) -> Control:
+	var tint: Color = MilestoneShopData.SHOP_ICON_NEUTRAL_TINT
 	var row: HBoxContainer = HBoxContainer.new()
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -864,7 +820,7 @@ func _make_stat_upgrade_icon(stat_id: String, tint: Color) -> Control:
 
 func _make_stat_card(opt: MilestoneOption, index: int, price: int) -> Control:
 	var stat_id: String = opt.stat_id if opt else ""
-	var info: Dictionary = STAT_DISPLAY.get(stat_id, { "name": "Stat Up", "desc": "" })
+	var info: Dictionary = MilestoneShopData.STAT_DISPLAY.get(stat_id, { "name": "Stat Up", "desc": "" })
 	var rarity: int = opt.rarity if opt else 0
 	var border_color: Color = _rarity_color(rarity)
 	var panel: PanelContainer = PanelContainer.new()
@@ -887,14 +843,13 @@ func _make_stat_card(opt: MilestoneOption, index: int, price: int) -> Control:
 	var title_label: Label = Label.new()
 	title_label.text = info.get("name", stat_id)
 	title_label.add_theme_font_size_override("font_size", SHOP_CARD_TITLE_FONT)
-	title_label.add_theme_color_override("font_color", border_color)
+	title_label.add_theme_color_override("font_color", MilestoneShopData.TITLE_TEXT_COLOR)
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	card_vbox.add_child(title_label)
 	card_vbox.add_child(_shop_category_label("STAT"))
 	card_vbox.add_child(_make_stat_upgrade_icon(stat_id, border_color))
 	var desc_label: Label = Label.new()
 	desc_label.text = info.get("desc", "")
-	desc_label.add_theme_color_override("font_color", Color(0.85, 0.85, 0.85, 1))
 	desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_shop_style_desc_label(desc_label)

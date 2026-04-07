@@ -16,6 +16,7 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/test_main_cannon.gd",
 	"res://tests/test_game_state.gd",
 	"res://tests/test_reward_generation.gd",
+	"res://tests/test_milestone_shop_data.gd",
 	"res://tests/test_reward_handler.gd",
 	"res://tests/test_energy_router.gd",
 	"res://tests/test_test_scenario.gd",
