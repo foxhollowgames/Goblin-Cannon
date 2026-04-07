@@ -76,7 +76,7 @@ func _ready() -> void:
 func _create_timer_label() -> void:
 	_timer_label = Label.new()
 	_timer_label.name = "TimerLabel"
-	_timer_label.text = "5:00"
+	_timer_label.text = "3:00"
 	_timer_label.add_theme_font_size_override("font_size", 32)
 	_timer_label.add_theme_color_override("font_color", Color(1, 1, 1, 1))
 	_timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
