@@ -110,6 +110,8 @@ var _black_hole_visual: Node2D = null
 var _binary_ball_pair_last_split_tick: Dictionary = {}
 ## Constellation laser line hits: "minId|maxId|pegId" -> last sim_tick
 var _constellation_laser_peg_last_tick: Dictionary = {}
+## When true, next frame must redraw to erase beams after the last pair of Constellation balls is gone.
+var _had_constellation_laser_visual: bool = false
 
 func _ready() -> void:
 	_hit_cooldown = HitCooldown.new()
@@ -1143,6 +1145,45 @@ func flush_tick(sim_tick: int) -> void:
 			_ball_energized_pegs_hit.erase(ball_id)
 			_splitter_triggered_this_visit.erase(ball_id)
 			ball_exited_board.emit(b, REASON_OFF_SCREEN)
+	_update_constellation_laser_visual_state()
+
+func _update_constellation_laser_visual_state() -> void:
+	var c: int = _count_constellation_balls_active()
+	var has_links: bool = c >= 2
+	if has_links or _had_constellation_laser_visual:
+		queue_redraw()
+	_had_constellation_laser_visual = has_links
+
+func _count_constellation_balls_active() -> int:
+	var n: int = 0
+	for b in _active_balls:
+		if not is_instance_valid(b):
+			continue
+		var bd: Resource = b.get_definition() if b.has_method("get_definition") else null
+		if bd is BallDefinition and _ability_key(bd as BallDefinition) == "Constellation":
+			n += 1
+	return n
+
+func _draw() -> void:
+	# Straight segments between Constellation ball centers (not chain-lightning / jagged arcs).
+	if not _had_constellation_laser_visual:
+		return
+	var local_pts: Array[Vector2] = []
+	for b in _active_balls:
+		if not is_instance_valid(b):
+			continue
+		var bd: Resource = b.get_definition() if b.has_method("get_definition") else null
+		if not (bd is BallDefinition and _ability_key(bd as BallDefinition) == "Constellation"):
+			continue
+		var gp: Variant = b.get("global_position")
+		var p: Vector2 = gp as Vector2 if gp is Vector2 else b.position
+		local_pts.append(to_local(p))
+	for i in range(local_pts.size()):
+		for j in range(i + 1, local_pts.size()):
+			var a: Vector2 = local_pts[i]
+			var bpt: Vector2 = local_pts[j]
+			draw_line(a, bpt, Color(0.35, 0.58, 1.0, 0.42), 4.5)
+			draw_line(a, bpt, Color(0.88, 0.96, 1.0, 0.78), 1.6)
 
 func explode_at(_peg_id: int) -> void:
 	pass  # future: bomb peg or external trigger; ball-triggered explosive uses _apply_explosive_hits
@@ -1828,6 +1869,7 @@ func _spawn_random_ball_from_bloom_at(world_pos: Vector2, _source_ball: Node, _s
 	_active_balls.append(new_ball)
 	_ball_hit_count_this_visit[new_ball.get_ball_id() if new_ball.has_method("get_ball_id") else 0] = 0
 
+## Constellation: straight segment vs peg circles only. Ball–ball split is Binary; every-5-peg random spawn is Bloom.
 func _apply_constellation_laser_hits(sim_tick: int) -> void:
 	var constellation_balls: Array = []
 	for b in _active_balls:
