@@ -12,6 +12,8 @@ enum _State { IDLE, PREVIEW, ACTIVE }
 @export var pegs_per_event: int = 3
 
 var _rng: RandomNumberGenerator
+## Lazily created on first _process while Human Kingdom — _ready runs before GameCoordinator applies current_city_id / TestScenario.
+var _rng_ready: bool = false
 var _state: int = _State.IDLE
 var _time_until_spawn: float = 0.0
 var _preview_remaining: float = 0.0
@@ -21,9 +23,13 @@ var _preview_drip_nodes: Array[Node2D] = []
 
 func _ready() -> void:
 	z_index = 40
-	if not _is_human_kingdom():
-		set_process(false)
+	## Do not set_process(false) from a wrong city: _ready runs before GameCoordinator sets current_city_id / TestScenario.
+	set_process(true)
+
+func _ensure_rng_ready() -> void:
+	if _rng_ready:
 		return
+	_rng_ready = true
 	_rng = RandomNumberGenerator.new()
 	_apply_rng_seed()
 	_time_until_spawn = _rng.randf_range(min_interval_sec, max_interval_sec)
@@ -37,7 +43,6 @@ func _ready() -> void:
 		_time_until_spawn = 0.0
 		if TestScenario.sticky_slime_event_fast:
 			preview_duration_sec = 1.05
-	set_process(true)
 
 func _is_human_kingdom() -> bool:
 	var city: CityDefinition = GameState.get_current_city_definition() if GameState else null
@@ -48,6 +53,7 @@ func arm_immediate_spawn_if_test() -> void:
 		return
 	if not _is_human_kingdom():
 		return
+	_ensure_rng_ready()
 	if TestScenario.sticky_slime_event_at_start:
 		_time_until_spawn = 0.0
 		if TestScenario.sticky_slime_event_fast:
@@ -100,6 +106,7 @@ func _process(_delta: float) -> void:
 		return
 	if GameState.run_flow_state != GameState.RunFlowState.FIGHTING:
 		return
+	_ensure_rng_ready()
 	var board: Node2D = get_parent() as Node2D
 	if board == null:
 		return
@@ -215,5 +222,6 @@ func debug_arm_immediate_spawn() -> bool:
 		return false
 	if _state != _State.IDLE:
 		return false
+	_ensure_rng_ready()
 	_time_until_spawn = 0.0
 	return true

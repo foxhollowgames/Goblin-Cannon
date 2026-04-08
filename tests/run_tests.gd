@@ -13,6 +13,7 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/test_script_parse_smoke.gd",
 	"res://tests/test_energy_routing.gd",
 	"res://tests/test_hit_cooldown.gd",
+	"res://tests/test_kingdom_board_events.gd",
 	"res://tests/test_milestone_curve.gd",
 	"res://tests/test_milestone_tracker_events.gd",
 	"res://tests/test_combat_manager.gd",
