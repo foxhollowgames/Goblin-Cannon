@@ -247,10 +247,10 @@ func test_timer_override_default() -> void:
 	var cm_script: GDScript = load("res://scenes/main/combat_manager.gd")
 	var cm := Node.new()
 	cm.set_script(cm_script)
-	# Disabled scenario — should use WALL_TIME_SECONDS
+	# Disabled scenario — should use WALL_PHASE_TIME_SECONDS
 	TestScenario.enabled = false
 	var ticks: int = cm._get_wall_time_ticks(0)
-	assert_eq(ticks, Constants.WALL_TIME_SECONDS[0] * Constants.SIM_TICKS_PER_SECOND, "wall 0 ticks from Constants.WALL_TIME_SECONDS")
+	assert_eq(ticks, Constants.WALL_PHASE_TIME_SECONDS * Constants.SIM_TICKS_PER_SECOND, "default phase ticks from Constants.WALL_PHASE_TIME_SECONDS")
 	_reset_scenario()
 
 func test_timer_override_infinite() -> void:

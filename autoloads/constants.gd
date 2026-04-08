@@ -2,8 +2,8 @@ extends Node
 ## Constants autoload (§1.8). Physics and sim constants; all gameplay uses these.
 
 const SIM_TICKS_PER_SECOND: int = 60
-## Per-wall round length (seconds) by wall index within a city. Wall 0 = 3 min baseline; same 1:3:2 ratio as legacy 60/180/120s tuning.
-const WALL_TIME_SECONDS: Array[int] = [180, 540, 360]
+## Per-wall phase round length (seconds). Fixed 1:30 for every wall in a city (no per-index scaling).
+const WALL_PHASE_TIME_SECONDS: int = 90
 const MAX_ACTIVE_BALLS: int = 120
 const HIT_COOLDOWN_SIM_TICKS: int = 3
 ## Binary ball: min sim ticks between splitting the same ball pair on collision (ball–ball).
