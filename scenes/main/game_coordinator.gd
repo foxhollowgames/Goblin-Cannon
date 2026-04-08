@@ -257,7 +257,7 @@ func _is_plain_ball_def(def: Resource) -> bool:
 		return (def as BallDefinition).ability_name.is_empty()
 	return false
 
-## Add plain balls from milestone +5 batch only (hopper first, rest queued for the bag).
+## Add plain balls (hopper first, rest queued for the bag). Used for milestone board event +5 and legacy BASIC_BATCH apply.
 func add_basic_balls(count: int) -> void:
 	if count <= 0:
 		return
@@ -589,8 +589,9 @@ func _on_milestone_reached(milestone_index: int, total_energy_display: int) -> v
 	if _rewards_manager and _rewards_manager.has_method("on_milestone_reached"):
 		_rewards_manager.on_milestone_reached(milestone_index, total_energy_display)
 
-## Board milestone event peg destroyed; queues the same reward flow as legacy milestones.
+## Board milestone event peg destroyed; grants +5 plain balls then queues the milestone shop (same as legacy milestones).
 func notify_milestone_reward_from_board() -> void:
+	add_basic_balls(RewardGeneration.BASIC_BATCH_SIZE)
 	if _milestone_tracker and _milestone_tracker.has_method("register_milestone_reward"):
 		_milestone_tracker.register_milestone_reward()
 

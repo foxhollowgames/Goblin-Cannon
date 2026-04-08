@@ -1,6 +1,6 @@
 extends Resource
 class_name MilestoneOption
-## One of 5 milestone options: +5 plain balls, a stat upgrade, or a ball upgrade (convert plain → ability).
+## One of milestone shop options: stat upgrade, ball upgrade (convert plain → ability), or peg. BASIC_BATCH is legacy / debug only (+5 plain come from the milestone board event, not the shop).
 ## Used by reward draft to show mixed cards; player picks one.
 
 enum Type { BASIC_BATCH, STAT, BALL_UPGRADE, PEG_UPGRADE }

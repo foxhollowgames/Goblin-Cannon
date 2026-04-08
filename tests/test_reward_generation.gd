@@ -17,7 +17,7 @@ func run() -> void:
 	test_pick_milestone_options_count()
 	test_pick_milestone_options_returns_milestone_options()
 	test_pick_milestone_options_stat_ids_valid()
-	test_pick_milestone_options_at_most_one_basic_batch()
+	test_pick_milestone_options_never_includes_basic_batch()
 	test_pick_milestone_options_no_ball_upgrade_when_disallowed()
 	test_pick_milestone_options_uncommon_only_catalog_still_mostly_balls()
 	test_shuffle_deterministic_with_seed()
@@ -146,19 +146,17 @@ func test_pick_milestone_options_stat_ids_valid() -> void:
 			if opt is MilestoneOption and opt.option_type == MilestoneOption.Type.STAT:
 				assert_in(opt.stat_id, valid_ids, "stat_id '%s' is valid" % opt.stat_id)
 
-func test_pick_milestone_options_at_most_one_basic_batch() -> void:
-	begin("pick_milestone_options has at most one BASIC_BATCH")
+func test_pick_milestone_options_never_includes_basic_batch() -> void:
+	begin("pick_milestone_options never emits BASIC_BATCH (plain batch is from the milestone board event, not the shop)")
 	var candidates: Array = []
 	for n in ["A", "B", "C", "D", "E", "F", "G", "H"]:
 		candidates.append(_make_ball_def(n))
-	for _trial in 30:
+	for _trial in 40:
 		var rg := _make_rg(randi() % 100000)
 		var options: Array = rg.pick_milestone_options(candidates, 5, true)
-		var batch_n: int = 0
 		for opt in options:
-			if opt is MilestoneOption and (opt as MilestoneOption).option_type == MilestoneOption.Type.BASIC_BATCH:
-				batch_n += 1
-		assert_lte(batch_n, 1, "at most one basic batch card")
+			if opt is MilestoneOption:
+				assert_neq((opt as MilestoneOption).option_type, MilestoneOption.Type.BASIC_BATCH, "no shop BASIC_BATCH card")
 
 func test_pick_milestone_options_no_ball_upgrade_when_disallowed() -> void:
 	begin("pick_milestone_options emits no BALL_UPGRADE when allow_ball_upgrades is false")
