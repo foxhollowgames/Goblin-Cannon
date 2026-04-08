@@ -104,20 +104,18 @@ func get_timer_seconds_remaining() -> float:
 func is_time_expired() -> bool:
 	return _time_expired_emitted
 
-func _get_wall_time_ticks(wall_index: int) -> int:
+func _get_wall_time_ticks(_wall_index: int) -> int:
 	if TestScenario and TestScenario.enabled:
 		if TestScenario.timer_override_seconds == 0:
 			return 999999 * TICKS_PER_SECOND
 		elif TestScenario.timer_override_seconds > 0:
 			return TestScenario.timer_override_seconds * TICKS_PER_SECOND
 	if _endless_active and _endless_wave > 0:
-		var last_idx: int = maxi(0, _wall_names.size() - 1)
-		var base_sec: int = Constants.WALL_TIME_SECONDS[clampi(last_idx, 0, Constants.WALL_TIME_SECONDS.size() - 1)]
+		var base_sec: int = Constants.WALL_PHASE_TIME_SECONDS
 		var sec: int = int(roundf(float(base_sec) * pow(ENDLESS_TIMER_SHRINK, float(_endless_wave - 1))))
 		sec = maxi(ENDLESS_MIN_TIMER_SEC, sec)
 		return sec * TICKS_PER_SECOND
-	var idx: int = clampi(wall_index, 0, Constants.WALL_TIME_SECONDS.size() - 1)
-	return Constants.WALL_TIME_SECONDS[idx] * TICKS_PER_SECOND
+	return Constants.WALL_PHASE_TIME_SECONDS * TICKS_PER_SECOND
 
 func _advance_to_next_wall() -> void:
 	_current_wall_index += 1
