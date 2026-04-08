@@ -347,7 +347,7 @@ func _compute_pick_price(pick: Variant) -> int:
 		var opt: MilestoneOption = pick as MilestoneOption
 		match opt.option_type:
 			MilestoneOption.Type.BASIC_BATCH:
-				return Constants.SHOP_PRICE_COMMON
+				return Constants.shop_price_for_ball_rarity(Constants.RARITY_COMMON)
 			MilestoneOption.Type.BALL_UPGRADE:
 				var bd: BallDefinition = opt.ball_definition
 				return Constants.shop_price_for_ball_rarity(bd.rarity if bd else 0)
@@ -357,7 +357,7 @@ func _compute_pick_price(pick: Variant) -> int:
 				return Constants.shop_price_for_stat_rarity(opt.rarity)
 	if pick is BallDefinition:
 		return Constants.shop_price_for_ball_rarity((pick as BallDefinition).rarity)
-	return Constants.SHOP_PRICE_COMMON
+	return Constants.shop_price_for_ball_rarity(Constants.RARITY_COMMON)
 
 func _shop_category_label(category: String) -> Label:
 	var lbl: Label = Label.new()
