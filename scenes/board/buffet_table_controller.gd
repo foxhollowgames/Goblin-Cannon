@@ -44,8 +44,9 @@ func _ready() -> void:
 	set_process(true)
 
 func _is_halfling_city() -> bool:
-	var city: CityDefinition = GameState.get_current_city_definition() if GameState else null
-	return city != null and city.city_id == &"halfling_shire"
+	if not GameState:
+		return false
+	return GameState.current_city_id == Constants.CITY_INDEX_HALFLING_SHIRE
 
 func arm_immediate_spawn_if_test() -> void:
 	if not TestScenario or not TestScenario.enabled:

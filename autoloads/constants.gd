@@ -94,6 +94,10 @@ const CITY_DEFINITION_PATHS: Array[String] = [
 	"res://resources/cities/human_kingdom.tres",
 	"res://resources/cities/elf_palace.tres"
 ]
+## Same indices as `GameState.current_city_id` and `CITY_DEFINITION_PATHS`. Board events gate on this, not only `CityDefinition.city_id`.
+const CITY_INDEX_HALFLING_SHIRE: int = 0
+const CITY_INDEX_HUMAN_KINGDOM: int = 1
+const CITY_INDEX_ELF_PALACE: int = 2
 
 # Status effect IDs (§8 status system). Used for stacking and visuals (fire, frozen, lightning, etc.).
 const STATUS_FIRE: StringName = &"fire"

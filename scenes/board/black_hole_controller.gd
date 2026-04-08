@@ -42,8 +42,10 @@ func _ensure_rng_ready() -> void:
 			preview_duration_sec = 1.05
 
 func _is_elf_palace() -> bool:
-	var city: CityDefinition = GameState.get_current_city_definition() if GameState else null
-	return city != null and city.city_id == &"elf_palace"
+	if not GameState:
+		return false
+	## Authoritative: progression index matches CITY_DEFINITION_PATHS (avoids relying on loaded Resource.city_id alone).
+	return GameState.current_city_id == Constants.CITY_INDEX_ELF_PALACE
 
 func arm_immediate_spawn_if_test() -> void:
 	if not TestScenario or not TestScenario.enabled:
