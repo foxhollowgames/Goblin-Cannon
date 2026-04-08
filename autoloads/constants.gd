@@ -158,7 +158,7 @@ const SHOP_PRICE_COMMON: int = 5
 const SHOP_PRICE_UNCOMMON: int = 10
 const SHOP_PRICE_RARE: int = 15
 const SHOP_PRICE_EPIC: int = 20
-## Milestone shop ball cards (and plain-ball BASIC_BATCH): added on top of the tier base (SHOP_PRICE_*). Stat draft uses SHOP_PRICE_* without this; peg unlocks use SHOP_PEG_PRICE_*.
+## Milestone shop ball-upgrade cards: added on top of the tier base (SHOP_PRICE_*). Stat draft uses SHOP_PRICE_* without this; peg unlocks use SHOP_PEG_PRICE_*.
 const SHOP_BALL_PURCHASE_SURCHARGE_COINS: int = 5
 ## Peg shop tier prices (see shop_price_for_ball_rarity for ball purchase totals).
 const SHOP_PEG_PRICE_COMMON: int = 10

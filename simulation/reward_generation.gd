@@ -47,19 +47,18 @@ const STAT_RARITY: Dictionary = {
 ## Weight copies per stat in pool (common appears more often). Index = rarity tier.
 const STAT_WEIGHT_BY_RARITY: Array[int] = [3, 2, 1]  # Common x3, Uncommon x2, Rare x1
 
-## Plain balls granted by BASIC_BATCH milestone option (persistent for the run); not mixed into ball-upgrade picks.
+## Plain balls granted when a milestone board event peg is claimed (and by legacy apply_milestone_pick BASIC_BATCH).
+## Not offered in the gold milestone shop — pick_milestone_options never inserts a BASIC_BATCH card.
 const BASIC_BATCH_SIZE: int = 5
 
 ## Milestone shop mix (soft targets, not hard quotas): ~3/5 ball upgrades, ~1 stat, last non-ball slot stat vs peg.
-## BASIC_BATCH competes for a slot so it stays somewhat rare.
-const MILESTONE_SHOP_BASIC_BATCH_CHANCE: float = 0.22
-## How many ball-upgrade slots after BASIC_BATCH is resolved; mean ~= 0.6 * n (n = non-basic slots).
+## How many ball-upgrade slots; mean ~= 0.6 * n (n = slots).
 const MILESTONE_SHOP_BALL_SHARE: float = 0.6
 ## Among 2+ non-ball slots, chance the flex slot is a peg (rest are stats). Single flex: peg vs stat.
 const MILESTONE_SHOP_PEG_FLEX_CHANCE_MULTI: float = 0.42
 const MILESTONE_SHOP_PEG_FLEX_CHANCE_SINGLE: float = 0.28
 
-## GDD §12: 5 milestone options — at most one BASIC_BATCH, rest stats and/or ball/peg upgrades (city-filtered).
+## GDD §12: 5 milestone shop options — stats and/or ball/peg upgrades (city-filtered). +5 plain balls come from board events only.
 ## rarity_weights: [common%, uncommon%, rare%, epic%] from Constants.milestone_reward_rarity_weights (sums to 100).
 ## peg_candidates: MilestoneOption templates (PEG_UPGRADE, peg_kind + rarity set). If empty, no peg offers.
 ## If allow_ball_upgrades is false, upgrade slots become stat slots. No duplicate stat types or upgrade abilities.
@@ -67,8 +66,8 @@ func pick_milestone_options(ball_candidates: Array, total_count: int = 5, allow_
 	var weights: Array = rarity_weights
 	if weights.is_empty():
 		weights = [90, 10, 0, 0]
-	var include_basic: bool = _rng.randf() < MILESTONE_SHOP_BASIC_BATCH_CHANCE
-	var after_basic: int = total_count - (1 if include_basic else 0)
+	## +5 plain balls are not in the milestone gold shop; they are granted when the milestone board event peg is broken.
+	var after_basic: int = total_count
 	var ball_quota: int = 0
 	var peg_quota: int = 0
 	var stat_count: int = after_basic
@@ -86,10 +85,6 @@ func pick_milestone_options(ball_candidates: Array, total_count: int = 5, allow_
 		ball_quota = 0
 		stat_count = after_basic
 	var out: Array = []
-	if include_basic:
-		var batch_opt: MilestoneOption = MilestoneOption.new()
-		batch_opt.option_type = MilestoneOption.Type.BASIC_BATCH
-		out.append(batch_opt)
 	var seen_ball_key: Dictionary = {}
 	var seen_peg_kind: Dictionary = {}
 	var ball_picks: Array = []
