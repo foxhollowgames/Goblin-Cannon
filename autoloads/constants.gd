@@ -158,7 +158,9 @@ const SHOP_PRICE_COMMON: int = 5
 const SHOP_PRICE_UNCOMMON: int = 10
 const SHOP_PRICE_RARE: int = 15
 const SHOP_PRICE_EPIC: int = 20
-## Peg shop: always more expensive than a ball at the same tier (ball common 5 → peg common 10).
+## Milestone shop ball cards (and plain-ball BASIC_BATCH): added on top of the tier base (SHOP_PRICE_*). Stat draft uses SHOP_PRICE_* without this; peg unlocks use SHOP_PEG_PRICE_*.
+const SHOP_BALL_PURCHASE_SURCHARGE_COINS: int = 5
+## Peg shop tier prices (see shop_price_for_ball_rarity for ball purchase totals).
 const SHOP_PEG_PRICE_COMMON: int = 10
 const SHOP_PEG_PRICE_UNCOMMON: int = 15
 const SHOP_PEG_PRICE_RARE: int = 20
@@ -212,17 +214,19 @@ static func milestone_tier_to_rarity_constant(tier: int) -> int:
 			return RARITY_EPIC
 
 static func shop_price_for_ball_rarity(rarity: int) -> int:
+	var base: int
 	match rarity:
 		RARITY_COMMON:
-			return SHOP_PRICE_COMMON
+			base = SHOP_PRICE_COMMON
 		RARITY_UNCOMMON:
-			return SHOP_PRICE_UNCOMMON
+			base = SHOP_PRICE_UNCOMMON
 		RARITY_RARE:
-			return SHOP_PRICE_RARE
+			base = SHOP_PRICE_RARE
 		RARITY_EPIC, RARITY_LEGENDARY:
-			return SHOP_PRICE_EPIC
+			base = SHOP_PRICE_EPIC
 		_:
-			return clampi(SHOP_PRICE_COMMON + rarity * 5, SHOP_PRICE_COMMON, SHOP_PRICE_EPIC)
+			base = clampi(SHOP_PRICE_COMMON + rarity * 5, SHOP_PRICE_COMMON, SHOP_PRICE_EPIC)
+	return base + SHOP_BALL_PURCHASE_SURCHARGE_COINS
 
 
 ## Human-readable ball rarity (one tier per ability: Plain common; Split/Rubbery/Phantom/Energize/Leech uncommon; Volatile rare; Explosive, Chain Lightning, Constellation, Binary, Bloom legendary).
