@@ -119,3 +119,14 @@ The specific art style is not yet determined (*Slots & Daggers* is currently und
 | [TASK-005](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-005-full-screen-conquest-cutscenes.md) | Full-Screen Wall Break Conquest Cinematics | P2 | BACKLOG |
 | [TASK-006](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-006-comic-book-feel-art-style.md) | Comic Book Feel — Art Style Not Determined | P2 | BACKLOG |
 | [TASK-007](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-007-pr-workflow-and-version-control.md) | Git Branch and Pull Request Protocol | P0 | DONE |
+| [TASK-008](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-008-build-archetypes-and-synergies.md) | Build Archetypes & Synergy Design | P1 | READY |
+| [TASK-009](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-009-final-ball-list-campaign-1.md) | Final Ball List & Abilities for Campaign 1 | P1 | BACKLOG |
+| [TASK-010](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-010-final-relic-list-campaign-1.md) | Final Relic List & Modifiers for Campaign 1 | P1 | BACKLOG |
+| [TASK-011](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-011-character-art-production.md) | Character Art Asset Production | P2 | BACKLOG |
+| [TASK-012](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-012-ball-art-production.md) | Ball Sprite & Visual State Asset Production | P2 | BACKLOG |
+| [TASK-013](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-013-wall-art-production.md) | Wall & Fortification Multi-State Art Production | P2 | BACKLOG |
+| [TASK-014](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-014-cutscene-art-production.md) | Comic Cutout & Takeover Cutscene Art | P2 | BACKLOG |
+| [TASK-015](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-015-relic-art-production.md) | Relic Icon & Item Visual Asset Production | P2 | BACKLOG |
+| [TASK-016](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-016-typography-and-text-effects.md) | Typography & Comic Text Effect Specifications | P2 | BACKLOG |
+| [TASK-017](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-017-ui-art-and-telemetry-panels.md) | UI Art, Frames, and Telemetry Terminal Production | P2 | BACKLOG |
+
