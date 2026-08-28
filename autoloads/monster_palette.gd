@@ -1,12 +1,12 @@
 extends RefCounted
 class_name MonsterPalette
-## Semantic UI + theme colors — RGB from Lospec "Monsters Also Die" via Constants autoload (single hex source).
+## Semantic UI + theme colors — RGB from Lospec "Monsters Also Die" via Constants (single hex source).
 ## https://lospec.com/palette-list/monsters-also-die
-## Uses Engine.get_singleton("Constants") so this global class compiles before autoloads finish registering.
-## Static functions (not typed static vars with getters) keep GDScript compatible across 4.x editor/parser versions.
+
+const _CONSTANTS = preload("res://autoloads/constants.gd")
 
 static func _C():
-	return Engine.get_singleton("Constants")
+	return _CONSTANTS
 
 static func VOID() -> Color:
 	var c = _C()

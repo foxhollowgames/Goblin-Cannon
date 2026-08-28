@@ -372,6 +372,8 @@ func _wire_signals() -> void:
 			_board.ball_exited_board.connect(_on_ball_exited_board)
 		if _board.has_signal("leech_drain"):
 			_board.leech_drain.connect(_on_leech_drain)
+		if _board.has_signal("gold_gained"):
+			_board.gold_gained.connect(_on_gold_gained)
 	if _milestone_tracker and _milestone_tracker.has_signal("milestone_reached"):
 		_milestone_tracker.milestone_reached.connect(_on_milestone_reached)
 	if _combat_manager:
@@ -385,6 +387,9 @@ func _wire_signals() -> void:
 		_rewards_manager.boss_reward_completed.connect(_on_boss_reward_completed)
 	if _energy_router and _energy_router.has_signal("energy_allocated"):
 		_energy_router.energy_allocated.connect(_on_energy_allocated_vfx)
+	if _battlefield and _battlefield.has_method("set_main_cannon"):
+		var mc: Node = _systems_container.get_node_or_null("MainCannon") if _systems_container else null
+		_battlefield.set_main_cannon(mc)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if not event is InputEventKey:
@@ -431,6 +436,8 @@ func _disconnect_signals() -> void:
 			_board.ball_exited_board.disconnect(_on_ball_exited_board)
 		if _board.has_signal("leech_drain") and _board.leech_drain.is_connected(_on_leech_drain):
 			_board.leech_drain.disconnect(_on_leech_drain)
+		if _board.has_signal("gold_gained") and _board.gold_gained.is_connected(_on_gold_gained):
+			_board.gold_gained.disconnect(_on_gold_gained)
 	if _milestone_tracker and _milestone_tracker.has_signal("milestone_reached"):
 		_milestone_tracker.milestone_reached.disconnect(_on_milestone_reached)
 	if _combat_manager:
@@ -502,6 +509,12 @@ func _on_leech_drain(amount_display: int, alignment: int, peg_id: int) -> void:
 	var internal: int = amount_display * Constants.ENERGY_SCALE
 	if _center_panel_ui and _center_panel_ui.has_method("show_energy_gain"):
 		_center_panel_ui.show_energy_gain(internal, 0, 0, peg_pos, 0)
+
+func _on_gold_gained(amount: int, origin_position: Vector2) -> void:
+	if _center_panel_ui and _center_panel_ui.has_method("show_gold_gain"):
+		_center_panel_ui.show_gold_gain(amount, origin_position)
+	elif GameState:
+		GameState.add_run_gold(amount)
 
 func _on_ball_ability_on_peg_hit(_status_effects: Dictionary) -> void:
 	pass
@@ -938,15 +951,15 @@ func _build_debug_tools_column() -> Control:
 	col.position = Vector2(8, 8)
 	col.add_theme_constant_override("separation", 4)
 	col.process_mode = Node.PROCESS_MODE_ALWAYS
-	var gold_btn: Button = _build_debug_tool_button("+100 Gold", "Add 100 gold (debug)")
+	var gold_btn: Button = _build_debug_tool_button("+100 Gold", "Add +100 gold to your run (debug)")
 	gold_btn.pressed.connect(_on_debug_add_gold_pressed)
-	var shop_btn: Button = _build_debug_tool_button("Shop", "Open milestone shop (debug)")
+	var shop_btn: Button = _build_debug_tool_button("Merchant", "Trigger merchant shop immediately (debug)")
 	shop_btn.pressed.connect(_on_debug_milestone_shop_pressed)
-	var events_btn: Button = _build_debug_tool_button("Events", "Spawn or trigger event types (debug)")
+	var events_btn: Button = _build_debug_tool_button("Events", "Spawn or trigger board event types (debug)")
 	events_btn.pressed.connect(_on_debug_spawn_event_menu_pressed)
-	var full_store_btn: Button = _build_debug_tool_button("Full store", "Buy any ball, peg, wall, or boss upgrade (debug)")
+	var full_store_btn: Button = _build_debug_tool_button("Full store", "Open catalog to purchase any item directly (debug)")
 	full_store_btn.pressed.connect(_on_debug_full_store_pressed)
-	var city_jump_btn: Button = _build_debug_tool_button("Go to city…", "Jump to any city and world (wall) (debug)")
+	var city_jump_btn: Button = _build_debug_tool_button("Go to city…", "Jump directly to any city and wall index (debug)")
 	city_jump_btn.pressed.connect(_on_debug_city_jump_pressed)
 	col.add_child(gold_btn)
 	col.add_child(shop_btn)
@@ -1142,7 +1155,7 @@ func _create_debug_city_jump_ui(main: Node) -> void:
 func _build_almanac_button() -> Button:
 	var btn: Button = Button.new()
 	btn.text = ""
-	btn.tooltip_text = "Almanac (A)"
+	btn.tooltip_text = "Almanac (A): Open the catalog of all balls, pegs, and relics."
 	btn.custom_minimum_size = Vector2(36, 32)
 	btn.position = Vector2(198, 8)
 	btn.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -1193,7 +1206,7 @@ func _create_book_icon_image() -> Image:
 func _build_bag_button() -> Button:
 	var btn: Button = Button.new()
 	btn.text = ""
-	btn.tooltip_text = "Inventory (I / Esc)"
+	btn.tooltip_text = "Inventory (I / Esc): Open your run items, stats, and relic inventory."
 	btn.custom_minimum_size = Vector2(36, 32)
 	btn.position = Vector2(240, 8)  # to the right of almanac (198 + 36 + 6 gap)
 	btn.process_mode = Node.PROCESS_MODE_ALWAYS

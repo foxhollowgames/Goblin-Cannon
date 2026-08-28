@@ -34,6 +34,16 @@ function winTryCursorBin(p: string): string | null {
     }
   }
 
+  /**
+   * In `resources\\app\\bin`, prefer `cursor.cmd` over `cursor.exe`: the `.exe` there is still the
+   * GUI/Electron entry; `cursor agent …` must go through the `.cmd` shim or argv is handled like
+   * "open these paths" (stray **agent** tab).
+   */
+  if (base === "cursor.exe") {
+    const cmd = join(dir, "cursor.cmd");
+    if (isFile(cmd)) return cmd;
+  }
+
   if (isFile(p)) return p;
   const lower = p.toLowerCase();
   if (lower.endsWith(".cmd") || lower.endsWith(".exe")) return null;
@@ -44,9 +54,24 @@ function winTryCursorBin(p: string): string | null {
   return null;
 }
 
+/**
+ * `CURSOR_CLI` often points at `%LOCALAPPDATA%\\Programs\\cursor\\Cursor.exe` (the app). That
+ * binary does not treat `agent` as the CLI subcommand — it opens editor tabs named **agent**.
+ * The real launcher is `resources\\app\\bin\\cursor.cmd` under the same install root.
+ */
+function winRedirectRootCursorExeToBinCmd(p: string): string | null {
+  if (process.platform !== "win32" || !p) return null;
+  const base = basename(p);
+  if (!/^cursor\.exe$/i.test(base)) return null;
+  const underBin = join(dirname(p), "resources", "app", "bin", "cursor.cmd");
+  if (isFile(underBin)) return underBin;
+  return null;
+}
+
 function finalizeWin(p: string): string {
   if (process.platform !== "win32") return p;
-  return winTryCursorBin(p) ?? p;
+  const tried = winTryCursorBin(p) ?? p;
+  return winRedirectRootCursorExeToBinCmd(tried) ?? tried;
 }
 
 /** `agent.cmd` often delegates to PowerShell `cursor-agent.ps1`, which mishandles a lone `-` stdin marker. Prefer a native `agent.exe` in the same folder when present. */

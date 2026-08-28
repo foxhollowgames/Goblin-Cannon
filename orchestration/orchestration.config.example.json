@@ -20,6 +20,7 @@
   "deleteRemoteAgentBranch": true,
   "godotHeadlessTimeoutMs": 600000,
   "godotTestFixRetries": -1,
+  "executionRecoveryRetries": 2,
   "agentModelOptions": [],
   "limits": {
     "maxParallelWorktrees": 4

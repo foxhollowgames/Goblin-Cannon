@@ -24,6 +24,7 @@ config/features=PackedStringArray("4.6", "Forward Plus")
 GameState="*res://autoloads/game_state.gd"
 Constants="*res://autoloads/constants.gd"
 MilestoneShopData="*res://autoloads/milestone_shop_data.gd"
+KeywordDatabase="*res://autoloads/keyword_database.gd"
 TestScenario="*res://autoloads/test_scenario.gd"
 
 [display]

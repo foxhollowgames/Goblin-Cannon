@@ -37,6 +37,7 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/test_sticky_slime_event.gd",
 	"res://tests/test_black_hole_event.gd",
 	"res://tests/test_energize_event_pegs.gd",
+	"res://tests/test_keyword_database.gd",
 ]
 
 func _initialize() -> void:
@@ -65,6 +66,8 @@ func _run_all_tests() -> void:
 			continue
 
 		test_instance.run()
+		if test_instance.has_method("cleanup"):
+			test_instance.cleanup()
 
 		var passed: int = test_instance.passed
 		var failed: int = test_instance.failed

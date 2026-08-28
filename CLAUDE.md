@@ -10,10 +10,14 @@ Use this file as the **single entry point**. Do not explore the repo at random u
 | 2 | **`docs/ARCHITECTURE.md`** | Game design: pipeline, signals, managers, determinism, folder intent. |
 | 3 | **`.cursor/rules/testing.mdc`** | When and how to run headless tests (`tests/run_tests.gd`). |
 | 4 | **`.cursor/rules/godot-path.mdc`** | Full path to the Godot executable on this machine (for running tests). |
+| 5 | **`docs/ROADMAP.md`** | Master roadmap: 6-playthrough story campaign, incremental loop, comic UI. |
+| 6 | **`docs/tasks/README.md`** | Master task board: active tasks, workflow states, and priorities. |
+
 
 **Only if** the user is doing **backlog / planner / multi-step agent workflow** (not normal gameplay coding): **`docs/agent-orchestration.md`** — conventions for planning vs implementation, isolation, quality loop.
 
 **Do not** treat **`docs/cursor-orchestration-plan.md`** as a second spec — it is a short pointer to the canonical orchestration doc (avoids duplicate reading).
+
 
 ---
 

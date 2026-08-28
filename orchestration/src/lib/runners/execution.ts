@@ -13,6 +13,40 @@ import {
 import { formatAttachmentContextForPrompt } from "../attachments.js";
 
 const TEST_FAILURE_LOG_MAX = 10_000;
+const EXECUTION_RECOVERY_LOG_MAX = 10_000;
+
+/** Injected when the pipeline retries the execution phase after a failed CLI run or no-op. */
+export type ExecutionRecoveryContext = {
+  /** 1-based attempt index for this task round (includes the first try). */
+  attempt: number;
+  /** Total attempts allowed for this round (1 + executionRecoveryRetries). */
+  maxAttempts: number;
+  reason: "no_git_changes" | "nonzero_exit";
+  exitCode?: number;
+  logExcerpt: string;
+};
+
+export function formatExecutionRecoveryBlock(
+  ctx: ExecutionRecoveryContext
+): string {
+  const reasonLine =
+    ctx.reason === "no_git_changes"
+      ? "The last run exited **0** but produced **no tracked file changes** in this worktree (or `requireExecutionGitChanges` detected an empty run). You must edit/create/delete files under the worktree root so `git status` shows changes."
+      : `The Cursor/agent CLI exited **${ctx.exitCode ?? "?"}** without leaving usable worktree changes. Fix the cause (API key, headless flags, wrong cwd, or incomplete edits) and complete the task.`;
+
+  return [
+    "## PREVIOUS EXECUTION ATTEMPT FAILED (automated recovery)",
+    `Recovery attempt **${ctx.attempt}** of **${ctx.maxAttempts}** for this task round — the pipeline is re-invoking you with the last captured output.`,
+    "",
+    reasonLine,
+    "",
+    "**Recent agent CLI stdout/stderr (tail):**",
+    "```",
+    ctx.logExcerpt.slice(-EXECUTION_RECOVERY_LOG_MAX),
+    "```",
+    "",
+  ].join("\n");
+}
 
 /** Injected into the execution prompt after a failed Godot run when the pipeline retries. */
 export type TestFailureRetryContext = {
@@ -56,7 +90,8 @@ export function formatTestFailureRetryBlock(ctx: TestFailureRetryContext): strin
 function buildExecutionPrompt(
   run: RunState,
   task: Task,
-  testFailureRetry?: TestFailureRetryContext
+  testFailureRetry?: TestFailureRetryContext,
+  executionRecovery?: ExecutionRecoveryContext
 ): string {
   const template = readFileSync(promptPath("execution.md"), "utf8");
   const acc = task.acceptance.map((a) => `- ${a}`).join("\n");
@@ -70,6 +105,9 @@ function buildExecutionPrompt(
     .replace(/\{\{TASK_ACCEPTANCE\}\}/g, acc)
     .replace(/\{\{TASK_FILES_HINT\}\}/g, hints)
     .replace(/\{\{WORKTREE_CWD\}\}/g, worktree);
+  const recoveryBlock = executionRecovery
+    ? "\n\n" + formatExecutionRecoveryBlock(executionRecovery) + "\n"
+    : "";
   const retryBlock = testFailureRetry
     ? "\n\n" + formatTestFailureRetryBlock(testFailureRetry) + "\n"
     : "";
@@ -82,6 +120,7 @@ function buildExecutionPrompt(
     "",
     body,
     attachmentBlock,
+    recoveryBlock,
     retryBlock,
   ].join("\n");
 }
@@ -96,7 +135,10 @@ export async function runExecution(
   run: RunState,
   task: Task,
   pipelineRunId?: string,
-  execOpts?: { testFailureRetry?: TestFailureRetryContext }
+  execOpts?: {
+    testFailureRetry?: TestFailureRetryContext;
+    executionRecovery?: ExecutionRecoveryContext;
+  }
 ): Promise<ExecutionResult> {
   const cfg = loadConfig();
   const persisted = getRun(run.id);
@@ -116,6 +158,8 @@ export async function runExecution(
         const mrLbl = Number.isFinite(mr) ? String(Math.trunc(mr)) : "∞";
         return `--- Execution (fix retry ${execOpts.testFailureRetry.executionRound}/${mrLbl}): ${task.title} ---\n`;
       })()
+    : execOpts?.executionRecovery
+      ? `--- Execution (recovery ${execOpts.executionRecovery.attempt}/${execOpts.executionRecovery.maxAttempts}): ${task.title} ---\n`
     : `--- Execution: task ${task.title} ---\n`;
   publish(run.id, retryHdr);
 
@@ -130,7 +174,8 @@ export async function runExecution(
   const prompt = buildExecutionPrompt(
     run,
     task,
-    execOpts?.testFailureRetry
+    execOpts?.testFailureRetry,
+    execOpts?.executionRecovery
   );
   const res = await runCursorAgent({
     prompt,
@@ -186,6 +231,10 @@ export async function runExecution(
     metadata.testFixRetryExecutionRound = execOpts.testFailureRetry.executionRound;
     const mr = execOpts.testFailureRetry.maxRounds;
     metadata.testFixRetryMaxRounds = Number.isFinite(mr) ? mr : "unlimited";
+  }
+  if (execOpts?.executionRecovery) {
+    metadata.executionRecoveryAttempt = execOpts.executionRecovery.attempt;
+    metadata.executionRecoveryMaxAttempts = execOpts.executionRecovery.maxAttempts;
   }
   appendOutcome(run, {
     id: newId("out"),

@@ -68,7 +68,7 @@ func _ready() -> void:
 	title_row.add_theme_constant_override("separation", 12)
 	_title_label = Label.new()
 	_title_label.name = "Title"
-	_title_label.text = "Conquest reward – Choose a major upgrade"
+	_title_label.text = "Conquest Reward — Choose a Relic"
 	_title_label.add_theme_font_size_override("font_size", 24)
 	_title_label.add_theme_color_override("font_color", Color(0.95, 0.7, 0.35, 1))
 	_title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -76,7 +76,7 @@ func _ready() -> void:
 	title_row.add_child(_title_label)
 	var hide_btn: Button = Button.new()
 	hide_btn.text = "Hide"
-	hide_btn.tooltip_text = "Hide this screen to view the board or open inventory (I)."
+	hide_btn.tooltip_text = "Hide this draft screen to inspect the board. Press I to open Inventory."
 	hide_btn.pressed.connect(_on_hide_overlay_pressed)
 	title_row.add_child(hide_btn)
 	vbox.add_child(title_row)
@@ -87,7 +87,7 @@ func _ready() -> void:
 	_skip_btn = Button.new()
 	_skip_btn.text = "Skip"
 	_skip_btn.visible = false
-	_skip_btn.tooltip_text = "Take no treasure upgrade this time."
+	_skip_btn.tooltip_text = "Skip this relic reward."
 	_skip_btn.mouse_filter = Control.MOUSE_FILTER_STOP
 	var skip_style: StyleBoxFlat = StyleBoxFlat.new()
 	skip_style.bg_color = Color(0.12, 0.1, 0.14, 1)
@@ -202,13 +202,19 @@ func _make_card(pick: Resource, index: int) -> Control:
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	card_vbox.add_child(name_label)
-	var desc_label: Label = Label.new()
-	desc_label.text = desc_str
-	desc_label.add_theme_font_size_override("font_size", 14)
-	desc_label.add_theme_color_override("font_color", Color(0.8, 0.75, 0.85, 1))
-	desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	var desc_label: RichTextLabel = RichTextLabel.new()
+	desc_label.bbcode_enabled = true
+	desc_label.fit_content = true
+	desc_label.scroll_active = false
+	desc_label.mouse_filter = Control.MOUSE_FILTER_PASS
 	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	desc_label.custom_minimum_size = Vector2(180, 0)
+	desc_label.add_theme_font_size_override("normal_font_size", 14)
+	desc_label.add_theme_font_size_override("bold_font_size", 14)
+	desc_label.add_theme_font_size_override("italics_font_size", 14)
+	desc_label.add_theme_font_size_override("bold_italics_font_size", 14)
+	desc_label.add_theme_color_override("default_color", Color(0.8, 0.75, 0.85, 1))
+	KeywordDatabase.format_and_attach(desc_label, desc_str, KeywordDatabase.HIGHLIGHT_COLOR, "[center]", "[/center]")
 	card_vbox.add_child(desc_label)
 	var spacer: Control = Control.new()
 	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -218,6 +224,15 @@ func _make_card(pick: Resource, index: int) -> Control:
 	btn.text = "Select"
 	btn.pressed.connect(_on_pick_pressed.bind(index))
 	card_vbox.add_child(btn)
+
+	panel.mouse_entered.connect(func() -> void:
+		style.border_color = Color(1.0, 0.85, 0.35, 1.0)
+		style.bg_color = Color(0.16, 0.1, 0.22, 1.0)
+	)
+	panel.mouse_exited.connect(func() -> void:
+		style.border_color = Color(0.7, 0.4, 0.2, 1.0)
+		style.bg_color = Color(0.1, 0.06, 0.14, 1.0)
+	)
 	return panel
 
 func _on_pick_pressed(index: int) -> void:

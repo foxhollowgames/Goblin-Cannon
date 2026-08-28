@@ -40,6 +40,7 @@ func run() -> void:
 	test_boss_upgrade_picks_returns_requested_count()
 	test_apply_milestone_pick_basic_batch_with_stub()
 	test_apply_milestone_pick_ball_upgrade_with_stub()
+	test_relic_descriptions_use_standard_tags_and_no_deprecated_once()
 
 func _ensure_clean_state() -> void:
 	if GameState:
@@ -414,3 +415,14 @@ func test_apply_milestone_pick_ball_upgrade_with_stub() -> void:
 	rh.apply_milestone_pick(opt)
 	assert_true(stub.last_conversion != null, "conversion received a definition")
 	assert_eq(stub.last_conversion.ability_name, "Split", "ability forwarded")
+
+func test_relic_descriptions_use_standard_tags_and_no_deprecated_once() -> void:
+	begin("relic descriptions are non-empty, use colon structure, and avoid trailing 'Once.'")
+	var rh := _make_handler()
+	var all_defs: Array = rh.get_catalog_wall_break_major_definitions() + rh.get_catalog_boss_definitions() + rh.get_catalog_onboard_effect_definitions()
+	for d in all_defs:
+		if d is MajorUpgradeDefinition:
+			var desc: String = (d as MajorUpgradeDefinition).description
+			assert_false(desc.strip_edges().is_empty(), "desc not empty for %s" % d.display_name)
+			assert_false(desc.ends_with("Once."), "no trailing 'Once.' on %s" % d.display_name)
+			assert_true(desc.contains(":"), "uses standardized prefix/colon format on %s" % d.display_name)

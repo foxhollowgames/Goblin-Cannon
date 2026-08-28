@@ -48,32 +48,9 @@ func _create_ui() -> void:
 	add_child(_dim_layer)
 
 func _get_instruction_text() -> String:
-	match _peg_kind:
-		"bomb":
-			return "Click a peg to place a BOMB"
-		"trampoline":
-			return "Click a peg to place a TRAMPOLINE"
-		"goblin_reset":
-			return "Click a peg to place a GOBLIN RESET"
-		"eternal":
-			return "Click a peg to place an ETERNAL PEG"
-		"extreme_bouncer":
-			return "Click a peg to place an EXTREME BOUNCER"
-		"magnet":
-			return "Click a peg to place a MAGNET PEG"
-		"splitter":
-			return "Click a peg to place a SPLITTER PEG"
-		"gold":
-			return "Click a peg to place a GOLD PEG"
-		"lucky_gold":
-			return "Click a peg to place a LUCKY GOLD PEG"
-		"gravity_well":
-			return "Click a peg to place a GRAVITY WELL"
-		"phase":
-			return "Click a peg to place a PHASE PEG"
-		"wrench":
-			return "Click a peg to place a WRENCH PEG"
-	return "Click a peg to convert"
+	var info: Dictionary = MilestoneShopData.PEG_SHOP_DISPLAY.get(_peg_kind, {})
+	var peg_name: String = info.get("name", _peg_kind.capitalize().replace("_", " "))
+	return "Click a peg to place a %s" % peg_name
 
 func _get_kind_ui_color() -> Color:
 	match _peg_kind:

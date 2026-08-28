@@ -1,8 +1,36 @@
 import { describe, expect, it } from "vitest";
 import {
+  formatExecutionRecoveryBlock,
   formatTestFailureRetryBlock,
   type TestFailureRetryContext,
 } from "./execution.js";
+
+describe("formatExecutionRecoveryBlock", () => {
+  it("includes attempt numbers and log excerpt", () => {
+    const s = formatExecutionRecoveryBlock({
+      attempt: 2,
+      maxAttempts: 3,
+      reason: "nonzero_exit",
+      exitCode: 1,
+      logExcerpt: "ERR: broken",
+    });
+    expect(s).toContain("attempt **2**");
+    expect(s).toContain("**3**");
+    expect(s).toContain("ERR: broken");
+    expect(s).toContain("exited **1**");
+  });
+
+  it("uses no-git wording when reason is no_git_changes", () => {
+    const s = formatExecutionRecoveryBlock({
+      attempt: 2,
+      maxAttempts: 3,
+      reason: "no_git_changes",
+      exitCode: 0,
+      logExcerpt: "",
+    });
+    expect(s).toContain("no tracked file changes");
+  });
+});
 
 describe("formatTestFailureRetryBlock", () => {
   it("includes round numbers and log excerpt", () => {

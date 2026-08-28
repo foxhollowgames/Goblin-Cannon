@@ -14,30 +14,30 @@ var SHOP_ICON_NEUTRAL_TINT: Color:
 		return Constants.ui_shop_icon_neutral_tint()
 
 const STAT_DISPLAY: Dictionary = {
-	"main_charge": {"name": "Main Charge", "desc": "+5% energy to the main cannon per ball"},
-	"door_interval": {"name": "Faster Waves", "desc": "10% less wait between waves"},
-	"door_duration": {"name": "Longer Gate", "desc": "Gate stays open 10% longer"},
-	"cannon_damage": {"name": "Cannon Damage", "desc": "+5 damage per wall shot"},
-	"cannon_energy": {"name": "Cannon Energy", "desc": "Main cannon needs less energy to fire"},
-	"hopper_width": {"name": "Wider Hopper", "desc": "+10% hopper width (max 2×)"}
+	"main_charge": {"name": "Main Charge", "desc": "Main Cannon: +5% Energy gained per ball."},
+	"door_interval": {"name": "Faster Waves", "desc": "Gate: 10% less wait time between waves."},
+	"door_duration": {"name": "Longer Gate", "desc": "Gate: Stays open 10% longer per wave."},
+	"cannon_damage": {"name": "Cannon Damage", "desc": "Main Cannon: +5 damage per shot."},
+	"cannon_energy": {"name": "Cannon Energy", "desc": "Main Cannon: Requires less Energy to fire."},
+	"hopper_width": {"name": "Wider Hopper", "desc": "Hopper: +10% width (up to 2× max)."}
 }
 
 const PEG_SHOP_DISPLAY: Dictionary = {
-	"bomb": {"name": "Bomb Peg", "desc": "Blasts on hit. Place on an empty peg."},
-	"trampoline": {"name": "Trampoline Peg", "desc": "Launches balls upward hard."},
-	"goblin_reset": {"name": "Goblin Reset", "desc": "Catches balls and sends them to the top."},
-	"gold": {"name": "Gold Peg", "desc": "3× energy when hit."},
-	"splitter": {"name": "Splitter Peg", "desc": "Splits any ball into two."},
-	"eternal": {"name": "Eternal Peg", "desc": "At 0 HP: refills at once (no rest)."},
-	"extreme_bouncer": {"name": "Extreme Bouncer", "desc": "Very strong bounce."},
-	"magnet": {"name": "Magnet Peg", "desc": "Pulls nearby balls in."},
-	"lucky_gold": {"name": "Lucky Gold Peg", "desc": "Extra gold (1 or 5; better odds for 5)."},
-	"phase": {"name": "Phase Peg", "desc": "Turns solid and ghost on a timer."},
-	"wrench": {"name": "Wrench Peg", "desc": "Fixes nearby broken pegs when hit."},
-	"gravity_well": {"name": "Gravity Well Peg", "desc": "Slows balls near it."}
+	"bomb": {"name": "Bomb Peg", "desc": "Explodes on hit, damaging nearby pegs for bonus Energy. Place on any peg."},
+	"trampoline": {"name": "Trampoline Peg", "desc": "Launches balls upward with high force on hit. Place on any peg."},
+	"goblin_reset": {"name": "Goblin Reset", "desc": "Catches balls and returns them to the hopper. Place on any peg."},
+	"gold": {"name": "Gold Peg", "desc": "Grants 3× Energy when hit by a ball. Place on any peg."},
+	"splitter": {"name": "Splitter Peg", "desc": "Splits any ball that hits it into two balls. Place on any peg."},
+	"eternal": {"name": "Eternal Peg", "desc": "Instantly repairs its durability to full when broken. Place on any peg."},
+	"extreme_bouncer": {"name": "Extreme Bouncer", "desc": "Bounces balls with high speed. Place on any peg."},
+	"magnet": {"name": "Magnet Peg", "desc": "Pulls nearby balls toward itself. Place on any peg."},
+	"lucky_gold": {"name": "Lucky Gold Peg", "desc": "Grants +1 or +5 Gold when hit. Place on any peg."},
+	"phase": {"name": "Phase Peg", "desc": "Alternates between solid and ghost states on a timer. Place on any peg."},
+	"wrench": {"name": "Wrench Peg", "desc": "Instantly repairs nearby broken pegs when hit. Place on any peg."},
+	"gravity_well": {"name": "Gravity Well Peg", "desc": "Slows down balls that pass through its field. Place on any peg."}
 }
 
-## Peg kinds offered in the milestone shop pool (keep aligned with `RewardHandler._build_peg_shop_candidates`).
+## Peg kinds offered in the merchant shop pool (keep aligned with `RewardHandler._build_peg_shop_candidates`).
 const PEG_SHOP_KINDS: Array[String] = [
 	"bomb", "trampoline", "goblin_reset", "gold", "splitter", "eternal",
 	"extreme_bouncer", "magnet", "lucky_gold", "phase", "wrench", "gravity_well"
@@ -45,18 +45,18 @@ const PEG_SHOP_KINDS: Array[String] = [
 
 ## One-line blurbs under ball cards (title/icon colors stay independent of this copy).
 const BALL_SHOP_BLURB: Dictionary = {
-	"Plain": "Standard ball; hit pegs to send energy to the main cannon.",
-	"Split": "Splits into two balls when it hits pegs (once per peg visit).",
-	"Energize": "Pegs you hit charge faster for the main cannon.",
-	"Explosive": "Damages pegs in a radius on impact.",
-	"Chain Lightning": "Chains lightning to nearby pegs.",
-	"Leech": "Applies a draining status to pegs you hit.",
-	"Rubbery": "Extra bouncy; keeps speed across hits.",
-	"Phantom": "Passes through pegs while phasing.",
-	"Volatile": "Leaves buff gas clouds when you score.",
-	"Constellation": "Beams energy along lines between your balls.",
-	"Binary": "Splits paired balls when they collide.",
-	"Bloom": "Bloom-themed bonus interactions on peg hits."
+	"Plain": "Standard ball. Generates Energy on peg hits and at the bottom.",
+	"Split": "Splits into two balls on its first peg hit during a drop.",
+	"Energize": "Applies Energize to pegs. Energized pegs grant bonus Energy.",
+	"Explosive": "Triggers a blast on hit that damages nearby pegs.",
+	"Chain Lightning": "Discharges lightning that jumps to nearby pegs on hit.",
+	"Leech": "Applies Drain to pegs.",
+	"Rubbery": "High-bouncing ball that keeps speed across peg hits.",
+	"Phantom": "Intangible.",
+	"Volatile": "Releases gas clouds that accelerate balls on contact.",
+	"Constellation": "Fires laser beams between active balls on the board.",
+	"Binary": "Splits when it collides with another Binary ball.",
+	"Bloom": "Creates energy blooms on pegs that burst for bonus Energy."
 }
 
 func shop_blurb_for_ball_ability(ability: String) -> String:
@@ -68,4 +68,4 @@ func shop_blurb_for_ball_ability(ability: String) -> String:
 		var s: String = str(got).strip_edges()
 		if not s.is_empty():
 			return s
-	return "Milestone shop ball upgrade."
+	return "Merchant ball upgrade."

@@ -16,10 +16,16 @@ var _energy_flow_vfx_scene: PackedScene
 var _energy_gain_label: Label
 var _energy_gain_total: int = 0
 var _energy_gain_tween: Tween
+var _gold_gain_label: Label
+var _gold_gain_total: int = 0
+var _gold_gain_tween: Tween
+var _gold_pulse_tween: Tween
 var _conquest_animate_next: bool = false
 var _wall_cleared_flash_tween: Tween
 const ENERGY_GAIN_LABEL_FADE_DURATION: float = 1.2
 const ENERGY_GAIN_ACCUMULATE_THRESHOLD: float = 0.5
+const GOLD_GAIN_LABEL_FADE_DURATION: float = 1.2
+const GOLD_GAIN_ACCUMULATE_THRESHOLD: float = 0.5
 const COLOR_MAIN: Color = Color("#ffec99")
 const COLOR_CLEARED: Color = Color("#5d7545")
 
@@ -53,6 +59,8 @@ func _ready() -> void:
 	var ui: Node = get_parent()
 	if ui:
 		_run_gold_label = ui.get_node_or_null("LeftPanel/RunGold") as Label
+		if _run_gold_label:
+			_run_gold_label.add_theme_color_override("font_color", Color(0.94, 0.58, 0.20, 1.0))
 		var charge_bucket: Control = ui.get_node_or_null("CenterPanel/BottomEnergyPools/BucketsPanel/HBox/ChargeBucket/BarContainer") as Control
 		if charge_bucket:
 			_charge_bar = charge_bucket
@@ -262,3 +270,93 @@ func _on_main_gain_faded() -> void:
 		_energy_gain_label.queue_free()
 	_energy_gain_label = null
 	_energy_gain_total = 0
+
+## Gold gain VFX: spawns flying particles from origin to gold counter; increments gold only on arrival.
+func show_gold_gain(amount: int, origin_position: Vector2) -> void:
+	if amount <= 0:
+		return
+	var end_target: Control = _run_gold_label
+	if not end_target:
+		var ui: Node = get_parent()
+		if ui:
+			_run_gold_label = ui.get_node_or_null("LeftPanel/RunGold") as Label
+			end_target = _run_gold_label
+	if not end_target:
+		if GameState:
+			GameState.add_run_gold(amount)
+		return
+
+	var end_rect: Rect2 = end_target.get_global_rect()
+	var end_pos: Vector2 = end_rect.get_center()
+	var gold_color: Color = Color(0.92, 0.52, 0.16, 0.95)
+
+	if _energy_flow_vfx_scene:
+		var vfx: Control = _energy_flow_vfx_scene.instantiate() as Control
+		if vfx:
+			if vfx.has_method("setup"):
+				vfx.setup(origin_position, end_pos, gold_color, amount, true)
+			if vfx.has_method("set_arrival_callback"):
+				vfx.set_arrival_callback(_on_gold_arrived.bind(amount, end_pos))
+			var ui_layer: Node = get_parent()
+			if ui_layer:
+				ui_layer.add_child(vfx)
+			else:
+				add_child(vfx)
+	else:
+		_on_gold_arrived(amount, end_pos)
+
+func _on_gold_arrived(amount: int, end_pos: Vector2) -> void:
+	if GameState:
+		GameState.add_run_gold(amount)
+		set_run_gold(GameState.run_gold)
+	_show_gain_on_gold_label(end_pos, amount)
+	_pulse_gold_label()
+
+func _show_gain_on_gold_label(end_pos: Vector2, amount: int) -> void:
+	var reuse: bool = _gold_gain_label != null and is_instance_valid(_gold_gain_label) and _gold_gain_label.modulate.a > GOLD_GAIN_ACCUMULATE_THRESHOLD
+	if reuse:
+		_gold_gain_total += amount
+		_gold_gain_label.text = "+%d" % _gold_gain_total
+		if _gold_gain_tween and _gold_gain_tween.is_valid():
+			_gold_gain_tween.kill()
+	else:
+		_gold_gain_total = amount
+		if _gold_gain_label and is_instance_valid(_gold_gain_label):
+			_gold_gain_label.queue_free()
+		_gold_gain_label = Label.new()
+		_gold_gain_label.text = "+%d" % _gold_gain_total
+		_gold_gain_label.position = end_pos + Vector2(40, -10)
+		_gold_gain_label.add_theme_font_size_override("font_size", 16)
+		_gold_gain_label.add_theme_color_override("font_color", Color(0.94, 0.58, 0.20, 1.0))
+		_gold_gain_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var ui_parent: Node = get_parent()
+		if ui_parent:
+			ui_parent.add_child(_gold_gain_label)
+		else:
+			add_child(_gold_gain_label)
+	_start_gold_gain_fade()
+
+func _start_gold_gain_fade() -> void:
+	if not _gold_gain_label or not is_instance_valid(_gold_gain_label):
+		return
+	_gold_gain_label.modulate.a = 1.0
+	var t: Tween = create_tween()
+	t.tween_property(_gold_gain_label, "modulate:a", 0.0, GOLD_GAIN_LABEL_FADE_DURATION).set_delay(0.3).set_trans(Tween.TRANS_LINEAR)
+	t.tween_callback(_on_gold_gain_faded)
+	_gold_gain_tween = t
+
+func _on_gold_gain_faded() -> void:
+	if _gold_gain_label and is_instance_valid(_gold_gain_label):
+		_gold_gain_label.queue_free()
+	_gold_gain_label = null
+	_gold_gain_total = 0
+
+func _pulse_gold_label() -> void:
+	if not _run_gold_label or not is_instance_valid(_run_gold_label):
+		return
+	_run_gold_label.pivot_offset = _run_gold_label.size * 0.5
+	if _gold_pulse_tween and _gold_pulse_tween.is_valid():
+		_gold_pulse_tween.kill()
+	_gold_pulse_tween = create_tween()
+	_gold_pulse_tween.tween_property(_run_gold_label, "scale", Vector2(1.15, 1.15), 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_gold_pulse_tween.tween_property(_run_gold_label, "scale", Vector2(1.0, 1.0), 0.12).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)

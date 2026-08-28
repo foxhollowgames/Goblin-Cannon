@@ -102,7 +102,7 @@ func _rebuild() -> void:
 	title_row.add_child(close_btn)
 
 	var hint: Label = Label.new()
-	hint.text = "Everything you can earn this run — numbers are how many you hold (balls / peg unlocks) or stacks (wall) or taken once (boss)."
+	hint.text = "Catalog of all run content. Quantities show owned balls, unlocked pegs, or upgrade stacks."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.add_theme_font_size_override("font_size", 11)
 	hint.add_theme_color_override("font_color", MonsterPalette.TAN())
@@ -162,7 +162,7 @@ func _build_balls_section(parent: VBoxContainer) -> void:
 		_add_tally_row(parent, label, n, remove_cb, name_color)
 
 func _build_pegs_section(parent: VBoxContainer) -> void:
-	_add_section_header(parent, "PEG UNLOCKS (milestone shop)")
+	_add_section_header(parent, "PEG UNLOCKS (Merchant)")
 	var pegs: Array = []
 	if _reward_handler and _reward_handler.has_method("get_catalog_peg_milestone_options"):
 		pegs = _reward_handler.get_catalog_peg_milestone_options()
@@ -193,7 +193,7 @@ func _build_pegs_section(parent: VBoxContainer) -> void:
 		_add_tally_row(parent, label, n, remove_cb)
 
 func _build_wall_section(parent: VBoxContainer) -> void:
-	_add_section_header(parent, "WALL BREAK UPGRADES")
+	_add_section_header(parent, "RELICS")
 	var list: Array = []
 	if _reward_handler and _reward_handler.has_method("get_catalog_wall_break_major_definitions"):
 		list = _reward_handler.get_catalog_wall_break_major_definitions()
@@ -234,7 +234,7 @@ func _wall_break_display_count(def: MajorUpgradeDefinition) -> int:
 			return GameState.get_wall_break_upgrade_stacks(uid)
 
 func _build_boss_section(parent: VBoxContainer) -> void:
-	_add_section_header(parent, "BOSS AMPLIFIERS")
+	_add_section_header(parent, "BOSS RELICS")
 	var list: Array = []
 	if _reward_handler and _reward_handler.has_method("get_catalog_boss_definitions"):
 		list = _reward_handler.get_catalog_boss_definitions()
@@ -330,7 +330,7 @@ func _add_tally_row(parent: VBoxContainer, label_text: String, count: int, on_re
 	if count > 0 and on_remove.is_valid():
 		var del_btn: Button = Button.new()
 		del_btn.text = "✕"
-		del_btn.tooltip_text = "Remove one from your run"
+		del_btn.tooltip_text = "Remove 1 stack from your current run."
 		del_btn.flat = true
 		del_btn.custom_minimum_size = Vector2(28, 24)
 		del_btn.process_mode = Node.PROCESS_MODE_ALWAYS

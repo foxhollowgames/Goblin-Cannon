@@ -54,20 +54,18 @@ Board does **not** emit per-hit signals; it accumulates energy per ball and emit
 
 ### 1.4 Determinism & Godot-Specific Pitfalls
 
-- **Physics**: Godot’s `RigidBody2D` and engine collision callbacks are **not** deterministic across machines or runs (ordering can diverge). For determinism, use **CharacterBody2D** or **custom kinematic integration** for balls. Do **not** depend on `body_entered` / `area_entered` signal order.
+- **Physics**: The project uses **Rapier2D** (`2d/physics_engine="Rapier2D"`) as the 2D physics engine for high stability, determinism, and elimination of ghost collisions.
 - **Event order within a tick**: **Board** is the **only** authority that buffers, sorts, and resolves peg-hit events. GameCoordinator does **not** sort peg hits; it only handles higher-level ordering (milestone, rewards, speed state). Board flushes **once per sim tick at end-of-sim-step**—never flush mid-step or you get inconsistent state.
-- **Time and floats**: Any gameplay outcome driven by float timers can drift. **Fix**: use **sim ticks** (simulation steps) for all gameplay timing. Define **SIM_TICKS_PER_SECOND = 60** (or your chosen rate) once; that is the simulation clock. Do **not** use `Engine.time_scale` for gameplay. **Game speed** (slow-mo, pause) has a **single authority**—see §1.10.
+- **Time and floats**: Any gameplay outcome driven by float timers can drift. **Fix**: use **sim ticks** (simulation steps) for all gameplay timing. Define **SIM_TICKS_PER_SECOND = 60** (or your chosen rate) once; that is the simulation clock. **Game speed** (slow-mo, pause) has a **single authority**—see §1.10.
 - **Integer energy**: All energy math is integer. **Remainder handling** is **locked** to one method only—see §1.7.
 
-### 1.5 Ball Physics Model (Deterministic Plinko)
+### 1.5 Ball Physics Model (Rapier2D RigidBody2D)
 
-The doc commits to **Approach A: Kinematic + manual bounce**.
+The project uses **Rapier2D engine-driven physics with RigidBody2D**:
 
-- **Implementation**: Balls use **CharacterBody2D** with **`move_and_collide()`**. Reflection is computed manually from the collision normal; no engine bounce randomness. Gravity and movement are applied **once per sim tick** when Board (or BallSystem) calls **`ball.step_one_sim_tick()`**—see §1.10 and §6.5. Balls do **not** move in their own `_physics_process`; that would desync under slow-mo.
-- **Pros**: Deterministic, controllable, real Plinko feel. **Cons**: You must tune bounce coefficient and friction (as config or constants) to feel good; Godot’s built-in kinematic response won’t “be” Plinko without that tuning.
-- **Alternative (not chosen for slice)**: Approach B—“fake Plinko” with overlap tests + RNG-seeded deflection, no true rigid physics. Use only if Approach A tuning proves too costly; it’s more stable and easier to cap chaos but less physical.
-
-**Commitment**: Slice uses Approach A. All ball motion is driven by your kinematic integration and reflection logic, not RigidBody2D or engine physics for ball movement.
+- **Implementation**: Balls extend **`RigidBody2D`** with physics materials configuring restitution and friction. Rapier2D handles integration, collision resolution, and bounces. Contact monitoring reports colliding bodies to `Board`. Board queries colliding peg bodies in `step_one_sim_tick()` to register hits and energy.
+- **Benefits**: Real physical Plinko behavior, high solver performance, stable stacking in hopper/conduit, and zero ghost collisions.
+- **Hit Detection**: Board resolves hits from colliding peg contacts returned per sim tick, enforcing per-ball per-peg hit cooldowns (§1.6).
 
 ### 1.6 Hit Registration Rules
 
