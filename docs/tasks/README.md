@@ -26,6 +26,17 @@ All tasks use structured Markdown with status, priority, and clear acceptance cr
 | [TASK-005](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-005-full-screen-conquest-cutscenes.md) | Full-Screen Wall Break Conquest Cinematics | UI/Cinematics | P2 | BACKLOG | `feature/conquest-cinematics` |
 | [TASK-006](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-006-comic-book-feel-art-style.md) | Comic Book Feel — Art Style Not Determined | Art Direction | P2 | BACKLOG | `feature/comic-book-feel` |
 | [TASK-007](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-007-pr-workflow-and-version-control.md) | Git Branch and Pull Request Protocol | DevOps | P0 | DONE | `feature/roadmap-and-task-management` |
+| [TASK-008](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-008-build-archetypes-and-synergies.md) | Build Archetypes & Synergy Design | Design/Systems | P1 | READY | `feature/build-synergies-design` |
+| [TASK-009](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-009-final-ball-list-campaign-1.md) | Final Ball List & Abilities for Campaign 1 | Systems/Gameplay | P1 | BACKLOG | `feature/final-ball-list-campaign-1` |
+| [TASK-010](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-010-final-relic-list-campaign-1.md) | Final Relic List & Modifiers for Campaign 1 | Systems/Gameplay | P1 | BACKLOG | `feature/final-relic-list-campaign-1` |
+| [TASK-011](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-011-character-art-production.md) | Character Art Asset Production | Art Production | P2 | BACKLOG | `feature/character-art-production` |
+| [TASK-012](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-012-ball-art-production.md) | Ball Sprite & Visual State Asset Production | Art Production | P2 | BACKLOG | `feature/ball-art-production` |
+| [TASK-013](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-013-wall-art-production.md) | Wall & Fortification Multi-State Art Production | Art Production | P2 | BACKLOG | `feature/wall-art-production` |
+| [TASK-014](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-014-cutscene-art-production.md) | Comic Cutout & Takeover Cutscene Art | Art Production | P2 | BACKLOG | `feature/cutscene-art-production` |
+| [TASK-015](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-015-relic-art-production.md) | Relic Icon & Item Visual Asset Production | Art Production | P2 | BACKLOG | `feature/relic-art-production` |
+| [TASK-016](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-016-typography-and-text-effects.md) | Typography & Comic Text Effect Specifications | Art/UI | P2 | BACKLOG | `feature/comic-typography` |
+| [TASK-017](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-017-ui-art-and-telemetry-panels.md) | UI Art, Frames, and Telemetry Terminal Production | UI/Art | P2 | BACKLOG | `feature/ui-art-production` |
+
 
 ---
 
