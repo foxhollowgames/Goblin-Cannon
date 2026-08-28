@@ -4,47 +4,14 @@ extends Control
 const ITEMS_PER_PAGE: int = 12
 const TAB_COUNT: int = 5
 
-## Matches reward_draft_panel.gd STAT_DISPLAY (milestone stat cards).
-const _MILESTONE_STAT_UI: Dictionary = {
-	"main_charge": {"name": "Main Charge", "desc": "+5% energy to the main cannon per ball"},
-	"door_interval": {"name": "Faster Waves", "desc": "10% less wait between waves"},
-	"door_duration": {"name": "Longer Gate", "desc": "Gate stays open 10% longer"},
-	"cannon_damage": {"name": "Cannon Damage", "desc": "+5 damage per wall shot"},
-	"cannon_energy": {"name": "Cannon Energy", "desc": "Main cannon needs less energy to fire"},
-	"hopper_width": {"name": "Wider Hopper", "desc": "+10% hopper width (max 2×)"}
-}
+## Matches MilestoneShopData.STAT_DISPLAY (merchant stat cards).
+const _MILESTONE_STAT_UI: Dictionary = MilestoneShopData.STAT_DISPLAY
 
-## Same strings as reward_draft_panel.gd PEG_SHOP_DISPLAY (peg milestone shop cards).
-const _PEG_SHOP_DISPLAY: Dictionary = {
-	"bomb": {"name": "Bomb Peg", "desc": "Blasts on hit. Place on an empty peg."},
-	"trampoline": {"name": "Trampoline Peg", "desc": "Launches balls upward hard."},
-	"goblin_reset": {"name": "Goblin Reset", "desc": "Catches balls and sends them to the top."},
-	"gold": {"name": "Gold Peg", "desc": "3× energy when hit."},
-	"splitter": {"name": "Splitter Peg", "desc": "Splits any ball into two."},
-	"eternal": {"name": "Eternal Peg", "desc": "At 0 HP: refills at once (no rest)."},
-	"extreme_bouncer": {"name": "Extreme Bouncer", "desc": "Very strong bounce."},
-	"magnet": {"name": "Magnet Peg", "desc": "Pulls nearby balls in."},
-	"lucky_gold": {"name": "Lucky Gold Peg", "desc": "Extra gold (1 or 5; better odds for 5)."},
-	"phase": {"name": "Phase Peg", "desc": "Turns solid and ghost on a timer."},
-	"wrench": {"name": "Wrench Peg", "desc": "Fixes nearby broken pegs when hit."},
-	"gravity_well": {"name": "Gravity Well Peg", "desc": "Slows balls near it."}
-}
+## Same strings as MilestoneShopData.PEG_SHOP_DISPLAY (peg merchant shop cards).
+const _PEG_SHOP_DISPLAY: Dictionary = MilestoneShopData.PEG_SHOP_DISPLAY
 
 ## One-line blurbs for ball rows (matches ability set in BallVisuals).
-const _BALL_ABILITY_BLURB: Dictionary = {
-	"Plain": "Standard ball; hit pegs to send energy to the main cannon.",
-	"Split": "Splits into two balls when it hits pegs (once per peg visit).",
-	"Energize": "Pegs you hit charge faster for the main cannon.",
-	"Explosive": "Damages pegs in a radius on impact.",
-	"Chain Lightning": "Chains lightning to nearby pegs.",
-	"Leech": "Applies a draining status to pegs you hit.",
-	"Rubbery": "Extra bouncy; keeps speed across hits.",
-	"Phantom": "Passes through pegs while phasing.",
-	"Volatile": "Leaves buff gas clouds when you score.",
-	"Constellation": "Fires lasers between pegs.",
-	"Binary": "Splits paired balls on collision.",
-	"Bloom": "Bloom-themed bonus interactions on hits."
-}
+const _BALL_ABILITY_BLURB: Dictionary = MilestoneShopData.BALL_SHOP_BLURB
 
 const _STAT_ICON_MAIN_CHARGE = preload("res://icons/ffffff/transparent/1x1/lorc/energy-arrow.svg")
 const _STAT_ICON_DOOR_INTERVAL = preload("res://icons/ffffff/transparent/1x1/delapouite/speedometer.svg")
@@ -278,9 +245,16 @@ func _milestone_stat_rarity_label(stat_id: String) -> String:
 		_:
 			return "Common"
 
-func _style_desc_label(lbl: Label) -> void:
-	lbl.add_theme_font_size_override("font_size", 11)
-	lbl.add_theme_color_override("font_color", Color(0.82, 0.8, 0.86, 1))
+func _style_desc_label(lbl: RichTextLabel) -> void:
+	lbl.bbcode_enabled = true
+	lbl.fit_content = true
+	lbl.scroll_active = false
+	lbl.mouse_filter = Control.MOUSE_FILTER_PASS
+	lbl.add_theme_font_size_override("normal_font_size", 11)
+	lbl.add_theme_font_size_override("bold_font_size", 11)
+	lbl.add_theme_font_size_override("italics_font_size", 11)
+	lbl.add_theme_font_size_override("bold_italics_font_size", 11)
+	lbl.add_theme_color_override("default_color", Color(0.82, 0.8, 0.86, 1))
 	lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	lbl.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
@@ -380,9 +354,9 @@ func _add_ball_row(row: HBoxContainer, def: BallDefinition) -> void:
 	title.text = "%s · %s" % [ab, Constants.ball_rarity_display_name(def.ability_name, def.rarity)]
 	title.add_theme_font_size_override("font_size", 14)
 	title.add_theme_color_override("font_color", BallVisuals.get_ability_theme_color(ab).lerp(Color(0.92, 0.92, 0.95, 1), 0.35))
-	var desc: Label = Label.new()
-	desc.text = _ball_blurb(ab)
+	var desc: RichTextLabel = RichTextLabel.new()
 	_style_desc_label(desc)
+	KeywordDatabase.format_and_attach(desc, _ball_blurb(ab))
 	text_col.add_child(title)
 	text_col.add_child(desc)
 	row.add_child(text_col)
@@ -415,9 +389,9 @@ func _add_stat_row(row: HBoxContainer, stat_id: String) -> void:
 	title.text = "%s · %s" % [ui.get("name", stat_id), _milestone_stat_rarity_label(stat_id)]
 	title.add_theme_font_size_override("font_size", 14)
 	title.add_theme_color_override("font_color", Color(0.95, 0.88, 1.0, 1))
-	var desc: Label = Label.new()
-	desc.text = String(ui.get("desc", ""))
+	var desc: RichTextLabel = RichTextLabel.new()
 	_style_desc_label(desc)
+	KeywordDatabase.format_and_attach(desc, String(ui.get("desc", "")))
 	text_col.add_child(title)
 	text_col.add_child(desc)
 	row.add_child(text_col)
@@ -445,9 +419,9 @@ func _add_onboard_row(row: HBoxContainer, def: MajorUpgradeDefinition) -> void:
 	title.text = def.display_name
 	title.add_theme_font_size_override("font_size", 14)
 	title.add_theme_color_override("font_color", Color(0.95, 0.88, 1.0, 1))
-	var desc: Label = Label.new()
-	desc.text = def.description
+	var desc: RichTextLabel = RichTextLabel.new()
 	_style_desc_label(desc)
+	KeywordDatabase.format_and_attach(desc, def.description)
 	text_col.add_child(title)
 	text_col.add_child(desc)
 	row.add_child(text_col)
@@ -477,9 +451,9 @@ func _add_peg_row(row: HBoxContainer, opt: MilestoneOption) -> void:
 	title.text = String(info.get("name", kind))
 	title.add_theme_font_size_override("font_size", 14)
 	title.add_theme_color_override("font_color", Color(0.95, 0.88, 1.0, 1))
-	var desc: Label = Label.new()
-	desc.text = String(info.get("desc", ""))
+	var desc: RichTextLabel = RichTextLabel.new()
 	_style_desc_label(desc)
+	KeywordDatabase.format_and_attach(desc, String(info.get("desc", "")))
 	text_col.add_child(title)
 	text_col.add_child(desc)
 	row.add_child(text_col)
@@ -522,9 +496,9 @@ func _add_wall_row(row: HBoxContainer, def: MajorUpgradeDefinition) -> void:
 	title.text = def.display_name
 	title.add_theme_font_size_override("font_size", 14)
 	title.add_theme_color_override("font_color", Color(0.95, 0.82, 0.55, 1))
-	var desc: Label = Label.new()
-	desc.text = def.description
+	var desc: RichTextLabel = RichTextLabel.new()
 	_style_desc_label(desc)
+	KeywordDatabase.format_and_attach(desc, def.description)
 	text_col.add_child(title)
 	text_col.add_child(desc)
 	row.add_child(text_col)
@@ -552,9 +526,9 @@ func _add_boss_row(row: HBoxContainer, def: MajorUpgradeDefinition) -> void:
 	title.text = def.display_name
 	title.add_theme_font_size_override("font_size", 14)
 	title.add_theme_color_override("font_color", Color(0.95, 0.65, 0.45, 1))
-	var desc: Label = Label.new()
-	desc.text = def.description
+	var desc: RichTextLabel = RichTextLabel.new()
 	_style_desc_label(desc)
+	KeywordDatabase.format_and_attach(desc, def.description)
 	text_col.add_child(title)
 	text_col.add_child(desc)
 	row.add_child(text_col)

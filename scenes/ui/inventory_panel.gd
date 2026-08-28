@@ -108,7 +108,7 @@ func _rebuild() -> void:
 
 	if GameState:
 		var gold_lbl: Label = Label.new()
-		gold_lbl.text = "Gold: %d  (milestone shop)" % GameState.run_gold
+		gold_lbl.text = "Gold: %d  (Merchant)" % GameState.run_gold
 		gold_lbl.add_theme_font_size_override("font_size", 16)
 		gold_lbl.add_theme_color_override("font_color", MonsterPalette.SWATCH_CREAM())
 		root_vbox.add_child(gold_lbl)
@@ -156,12 +156,12 @@ func _build_upgrades_section(parent: VBoxContainer) -> void:
 	var boss_upgrades: Dictionary = GameState.applied_boss_upgrades
 
 	if wall_upgrades.is_empty() and boss_upgrades.is_empty():
-		_add_section_header(parent, "UPGRADES")
+		_add_section_header(parent, "RELICS")
 		_add_body_text(parent, "  None yet")
 		return
 
 	if not wall_upgrades.is_empty():
-		_add_section_header(parent, "WALL BREAK UPGRADES")
+		_add_section_header(parent, "RELICS")
 		var ids: Array = wall_upgrades.keys()
 		ids.sort()
 		for uid in ids:
@@ -173,10 +173,10 @@ func _build_upgrades_section(parent: VBoxContainer) -> void:
 			_add_body_text(parent, "  %s" % name_str, MonsterPalette.SWATCH_CREAM())
 			var desc: String = info.get("description", "")
 			if not desc.is_empty():
-				_add_body_text(parent, "    %s" % desc, MonsterPalette.TAN().lerp(MonsterPalette.INDIGO(), 0.25), 12)
+				_add_rich_body_text(parent, "    %s" % desc, MonsterPalette.TAN().lerp(MonsterPalette.INDIGO(), 0.25), 12)
 
 	if not boss_upgrades.is_empty():
-		_add_section_header(parent, "BOSS AMPLIFIERS")
+		_add_section_header(parent, "BOSS RELICS")
 		var ids: Array = boss_upgrades.keys()
 		ids.sort()
 		for uid in ids:
@@ -185,7 +185,7 @@ func _build_upgrades_section(parent: VBoxContainer) -> void:
 			_add_body_text(parent, "  %s" % name_str, MonsterPalette.RUST())
 			var desc: String = info.get("description", "")
 			if not desc.is_empty():
-				_add_body_text(parent, "    %s" % desc, MonsterPalette.TAN().lerp(MonsterPalette.INDIGO(), 0.25), 12)
+				_add_rich_body_text(parent, "    %s" % desc, MonsterPalette.TAN().lerp(MonsterPalette.INDIGO(), 0.25), 12)
 
 func _build_stats_section(parent: VBoxContainer) -> void:
 	_add_section_header(parent, "CANNON")
@@ -231,9 +231,9 @@ func _build_stats_section(parent: VBoxContainer) -> void:
 	if GameState.peg_recovery_speed_scale > 1.0:
 		board_stats.append(["Peg Recovery Speed", "+%.0f%%" % ((GameState.peg_recovery_speed_scale - 1.0) * 100)])
 	if GameState.chest_leech_drain_stacks > 0:
-		board_stats.append(["Chest: Leech Drain", "+%d/sec" % GameState.chest_leech_drain_stacks])
+		board_stats.append(["Chest: Drain Rate", "+%d/sec" % GameState.chest_leech_drain_stacks])
 	if GameState.chest_leech_duration_stacks > 0:
-		board_stats.append(["Chest: Leech Duration", "+%ds" % GameState.chest_leech_duration_stacks])
+		board_stats.append(["Chest: Drain Duration", "+%ds" % GameState.chest_leech_duration_stacks])
 	if GameState.chest_phantom_energy_stacks > 0:
 		board_stats.append(["Chest: Phantom Hits", "+%d%%" % (GameState.chest_phantom_energy_stacks * 5)])
 	if GameState.chest_rubbery_energy_stacks > 0:
@@ -284,6 +284,21 @@ func _add_body_text(parent: VBoxContainer, text: String, color: Color = Color("#
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color)
 	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	parent.add_child(label)
+
+func _add_rich_body_text(parent: VBoxContainer, text: String, color: Color = Color("#d1a990"), font_size: int = 14) -> void:
+	var label: RichTextLabel = RichTextLabel.new()
+	label.bbcode_enabled = true
+	label.fit_content = true
+	label.scroll_active = false
+	label.mouse_filter = Control.MOUSE_FILTER_PASS
+	label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	label.add_theme_font_size_override("normal_font_size", font_size)
+	label.add_theme_font_size_override("bold_font_size", font_size)
+	label.add_theme_font_size_override("italics_font_size", font_size)
+	label.add_theme_font_size_override("bold_italics_font_size", font_size)
+	label.add_theme_color_override("default_color", color)
+	KeywordDatabase.format_and_attach(label, text)
 	parent.add_child(label)
 
 func _add_stat_row(parent: VBoxContainer, stat_name: String, value: String) -> void:

@@ -7,6 +7,7 @@ signal ball_exited_board(ball: Node, reason: int)
 ## When a ball finishes returning to the top play line (goblin grab, fragment echo, …). Hook upgrades here; peg types only drive the motion.
 signal ball_reset_to_top(ball: Node, reason: StringName)
 signal leech_drain(amount_display: int, alignment: int, peg_id: int)  ## Leech status on peg: periodic energy drain (5/sec for 10 sec).
+signal gold_gained(amount: int, origin_position: Vector2)
 
 const BALL_RESET_REASON_GOBLIN_GRAB: StringName = &"goblin_grab"
 const BALL_RESET_REASON_FRAGMENT_ECHO: StringName = &"fragment_echo"
@@ -794,8 +795,10 @@ func run_ball_steps(sim_tick: int) -> void:
 					var energy_this_hit: int = PEG_DISPLAY_ENERGY_PER_HIT
 					if ek_early == "gold" or ek_early == "lucky_gold":
 						energy_this_hit *= Constants.GOLD_PEG_ENERGY_MULTIPLIER
+						var gold_gain: int = 1
 						if GameState and GameState.has_boss_upgrade(&"gilded_covenant"):
-							GameState.add_run_gold(1)
+							gold_gain += 1
+						gold_gained.emit(gold_gain, peg.global_position)
 					# Overdrive Cascade (boss): all balls gain +1 legacy-display energy per hit during active window
 					if _overdrive_cascade_end_tick > 0 and sim_tick <= _overdrive_cascade_end_tick:
 						energy_this_hit += Constants.legacy_display_energy_to_current(1)

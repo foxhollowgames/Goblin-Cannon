@@ -403,7 +403,7 @@ static func ui_buckets_panel_border() -> Color:
 	return monsters_also_die_color(MAD_IDX_INDIGO)
 
 static func ui_run_gold_text() -> Color:
-	return monsters_also_die_color(MAD_IDX_CREAM)
+	return Color(0.94, 0.58, 0.20, 1.0)
 
 static func ui_bag_label_text() -> Color:
 	return monsters_also_die_color(MAD_IDX_TAN)

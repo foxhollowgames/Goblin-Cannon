@@ -27,7 +27,7 @@ func _make_combat_manager() -> Node:
 	var script: GDScript = load("res://scenes/main/combat_manager.gd")
 	var cm := Node.new()
 	cm.set_script(script)
-	return cm
+	return autofree(cm) as Node
 
 func _make_city() -> CityDefinition:
 	var city := CityDefinition.new()

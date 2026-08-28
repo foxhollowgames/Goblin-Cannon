@@ -163,9 +163,13 @@ func refresh_stash_gold_for_current_kind() -> void:
 func _release_stash_gold_if_any() -> void:
 	if stash_gold_amount <= 0:
 		return
-	if GameState:
-		GameState.add_run_gold(stash_gold_amount)
+	var amount: int = stash_gold_amount
 	stash_gold_amount = 0
+	var parent_node: Node = get_parent()
+	if parent_node and parent_node.has_signal("gold_gained"):
+		parent_node.emit_signal("gold_gained", amount, global_position)
+	elif GameState:
+		GameState.add_run_gold(amount)
 
 ## Goblin Reset pegs are always 1 hit then recovery (not affected by global durability bonus).
 func refresh_goblin_reset_durability() -> void:
@@ -763,14 +767,14 @@ func _draw_gold() -> void:
 	else:
 		var ratio: float = 1.0 if _max_durability <= 0 else (float(_durability) / float(_max_durability))
 		luminance = lerpf(0.35, 1.0, ratio * _vibrancy_scale)
-	var body_color := Color(0.95, 0.78, 0.15, 1.0)
+	var body_color := Color(0.78, 0.48, 0.14, 1.0)
 	body_color = Color(body_color.r * luminance, body_color.g * luminance, body_color.b * luminance, body_color.a)
 	draw_circle(Vector2.ZERO, r, body_color)
-	var rim_color := Color(1.0, 0.9, 0.4, luminance)
+	var rim_color := Color(0.86, 0.56, 0.18, luminance)
 	draw_arc(Vector2.ZERO, r + 2.0, 0.0, TAU, 24, rim_color, 3.0)
-	var inner_color := Color(1.0, 0.95, 0.6, 0.7 * luminance)
+	var inner_color := Color(0.82, 0.58, 0.22, 0.75 * luminance)
 	draw_circle(Vector2.ZERO, r * 0.5, inner_color)
-	var sparkle := Color(1.0, 1.0, 0.9, 0.85 * luminance)
+	var sparkle := Color(0.95, 0.76, 0.40, 0.85 * luminance)
 	draw_circle(Vector2(-r * 0.25, -r * 0.25), 1.5, sparkle)
 
 func _draw_lucky_gold() -> void:
@@ -1069,9 +1073,9 @@ func _draw_stash_gold_overlay() -> void:
 func _draw_stash_gold_overlay_one() -> void:
 	var p := Vector2(7.0, 7.0)
 	var coin_r: float = 5.5
-	draw_circle(p, coin_r, Color(0.98, 0.82, 0.18, 1.0))
-	draw_arc(p, coin_r - 1.0, 0.0, TAU, 24, Color(0.75, 0.55, 0.1, 1.0), 1.2)
-	draw_line(p + Vector2(-2.0, -1.0), p + Vector2(1.0, 2.0), Color(0.95, 0.9, 0.5, 0.9), 1.0)
+	draw_circle(p, coin_r, Color(0.80, 0.50, 0.14, 1.0))
+	draw_arc(p, coin_r - 1.0, 0.0, TAU, 24, Color(0.48, 0.26, 0.06, 1.0), 1.2)
+	draw_line(p + Vector2(-2.0, -1.0), p + Vector2(1.0, 2.0), Color(0.92, 0.68, 0.32, 0.9), 1.0)
 
 func _draw_stash_gold_overlay_five() -> void:
 	## Stacked coins + warm ring: reads clearly vs single small stash coin.
@@ -1079,19 +1083,19 @@ func _draw_stash_gold_overlay_five() -> void:
 	var front := Vector2(9.0, 8.5)
 	var r_back: float = 5.0
 	var r_front: float = 5.8
-	var gold_deep := Color(1.0, 0.72, 0.12, 1.0)
-	var gold_mid := Color(1.0, 0.88, 0.35, 1.0)
-	var rim := Color(0.55, 0.32, 0.05, 1.0)
-	var highlight := Color(1.0, 0.95, 0.65, 0.95)
-	draw_circle(back, r_back + 2.0, Color(1.0, 0.45, 0.08, 0.35))
-	draw_circle(front, r_front + 2.5, Color(1.0, 0.5, 0.1, 0.45))
+	var gold_deep := Color(0.72, 0.44, 0.12, 1.0)
+	var gold_mid := Color(0.82, 0.54, 0.18, 1.0)
+	var rim := Color(0.44, 0.22, 0.05, 1.0)
+	var highlight := Color(0.92, 0.70, 0.35, 0.95)
+	draw_circle(back, r_back + 2.0, Color(0.80, 0.35, 0.08, 0.35))
+	draw_circle(front, r_front + 2.5, Color(0.82, 0.38, 0.08, 0.45))
 	draw_circle(back, r_back, gold_deep.darkened(0.08))
 	draw_arc(back, r_back - 0.5, 0.0, TAU, 20, rim, 1.5, true)
 	draw_circle(front, r_front, gold_mid)
 	draw_arc(front, r_front - 1.0, 0.0, TAU, 24, rim, 1.8, true)
 	draw_line(front + Vector2(-2.2, -1.0), front + Vector2(1.2, 2.2), highlight, 1.2)
 	var bag_center: Vector2 = (back + front) * 0.5
-	draw_arc(bag_center, 12.0, 0.0, TAU, 40, Color(1.0, 0.42, 0.05, 0.55), 2.0, true)
+	draw_arc(bag_center, 12.0, 0.0, TAU, 40, Color(0.82, 0.35, 0.06, 0.55), 2.0, true)
 
 func _draw_ghost_trail_glow() -> void:
 	var r: float = Constants.PEG_RADIUS

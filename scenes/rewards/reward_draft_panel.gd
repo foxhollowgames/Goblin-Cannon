@@ -149,7 +149,7 @@ func _ready() -> void:
 	var title_row: HBoxContainer = HBoxContainer.new()
 	title_row.add_theme_constant_override("separation", 12)
 	var title: Label = Label.new()
-	title.text = "Milestone shop"
+	title.text = "Merchant"
 	title.add_theme_font_size_override("font_size", 20)
 	title.add_theme_color_override("font_color", Color(0.95, 0.85, 0.4, 1))
 	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
@@ -164,12 +164,12 @@ func _ready() -> void:
 	title_row.add_child(_gold_label)
 	_refresh_btn = Button.new()
 	_refresh_btn.text = "Refresh (%d gold)" % Constants.SHOP_REFRESH_COST
-	_refresh_btn.tooltip_text = "Reroll all five offers. Costs gold."
+	_refresh_btn.tooltip_text = "Reroll merchant offers for %d gold." % Constants.SHOP_REFRESH_COST
 	_refresh_btn.pressed.connect(_on_refresh_pressed)
 	title_row.add_child(_refresh_btn)
 	var hide_btn: Button = Button.new()
 	hide_btn.text = "Hide"
-	hide_btn.tooltip_text = "Hide this screen to view the board or open inventory (I)."
+	hide_btn.tooltip_text = "Hide the merchant screen to inspect the board. Press I to open Inventory."
 	hide_btn.pressed.connect(_on_hide_overlay_pressed)
 	title_row.add_child(hide_btn)
 	vbox.add_child(title_row)
@@ -195,7 +195,7 @@ func _ready() -> void:
 	vbox.add_child(done_row)
 	_done_btn = Button.new()
 	_done_btn.text = "Done"
-	_done_btn.tooltip_text = "Leave the shop. You can buy multiple offers before this."
+	_done_btn.tooltip_text = "Exit the Merchant and resume gameplay."
 	_done_btn.pressed.connect(_on_done_pressed)
 	_done_btn.custom_minimum_size = Vector2(220, 44)
 	_done_btn.add_theme_font_size_override("font_size", 18)
@@ -368,11 +368,19 @@ func _shop_category_label(category: String) -> Label:
 	lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	return lbl
 
-func _shop_style_desc_label(desc_label: Label) -> void:
-	desc_label.add_theme_font_size_override("font_size", SHOP_CARD_DESC_FONT)
-	desc_label.add_theme_color_override("font_color", MilestoneShopData.DESC_TEXT_COLOR)
+func _shop_style_desc_label(desc_label: RichTextLabel) -> void:
+	desc_label.bbcode_enabled = true
+	desc_label.fit_content = true
+	desc_label.scroll_active = false
+	desc_label.mouse_filter = Control.MOUSE_FILTER_PASS
+	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	desc_label.add_theme_font_size_override("normal_font_size", SHOP_CARD_DESC_FONT)
+	desc_label.add_theme_font_size_override("bold_font_size", SHOP_CARD_DESC_FONT)
+	desc_label.add_theme_font_size_override("italics_font_size", SHOP_CARD_DESC_FONT)
+	desc_label.add_theme_font_size_override("bold_italics_font_size", SHOP_CARD_DESC_FONT)
+	desc_label.add_theme_color_override("default_color", MilestoneShopData.DESC_TEXT_COLOR)
 	desc_label.custom_minimum_size = Vector2(max(8, SHOP_CARD_WIDTH - 16), SHOP_CARD_DESC_TWO_LINES_H)
-	desc_label.clip_text = true
+	KeywordDatabase.attach_rich_text_label(desc_label)
 
 func _shop_vbox_fill_spacer() -> Control:
 	var s: Control = Control.new()
@@ -381,9 +389,11 @@ func _shop_vbox_fill_spacer() -> Control:
 	s.custom_minimum_size = Vector2(0, 0)
 	return s
 
-## Labels/icons default to STOP and steal hits from the card PanelContainer; ignore so panel receives gui_input + hover.
+## Labels/icons default to STOP and steal hits from the card PanelContainer; ignore so panel receives gui_input + hover (except RichTextLabel hints).
 func _shop_ignore_mouse_recursive(node: Node) -> void:
-	if node is Control:
+	if node is RichTextLabel:
+		(node as Control).mouse_filter = Control.MOUSE_FILTER_PASS
+	elif node is Control:
 		(node as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
 	for c in node.get_children():
 		_shop_ignore_mouse_recursive(c)
@@ -677,11 +687,9 @@ func _make_basic_batch_card(index: int, price: int) -> Control:
 	card_vbox.add_child(title_label)
 	card_vbox.add_child(_shop_category_label("BALL"))
 	card_vbox.add_child(_make_basic_batch_ball_row())
-	var desc_label: Label = Label.new()
-	desc_label.text = "Adds plain balls to your hopper for the rest of this run."
-	desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var desc_label: RichTextLabel = RichTextLabel.new()
 	_shop_style_desc_label(desc_label)
+	KeywordDatabase.format_and_attach(desc_label, "Adds 10 Plain balls to your hopper for this run.", KeywordDatabase.HIGHLIGHT_COLOR, "[center]", "[/center]")
 	card_vbox.add_child(desc_label)
 	card_vbox.add_child(_shop_vbox_fill_spacer())
 	return _finalize_shop_offer(panel, price, index)
@@ -729,11 +737,10 @@ func _make_ball_card(def: BallDefinition, index: int, price: int) -> Control:
 	var preview_center: CenterContainer = CenterContainer.new()
 	preview_center.add_child(preview)
 	card_vbox.add_child(preview_center)
-	var ball_desc: Label = Label.new()
-	ball_desc.text = MilestoneShopData.shop_blurb_for_ball_ability(ab_for_title)
-	ball_desc.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	ball_desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var ball_desc: RichTextLabel = RichTextLabel.new()
 	_shop_style_desc_label(ball_desc)
+	var raw_blurb: String = MilestoneShopData.shop_blurb_for_ball_ability(ab_for_title)
+	KeywordDatabase.format_and_attach(ball_desc, raw_blurb, KeywordDatabase.HIGHLIGHT_COLOR, "[center]", "[/center]")
 	card_vbox.add_child(ball_desc)
 	card_vbox.add_child(_shop_vbox_fill_spacer())
 	return _finalize_shop_offer(panel, price, index)
@@ -768,11 +775,10 @@ func _make_peg_card(opt: MilestoneOption, index: int, price: int) -> Control:
 	card_vbox.add_child(title_label)
 	card_vbox.add_child(_shop_category_label("PEG"))
 	card_vbox.add_child(_make_peg_shop_sprite_preview(kind))
-	var desc_label: Label = Label.new()
-	desc_label.text = info.get("desc", "")
-	desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var desc_label: RichTextLabel = RichTextLabel.new()
 	_shop_style_desc_label(desc_label)
+	var raw_desc: String = info.get("desc", "")
+	KeywordDatabase.format_and_attach(desc_label, raw_desc, KeywordDatabase.HIGHLIGHT_COLOR, "[center]", "[/center]")
 	card_vbox.add_child(desc_label)
 	card_vbox.add_child(_shop_vbox_fill_spacer())
 	return _finalize_shop_offer(panel, price, index)
@@ -848,11 +854,10 @@ func _make_stat_card(opt: MilestoneOption, index: int, price: int) -> Control:
 	card_vbox.add_child(title_label)
 	card_vbox.add_child(_shop_category_label("STAT"))
 	card_vbox.add_child(_make_stat_upgrade_icon(stat_id, border_color))
-	var desc_label: Label = Label.new()
-	desc_label.text = info.get("desc", "")
-	desc_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	desc_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	var desc_label: RichTextLabel = RichTextLabel.new()
 	_shop_style_desc_label(desc_label)
+	var raw_stat_desc: String = info.get("desc", "")
+	KeywordDatabase.format_and_attach(desc_label, raw_stat_desc, KeywordDatabase.HIGHLIGHT_COLOR, "[center]", "[/center]")
 	card_vbox.add_child(desc_label)
 	card_vbox.add_child(_shop_vbox_fill_spacer())
 	return _finalize_shop_offer(panel, price, index)

@@ -53,20 +53,17 @@ func _ready() -> void:
 		_vfx_container = Node2D.new()
 		_vfx_container.name = "VFXContainer"
 		add_child(_vfx_container)
-	_connect_main_cannon()
 
 func _process(_delta: float) -> void:
 	if _cannon_visual and _cannon_visual.get_parent() != self:
 		_cannon_visual.global_position = global_position + _cannon_overlay_local_pos + Vector2(0.0, CANNON_OVERLAY_OFFSET_Y + _cannon_roll_offset_y)
 
-func _connect_main_cannon() -> void:
-	var main: Node = get_parent()
-	if main:
-		main = main.get_parent()
-	if main:
-		_main_cannon = main.get_node_or_null("SystemsContainer/MainCannon")
-		if _main_cannon and _main_cannon.has_signal("main_fired"):
-			_main_cannon.main_fired.connect(_on_main_fired)
+func set_main_cannon(cannon: Node) -> void:
+	if _main_cannon and _main_cannon.has_signal("main_fired") and _main_cannon.main_fired.is_connected(_on_main_fired):
+		_main_cannon.main_fired.disconnect(_on_main_fired)
+	_main_cannon = cannon
+	if _main_cannon and _main_cannon.has_signal("main_fired") and not _main_cannon.main_fired.is_connected(_on_main_fired):
+		_main_cannon.main_fired.connect(_on_main_fired)
 
 func _exit_tree() -> void:
 	if _main_cannon and _main_cannon.has_signal("main_fired") and _main_cannon.main_fired.is_connected(_on_main_fired):

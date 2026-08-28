@@ -8,6 +8,7 @@ import { publish } from "./log-bus.js";
 import { runPlanner } from "./runners/planner.js";
 import {
   runExecution,
+  type ExecutionRecoveryContext,
   type TestFailureRetryContext,
 } from "./runners/execution.js";
 import { runGodotTests, captureBaseline } from "./runners/testing.js";
@@ -33,6 +34,27 @@ function latestTestingOutcomeForTask(
     if (o.kind === "testing" && o.taskId === taskId) return o;
   }
   return undefined;
+}
+
+function latestExecutionOutcomeForTask(
+  run: RunState,
+  taskId: string
+): Outcome | undefined {
+  for (let i = run.outcomes.length - 1; i >= 0; i--) {
+    const o = run.outcomes[i]!;
+    if (o.kind === "execution" && o.taskId === taskId) return o;
+  }
+  return undefined;
+}
+
+function inferExecutionRecoveryReason(
+  o: Outcome | undefined
+): ExecutionRecoveryContext["reason"] {
+  if (!o) return "nonzero_exit";
+  if (o.exitCode === 0 && o.summary.includes("no git changes")) {
+    return "no_git_changes";
+  }
+  return "nonzero_exit";
 }
 
 function pipelineFinish(
@@ -159,6 +181,8 @@ async function executePipeline(
       const maxRounds = unlimitedFixRetries
         ? Number.POSITIVE_INFINITY
         : Math.max(1, 1 + Math.max(0, cfgTask.godotTestFixRetries));
+      const execRecoveryMax = Math.max(0, cfgTask.executionRecoveryRetries);
+      const maxExecAttempts = 1 + execRecoveryMax;
       let testFailureRetry: TestFailureRetryContext | undefined;
       let round = 0;
 
@@ -172,35 +196,88 @@ async function executePipeline(
         const roundLabel = unlimitedFixRetries
           ? `${round} (∞)`
           : `${round}/${maxRounds}`;
-        rLoop.pipelineMessage =
-          round === 1
-            ? `Executing: ${loopTask.title}`
-            : `Fix retry ${roundLabel}: ${loopTask.title}`;
-        touchRun(rLoop);
 
-        const execResult = await runExecution(
-          rLoop,
-          loopTask,
-          runId,
-          testFailureRetry ? { testFailureRetry } : undefined
-        );
-        if (execResult.pipelineAbort) {
-          pipelineAbort = execResult.pipelineAbort;
-          return;
+        let execAttempt = 0;
+        let executionRecoveryLeft = execRecoveryMax;
+
+        while (true) {
+          execAttempt += 1;
+          const rEx = getRun(runId);
+          if (!rEx || pipelineAbort) return;
+          const taskForExec = rEx.backlog.find((x) => x.id === taskId);
+          if (!taskForExec?.assignedWorktreePath) return;
+
+          const executionRecovery: ExecutionRecoveryContext | undefined =
+            execAttempt > 1
+              ? (() => {
+                  const last = latestExecutionOutcomeForTask(rEx, taskId);
+                  return {
+                    attempt: execAttempt,
+                    maxAttempts: maxExecAttempts,
+                    reason: inferExecutionRecoveryReason(last),
+                    exitCode: last?.exitCode,
+                    logExcerpt: last?.logTail ?? "(no log captured)",
+                  };
+                })()
+              : undefined;
+
+          rEx.pipelineMessage = executionRecovery
+            ? `Execution recovery ${execAttempt}/${maxExecAttempts}: ${taskForExec.title}`
+            : round === 1
+              ? `Executing: ${taskForExec.title}`
+              : `Fix retry ${roundLabel}: ${taskForExec.title}`;
+          touchRun(rEx);
+
+          const execResult = await runExecution(
+            rEx,
+            taskForExec,
+            runId,
+            {
+              ...(testFailureRetry ? { testFailureRetry } : {}),
+              ...(executionRecovery ? { executionRecovery } : {}),
+            }
+          );
+
+          if (execResult.pipelineAbort) {
+            if (executionRecoveryLeft > 0) {
+              executionRecoveryLeft -= 1;
+              publish(
+                runId,
+                `\n--- Execution produced no git changes — automated recovery (${executionRecoveryLeft} slot(s) left) ---\n`
+              );
+              if (isPipelineCancelled(runId)) return;
+              continue;
+            }
+            pipelineAbort = execResult.pipelineAbort;
+            return;
+          }
+
+          if (isPipelineCancelled(runId)) return;
+
+          const afterExec = getRun(runId)?.backlog.find((x) => x.id === taskId);
+          if (!afterExec) return;
+          if (afterExec.status === "failed") {
+            if (executionRecoveryLeft > 0) {
+              executionRecoveryLeft -= 1;
+              publish(
+                runId,
+                `\n--- Execution agent failed (non-zero exit) — automated recovery (${executionRecoveryLeft} slot(s) left) ---\n`
+              );
+              if (isPipelineCancelled(runId)) return;
+              continue;
+            }
+            pipelineAbort = "Execution agent failed (non-zero exit) after execution recovery retries — see execution outcomes in the log.";
+            return;
+          }
+
+          if (afterExec.status !== "testing" || !afterExec.assignedWorktreePath) {
+            return;
+          }
+          break;
         }
-
-        if (isPipelineCancelled(runId)) return;
 
         const afterExec = getRun(runId)?.backlog.find((x) => x.id === taskId);
-        if (!afterExec) return;
-        if (afterExec.status === "failed") {
-          pipelineAbort = "Execution agent failed (non-zero exit)";
-          return;
-        }
-
-        if (afterExec.status !== "testing" || !afterExec.assignedWorktreePath) {
-          return;
-        }
+        if (!afterExec?.assignedWorktreePath) return;
 
         const r1 = getRun(runId);
         if (r1) {

@@ -27,7 +27,7 @@ func _make_cannon() -> Node:
 	var script: GDScript = load("res://scenes/systems/main_cannon/main_cannon.gd")
 	var mc := Node.new()
 	mc.set_script(script)
-	return mc
+	return autofree(mc) as Node
 
 func test_add_energy_increases_current() -> void:
 	begin("add_energy increases current energy")

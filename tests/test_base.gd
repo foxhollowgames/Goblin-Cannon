@@ -7,9 +7,28 @@ var passed: int = 0
 var failed: int = 0
 var errors: Array[String] = []
 var _current_test: String = ""
+var _tracked_objects: Array[Object] = []
 
 func run() -> void:
 	push_error("TestBase.run() not overridden — subclass must implement run()")
+
+func autofree(obj: Object) -> Object:
+	if obj != null and obj not in _tracked_objects:
+		_tracked_objects.append(obj)
+	return obj
+
+func cleanup() -> void:
+	for obj in _tracked_objects:
+		if is_instance_valid(obj):
+			if obj is Node:
+				var node: Node = obj as Node
+				if node.get_parent():
+					node.get_parent().remove_child(node)
+				node.free()
+			elif not (obj is RefCounted):
+				obj.free()
+	_tracked_objects.clear()
+
 
 func begin(test_name: String) -> void:
 	_current_test = test_name

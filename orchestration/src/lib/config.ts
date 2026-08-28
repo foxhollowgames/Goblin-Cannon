@@ -67,6 +67,10 @@ const DEFAULTS: OrchestrationConfig = {
   godotHeadlessTimeoutMs: 600_000,
   /** Extra execution+test rounds after a failed Godot run, or **-1** for unlimited until pass. Default **-1**. */
   godotTestFixRetries: -1,
+  /**
+   * Extra full execution attempts after a failed execution phase (before Godot). See `OrchestrationConfig.executionRecoveryRetries`.
+   */
+  executionRecoveryRetries: 2,
   /** Extra `--model` ids merged into the dashboard catalog (`cursor-model-catalog.ts` + this). */
   agentModelOptions: [],
 };
@@ -191,6 +195,17 @@ function normalizeConfig(
           : Number(raw.godotTestFixRetries ?? DEFAULTS.godotTestFixRetries);
       if (n === -1) return -1;
       if (!Number.isFinite(n)) return DEFAULTS.godotTestFixRetries;
+      return Math.max(0, Math.floor(n));
+    })(),
+    executionRecoveryRetries: (() => {
+      const fromEnv = process.env.ORCH_EXECUTION_RECOVERY_RETRIES;
+      const n =
+        fromEnv !== undefined
+          ? Number(fromEnv)
+          : Number(
+              raw.executionRecoveryRetries ?? DEFAULTS.executionRecoveryRetries
+            );
+      if (!Number.isFinite(n)) return DEFAULTS.executionRecoveryRetries;
       return Math.max(0, Math.floor(n));
     })(),
     agentModelOptions: (() => {

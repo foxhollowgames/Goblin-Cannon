@@ -178,6 +178,13 @@ export interface OrchestrationConfig {
    */
   godotTestFixRetries: number;
   /**
+   * When the **execution** phase fails (CLI non-zero with no worktree changes, or exit 0 but no git
+   * changes while `requireExecutionGitChanges` is true), how many **extra** execution attempts to run
+   * with the previous CLI log injected into the prompt. **0** = fail immediately like older behavior.
+   * Default **2** (up to **3** execution invocations per task round before Godot). Env: `ORCH_EXECUTION_RECOVERY_RETRIES`.
+   */
+  executionRecoveryRetries: number;
+  /**
    * Preset model ids shown in the dashboard selector (Cursor CLI `--model`).
    * Override or extend in `orchestration.config.local.json`.
    */

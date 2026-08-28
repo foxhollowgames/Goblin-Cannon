@@ -33,5 +33,8 @@ orchestration/data/*
 !orchestration/data/.gitkeep
 orchestration/orchestration.config.local.json
 
+# Raw Asset Packs
+assets/
+
 # Git worktrees created by local orchestration (full repo copies; do not commit)
 goblin-cannon-agent-task_*/

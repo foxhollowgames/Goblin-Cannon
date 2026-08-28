@@ -21,6 +21,7 @@ func test_lucky_gold_stash_is_always_one_or_five() -> void:
 		peg.refresh_stash_gold_for_current_kind()
 		var a: int = int(peg.stash_gold_amount)
 		assert_true(a == 1 or a == 5, "stash amount should be 1 or 5, got %d" % a)
+		peg.free()
 
 func test_lucky_gold_five_rolls_more_often_than_plain_stash() -> void:
 	begin("lucky gold 5-stash rate exceeds plain peg stash rate (same seed space)")
@@ -39,6 +40,7 @@ func test_lucky_gold_five_rolls_more_often_than_plain_stash() -> void:
 		p_plain.refresh_stash_gold_for_current_kind()
 		if int(p_plain.stash_gold_amount) == 5:
 			plain_fives += 1
+		p_plain.free()
 	for j in range(n):
 		var p_lucky: Node = StaticBody2D.new()
 		p_lucky.set_script(peg_script)
@@ -48,4 +50,5 @@ func test_lucky_gold_five_rolls_more_often_than_plain_stash() -> void:
 		p_lucky.refresh_stash_gold_for_current_kind()
 		if int(p_lucky.stash_gold_amount) == 5:
 			lucky_fives += 1
+		p_lucky.free()
 	assert_gt(lucky_fives, plain_fives, "lucky gold should produce more 5-gold stashes than plain pegs")
