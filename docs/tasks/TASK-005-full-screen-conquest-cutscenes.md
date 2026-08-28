@@ -7,26 +7,30 @@
 
 ## Description
 
-Implement full-screen comic takeover cutscenes when major walls are breached (Wall 1, Wall 2, City Boss).
+Implement full-screen takeover cutscenes when the final city wall breaks in each level (Wall 1, Wall 2, and City Boss).
 
-## Requirements
+## Core Requirements
 
 1. **Trigger Condition:**
-   - Wall HP reaches 0 on Wall 1, Wall 2, or City Boss.
-   - Gameplay pauses cleanly.
+   - The final city wall breaks in a level (Wall 1, Wall 2, and City Boss).
 
-2. **Cinematic Sequence:**
-   - Full-screen comic panel overlay appears.
-   - 3-panel dynamic comic sequence:
-     1. Wall explosion / breach.
-     2. Enemy retreat or surrender.
-     3. Conquest reward chest presentation.
-   - Player taps or clicks to dismiss and select the conquest upgrade.
-   - Transition seamlessly into the next sector or city.
+2. **Cinematic Action:**
+   - A full-screen takeover cutscene triggers.
+   - The cutscene shows blowing up the city and taking the prize.
+   - The game moves to the next level and gameplay resumes.
+
+---
+
+## AI Ideas & Proposals (Optional / Pending User Decision)
+
+> [!NOTE]
+> - **Comic Splash Framing:** Present the full-screen takeover as a three-tier comic page with bold action lettering ("VICTORY!", "CITADEL BREACHED!").
+> - **Audio Cue:** Trigger a heavy explosion sound followed by victory comic fanfare.
+
+---
 
 ## Acceptance Criteria
 
-- [ ] Cinematic triggers reliably when wall HP reaches zero.
-- [ ] Visual transition does not desynchronize the physics simulation or reward state.
-- [ ] Player can skip or advance panels with keyboard or mouse input.
-- [ ] Memory frees properly after cutscene dismiss.
+- [ ] Wall break on Wall 1, Wall 2, and City Boss triggers the full-screen takeover cutscene.
+- [ ] Cutscene illustrates the city destruction and prize acquisition.
+- [ ] The game advances to the next level and gameplay resumes smoothly.

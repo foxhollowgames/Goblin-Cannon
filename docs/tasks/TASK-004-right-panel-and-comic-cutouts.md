@@ -7,26 +7,34 @@
 
 ## Description
 
-Transform the right-side battlefield panel into a high-clarity combat telemetry monitor.
-Add comic cutout action bubbles that show animated mini-cutscenes when weapons fire.
+Transform the right side panel into a communicative UI.
+Implement a cutout bubble that triggers when the cannon fires, showing a mini cutscene of the cannon firing and hitting the wall.
 
-## Requirements
+## Core Requirements
 
-1. **Right Panel Telemetry:**
-   - Real-time DPS meter and damage type breakdown.
-   - Energy routing gauges (Cannon, Sidearms, Shields).
-   - Enemy wave composition and fortification health bars.
-   - Status effect duration indicators (Fire, Frozen, Lightning).
+1. **Right Panel Communication UI:**
+   - Transform the right panel so the player notices and reads combat information easily.
 
-2. **Comic Action Bubbles:**
-   - Pop-in panel vignette triggers on main cannon and heavy sidearm fire.
-   - Animated comic art illustrates the character firing and the shell impacting the wall.
-   - Halftone action lines and comic typography ("KAPOW!", "BOOM!").
-   - Multi-state visuals reflect real-time health and stress states (Goblin expression, cannon heat, wall damage).
+2. **Comic Action Cutout Bubbles:**
+   - When the cannon fires, a cutout bubble appears on the screen.
+   - A tiny mini-cutscene plays in the cutout showing the cannon firing and hitting the active wall.
+   - The goblin is part of the mini-cutscene.
+   - The visual states of the goblin, cannon, and wall represent actual live health and damage values.
+   - Multi-state assets: Goblin states, cannon states, and wall degradation states.
+
+---
+
+## AI Ideas & Proposals (Optional / Pending User Decision)
+
+> [!NOTE]
+> - **Telemetry Dashboard Ideas:** Include energy routing meters, damage per second (DPS), and active status effect timers in the right panel.
+> - **Cutout Transition:** Use quick spring pop-in animations with comic speech bubble tails pointing toward the cannon.
+
+---
 
 ## Acceptance Criteria
 
-- [ ] Telemetry displays accurate, live combat numbers without UI lag.
-- [ ] Comic popup triggers correctly on firing events and dismisses without blocking input.
-- [ ] Multi-state sprites switch based on actual entity health values.
-- [ ] UI scales cleanly across target display resolutions.
+- [ ] Right side panel is redesigned into a communicative interface.
+- [ ] Cannon firing triggers the cutout bubble mini-cutscene.
+- [ ] Goblin, cannon, and wall visual assets reflect real-time health values.
+- [ ] Cutout bubble dismisses cleanly and does not block board interaction.

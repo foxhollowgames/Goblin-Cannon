@@ -3,8 +3,8 @@
 ## 1. Executive Summary
 
 Goblin Cannon is a physics-driven auto-battler and active incremental game.
-The player builds a chaotic mana circuit board to power a siege cannon.
-The game combines plinko ball physics, deep drafting, and a dark comic book story across six campaigns.
+The player builds a chaotic mana circuit board to power a siege engine.
+The game combines plinko ball physics, deep drafting, and a comic book narrative across six campaigns.
 
 ---
 
@@ -12,140 +12,109 @@ The game combines plinko ball physics, deep drafting, and a dark comic book stor
 
 The game uses a **Hybrid Active Incremental** structure.
 
-### 2.1 The Split Between Hands-On and Hands-Off
+### 2.1 Hands-Off Systems (Automated Execution)
 
-- **Hands-Off (Automated Execution):**
-  - The hopper releases balls at regular intervals.
-  - Balls bounce through the pegboard with 2D physics.
-  - Energy routes automatically to the main cannon, sidearms, and shields.
-  - Cannons and sidearms fire automatically when energy pools fill.
+- The hopper releases balls at regular intervals.
+- Balls bounce through the pegboard with 2D physics.
+- Energy routes automatically to weapons and shields.
+- Cannons and sidearms fire automatically when energy pools fill.
 
-- **Hands-On (Tactical Player Agency):**
-  - **Drafting Decisions:** The player selects balls, peg modifications, and stat upgrades at milestones.
-  - **Board Customization:** The player buys, removes, moves, and upgrades pegs.
-  - **Wave Timing and Gate Control:** The player can trigger manual hopper releases or activate burst valves.
-  - **Active Character Abilities:** Each character has special tactical skills that the player activates during combat.
+### 2.2 Hands-On Systems (Active Player Agency)
+
+- **Drafting Decisions:** The player selects balls, peg modifications, and stat upgrades at milestones.
+- **Board Customization:** The player buys, removes, moves, and upgrades pegs.
+- **Wave Timing and Gate Control:** The player can trigger manual hopper releases or activate burst valves.
+- **Active Character Abilities:** Each character has tactical skills that the player activates during combat.
 
 ---
 
 ## 3. Narrative Architecture: Six-Playthrough Campaign
 
 The narrative unfolds through six distinct playthroughs.
-Each playthrough reveals new context about the world, the kingdoms, and the tragic past of the Goblin.
+The core pegboard remains constant, but each character swaps out a major progression system.
 
 ```mermaid
 flowchart TD
-  R1["Run 1: The Goblin (Chaos & Denial)"] --> M1["McGuffin 1"]
-  R2["Run 2: The Necromancer (Grief & Remembrance)"] --> M2["McGuffin 2"]
-  R3["Run 3: The Beast Dancer (Primal Solidarity)"] --> M3["McGuffin 3"]
-  R4["Run 4: The Mechanic (Industrial Truth)"] --> M4["McGuffin 4"]
-  R5["Run 5: The Astromancer (Cosmic Threads)"] --> M5["McGuffin 5"]
-  M1 & M2 & M3 & M4 & M5 --> R6["Run 6: Final Campaign (The Convergence)"]
+  R1["Run 1: Main Goblin (Merchant Shop)"] --> M1["McGuffin 1"]
+  R2["Run 2: Necromancer (Bespoke Upgrades)"] --> M2["McGuffin 2"]
+  R3["Run 3: Beast Dancer (Bespoke Upgrades)"] --> M3["McGuffin 3"]
+  R4["Run 4: Mechanic (Bespoke Upgrades)"] --> M4["McGuffin 4"]
+  R5["Run 5: Undecided 4th Character"] --> M5["McGuffin 5"]
+  M1 & M2 & M3 & M4 & M5 --> R6["Run 6: Final Campaign (Tragedy & Convergence)"]
 ```
 
-### 3.1 Playthrough 1: The Goblin (The Broken Engineer)
+### 3.1 Playthrough 1: The Main Goblin (The Breakdown)
 
-- **Surface Persona:** A hyperactive, happy-go-lucky goblin who loves explosions and destruction.
-- **Narrative Reality:** The goblin experiences a psychotic break after an extreme personal tragedy caused by the kingdoms.
-- **Tone:** Starts as a cartoon comedy. Dark hints appear as the walls fall.
-- **Unique Mechanic:** **The Goblin Scrap Shop.** The goblin collects gold and scrap to buy balls and items from a traveling merchant.
-- **Reward:** The First Reality Shard (McGuffin 1).
+- **Persona:** A happy-go-lucky, zany character who loves explosions.
+- **Player Perspective:** The player experiences this as a silly cartoon game without understanding the background context.
+- **Unique Mechanic:** The **Merchant Shop** is a unique upgrade mechanic for the main goblin (Runs 1 and 6).
+- **Campaign Reward:** The first Infinity Gem style McGuffin.
 
-### 3.2 Playthrough 2: The Necromancer (The Silent Witness)
+### 3.2 Playthroughs 2 to 5: The Four Secondary Characters
 
-- **World Perspective:** Explores the cemetery outskirts and reveals the casualties of kingdom expansion.
-- **Narrative Link:** Tells the story of the goblin family and how the city guards destroyed their home.
-- **Unique Mechanic:** **Soul Harvest and Bone Forging.** Replaces the merchant shop. Fallen enemy souls power peg enhancements and reanimate spent balls.
-- **Reward:** The Second Reality Shard (McGuffin 2).
+- **Story Context:** Each secondary playthrough provides narrative context about the world and the main character goblin.
+- **The Narrative Reveal:** The player learns that society trampled, suppressed, and destroyed everything the main goblin loved.
+- **Emotional Shift:** The player realizes the initial run showed a psychotic breakdown caused by extreme tragedy.
+- **Character Roster:**
+  1. **The Necromancer:** Playthrough with bespoke non-merchant upgrade mechanics.
+  2. **The Beast Dancer:** Playthrough with bespoke non-merchant upgrade mechanics.
+  3. **The Mechanic:** Playthrough with bespoke non-merchant upgrade mechanics.
+  4. **Character 4 (Undecided):** Needs final archetype decision.
+- **Campaign Rewards:** Each playthrough awards an Infinity Gem style McGuffin.
 
-### 3.3 Playthrough 3: The Beast Dancer (The Wild Guardian)
+### 3.3 Playthrough 6: The Final Campaign (The Convergence)
 
-- **World Perspective:** Explores the destroyed forests and wild frontiers outside the civilized cities.
-- **Narrative Link:** Shows how the kingdoms displaced the wild tribes and captured the sacred beasts.
-- **Unique Mechanic:** **Pack Symbiosis and Beast Feeding.** Replaces the merchant shop. Balls act as beasts that gain permanent mutations when they hit food pegs.
-- **Reward:** The Third Reality Shard (McGuffin 3).
+- **Prologue:** Begins with the main character before the tragedy occurs.
+- **The Tragedy:** Showcases the devastating event and the breaking point.
+- **The Convergence:** All gathered McGuffins activate and pull the other characters across dimensions and timelines.
+- **Resolution:** The allies give support to the goblin, and the goblin makes the correct choice for the final battle.
 
-### 3.4 Playthrough 4: The Mechanic (The Exiled Architect)
+### 3.4 AI Ideas & Suggestions (Optional / Pending User Decision)
 
-- **World Perspective:** Explores the industrial heart of the kingdom and the exploitation of labor.
-- **Narrative Link:** Reveals that the high kingdom stole the siege engine blueprints from the goblin and threw him into exile.
-- **Unique Mechanic:** **Modular Wiring Grid.** Replaces the merchant shop. The player connects components on a circuit grid to multiply voltage and energy transfer.
-- **Reward:** The Fourth Reality Shard (McGuffin 4).
-
-### 3.5 Playthrough 5: The Astromancer (The Cosmic Weaver)
-
-- **World Perspective:** Explores the ancient observatories and timeline anomalies.
-- **Narrative Link:** Observes the multiverse timelines and seeks a way to undo the core timeline fracture.
-- **Unique Mechanic:** **Constellation Weaving.** Replaces the merchant shop. Connecting star pegs in specific geometric patterns triggers planetary alignments and cosmic blasts.
-- **Reward:** The Fifth Reality Shard (McGuffin 5).
-
-### 3.6 Playthrough 6: The Final Campaign (The Convergence)
-
-- **Prologue:** Begins with the Goblin before the tragedy. The player experiences the peaceful life and the devastating event.
-- **The Turning Point:** At the moment of the mental breakdown, the five Reality Shards activate.
-- **The Convergence:** The four allies appear through time portals to support the Goblin before despair takes over.
-- **Final Battle:** The five characters unite their unique systems to break the High Citadel and establish lasting peace.
+> [!NOTE]
+> The items below are AI suggestions for non-merchant character upgrade mechanics:
+> - **Necromancer Idea:** Soul harvest system where defeated enemy souls enchant pegs.
+> - **Beast Dancer Idea:** Beast feeding system where balls mutate after hitting food pegs.
+> - **Mechanic Idea:** Circuit grid system where components wire together for voltage multipliers.
+> - **5th Character Archetype Idea:** An Astromancer (star alignments) or an Exiled Archivist (lore glyphs).
 
 ---
 
-## 4. UI and Visual Transformation: Comic Book Aesthetic
+## 4. UI and Visual Transformation: Comic Book Feel (Art Style Not Determined)
 
-The game uses a **Pulp Fantasy Comic Book** style inspired by graphic novels and games such as *Slots & Daggers*.
+The game features an overarching **comic book feel**.
+The specific art style is not yet determined (*Slots & Daggers* is currently under consideration).
 
 ### 4.1 Right Panel UI Redesign
 
-- Transform the current right panel into a clear, communicative combat terminal.
-- Show live telemetry:
-  - Total Damage Per Second (DPS).
-  - Energy routing distribution bars (Main Cannon, Sidearms, Shields).
-  - Active status effect timers (Fire, Frozen, Lightning).
-  - Enemy formation breakdown and wall integrity meters.
+- Transform the current right panel into a clear, communicative UI.
+- Show live combat data, damage output, and wall status clearly.
 
-### 4.2 Comic Cutout Action Bubbles
+### 4.2 Comic Action Cutout Bubbles
 
-- When the main cannon or sidearms fire, a dynamic comic book panel pops into view over the battlefield.
-- The panel shows a brief animated mini-cutscene:
-  - The Goblin pulls the firing cord with dramatic comic expressions.
-  - The cannon fires a muzzle blast with halftone action lines and text effects ("BOOM!", "KRAK!").
-  - The projectile strikes the active wall segment.
+- When the cannon fires, a cutout bubble appears on the screen.
+- A tiny mini-cutscene plays inside the cutout bubble showing the cannon firing and hitting the current wall.
+- The goblin is part of this cutscene.
+- Visual states of the goblin, cannon, and wall represent actual live health values:
+  - Requires multiple versions of each asset in different damage states.
+  - Creation method: Hand-drawn base states, with variants made by hand or with AI assistance.
 
-```
-+-------------------------------------------------------+
-|  [ COMIC ACTION POPUP ]                               |
-|  +-------------------------------------------------+  |
-|  | (o_O) -> [ CANNON FIRE! ] -> [ WALL CRACK! ]   |  |
-|  | "EAT THIS, SHIRE KINGS!"                        |  |
-|  +-------------------------------------------------+  |
-+-------------------------------------------------------+
-```
+### 4.3 Full-Screen Wall Break Conquest Cutscenes
 
-### 4.3 Multi-State Health and Damage Visuals
-
-All key assets have multiple visual damage states:
-- **Goblin Character:** High Morale (confident) -> Strained (sweating/angry) -> Manic (desperate).
-- **Cannon:** Clean Iron -> Overheated (glowing orange) -> Structurally Damaged (cracks and smoke).
-- **City Walls:** Pristine Stone -> Fractured Masonry -> Critical Collapse (burning breaches).
-
-### 4.4 Full-Screen Conquest Cutscenes
-
-When a major milestone wall collapses (Wall 1, Wall 2, and City Boss):
-1. The game pauses combat.
-2. A full-screen comic splash page takes over the display.
-3. Dynamic panels illustrate:
-   - The final wall explosion.
-   - The enemy retreat.
-   - The conquest reward loot chest opening.
-4. The screen transitions to the next sector and combat resumes.
+- Triggers when the final city wall breaks in each level (Wall 1, Wall 2, and City Boss).
+- A full-screen takeover cutscene shows the city blowing up and the player taking the prize.
+- The game then transitions to the next level and play resumes.
 
 ---
 
-## 5. Development Phases and Milestones
+## 5. Master Task Summary
 
-| Phase | Target Area | Key Deliverables |
-| :--- | :--- | :--- |
-| **Phase 1** | Task System & Architecture | Markdown backlog, Git PR rules, documentation baseline. |
-| **Phase 2** | UI & Comic Presentation | Right panel UI overhaul, comic cutout bubbles, damage state art. |
-| **Phase 3** | Campaign Progression System | Character select framework, campaign state persistence, McGuffin tracking. |
-| **Phase 4** | Character Bespoke Mechanics | Soul harvest, beast feeding, wiring grid, constellation weaving. |
-| **Phase 5** | Narrative Integration | Story cutscenes, tragedy prologue, convergence finale. |
-| **Phase 6** | Polish & Sound Design | Comic sound effects, dynamic music, particle VFX, balancing. |
+| Task ID | Title | Priority | Status |
+| :--- | :--- | :--- | :--- |
+| [TASK-001](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-001-gameplay-loop-and-pacing.md) | Gameplay Loop and Incremental Pacing | P1 | READY |
+| [TASK-002](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-002-story-campaign-architecture.md) | Six-Playthrough Story Campaign Architecture | P1 | READY |
+| [TASK-003](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-003-character-bespoke-mechanics.md) | Character Bespoke Progression Mechanics | P1 | READY |
+| [TASK-004](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-004-right-panel-and-comic-cutouts.md) | Right Panel UI and Comic Cutout Vignettes | P1 | READY |
+| [TASK-005](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-005-full-screen-conquest-cutscenes.md) | Full-Screen Wall Break Conquest Cinematics | P2 | BACKLOG |
+| [TASK-006](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-006-comic-book-feel-art-style.md) | Comic Book Feel — Art Style Not Determined | P2 | BACKLOG |
+| [TASK-007](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-007-pr-workflow-and-version-control.md) | Git Branch and Pull Request Protocol | P0 | DONE |
