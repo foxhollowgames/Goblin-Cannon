@@ -23,7 +23,7 @@ The narrative reveals the backstory of the world and the main character goblin a
    - The player experiences an empathetic realization that the first run occurred right after a severe psychotic breakdown due to extreme tragedy.
    - **Roster:**
      - **The Necromancer**
-     - **The Beast Dancer**
+     - **The Beastmancer:** Focuses on animals or monsters as the primary mechanic.
      - **The Mechanic**
      - **Character 4 (Undecided)**
    - Each run awards an Infinity Gem style McGuffin.
