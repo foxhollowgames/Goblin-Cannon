@@ -37,4 +37,5 @@ This parent design task determines the specific ball mechanics and relic items t
 
 - [ ] Core build archetypes documented with clear identity, strengths, and weaknesses.
 - [ ] Cross-system synergy matrix defined for balls, pegs, sidearms, and relics.
-- [ ] Child tasks (TASK-009 Ball List and TASK-010 Relic List) map directly to these archetypes.
+- [ ] Child tasks ([TASK-009 Ball List](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-009-final-ball-list-campaign-1.md) and [TASK-010 Relic List](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-010-final-relic-list-campaign-1.md)) map directly to these archetypes.
+
