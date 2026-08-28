@@ -29,8 +29,17 @@ Require dedicated feature branches, passing unit tests, and GitHub Pull Requests
    - Write clear summary of changes, motivation, and verification results.
    - Link relevant task files from `docs/tasks/`.
 
+4. **Sub-Agent Blind Review Protocol:**
+   - Launch an independent sub-agent without conversational context to inspect the PR diff.
+   - The sub-agent examines code quality, tests, and documentation.
+   - If the sub-agent finds major issues, resolve the findings and request a new review.
+   - Repeat the review cycle until zero major findings remain.
+   - Merge the pull request into `main` only after the sub-agent approves the changes.
+
 ## Acceptance Criteria
 
 - [x] Branch and PR workflow is documented and active.
+- [x] Sub-agent blind review protocol is defined.
 - [x] Feature branch created for initial task and roadmap baseline.
 - [x] Pull Request created and linked to repository on GitHub.
+
