@@ -37,7 +37,7 @@ The core pegboard remains constant, but each character swaps out a major progres
 flowchart TD
   R1["Run 1: Main Goblin (Merchant Shop)"] --> M1["McGuffin 1"]
   R2["Run 2: Necromancer (Bespoke Upgrades)"] --> M2["McGuffin 2"]
-  R3["Run 3: Beast Dancer (Bespoke Upgrades)"] --> M3["McGuffin 3"]
+  R3["Run 3: Beastmancer (Bespoke Upgrades)"] --> M3["McGuffin 3"]
   R4["Run 4: Mechanic (Bespoke Upgrades)"] --> M4["McGuffin 4"]
   R5["Run 5: Undecided 4th Character"] --> M5["McGuffin 5"]
   M1 & M2 & M3 & M4 & M5 --> R6["Run 6: Final Campaign (Tragedy & Convergence)"]
@@ -57,7 +57,7 @@ flowchart TD
 - **Emotional Shift:** The player realizes the initial run showed a psychotic breakdown caused by extreme tragedy.
 - **Character Roster:**
   1. **The Necromancer:** Playthrough with bespoke non-merchant upgrade mechanics.
-  2. **The Beast Dancer:** Playthrough with bespoke non-merchant upgrade mechanics.
+  2. **The Beastmancer:** A character whose main mechanic focuses on animals or monsters.
   3. **The Mechanic:** Playthrough with bespoke non-merchant upgrade mechanics.
   4. **Character 4 (Undecided):** Needs final archetype decision.
 - **Campaign Rewards:** Each playthrough awards an Infinity Gem style McGuffin.
@@ -74,9 +74,10 @@ flowchart TD
 > [!NOTE]
 > The items below are AI suggestions for non-merchant character upgrade mechanics:
 > - **Necromancer Idea:** Soul harvest system where defeated enemy souls enchant pegs.
-> - **Beast Dancer Idea:** Beast feeding system where balls mutate after hitting food pegs.
+> - **Beastmancer Idea:** Beast feeding system where balls mutate after hitting food pegs.
 > - **Mechanic Idea:** Circuit grid system where components wire together for voltage multipliers.
 > - **5th Character Archetype Idea:** An Astromancer (star alignments) or an Exiled Archivist (lore glyphs).
+
 
 ---
 

@@ -18,7 +18,7 @@ Each character swaps out a major piece of the game experience for their upgrades
 2. **The Main Goblin Upgrade System:**
    - The **Merchant Shop** is unique to the main character goblin (Runs 1 and 6).
 3. **Secondary Character Upgrade Systems:**
-   - The Necromancer, Beast Dancer, Mechanic, and 4th character receive upgrades through different bespoke methods instead of the merchant shop.
+   - The Necromancer, Beastmancer, Mechanic, and 4th character receive upgrades through different bespoke methods instead of the merchant shop.
 
 ---
 
@@ -26,7 +26,7 @@ Each character swaps out a major piece of the game experience for their upgrades
 
 > [!NOTE]
 > - **Necromancer Mechanism Idea:** *Soul Forge.* Defeated enemies grant souls that players spend to resurrect spent balls or enchant pegs with status curses.
-> - **Beast Dancer Mechanism Idea:** *Beast Feeding.* Balls function as animal companions that level up and mutate when hitting food/berry pegs.
+> - **Beastmancer Mechanism Idea:** *Monster/Animal Breeding or Mutation.* Balls or minions gain animal traits when interacting with beast pegs.
 > - **Mechanic Mechanism Idea:** *Circuit Grid.* Replaces drafting with a modular wire puzzle where players socket components to boost cannon power.
 > - **5th Character Mechanism Idea:** *Constellation Linking.* Connecting special star pegs in geometric alignments triggers celestial blasts.
 
