@@ -15,19 +15,22 @@ enum ShapeType {
 	HALF_CIRCLE
 }
 
-## White SVG silhouettes (read as outlines under bloom). Rotated mapping: Energize←shield-bounces, Rubbery←glass, Plain←energy-arrow.
-const _TEX_PLAIN_DEFAULT: Texture2D = preload("res://icons/ffffff/transparent/1x1/lorc/energy-arrow.svg")
-const _ICON_SPLIT: Texture2D = preload("res://icons/ffffff/transparent/1x1/lorc/split-body.svg")
-const _TEX_ENERGIZE: Texture2D = preload("res://icons/ffffff/transparent/1x1/lorc/shield-bounces.svg")
-const _ICON_EXPLOSIVE: Texture2D = preload("res://icons/ffffff/transparent/1x1/lorc/fire-bomb.svg")
-const _ICON_CHAIN: Texture2D = preload("res://icons/ffffff/transparent/1x1/willdabeast/chain-lightning.svg")
-const _ICON_LEECH: Texture2D = preload("res://icons/ffffff/transparent/1x1/lorc/chemical-drop.svg")
-const _TEX_RUBBERY: Texture2D = preload("res://icons/ffffff/transparent/1x1/delapouite/glass-ball.svg")
-const _ICON_PHANTOM: Texture2D = preload("res://icons/ffffff/transparent/1x1/lorc/ghost.svg")
-const _ICON_VOLATILE: Texture2D = preload("res://icons/ffffff/transparent/1x1/sbed/poison-cloud.svg")
-const _ICON_CONSTELLATION: Texture2D = preload("res://icons/ffffff/transparent/1x1/delapouite/star-formation.svg")
-const _ICON_BINARY: Texture2D = preload("res://icons/ffffff/transparent/1x1/delapouite/stars-stack.svg")
-const _ICON_BLOOM: Texture2D = preload("res://icons/ffffff/transparent/1x1/delapouite/flower-star.svg")
+const _ICON_PATHS: Dictionary = {
+	"Plain": "res://icons/ffffff/transparent/1x1/lorc/energy-arrow.svg",
+	"Split": "res://icons/ffffff/transparent/1x1/lorc/split-body.svg",
+	"Energize": "res://icons/ffffff/transparent/1x1/lorc/shield-bounces.svg",
+	"Explosive": "res://icons/ffffff/transparent/1x1/lorc/fire-bomb.svg",
+	"Chain Lightning": "res://icons/ffffff/transparent/1x1/willdabeast/chain-lightning.svg",
+	"Leech": "res://icons/ffffff/transparent/1x1/lorc/chemical-drop.svg",
+	"Rubbery": "res://icons/ffffff/transparent/1x1/delapouite/glass-ball.svg",
+	"Phantom": "res://icons/ffffff/transparent/1x1/lorc/ghost.svg",
+	"Volatile": "res://icons/ffffff/transparent/1x1/sbed/poison-cloud.svg",
+	"Constellation": "res://icons/ffffff/transparent/1x1/delapouite/star-formation.svg",
+	"Binary": "res://icons/ffffff/transparent/1x1/delapouite/stars-stack.svg",
+	"Bloom": "res://icons/ffffff/transparent/1x1/delapouite/flower-star.svg",
+}
+
+static var _cached_textures: Dictionary = {}
 
 static func get_alignment_color(alignment: int) -> Color:
 	return Constants.ball_alignment_color(alignment)
@@ -40,31 +43,22 @@ static func get_shape_for_alignment(alignment: int) -> int:
 
 static func get_icon_texture_for_ability(ability_key: String) -> Texture2D:
 	var k: String = ability_key.strip_edges()
-	match k:
-		"Split":
-			return _ICON_SPLIT
-		"Energize":
-			return _TEX_ENERGIZE
-		"Explosive":
-			return _ICON_EXPLOSIVE
-		"Chain Lightning":
-			return _ICON_CHAIN
-		"Leech":
-			return _ICON_LEECH
-		"Rubbery":
-			return _TEX_RUBBERY
-		"Phantom":
-			return _ICON_PHANTOM
-		"Volatile":
-			return _ICON_VOLATILE
-		"Constellation":
-			return _ICON_CONSTELLATION
-		"Binary":
-			return _ICON_BINARY
-		"Bloom":
-			return _ICON_BLOOM
-		_:
-			return _TEX_PLAIN_DEFAULT
+	var path: String = _ICON_PATHS.get(k, _ICON_PATHS["Plain"])
+	if _cached_textures.has(path):
+		return _cached_textures[path]
+	if ResourceLoader.exists(path):
+		var tex = ResourceLoader.load(path)
+		if tex is Texture2D:
+			_cached_textures[path] = tex
+			return tex
+	var abs_path := ProjectSettings.globalize_path(path)
+	if FileAccess.file_exists(abs_path):
+		var img := Image.load_from_file(abs_path)
+		if img != null:
+			var tex := ImageTexture.create_from_image(img)
+			_cached_textures[path] = tex
+			return tex
+	return null
 
 ## Per-ability tint — one Lospec index per ability (`Constants.ball_ability_theme_color`).
 static func get_ability_theme_color(ability_key: String) -> Color:

@@ -35,6 +35,7 @@ var _game_over: bool = false
 var _victory: bool = false
 var _fail_screen: Control = null
 var _wall_break_is_last_wall: bool = false
+var _junk_box_panel: Control
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -401,8 +402,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		if _debug_overlay:
 			_debug_overlay.visible = !_debug_overlay.visible
 		get_viewport().set_input_as_handled()
-	elif key_event.keycode == KEY_I:
-		_on_inventory_pressed()
+	elif key_event.keycode == KEY_I or key_event.keycode == KEY_B:
+		_toggle_junk_box()
 		get_viewport().set_input_as_handled()
 	elif key_event.keycode == KEY_ESCAPE:
 		# Open inventory; let other ESC handlers (almanac, inventory close, debug modals) run first.
@@ -412,9 +413,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		if _inventory_panel and _inventory_panel.visible:
 			return
+		if _junk_box_panel and _junk_box_panel.visible:
+			return
 		if _debug_event_spawn_modal and _debug_event_spawn_modal.visible:
 			return
-		_on_inventory_pressed()
+		_toggle_junk_box()
 		get_viewport().set_input_as_handled()
 	elif key_event.keycode == KEY_A:
 		_on_almanac_pressed()
@@ -423,6 +426,18 @@ func _unhandled_input(event: InputEvent) -> void:
 		if not _game_over and not _victory:
 			get_tree().paused = !get_tree().paused
 			get_viewport().set_input_as_handled()
+
+func _toggle_junk_box() -> void:
+	if _junk_box_panel:
+		if _junk_box_panel.has_method("toggle"):
+			_junk_box_panel.toggle()
+		else:
+			_junk_box_panel.visible = not _junk_box_panel.visible
+	elif _inventory_panel:
+		if _inventory_panel.has_method("toggle"):
+			_inventory_panel.toggle()
+		else:
+			_inventory_panel.visible = not _inventory_panel.visible
 
 func _disconnect_signals() -> void:
 	if _hopper and _hopper.has_signal("ball_entered_board"):
@@ -925,6 +940,13 @@ func _create_inventory_ui() -> void:
 			overlay.add_child(_inventory_panel)
 			if _inventory_panel.has_method("setup"):
 				_inventory_panel.setup(self, _reward_handler)
+	var junk_box_scene: PackedScene = load("res://scenes/ui/junk_box/junk_box_panel.tscn") as PackedScene
+	if junk_box_scene:
+		_junk_box_panel = junk_box_scene.instantiate() as Control
+		if _junk_box_panel:
+			overlay.add_child(_junk_box_panel)
+			if _junk_box_panel.has_method("setup"):
+				_junk_box_panel.setup(self, _reward_handler)
 	var almanac_scene: PackedScene = load("res://scenes/ui/almanac_panel.tscn") as PackedScene
 	if almanac_scene:
 		_almanac_panel = almanac_scene.instantiate() as Control
@@ -1261,8 +1283,7 @@ func _create_bag_icon_image() -> Image:
 func _on_inventory_pressed() -> void:
 	if _game_over or _victory:
 		return
-	if _inventory_panel and _inventory_panel.has_method("toggle"):
-		_inventory_panel.toggle()
+	_toggle_junk_box()
 
 func _on_almanac_pressed() -> void:
 	if _game_over or _victory:

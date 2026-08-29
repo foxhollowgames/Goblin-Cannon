@@ -1,5 +1,7 @@
 extends "res://tests/test_base.gd"
 
+const HitCooldown = preload("res://simulation/hit_cooldown.gd")
+
 func _init() -> void:
 	suite_name = "HitCooldown"
 

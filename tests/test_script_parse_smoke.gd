@@ -7,6 +7,7 @@ func _init() -> void:
 func run() -> void:
 	test_critical_scripts_load()
 	test_all_scenes_tree_gd_loads()
+	test_all_resources_tree_gd_loads()
 
 func test_critical_scripts_load() -> void:
 	begin("critical scripts load (parser + compile)")
@@ -18,6 +19,15 @@ func test_all_scenes_tree_gd_loads() -> void:
 	begin("every .gd under res://scenes parses")
 	var paths: Array[String] = []
 	_collect_gd_files("res://scenes", paths)
+	paths.sort()
+	for path in paths:
+		var script: GDScript = load(path) as GDScript
+		assert_true(script != null, "load %s" % path)
+
+func test_all_resources_tree_gd_loads() -> void:
+	begin("every .gd under res://resources parses")
+	var paths: Array[String] = []
+	_collect_gd_files("res://resources", paths)
 	paths.sort()
 	for path in paths:
 		var script: GDScript = load(path) as GDScript

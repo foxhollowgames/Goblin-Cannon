@@ -129,4 +129,13 @@ The specific art style is not yet determined (*Slots & Daggers* is currently und
 | [TASK-015](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-015-relic-art-production.md) | Relic Icon & Item Visual Asset Production | P2 | BACKLOG |
 | [TASK-016](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-016-typography-and-text-effects.md) | Typography & Comic Text Effect Specifications | P2 | BACKLOG |
 | [TASK-017](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-017-ui-art-and-telemetry-panels.md) | UI Art, Frames, and Telemetry Terminal Production | P2 | BACKLOG |
-
+| [TASK-018](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-018-tetromino-module-crafting-and-fusion.md) | Tetromino Module Combining and Fusion Design | P1 | READY |
+| [TASK-019](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-019-hopper-steering-controls.md) | Hopper Steering and Active Aiming Controls | P1 | READY |
+| [TASK-020](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-020-live-board-ghost-placement.md) | Live Board Ghost State and Placement Physics | P1 | READY |
+| [TASK-021](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-021-wall-siege-timer-and-pushback.md) | Wall Siege Timer, Auto-Progression, and Defender Pushback | P1 | READY |
+| [TASK-022](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-022-exponential-scaling-pacing-model.md) | Wall Health Exponential Scaling and Campaign Pacing Model | P1 | READY |
+| [TASK-023](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-023-emergency-tinkering-minigames-design.md) | Emergency Tinkering and Machine Breakdown Minigames Design | P2 | BACKLOG |
+| [TASK-024](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-024-polyomino-relic-shapes-and-sizes.md) | Polyomino Relic Shapes, Sizes, and Data Definitions | P1 | READY |
+| [TASK-025](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-025-polyomino-drag-drop-and-grid-snapping.md) | Polyomino Drag-and-Drop, Rotation, and Grid Snapping | P1 | READY |
+| [TASK-026](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-026-polyomino-internal-machinery-and-bumpers.md) | Polyomino Internal Kinetic Machinery and Bumper Mechanics | P1 | READY |
+| [TASK-027](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-027-junk-box-backpack-inventory-system.md) | Junk Box Backpack Inventory System | P1 | DONE |

@@ -38,6 +38,7 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/test_black_hole_event.gd",
 	"res://tests/test_energize_event_pegs.gd",
 	"res://tests/test_keyword_database.gd",
+	"res://tests/test_junk_box_inventory.gd",
 ]
 
 func _initialize() -> void:

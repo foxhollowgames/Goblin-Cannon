@@ -1,6 +1,8 @@
 extends Node
 ## GameState autoload. Single source of truth for run state, sim_speed, pause.
 
+const JunkBoxData = preload("res://resources/inventory/junk_box_data.gd")
+
 enum RunFlowState {
 	FIGHTING,
 	REWARD_SLOWMO,
@@ -72,6 +74,8 @@ var phase_peg_count: int = 0
 var wrench_peg_count: int = 0
 ## Boss amplifier upgrades: upgrade_id -> stack count. Applied after clearing a city.
 var applied_boss_upgrades: Dictionary = {}
+## Junk Box backpack inventory
+var junk_box: JunkBoxData = null
 
 func get_current_city_definition() -> CityDefinition:
 	var idx: int = clampi(current_city_id, 0, Constants.CITY_DEFINITION_PATHS.size() - 1)
@@ -84,10 +88,13 @@ func get_current_city_definition() -> CityDefinition:
 	return null
 
 func _ready() -> void:
+	if junk_box == null:
+		junk_box = JunkBoxData.new()
 	run_seed = randi() if run_seed == 0 else run_seed
 	seed(run_seed)
 
 func start_run(new_seed: int = 0) -> void:
+	junk_box = JunkBoxData.new()
 	run_seed = new_seed if new_seed != 0 else randi()
 	seed(run_seed)
 	sim_speed = 1.0
