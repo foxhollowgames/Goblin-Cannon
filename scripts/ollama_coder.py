@@ -1,4 +1,4 @@
-﻿#!/usr/bin/env python3
+#!/usr/bin/env python3
 """
 Ollama Local Code Generator for Goblin Cannon
 Connects to local Ollama (http://localhost:11434) using Qwen 2.5 Coder (14B)
@@ -29,7 +29,8 @@ Strict Rules:
 
 def check_ollama_status(base_url: str = DEFAULT_OLLAMA_URL) -> dict:
     """Check if Ollama server is running and return available models."""
-    url = f"{base_url}/api/tags"
+    clean_url = base_url.rstrip("/")
+    url = f"{clean_url}/api/tags"
     try:
         req = urllib.request.Request(url, method="GET")
         with urllib.request.urlopen(req, timeout=5) as resp:
@@ -46,7 +47,8 @@ def query_ollama(
     temperature: float = 0.2,
 ) -> str:
     """Send a generation request to Ollama and return the text response."""
-    url = f"{base_url}/api/generate"
+    clean_url = base_url.rstrip("/")
+    url = f"{clean_url}/api/generate"
     payload = {
         "model": model,
         "prompt": prompt,
@@ -68,7 +70,7 @@ def query_ollama(
             res = json.loads(resp.read().decode("utf-8"))
             return res.get("response", "")
     except urllib.error.URLError as e:
-        print(f"Error: Unable to connect to Ollama at {base_url}. Is the Ollama server running?", file=sys.stderr)
+        print(f"Error: Unable to connect to Ollama at {clean_url}. Is the Ollama server running?", file=sys.stderr)
         print(f"Details: {e}", file=sys.stderr)
         sys.exit(1)
 
@@ -111,10 +113,13 @@ def cmd_status(args):
 def cmd_generate(args):
     print(f"Querying {args.model} via Ollama...")
     prompt = args.prompt
-    if args.context_file and os.path.exists(args.context_file):
-        with open(args.context_file, "r", encoding="utf-8") as f:
-            context = f.read()
-        prompt = f"Reference Context:\n```\n{context}\n```\n\nTask: {prompt}"
+    if args.context_file:
+        if os.path.exists(args.context_file):
+            with open(args.context_file, "r", encoding="utf-8") as f:
+                context = f.read()
+            prompt = f"Reference Context:\n```\n{context}\n```\n\nTask: {prompt}"
+        else:
+            print(f"Warning: Context file not found: {args.context_file}", file=sys.stderr)
 
     response = query_ollama(
         prompt=prompt,
@@ -162,6 +167,7 @@ Provide the complete updated file code."""
     code = extract_code_block(response)
     out_file = args.output if args.output else args.file
 
+    os.makedirs(os.path.dirname(os.path.abspath(out_file)), exist_ok=True)
     with open(out_file, "w", encoding="utf-8") as f:
         f.write(code + "\n")
 
@@ -188,7 +194,7 @@ Requirements for the test:
 2. Set suite_name = '{suite_name}'.
 3. Implement func run() -> void that calls specific test functions.
 4. Call begin('description') at the start of each test block.
-5. Use assert_eq, assert_true, assert_false, assert_null.
+5. Use assert_eq, assert_true, assert_false (use assert_eq(val, null) for null checks).
 6. Make sure all created scene nodes are freed with .free() or .queue_free().
 7. Return only the GDScript test code."""
 
@@ -203,6 +209,7 @@ Requirements for the test:
     code = extract_code_block(response)
     out_file = args.output if args.output else f"tests/test_{os.path.basename(args.file)}"
 
+    os.makedirs(os.path.dirname(os.path.abspath(out_file)), exist_ok=True)
     with open(out_file, "w", encoding="utf-8") as f:
         f.write(code + "\n")
 
