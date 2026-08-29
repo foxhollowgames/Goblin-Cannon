@@ -1,6 +1,6 @@
 # TASK-034: Repetitive Sound Effect Pitch Randomization
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Audio / Polish
 - **Target Branch:** `feature/repetitive-sfx-pitch-randomization`
@@ -46,8 +46,8 @@ This prevents acoustic fatigue and gives natural audio variation during gameplay
 
 ## Acceptance Criteria
 
-- [ ] A shared utility applies narrow band pitch randomization to sound effects.
-- [ ] Repetitive sound effects across gameplay use randomized pitch modulation.
-- [ ] Pitch values stay strictly within the narrow band to prevent sound distortion.
-- [ ] Concurrency throttling prevents audio clipping during simultaneous collisions.
-- [ ] Headless unit tests verify pitch ranges and bus assignments.
+- [x] A shared utility applies narrow band pitch randomization to sound effects.
+- [x] Repetitive sound effects across gameplay use randomized pitch modulation.
+- [x] Pitch values stay strictly within the narrow band to prevent sound distortion.
+- [x] Concurrency throttling prevents audio clipping during simultaneous collisions.
+- [x] Headless unit tests verify pitch ranges and bus assignments.

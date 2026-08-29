@@ -25,6 +25,7 @@ buses/default_bus_layout="res://default_bus_layout.tres"
 
 [autoload]
 
+AudioPitchRandomizer="*res://autoloads/audio_pitch_randomizer.gd"
 GameState="*res://autoloads/game_state.gd"
 Constants="*res://autoloads/constants.gd"
 MilestoneShopData="*res://autoloads/milestone_shop_data.gd"

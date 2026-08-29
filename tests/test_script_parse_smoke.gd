@@ -35,6 +35,7 @@ func test_all_resources_tree_gd_loads() -> void:
 
 func _critical_script_paths() -> Array[String]:
 	return [
+		"res://autoloads/audio_pitch_randomizer.gd",
 		"res://resources/polyomino/polyomino_module_data.gd",
 		"res://scenes/board/machinery/polyomino_machinery_component.gd",
 		"res://scenes/board/board.gd",
