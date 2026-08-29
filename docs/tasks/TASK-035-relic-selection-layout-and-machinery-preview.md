@@ -1,6 +1,6 @@
 # TASK-035: Relic Selection Screen Layout and Machine Composition Preview
 
-- **Status:** IN_REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Visuals / Rewards
 - **Target Branch:** `feature/relic-selection-preview`
