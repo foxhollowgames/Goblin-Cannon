@@ -2717,6 +2717,23 @@ func set_drag_controller(controller: Node) -> void:
 func get_drag_controller() -> Node:
 	return _drag_controller
 
+func _unhandled_input(event: InputEvent) -> void:
+	if not _drag_controller:
+		return
+	if "dragging_item" in _drag_controller and _drag_controller.dragging_item != null:
+		return
+	if event is InputEventMouseButton:
+		var mb := event as InputEventMouseButton
+		if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
+			var cell := world_to_board_cell(get_global_mouse_position())
+			var item: Resource = get_module_at_cell(cell)
+			if item and item.has_method("get_occupied_cells"):
+				var origin_cell: Vector2i = item.grid_position if "grid_position" in item else cell
+				var grab_offset: Vector2i = cell - origin_cell
+				unslot_module(item.instance_id if "instance_id" in item else &"")
+				_drag_controller.start_drag(item, 1, origin_cell, grab_offset) # DragSource.BOARD = 1
+				get_viewport().set_input_as_handled()
+
 ## Converts a global/board world position into integer board grid coordinates (col, row).
 func world_to_board_cell(world_pos: Vector2) -> Vector2i:
 	var local_x: float = world_pos.x - BOARD_GRID_START_X
