@@ -48,6 +48,7 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/test_polyomino_relic_shapes.gd",
 	"res://tests/test_slotted_relic_effects.gd",
 	"res://tests/test_peg_grid_alignment.gd",
+	"res://tests/test_relic_audio_levels.gd",
 ]
 
 func _initialize() -> void:
