@@ -1,6 +1,6 @@
 # TASK-020: Live Board Ghost State and Placement Physics
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Physics / Systems
 - **Parent Task:** [TASK-001](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-001-gameplay-loop-and-pacing.md)
@@ -24,6 +24,6 @@ Allows players to move and swap components during live simulation without physic
 
 ## Acceptance Criteria
 
-- [ ] Moving a peg or module does not trap or teleport active balls.
-- [ ] Ghost components do not deflect balls until the collision area is completely clear.
-- [ ] Headless unit tests verify the transition from ghost state to active state.
+- [x] Moving a peg or module does not trap or teleport active balls.
+- [x] Ghost components do not deflect balls until the collision area is completely clear.
+- [x] Headless unit tests verify the transition from ghost state to active state.

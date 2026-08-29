@@ -15,6 +15,9 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-004`](#lrn-004) | TASK-027 | `optimization` | Model Tier Allocation for Fast and Cheap Execution | 2026-08-28 |
 | [`LRN-005`](#lrn-005) | TASK-024 | `godot_engine` | Multi-Cell Polyomino Coordinate Anchoring & Clockwise Rotation | 2026-08-28 |
 | [`LRN-006`](#lrn-006) | TASK-025 | `godot_engine` | Headless Viewport & Mouse Position Safety | 2026-08-28 |
+| [`LRN-007`](#lrn-007) | TASK-019 | `controls` | Hopper Steering and Keybind Separation | 2026-08-28 |
+| [`LRN-008`](#lrn-008) | TASK-026 | `godot_engine` | Headless Node Hierarchy and Lazy Container Initialization | 2026-08-28 |
+| [`LRN-009`](#lrn-009) | TASK-020 | `godot_engine` | Live Board Ghost Placement Area Monitoring & Collision Transition | 2026-08-28 |
 
 ---
 
@@ -113,5 +116,53 @@ Controls instantiated directly in headless tests or before add_child() lack a vi
 
 #### Actionable Guideline for Future Agents
 Always wrap mouse position lookups with a safe helper like 'if is_inside_tree() and get_viewport(): return get_global_mouse_position()' with Vector2.ZERO fallback.
+
+---
+
+### <a id="lrn-007"></a> LRN-007: Hopper Steering and Keybind Separation
+- **Task:** `TASK-019`
+- **Category:** `controls`
+- **Created:** `2026-08-28T21:42:17.515992`
+
+#### Context & Problem
+A and D keys were previously intercepted by debug overlay and almanac keybinds in GameCoordinator and Hopper only followed mouse position.
+
+#### Key Insight & Learning
+Game controls must not conflict with debug hotkeys. Moving debug toggles to function keys (F3) and letter keys away from WASD ensures unhindered player steering.
+
+#### Actionable Guideline for Future Agents
+Reserve WASD and Arrow keys exclusively for player-controlled motion. Use function keys (F1-F12) or modifier combinations for debug tools.
+
+---
+
+### <a id="lrn-008"></a> LRN-008: Headless Node Hierarchy and Lazy Container Initialization
+- **Task:** `TASK-026`
+- **Category:** `godot_engine`
+- **Created:** `2026-08-28T21:47:28.496565`
+
+#### Context & Problem
+Standalone nodes instantiated in unit tests without add_child or _ready lack viewport and parent transforms, and child containers initialized in _ready remain null.
+
+#### Key Insight & Learning
+In Godot 4 headless tests, nodes created with .new do not run _ready automatically. Container nodes like _modules_container must be lazily initialized when used, and component positions must fall back to local position math when is_inside_tree is false.
+
+#### Actionable Guideline for Future Agents
+Lazily initialize child containers on first access in manager and board scripts, and check is_inside_tree before querying global_position to support headless unit tests.
+
+---
+
+### <a id="lrn-009"></a> LRN-009: Live Board Ghost Placement Area Monitoring & Collision Transition
+- **Task:** `TASK-020`
+- **Category:** `godot_engine`
+- **Created:** `2026-08-28T21:58:52.513594`
+
+#### Context & Problem
+Placing and moving components during live Plinko ball simulation requires safe non-colliding ghost states to prevent trapping or teleporting balls.
+
+#### Key Insight & Learning
+Newly positioned components must start at 50% opacity with collision_layer set to 0. Area monitoring with bounding box margin checks (cell_rect.grow(BALL_RADIUS + 2.0)) allows seamless transition to solid state once all balls exit.
+
+#### Actionable Guideline for Future Agents
+Always disable physics collision layers on newly placed components until active ball area checks confirm complete clearance.
 
 ---

@@ -54,8 +54,33 @@ var _sticky_slime_phase: float = 0.0
 var stash_gold_amount: int = 0
 ## Increments each stash roll so spawn vs respawn (and repeats) get distinct RNG.
 var _stash_roll_counter: int = 0
+var _is_ghost_placement: bool = false
+
+func set_ghost_placement(ghost: bool) -> void:
+	_is_ghost_placement = ghost
+	modulate.a = 0.5 if _is_ghost_placement else 1.0
+	_set_collision_enabled(not _is_ghost_placement and _phase_peg_solid and _recovery_ticks_remaining <= 0)
+	queue_redraw()
+
+func is_ghost_placement_active() -> bool:
+	return _is_ghost_placement
+
+func is_area_clear_of_balls(active_balls: Array, ball_radius: float = Constants.BALL_RADIUS) -> bool:
+	var peg_pos: Vector2 = global_position if is_inside_tree() else position
+	var clear_radius: float = Constants.PEG_RADIUS + ball_radius + 2.0
+	var clear_radius_sq: float = clear_radius * clear_radius
+	for ball in active_balls:
+		if not is_instance_valid(ball):
+			continue
+		var b_pos: Vector2 = ball.global_position if (ball.is_inside_tree() and "global_position" in ball) else (ball.position if "position" in ball else Vector2.ZERO)
+		if peg_pos.distance_squared_to(b_pos) <= clear_radius_sq:
+			return false
+	return true
 
 func _ready() -> void:
+	if _is_ghost_placement:
+		modulate.a = 0.5
+		_set_collision_enabled(false)
 	if peg_extra_kind == "milestone_event":
 		_max_durability = 1
 		_durability = 1
@@ -313,6 +338,10 @@ func consume_energize_stack() -> void:
 	_energized_durability = maxi(0, _energized_durability - _max_durability)
 	queue_redraw()
 
+## Current base durability.
+func get_durability() -> int:
+	return _durability
+
 ## Current energized HP (for Supernova Peg threshold check).
 func get_energized_durability() -> int:
 	return _energized_durability
@@ -333,6 +362,8 @@ func reset_to_full() -> void:
 ## damage: amount of damage (1 = normal hit). Applied after any add_energized; drains energized HP first, then base.
 ## add_energized: if true, peg gains _max_durability extra HP (twice as durable); shown as crackling energy aura until drained.
 func apply_hit(show_aura: bool = true, damage: int = 1, add_energized: bool = false) -> void:
+	if _is_ghost_placement:
+		return
 	if peg_extra_kind == "buffet_table" or peg_extra_kind == "sticky_slime":
 		return
 	if _recovery_ticks_remaining > 0:
@@ -583,7 +614,7 @@ func _start_recovery_timer() -> void:
 	pass
 
 func _set_collision_enabled(enabled: bool) -> void:
-	if enabled:
+	if enabled and not _is_ghost_placement:
 		collision_layer = 1
 	else:
 		collision_layer = 0
