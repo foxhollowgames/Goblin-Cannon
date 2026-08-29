@@ -20,6 +20,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-009`](#lrn-009) | TASK-020 | `godot_engine` | Live Board Ghost Placement Area Monitoring & Collision Transition | 2026-08-28 |
 | [`LRN-010`](#lrn-010) | TASK-028 | `ui` | Non-Modal Side Drawers for Dual-Surface Drag-and-Drop | 2026-08-28 |
 | [`LRN-011`](#lrn-011) | TASK-028 | `tooling` | Windows GUI Godot Binary Console Redirection | 2026-08-28 |
+| [`LRN-012`](#lrn-012) | TASK-024 | `godot_engine` | Polyomino Relic Database & ID Alias Mapping | 2026-08-28 |
 
 ---
 
@@ -198,5 +199,21 @@ Executing Godot headless commands through cmd.exe /c attaches standard I/O strea
 
 #### Actionable Guideline for Future Agents
 Always run headless Godot tests via cmd.exe /c on Windows to prevent silent test failures.
+
+---
+
+### <a id="lrn-012"></a> LRN-012: Polyomino Relic Database & ID Alias Mapping
+- **Task:** `TASK-024`
+- **Category:** `godot_engine`
+- **Created:** `2026-08-28T22:19:51.267579`
+
+#### Context & Problem
+Relics have multiple upgrade categories across boss amplifiers, cross-link wall breaks, single-type enhancements, and chest passives, with minor ID spelling discrepancies in legacy code (e.g. arc_surge_wrench vs chain_surge_wrench).
+
+#### Key Insight & Learning
+Using a centralized PolyominoRelicDatabase registry with canonical definitions and an ID alias resolution table ensures both legacy upgrade names and spec-compliant relic IDs resolve cleanly to the correct PolyominoModuleData and JunkBoxItem instances.
+
+#### Actionable Guideline for Future Agents
+Always route polyomino module creation through PolyominoRelicDatabase with alias resolution to ensure backwards compatibility across reward handlers, catalogs, and inventory systems.
 
 ---
