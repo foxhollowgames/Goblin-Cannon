@@ -15,8 +15,27 @@ func run() -> void:
 	test_dynamic_peg_spawning_targets_empty_grid_cells()
 	test_unslot_and_place_peg_at_cell()
 
+func _ensure_clean_state() -> void:
+	if GameState:
+		GameState.start_run(12345)
+		GameState.applied_wall_break_upgrades.clear()
+		GameState.applied_boss_upgrades.clear()
+		GameState.bomb_peg_count = 0
+		GameState.trampoline_peg_count = 0
+		GameState.goblin_reset_node_count = 0
+		GameState.eternal_peg_count = 0
+		GameState.extreme_bouncer_peg_count = 0
+		GameState.magnet_peg_count = 0
+		GameState.splitter_peg_count = 0
+		GameState.gold_peg_count = 0
+		GameState.lucky_gold_peg_count = 0
+		GameState.gravity_well_peg_count = 0
+		GameState.phase_peg_count = 0
+		GameState.wrench_peg_count = 0
+
 func test_coordinate_mapping_and_spacing() -> void:
 	begin("Unified grid coordinate conversions and constants")
+	_ensure_clean_state()
 	var board: Node2D = Node2D.new()
 	board.set_script(BoardScript)
 
@@ -46,6 +65,7 @@ func test_coordinate_mapping_and_spacing() -> void:
 
 func test_initial_pegs_grid_alignment() -> void:
 	begin("Initial peg layout spawns in staggered pattern (every other cell) on integer grid coordinates")
+	_ensure_clean_state()
 	var board: Node2D = Node2D.new()
 	board.set_script(BoardScript)
 	board._ready()
@@ -82,6 +102,7 @@ func test_initial_pegs_grid_alignment() -> void:
 
 func test_pegs_and_polyomino_share_alignment() -> void:
 	begin("Pegs and polyomino relics share identical spatial grid mapping and spacing")
+	_ensure_clean_state()
 	var board: Node2D = Node2D.new()
 	board.set_script(BoardScript)
 	board._ready()
@@ -115,6 +136,7 @@ func test_pegs_and_polyomino_share_alignment() -> void:
 
 func test_grid_query_helpers() -> void:
 	begin("Board grid helper functions (bounds, queries, emptiness)")
+	_ensure_clean_state()
 	var board: Node2D = Node2D.new()
 	board.set_script(BoardScript)
 	board._ready()
@@ -144,6 +166,7 @@ func test_grid_query_helpers() -> void:
 
 func test_dynamic_peg_spawning_targets_empty_grid_cells() -> void:
 	begin("Dynamic peg resolution targets valid empty grid cells aligned to grid coordinates")
+	_ensure_clean_state()
 	var board: Node2D = Node2D.new()
 	board.set_script(BoardScript)
 	board._ready()
@@ -170,6 +193,7 @@ func test_dynamic_peg_spawning_targets_empty_grid_cells() -> void:
 
 func test_unslot_and_place_peg_at_cell() -> void:
 	begin("Placing and unslotting pegs maintains grid coordinate integrity")
+	_ensure_clean_state()
 	var board: Node2D = Node2D.new()
 	board.set_script(BoardScript)
 	board._ready()
