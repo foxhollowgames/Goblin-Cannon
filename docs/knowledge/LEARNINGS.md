@@ -28,6 +28,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-017`](#lrn-017) | TASK-029 | `board_systems` | Staggered Checkerboard Peg Lattice on Discrete Rectangular Grid | 2026-08-29 |
 | [`LRN-018`](#lrn-018) | TASK-033 | `subagents` | Open-Model Subagent Allocation & Test State Isolation | 2026-08-29 |
 | [`LRN-019`](#lrn-019) | TASK-032 | `audio_and_mechanics` | Relic Machinery Audio Attenuation and Concurrency Throttling | 2026-08-29 |
+| [`LRN-020`](#lrn-020) | TASK-034 | `tooling` | Zero-Dependency Local Ollama Code Generation CLI | 2026-08-29 |
 
 ---
 
@@ -334,5 +335,21 @@ Setting default component volume to -16 dB, routing to a dedicated Machinery bus
 
 #### Actionable Guideline for Future Agents
 Always route kinetic machinery audio through dedicated sub-buses with decibel levels below -12 dB, apply pitch variation, and enforce timestamp-based concurrency throttling.
+
+---
+
+### <a id="lrn-020"></a> LRN-020: Zero-Dependency Local Ollama Code Generation CLI
+- **Task:** `TASK-034`
+- **Category:** `tooling`
+- **Created:** `2026-08-29T10:42:56.937507`
+
+#### Context & Problem
+Connecting Antigravity to local Qwen 2.5 Coder for offline zero-cost code generation.
+
+#### Key Insight & Learning
+Using a standalone standard-library Python CLI script (urllib) avoids external dependencies and enables Antigravity to generate, edit, and test GDScript through local Ollama.
+
+#### Actionable Guideline for Future Agents
+Use python scripts/ollama_coder.py [generate|edit|test] to produce GDScript with local Qwen at zero cost.
 
 ---
