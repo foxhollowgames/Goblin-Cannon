@@ -8,6 +8,18 @@ signal ball_exited_board(ball: Node, reason: int)
 signal ball_reset_to_top(ball: Node, reason: StringName)
 signal leech_drain(amount_display: int, alignment: int, peg_id: int)  ## Leech status on peg: periodic energy drain (5/sec for 10 sec).
 signal gold_gained(amount: int, origin_position: Vector2)
+signal module_placed_on_board(item: Resource, grid_pos: Vector2i, rotation: int)
+signal module_unslotted_from_board(item: Resource)
+
+const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
+const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
+
+const BOARD_GRID_COLS: int = 16
+const BOARD_GRID_ROWS: int = 8
+const BOARD_GRID_START_X: float = 90.0
+const BOARD_GRID_START_Y: float = 200.0
+const BOARD_GRID_COL_SPACING: float = 52.0
+const BOARD_GRID_ROW_SPACING: float = 56.0
 
 const BALL_RESET_REASON_GOBLIN_GRAB: StringName = &"goblin_grab"
 const BALL_RESET_REASON_FRAGMENT_ECHO: StringName = &"fragment_echo"
@@ -31,6 +43,12 @@ const OFF_SCREEN_X_RIGHT: float = 980.0
 ## Peg hit energy (display); scaled with main cannon 100-base (legacy was 10 @ 800 charge).
 const PEG_DISPLAY_ENERGY_PER_HIT: int = maxi(1, (10 * Constants.MAIN_CANNON_CHARGE_DISPLAY + 399) / 800)
 const _GAS_CLOUD_VISUAL_SCRIPT: GDScript = preload("res://scenes/board/gas_cloud_visual.gd")
+
+var _placed_modules: Dictionary = {}  # instance_id (StringName) -> JunkBoxItem
+var _occupied_board_cells: Dictionary = {}  # Vector2i -> instance_id (StringName)
+var _placed_module_nodes: Dictionary = {}  # instance_id -> Node2D
+var _modules_container: Node2D = null
+var _drag_controller: Node = null
 
 var _active_balls: Array[Node] = []
 var _hit_cooldown: HitCooldown
@@ -132,6 +150,10 @@ func _ready() -> void:
 	_buffet_break_script = load("res://scenes/board/buffet_table_break_effect.gd") as GDScript
 	_warm_energy_popup_pool()
 	_spawn_peg_layout()
+	_modules_container = Node2D.new()
+	_modules_container.name = "PlacedModules"
+	_modules_container.z_index = 2
+	add_child(_modules_container)
 	set_process(true)
 
 func _process(_delta: float) -> void:
@@ -2684,3 +2706,210 @@ func _trigger_storm_of_fragments(ball_id: int, ball: Node, bdef: BallDefinition,
 					p.play_lightning_shock()
 	if energized_positions.size() > 1:
 		_spawn_chain_lightning_arcs(energized_positions)
+
+# ==============================================================================
+# POLYOMINO MODULE PLACEMENT & BOARD GRID SYSTEM (TASK-025)
+# ==============================================================================
+
+func set_drag_controller(controller: Node) -> void:
+	_drag_controller = controller
+
+func get_drag_controller() -> Node:
+	return _drag_controller
+
+func _unhandled_input(event: InputEvent) -> void:
+	if not _drag_controller:
+		return
+	if "dragging_item" in _drag_controller and _drag_controller.dragging_item != null:
+		return
+	if event is InputEventMouseButton:
+		var mb := event as InputEventMouseButton
+		if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
+			var cell := world_to_board_cell(get_global_mouse_position())
+			var item: Resource = get_module_at_cell(cell)
+			if item and item.has_method("get_occupied_cells"):
+				var origin_cell: Vector2i = item.grid_position if "grid_position" in item else cell
+				var grab_offset: Vector2i = cell - origin_cell
+				unslot_module(item.instance_id if "instance_id" in item else &"")
+				_drag_controller.start_drag(item, 1, origin_cell, grab_offset) # DragSource.BOARD = 1
+				get_viewport().set_input_as_handled()
+
+## Converts a global/board world position into integer board grid coordinates (col, row).
+func world_to_board_cell(world_pos: Vector2) -> Vector2i:
+	var local_x: float = world_pos.x - BOARD_GRID_START_X
+	var local_y: float = world_pos.y - BOARD_GRID_START_Y
+	var col: int = int(round(local_x / BOARD_GRID_COL_SPACING))
+	var row: int = int(round(local_y / BOARD_GRID_ROW_SPACING))
+	return Vector2i(col, row)
+
+## Converts board grid coordinates (col, row) into world pixel position (cell top-left center).
+func board_cell_to_world(grid_pos: Vector2i) -> Vector2:
+	return Vector2(
+		BOARD_GRID_START_X + float(grid_pos.x) * BOARD_GRID_COL_SPACING,
+		BOARD_GRID_START_Y + float(grid_pos.y) * BOARD_GRID_ROW_SPACING
+	)
+
+## Checks whether an item can be legally placed on the board grid at target grid_pos.
+func can_place_module(item: Resource, grid_pos: Vector2i, rotation: int = -1, ignore_instance_id: StringName = &"") -> bool:
+	if item == null:
+		return false
+	var rot: int = item.rotation_step if rotation < 0 else posmod(rotation, 4)
+	var local_cells: Array[Vector2i] = []
+	if "module_data" in item and item.module_data != null and not item.module_data.cells.is_empty():
+		local_cells = item.module_data.get_anchored_rotated_cells(rot)
+	elif "get_local_cells" in item:
+		local_cells = item.get_local_cells()
+	else:
+		local_cells = [Vector2i.ZERO]
+
+	for c in local_cells:
+		var cell: Vector2i = grid_pos + c
+		if cell.x < 0 or cell.x >= BOARD_GRID_COLS:
+			return false
+		if cell.y < 0 or cell.y >= BOARD_GRID_ROWS:
+			return false
+		if _occupied_board_cells.has(cell):
+			var occ_id: StringName = _occupied_board_cells[cell]
+			if ignore_instance_id == &"" or occ_id != ignore_instance_id:
+				return false
+	return true
+
+## Attempts to place a module given a global/world coordinate.
+func try_place_module(item: Resource, world_pos: Vector2, rotation: int = -1) -> bool:
+	if item == null:
+		return false
+	var grid_pos: Vector2i = world_to_board_cell(world_pos)
+	return place_module(item, grid_pos, rotation)
+
+## Places a module on the board grid at target grid_pos with specified rotation.
+func place_module(item: Resource, grid_pos: Vector2i, rotation: int = -1) -> bool:
+	if item == null:
+		return false
+	var inst_id: StringName = item.instance_id if "instance_id" in item else StringName(str(item.get_instance_id()))
+	if not can_place_module(item, grid_pos, rotation, inst_id):
+		return false
+
+	# Clear previous occupied cells if already placed on board
+	if _placed_modules.has(inst_id):
+		var prev_item: Resource = _placed_modules[inst_id]
+		if "get_occupied_cells" in prev_item:
+			for cell in prev_item.get_occupied_cells():
+				if _occupied_board_cells.get(cell) == inst_id:
+					_occupied_board_cells.erase(cell)
+
+	item.grid_position = grid_pos
+	if rotation >= 0:
+		item.rotation_step = posmod(rotation, 4)
+
+	_placed_modules[inst_id] = item
+	var occupied: Array = item.get_occupied_cells() if "get_occupied_cells" in item else [grid_pos]
+	for cell in occupied:
+		_occupied_board_cells[cell] = inst_id
+
+	_update_placed_module_visual(item)
+	module_placed_on_board.emit(item, grid_pos, item.rotation_step)
+	return true
+
+## Unslots and removes a placed module by instance_id, returning the removed item.
+func unslot_module(instance_id: StringName) -> Resource:
+	if not _placed_modules.has(instance_id):
+		return null
+	var item: Resource = _placed_modules[instance_id]
+	var occupied: Array = item.get_occupied_cells() if "get_occupied_cells" in item else []
+	for cell in occupied:
+		if _occupied_board_cells.get(cell) == instance_id:
+			_occupied_board_cells.erase(cell)
+	_placed_modules.erase(instance_id)
+
+	if _placed_module_nodes.has(instance_id):
+		var node: Node = _placed_module_nodes[instance_id]
+		if is_instance_valid(node):
+			node.queue_free()
+		_placed_module_nodes.erase(instance_id)
+
+	module_unslotted_from_board.emit(item)
+	return item
+
+## Returns the placed module occupying grid_pos, or null.
+func get_module_at_cell(grid_pos: Vector2i) -> Resource:
+	if _occupied_board_cells.has(grid_pos):
+		var id: StringName = _occupied_board_cells[grid_pos]
+		return _placed_modules.get(id, null)
+	return null
+
+## Returns an array of all modules currently placed on the board.
+func get_all_placed_modules() -> Array:
+	var result: Array = []
+	for it in _placed_modules.values():
+		result.append(it)
+	return result
+
+## Clears all placed modules from the board.
+func clear_all_placed_modules() -> void:
+	for inst_id in _placed_modules.keys().duplicate():
+		unslot_module(inst_id)
+	_occupied_board_cells.clear()
+
+## Visual representation node for placed modules on the board.
+func _update_placed_module_visual(item: Resource) -> void:
+	if not _modules_container:
+		return
+	var inst_id: StringName = item.instance_id if "instance_id" in item else StringName(str(item.get_instance_id()))
+	if _placed_module_nodes.has(inst_id):
+		var old_node: Node = _placed_module_nodes[inst_id]
+		if is_instance_valid(old_node):
+			old_node.queue_free()
+		_placed_module_nodes.erase(inst_id)
+
+	var node: Node2D = Node2D.new()
+	node.name = "Module_%s" % str(inst_id)
+	_modules_container.add_child(node)
+	_placed_module_nodes[inst_id] = node
+
+	var tier: int = item.module_data.tier if ("module_data" in item and item.module_data != null) else 1
+	var base_color: Color = Constants.shop_rarity_accent_color(tier)
+	var occupied: Array = item.get_occupied_cells() if "get_occupied_cells" in item else [item.grid_position]
+	var local_cells: Array = item.get_local_cells() if "get_local_cells" in item else [Vector2i.ZERO]
+
+	for idx in range(occupied.size()):
+		var grid_c: Vector2i = occupied[idx]
+		var world_c: Vector2 = board_cell_to_world(grid_c)
+		var cell_w: float = BOARD_GRID_COL_SPACING - 4.0
+		var cell_h: float = BOARD_GRID_ROW_SPACING - 4.0
+		var cell_rect: Rect2 = Rect2(world_c.x - cell_w * 0.5, world_c.y - cell_h * 0.5, cell_w, cell_h)
+
+		var cell_draw := _PlacedCellVisual.new()
+		cell_draw.rect = cell_rect
+		cell_draw.base_color = base_color
+		if idx < local_cells.size() and "module_data" in item and item.module_data != null:
+			var l_cell: Vector2i = local_cells[idx]
+			var c_type: int = PolyominoModuleData.CellType.EMPTY
+			if item.module_data.cell_types.has(l_cell):
+				c_type = item.module_data.cell_types[l_cell]
+			elif item.module_data.cell_types.has("%d,%d" % [l_cell.x, l_cell.y]):
+				c_type = item.module_data.cell_types["%d,%d" % [l_cell.x, l_cell.y]]
+			cell_draw.cell_type = c_type
+		node.add_child(cell_draw)
+
+# Helper inner class to render individual polyomino cells on the board
+class _PlacedCellVisual extends Node2D:
+	var rect: Rect2
+	var base_color: Color
+	var cell_type: int = 0
+
+	func _draw() -> void:
+		draw_rect(rect, base_color)
+		draw_rect(rect, base_color.lightened(0.3), false, 2.0)
+		var center: Vector2 = rect.get_center()
+		var icon_col: Color = base_color.darkened(0.5)
+		if cell_type == 3: # BUMPER
+			draw_circle(center, rect.size.x * 0.22, icon_col)
+		elif cell_type == 4: # ACCELERATOR
+			var pts: PackedVector2Array = [center + Vector2(0, -10), center + Vector2(10, 10), center + Vector2(-10, 10)]
+			draw_colored_polygon(pts, icon_col)
+		elif cell_type == 2: # FUNNEL
+			draw_line(center + Vector2(-10, -10), center + Vector2(0, 10), icon_col, 2.0)
+			draw_line(center + Vector2(10, -10), center + Vector2(0, 10), icon_col, 2.0)
+		elif cell_type == 5: # ROTARY_BOOSTER
+			draw_arc(center, 10.0, 0, TAU, 16, icon_col, 2.0)
+

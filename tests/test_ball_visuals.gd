@@ -1,5 +1,7 @@
 extends "res://tests/test_base.gd"
 
+const BallVisuals = preload("res://scenes/balls/ball_visuals.gd")
+
 func _init() -> void:
 	suite_name = "BallVisuals"
 
