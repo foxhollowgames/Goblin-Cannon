@@ -30,7 +30,7 @@ func run() -> void:
 
 func test_database_completeness() -> void:
 	var ids: Array[StringName] = PolyominoRelicDatabase.get_all_relic_ids()
-	_assert(ids.size() == 79, "Expected exactly 79 relic definitions in database, got %d" % ids.size())
+	_assert(ids.size() == 81, "Expected exactly 81 relic definitions in database, got %d" % ids.size())
 
 	for id in ids:
 		_assert(PolyominoRelicDatabase.has_relic_definition(id), "Database must acknowledge definition for '%s'" % str(id))
@@ -40,6 +40,11 @@ func test_database_completeness() -> void:
 			_assert(mod.module_id == id, "Module ID '%s' should match relic ID '%s'" % [str(mod.module_id), str(id)])
 			_assert(not mod.display_name.is_empty(), "Relic '%s' must have a display name" % str(id))
 			_assert(mod.cells.size() > 0, "Relic '%s' must have at least one cell" % str(id))
+
+	# Test alias resolution
+	_assert(PolyominoRelicDatabase.has_relic_definition(&"chain_surge_wrench"), "Alias chain_surge_wrench must be recognized")
+	var alias_mod: PolyominoModuleData = PolyominoRelicDatabase.create_module_for_relic(&"chain_surge_wrench")
+	_assert(alias_mod != null and alias_mod.module_id == &"arc_surge_wrench", "Alias must resolve to canonical arc_surge_wrench module")
 
 func test_relic_tiers_and_cell_counts() -> void:
 	var ids: Array[StringName] = PolyominoRelicDatabase.get_all_relic_ids()

@@ -8,7 +8,14 @@ const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 
 const CellType = PolyominoModuleData.CellType
 
+const _ALIASES: Dictionary = {
+	&"chain_surge_wrench": &"arc_surge_wrench",
+}
+
 static var _DEFINITIONS: Dictionary = {}
+
+static func _resolve_id(id: StringName) -> StringName:
+	return _ALIASES.get(id, id)
 
 static func _get_defs() -> Dictionary:
 	if not _DEFINITIONS.is_empty():
@@ -17,7 +24,7 @@ static func _get_defs() -> Dictionary:
 	return _DEFINITIONS
 
 static func has_relic_definition(relic_id: StringName) -> bool:
-	return _get_defs().has(relic_id)
+	return _get_defs().has(_resolve_id(relic_id))
 
 static func get_all_relic_ids() -> Array[StringName]:
 	var defs := _get_defs()
@@ -27,36 +34,37 @@ static func get_all_relic_ids() -> Array[StringName]:
 	return ids
 
 static func get_relic_tier(relic_id: StringName) -> int:
-	var d = _get_defs().get(relic_id, null)
+	var d = _get_defs().get(_resolve_id(relic_id), null)
 	if d != null:
 		return int(d.get("tier", 1))
 	return 1
 
 static func get_relic_shape_name(relic_id: StringName) -> String:
-	var d = _get_defs().get(relic_id, null)
+	var d = _get_defs().get(_resolve_id(relic_id), null)
 	if d != null:
 		return str(d.get("shape_name", ""))
 	return ""
 
 static func get_relic_kinetic_description(relic_id: StringName) -> String:
-	var d = _get_defs().get(relic_id, null)
+	var d = _get_defs().get(_resolve_id(relic_id), null)
 	if d != null:
 		return str(d.get("machinery_desc", ""))
 	return ""
 
 static func get_relic_display_name(relic_id: StringName) -> String:
-	var d = _get_defs().get(relic_id, null)
+	var d = _get_defs().get(_resolve_id(relic_id), null)
 	if d != null:
 		return str(d.get("display_name", ""))
 	return ""
 
 static func create_module_for_relic(relic_id: StringName) -> PolyominoModuleData:
-	var def = _get_defs().get(relic_id, null)
+	var resolved_id: StringName = _resolve_id(relic_id)
+	var def = _get_defs().get(resolved_id, null)
 	if def == null:
 		push_warning("PolyominoRelicDatabase: Unknown relic ID '%s'" % relic_id)
 		return null
 	var mod := PolyominoModuleData.new()
-	mod.module_id = relic_id
+	mod.module_id = resolved_id
 	mod.display_name = str(def.get("display_name", ""))
 	mod.tier = int(def.get("tier", 1))
 	mod.bumper_durability = int(def.get("bumper_durability", 0))
@@ -217,6 +225,14 @@ static func _build_boss_amplifiers() -> void:
 	_def(&"stormgrid_coupling", "Stormgrid Coupling", 3, "3x3 Corner Cradle", "Magnetic Stabilizer Track + Arc Terminal",
 		[Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2), Vector2i(1,2)],
 		{Vector2i(0,0): CellType.GUIDE_RAIL, Vector2i(0,1): CellType.GUIDE_RAIL, Vector2i(0,2): CellType.GUIDE_RAIL, Vector2i(1,0): CellType.ROTARY_BOOSTER, Vector2i(1,1): CellType.BUMPER, Vector2i(1,2): CellType.ROTARY_BOOSTER})
+
+	_def(&"leech_singularity", "Leech Singularity", 3, "3x3 Horseshoe Arch", "Dual High-Volume Drain Siphons + Energize Well",
+		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1)],
+		{Vector2i(1,0): CellType.ROTARY_BOOSTER, Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(2,0): CellType.MANA_SIPHON, Vector2i(0,1): CellType.MANA_SIPHON, Vector2i(2,1): CellType.MANA_SIPHON})
+
+	_def(&"phantom_resonance", "Phantom Resonance", 3, "3x3 Spectral Tunnel", "Permeable Siphon Rails + Tesla Arc Resonator",
+		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1), Vector2i(0,2), Vector2i(2,2)],
+		{Vector2i(1,0): CellType.ROTARY_BOOSTER, Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(2,0): CellType.MANA_SIPHON, Vector2i(0,1): CellType.MANA_SIPHON, Vector2i(2,1): CellType.MANA_SIPHON, Vector2i(0,2): CellType.GUIDE_RAIL, Vector2i(2,2): CellType.GUIDE_RAIL})
 
 static func _build_wall_break_cross_links() -> void:
 	# Tier 2: Synergy Modules & Cross-Links (3 to 5 Cells)
