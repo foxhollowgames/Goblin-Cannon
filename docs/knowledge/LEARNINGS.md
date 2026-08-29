@@ -30,6 +30,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-019`](#lrn-019) | TASK-032 | `audio_and_mechanics` | Relic Machinery Audio Attenuation and Concurrency Throttling | 2026-08-29 |
 | [`LRN-020`](#lrn-020) | TASK-034 | `tooling` | Zero-Dependency Local Ollama Code Generation CLI | 2026-08-29 |
 | [`LRN-021`](#lrn-021) | TASK-035 | `ui_and_rewards` | Relic Selection Screen Layout and Machinery Composition Preview Specification | 2026-08-29 |
+| [`LRN-022`](#lrn-022) | TASK-035 | `ui` | Normalized Polyomino Relic Layout and Kinetic Machinery Preview | 2026-08-29 |
 
 ---
 
@@ -368,5 +369,21 @@ Draft reward cards require compact normalized 2D polyomino shape rendering and d
 
 #### Actionable Guideline for Future Agents
 When designing relic reward draft cards, inspect PolyominoRelicDatabase and render multi-cell shapes and component glyphs directly below the card title.
+
+---
+
+### <a id="lrn-022"></a> LRN-022: Normalized Polyomino Relic Layout and Kinetic Machinery Preview
+- **Task:** `TASK-035`
+- **Category:** `ui`
+- **Created:** `2026-08-29T11:34:02.105508`
+
+#### Context & Problem
+Relic draft cards required visual multi-cell footprint rendering and kinetic machinery glyphs below the title.
+
+#### Key Insight & Learning
+Calculating min and max bounding coordinates centers irregular polyomino shapes cleanly in compact preview controls.
+
+#### Actionable Guideline for Future Agents
+Always normalize local cell coordinates and center polyomino bounds horizontally and vertically in UI reward cards.
 
 ---
