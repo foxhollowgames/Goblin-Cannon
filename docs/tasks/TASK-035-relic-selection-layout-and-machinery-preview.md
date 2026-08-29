@@ -1,6 +1,6 @@
 # TASK-035: Relic Selection Screen Layout and Machine Composition Preview
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Visuals / Rewards
 - **Target Branch:** `feature/relic-selection-preview`
@@ -55,10 +55,10 @@ Help the player understand the spatial footprint and internal mechanism of each 
 
 ## Acceptance Criteria
 
-- [ ] Relic selection cards show a polyomino layout preview directly underneath the card title.
-- [ ] The preview renders the exact multi-cell spatial footprint of the relic.
-- [ ] Cells show comic-style ink borders and tier-based accent colors.
-- [ ] Internal kinetic machinery components (bumpers, accelerators, funnels, boosters) render clear glyphs.
-- [ ] Multi-cell shapes are centered and scaled cleanly without clipping text or borders.
-- [ ] Upgrades without polyomino definitions fall back cleanly without layout distortion.
-- [ ] Headless unit tests verify preview generation and component rendering across all campaign relics.
+- [x] Relic selection cards show a polyomino layout preview directly underneath the card title.
+- [x] The preview renders the exact multi-cell spatial footprint of the relic.
+- [x] Cells show comic-style ink borders and tier-based accent colors.
+- [x] Internal kinetic machinery components (bumpers, accelerators, funnels, boosters) render clear glyphs.
+- [x] Multi-cell shapes are centered and scaled cleanly without clipping text or borders.
+- [x] Upgrades without polyomino definitions fall back cleanly without layout distortion.
+- [x] Headless unit tests verify preview generation and component rendering across all campaign relics.

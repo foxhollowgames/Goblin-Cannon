@@ -4,6 +4,9 @@ extends Control
 signal pick_selected(pick: Resource)
 signal draft_skipped
 
+const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
+const RelicLayoutPreview = preload("res://scenes/rewards/relic_layout_preview.gd")
+
 var _picks: Array = []
 var _show_skip: bool = false
 var _skip_btn: Button
@@ -40,7 +43,7 @@ func _ready() -> void:
 	center.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(center)
 	var panel: PanelContainer = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(720, 320)
+	panel.custom_minimum_size = Vector2(760, 420)
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = Color(0.14, 0.08, 0.18, 0.98)
@@ -174,7 +177,7 @@ func _make_card(pick: Resource, index: int) -> Control:
 	var name_str: String = pick.get("display_name") if pick else "Upgrade"
 	var desc_str: String = pick.get("description") if pick else ""
 	var panel: PanelContainer = PanelContainer.new()
-	panel.custom_minimum_size = Vector2(200, 220)
+	panel.custom_minimum_size = Vector2(210, 290)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -193,7 +196,7 @@ func _make_card(pick: Resource, index: int) -> Control:
 	var card_vbox: VBoxContainer = VBoxContainer.new()
 	card_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	card_vbox.add_theme_constant_override("separation", 12)
+	card_vbox.add_theme_constant_override("separation", 10)
 	panel.add_child(card_vbox)
 	var name_label: Label = Label.new()
 	name_label.text = name_str
@@ -202,6 +205,18 @@ func _make_card(pick: Resource, index: int) -> Control:
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	card_vbox.add_child(name_label)
+
+	var upgrade_id: StringName = StringName(pick.get("upgrade_id")) if (pick and "upgrade_id" in pick) else &""
+	if PolyominoRelicDatabase.has_relic_definition(upgrade_id):
+		var preview: RelicLayoutPreview = RelicLayoutPreview.new()
+		preview.setup_for_relic(upgrade_id)
+		card_vbox.add_child(preview)
+	else:
+		var fallback_spacer: Control = Control.new()
+		fallback_spacer.custom_minimum_size = Vector2(0, 8)
+		fallback_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		card_vbox.add_child(fallback_spacer)
+
 	var desc_label: RichTextLabel = RichTextLabel.new()
 	desc_label.bbcode_enabled = true
 	desc_label.fit_content = true
