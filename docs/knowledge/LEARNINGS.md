@@ -29,7 +29,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-018`](#lrn-018) | TASK-033 | `subagents` | Open-Model Subagent Allocation & Test State Isolation | 2026-08-29 |
 | [`LRN-019`](#lrn-019) | TASK-032 | `audio_and_mechanics` | Relic Machinery Audio Attenuation and Concurrency Throttling | 2026-08-29 |
 | [`LRN-020`](#lrn-020) | TASK-034 | `tooling` | Zero-Dependency Local Ollama Code Generation CLI | 2026-08-29 |
-| [`LRN-021`](#lrn-021) | TASK-034 | `audio_and_mechanics` | Repetitive Sound Effect Pitch Randomization and Throttling Utility | 2026-08-29 |
+| [`LRN-021`](#lrn-021) | TASK-035 | `ui_and_rewards` | Relic Selection Screen Layout and Machinery Composition Preview Specification | 2026-08-29 |
 
 ---
 
@@ -355,18 +355,18 @@ Use python scripts/ollama_coder.py [generate|edit|test] to produce GDScript with
 
 ---
 
-### <a id="lrn-021"></a> LRN-021: Repetitive Sound Effect Pitch Randomization and Throttling Utility
-- **Task:** `TASK-034`
-- **Category:** `audio_and_mechanics`
-- **Created:** `2026-08-29T10:57:29.825047`
+### <a id="lrn-021"></a> LRN-021: Relic Selection Screen Layout and Machinery Composition Preview Specification
+- **Task:** `TASK-035`
+- **Category:** `ui_and_rewards`
+- **Created:** `2026-08-29T11:14:36.424883`
 
 #### Context & Problem
-Repetitive sound effects cause acoustic fatigue during rapid gameplay collisions.
+The relic selection screen in major_upgrade_draft_panel needed a visual representation of polyomino relic shapes and machine parts directly underneath the title.
 
 #### Key Insight & Learning
-Central pitch randomization within a narrow band (0.95 to 1.05) combined with key-based millisecond throttling prevents acoustic fatigue and audio stacking.
+Draft reward cards require compact normalized 2D polyomino shape rendering and distinct machine component glyphs so players see module geometry before drafting.
 
 #### Actionable Guideline for Future Agents
-Always use AudioPitchRandomizer for frequent audio triggers to ensure narrow pitch modulation, concurrency throttling, and correct bus routing.
+When designing relic reward draft cards, inspect PolyominoRelicDatabase and render multi-cell shapes and component glyphs directly below the card title.
 
 ---
