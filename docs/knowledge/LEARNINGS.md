@@ -32,6 +32,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-021`](#lrn-021) | TASK-035 | `ui_and_rewards` | Relic Selection Screen Layout and Machinery Composition Preview Specification | 2026-08-29 |
 | [`LRN-022`](#lrn-022) | TASK-035 | `ui` | Normalized Polyomino Relic Layout and Kinetic Machinery Preview | 2026-08-29 |
 | [`LRN-023`](#lrn-023) | TASK-031 | `ui_and_controls` | Dynamic Grab Offset Preservation on Polyomino Relic In-Flight Rotation | 2026-08-29 |
+| [`LRN-024`](#lrn-024) | TASK-031 | `godot_engine` | Drag Controller Overlay Hierarchy and Control Mouse Filter Pass-Through | 2026-08-29 |
 
 ---
 
@@ -402,5 +403,21 @@ Storing the grabbed cell index and querying the anchored rotated shape at that i
 
 #### Actionable Guideline for Future Agents
 Always track the grabbed cell index during drag initiation and dynamically compute the rotated cell offset using get_anchored_rotated_cells.
+
+---
+
+### <a id="lrn-024"></a> LRN-024: Drag Controller Overlay Hierarchy and Control Mouse Filter Pass-Through
+- **Task:** `TASK-031`
+- **Category:** `godot_engine`
+- **Created:** `2026-08-29T17:19:00.222062`
+
+#### Context & Problem
+When initiating dragging from board Node2D elements, parent container Controls with default mouse_filter MOUSE_FILTER_STOP swallow clicks, and children of hidden UI panels hide visual ghost previews.
+
+#### Key Insight & Learning
+Setting mouse_filter to MOUSE_FILTER_IGNORE on layout containers allows clicks through to _input handlers. Parenting drag controllers directly to the top-level CanvasLayer keeps ghost preview overlays visible even when sibling drawer panels are closed.
+
+#### Actionable Guideline for Future Agents
+Always set mouse_filter to IGNORE on full-screen container controls and mount global drag preview controllers on top-level CanvasLayers.
 
 ---
