@@ -1,6 +1,9 @@
 extends Node
 ## RewardHandler (§6.10). Milestones, wall-break synergies, treasure-chest onboard passives, boss amplifiers.
 
+const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
+const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
+
 ## Relative weight for major/boss picks when required ball types are not in the run (vs 1.0 when satisfied).
 const MAJOR_UPGRADE_UNOWNED_BALL_WEIGHT: float = 0.05
 
@@ -538,116 +541,27 @@ func apply_peg_shop_unlock(kind: String) -> void:
 		_:
 			pass
 
-## Apply chosen major upgrade (wall break). Stack caps enforced here.
+func _add_relic_to_junk_box(uid: StringName) -> void:
+	if GameState and GameState.junk_box != null:
+		var item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(uid)
+		if item != null:
+			GameState.junk_box.add_item_auto(item)
+
+## Apply chosen major upgrade (wall break). Creates and adds the polyomino relic item to the Junk Box.
 func apply_major_upgrade(pick: Resource) -> void:
 	if not pick is MajorUpgradeDefinition:
 		return
 	var def: MajorUpgradeDefinition = pick as MajorUpgradeDefinition
 	var uid: StringName = def.upgrade_id
-	match uid:
-		&"plain_surge", &"plain_horde", &"plain_momentum":
-			apply_stat_upgrade(String(uid))
-			return
-	# ——— Cross-link and ball enhancements (stack caps) ———
-	var max_stacks: int = -1
-	match uid:
-		&"impact_burst": max_stacks = 2
-		&"hyper_elastic", &"overdrive_hits", &"supernova_peg", &"chain_conduction": max_stacks = 1
-		&"spreading_rot", &"energy_collapse", &"cluster_grenade", &"storm_feedback": max_stacks = 1
-		&"final_arc_detonation", &"overcurrent_surge", &"fragment_echo", &"mass_cascade": max_stacks = 1
-		&"ghost_trail", &"phase_instability": max_stacks = 1
-		&"explosions_apply_energize", &"chain_hits_apply_energize": max_stacks = 1
-		&"overcharged_drain", &"shrapnel_split", &"energized_fragments", &"arc_twins": max_stacks = 1
-		&"phase_siphon", &"phase_detonation", &"spectral_conduit": max_stacks = 1
-		&"kinetic_charge", &"static_bounce", &"parasitic_arc", &"draining_fragments": max_stacks = 1
-		&"resonant_bounce", &"ricochet_blast", &"blast_launch": max_stacks = 1
-		&"volt_primer", &"chain_surge_wrench", &"goblin_width_pulse", &"magnet_arc_snare", &"spark_trampoline", &"chest_random_ball": max_stacks = 1
-	if max_stacks >= 0:
-		if GameState.get_wall_break_upgrade_stacks(uid) < max_stacks:
-			GameState.add_wall_break_upgrade(uid, 1)
-		return
-	# No cap or stackable
-	match uid:
-		&"blast_lift", &"fragmentation_tag", &"overclock_network":
-			GameState.add_wall_break_upgrade(uid, 1)
-			return
-	# ——— Tag upgrades ———
-	if uid == &"explosion_radius":
-		GameState.explosion_radius_bonus += 1
-		return
-	if uid == &"explosion_peg_hit_count":
-		GameState.explosion_peg_hit_count_bonus += 1
-		return
-	if uid == &"explosion_impulse":
-		GameState.explosion_impulse_bonus += 0.25
-		return
-	if uid == &"chain_arc":
-		GameState.chain_arc_bonus += 1
-		return
-	if uid == &"chain_range":
-		GameState.chain_range_bonus += 1
-		return
-	if uid == &"max_energize_stacks":
-		GameState.max_energize_stacks_per_peg += 1
-		return
-	if uid == &"energize_decays_slower":
-		GameState.energize_decay_scale *= 0.85
-		return
-	if uid == &"energized_pegs_repair_faster":
-		GameState.energized_peg_repair_scale += 0.2
-		return
-	# ——— Board upgrades (peg unlocks are milestone-shop only) ———
-	if uid == &"global_peg_durability":
-		GameState.global_peg_durability_bonus += 1
-		return
-	if uid == &"peg_recovery_speed":
-		GameState.peg_recovery_speed_scale += 0.15
-		return
-	# ——— Treasure chest numeric passives (stack caps) ———
-	match uid:
-		&"devastating_barrage":
-			if not GameState.chest_devastating_barrage_taken:
-				GameState.chest_devastating_barrage_taken = true
-				GameState.cannon_base_damage_bonus += 10
-			return
-		&"compressed_charge":
-			if not GameState.chest_compressed_charge_taken:
-				GameState.chest_compressed_charge_taken = true
-				GameState.cannon_charge_reduction += Constants.legacy_internal_energy_to_current(2000)
-			return
-		&"chest_leech_drain":
-			GameState.chest_leech_drain_stacks = mini(Constants.CHEST_PASSIVE_MAX_STACKS, GameState.chest_leech_drain_stacks + 1)
-			return
-		&"chest_leech_duration":
-			GameState.chest_leech_duration_stacks = mini(Constants.CHEST_PASSIVE_MAX_STACKS, GameState.chest_leech_duration_stacks + 1)
-			return
-		&"chest_phantom_energy":
-			GameState.chest_phantom_energy_stacks = mini(Constants.CHEST_PASSIVE_MAX_STACKS, GameState.chest_phantom_energy_stacks + 1)
-			return
-		&"chest_rubbery_energy":
-			GameState.chest_rubbery_energy_stacks = mini(Constants.CHEST_PASSIVE_MAX_STACKS, GameState.chest_rubbery_energy_stacks + 1)
-			return
-		&"chest_bounce_energy":
-			GameState.chest_bounce_energy_stacks = mini(Constants.CHEST_PASSIVE_MAX_STACKS, GameState.chest_bounce_energy_stacks + 1)
-			return
-		&"chest_split_energy":
-			GameState.chest_split_energy_stacks = mini(Constants.CHEST_PASSIVE_MAX_STACKS, GameState.chest_split_energy_stacks + 1)
-			return
+	_add_relic_to_junk_box(uid)
 
-## Apply chosen boss amplifier (city completion). Each can only be picked once.
+## Apply chosen boss amplifier (city completion). Creates and adds the polyomino relic item to the Junk Box.
 func apply_boss_upgrade(pick: Resource) -> void:
 	if not pick is MajorUpgradeDefinition:
 		return
 	var def: MajorUpgradeDefinition = pick as MajorUpgradeDefinition
 	var uid: StringName = def.upgrade_id
-	if GameState.has_boss_upgrade(uid):
-		return
-	match uid:
-		&"renewal_pact":
-			GameState.peg_recovery_speed_scale += 0.12
-		_:
-			pass
-	GameState.add_boss_upgrade(uid, 1)
+	_add_relic_to_junk_box(uid)
 
 func has_pending_peg_selection() -> bool:
 	return not _pending_peg_selection_kind.is_empty()

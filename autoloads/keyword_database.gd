@@ -177,11 +177,15 @@ func show_flyout(keyword_key: String, global_pos: Vector2) -> void:
 	var def: String = get_definition(keyword_key)
 	if def.is_empty():
 		return
+	show_flyout_custom(keyword_key, def, global_pos)
+
+## Shows a custom instant flyout tooltip with arbitrary title and body text adjacent to global_pos.
+func show_flyout_custom(title_text: String, body_text: String, global_pos: Vector2) -> void:
 	if not _flyout_panel:
 		_setup_flyout()
 
-	_flyout_title.text = keyword_key
-	_flyout_body.text = def
+	_flyout_title.text = title_text
+	_flyout_body.text = body_text
 	_flyout_panel.visible = true
 
 	var vp_size: Vector2 = Vector2(1280, 720)
