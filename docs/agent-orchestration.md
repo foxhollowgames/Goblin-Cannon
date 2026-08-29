@@ -101,3 +101,16 @@ Some teams describe a **watchdog** (poll for work), **observer** (summarize acti
 
 - Prefer **env vars** for any API keys; keep secrets out of git.
 - **Slot leasing** and multi-machine pools matter when **many** workers share **one** integration environment—usually overkill for a single Godot repo on one PC.
+
+---
+
+## Antigravity & Open-Model Sub-Agent Orchestration
+
+When running multi-agent workflows inside Antigravity:
+1. **Planning in Antigravity:** The main orchestrator manages task planning, knowledge retrieval, git branches, and PR reviews.
+2. **Sub-Agent Execution:** Dedicated sub-agents (`godot_developer`, `pr_reviewer`) are invoked to implement features and audit code.
+3. **Recommended Open Models for Sub-Agents:**
+   - **Qwen3 Coder 480B-A35B Instruct (or Qwen 2.5 Coder 32B):** Best training alignment for Godot 4 GDScript syntax, math vectors, and game algorithms.
+   - **GLM 5.2:** Top open-weight model for long-horizon agentic refactoring and repository-scale context.
+   - **Devstral Small 2505 (24B):** Best local workstation model (fits in a single 24 GB GPU or 32 GB RAM).
+4. **Lifecycle Discipline:** The orchestrator must terminate all sub-agents immediately after deliverables are received (`manage_subagents(Action="kill_all")`).

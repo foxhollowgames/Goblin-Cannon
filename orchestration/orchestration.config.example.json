@@ -21,7 +21,12 @@
   "godotHeadlessTimeoutMs": 600000,
   "godotTestFixRetries": -1,
   "executionRecoveryRetries": 2,
-  "agentModelOptions": [],
+  "agentModelOptions": [
+    "qwen3-coder-480b-instruct",
+    "glm-5.2",
+    "devstral-small-2505",
+    "qwen-2.5-coder-32b"
+  ],
   "limits": {
     "maxParallelWorktrees": 4
   },
