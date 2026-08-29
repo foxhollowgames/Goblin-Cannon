@@ -33,6 +33,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-022`](#lrn-022) | TASK-035 | `ui` | Normalized Polyomino Relic Layout and Kinetic Machinery Preview | 2026-08-29 |
 | [`LRN-023`](#lrn-023) | TASK-031 | `ui_and_controls` | Dynamic Grab Offset Preservation on Polyomino Relic In-Flight Rotation | 2026-08-29 |
 | [`LRN-024`](#lrn-024) | TASK-031 | `godot_engine` | Drag Controller Overlay Hierarchy and Control Mouse Filter Pass-Through | 2026-08-29 |
+| [`LRN-025`](#lrn-025) | TASK-031 | `board_systems` | Baseline Peg Suppression and Restoration Under Movable Polyomino Relics | 2026-08-29 |
 
 ---
 
@@ -419,5 +420,21 @@ Setting mouse_filter to MOUSE_FILTER_IGNORE on layout containers allows clicks t
 
 #### Actionable Guideline for Future Agents
 Always set mouse_filter to IGNORE on full-screen container controls and mount global drag preview controllers on top-level CanvasLayers.
+
+---
+
+### <a id="lrn-025"></a> LRN-025: Baseline Peg Suppression and Restoration Under Movable Polyomino Relics
+- **Task:** `TASK-031`
+- **Category:** `board_systems`
+- **Created:** `2026-08-29T17:33:31.002706`
+
+#### Context & Problem
+Permanently freeing pegs covered by a polyomino relic causes the board to permanently lose pegs whenever relics are moved or rearranged.
+
+#### Key Insight & Learning
+Suppressing pegs (disabling collision, hiding visibility, pausing process) rather than freeing them allows pristine restoration of the baseline board layout when relics are moved or unslotted.
+
+#### Actionable Guideline for Future Agents
+Never permanently free baseline board elements under temporary or repositionable overlays; track and suppress them, then unsuppress on removal.
 
 ---
