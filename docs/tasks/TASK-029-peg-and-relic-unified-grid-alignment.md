@@ -1,6 +1,6 @@
 # TASK-029: Peg and Relic Unified Grid Alignment
 
-- **Status:** IN_REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Board Physics
 - **Target Branch:** `feature/peg-and-relic-unified-grid-alignment`
