@@ -1,6 +1,6 @@
 # TASK-031: Board Relic Repositioning and In-Place Dragging
 
-- **Status:** IN_REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Controls
 - **Target Branch:** `feature/board-relic-repositioning`
