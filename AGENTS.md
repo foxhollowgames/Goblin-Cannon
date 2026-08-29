@@ -17,6 +17,7 @@ Do not duplicate long exploration: follow that order before opening unrelated pa
    6. Resolve any findings, get approval, and merge into `main` (`gh pr merge`).
    7. Terminate all sub-agents immediately (`manage_subagents(Action="kill_all")`).
    8. Run the post-merge learning loop (`python scripts/learnings.py add`).
+5. **Mandatory Local Ollama Code Generation**: For all code generation, editing, and test authoring, use `python scripts/ollama_coder.py [generate|edit|test]` with local Qwen 2.5 Coder.
 
 
 
