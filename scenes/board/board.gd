@@ -2344,6 +2344,8 @@ func _spawn_peg_layout() -> void:
 	var peg_id_counter: int = 0
 	for row in range(BOARD_GRID_ROWS):
 		for col in range(BOARD_GRID_COLS):
+			if (row + col) % 2 != 0:
+				continue
 			var grid_cell := Vector2i(col, row)
 			var pos: Vector2 = board_cell_to_world(grid_cell)
 			var p: Node = _peg_scene.instantiate()

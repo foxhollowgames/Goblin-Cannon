@@ -45,31 +45,38 @@ func test_coordinate_mapping_and_spacing() -> void:
 	board.free()
 
 func test_initial_pegs_grid_alignment() -> void:
-	begin("Initial peg layout spawns on exact integer grid coordinates without row offsets")
+	begin("Initial peg layout spawns in staggered pattern (every other cell) on integer grid coordinates")
 	var board: Node2D = Node2D.new()
 	board.set_script(BoardScript)
 	board._ready()
 
-	var expected_total_pegs: int = board.BOARD_GRID_COLS * board.BOARD_GRID_ROWS
-	assert_eq(board._peg_by_id.size(), expected_total_pegs, "spawned exact 16x8 = 128 initial pegs")
+	var expected_total_pegs: int = (board.BOARD_GRID_COLS * board.BOARD_GRID_ROWS) / 2
+	assert_eq(board._peg_by_id.size(), expected_total_pegs, "spawned exact 64 initial pegs (half of 16x8 cells)")
 
 	for r in range(board.BOARD_GRID_ROWS):
 		for c in range(board.BOARD_GRID_COLS):
 			var cell := Vector2i(c, r)
 			var peg: Node = board.get_peg_at_cell(cell)
-			assert_true(peg != null, "peg exists at grid cell %s" % str(cell))
-			if peg:
-				var expected_pos: Vector2 = board.board_cell_to_world(cell)
-				assert_eq(peg.position, expected_pos, "peg at %s matches exact cell world position" % str(cell))
-				assert_eq(board.world_to_board_cell(peg.position), cell, "peg position maps to cell %s" % str(cell))
+			if (r + c) % 2 == 0:
+				assert_true(peg != null, "peg exists at staggered grid cell %s" % str(cell))
+				if peg:
+					var expected_pos: Vector2 = board.board_cell_to_world(cell)
+					assert_eq(peg.position, expected_pos, "peg at %s matches exact cell world position" % str(cell))
+					assert_eq(board.world_to_board_cell(peg.position), cell, "peg position maps to cell %s" % str(cell))
+			else:
+				assert_true(peg == null, "no peg at empty spot %s" % str(cell))
+				assert_true(board.is_cell_empty(cell), "cell %s is empty" % str(cell))
 
-	# Verify columns are aligned vertically with zero horizontal offset across odd and even rows
+	# Verify rows are staggered: Row 0 has even cols, Row 1 has odd cols
 	for c in range(board.BOARD_GRID_COLS):
 		var p_row0: Node = board.get_peg_at_cell(Vector2i(c, 0))
 		var p_row1: Node = board.get_peg_at_cell(Vector2i(c, 1))
-		assert_true(p_row0 != null and p_row1 != null, "pegs exist in row 0 and row 1 for col %d" % c)
-		if p_row0 and p_row1:
-			assert_eq(p_row0.position.x, p_row1.position.x, "col %d has identical X in row 0 and row 1 (no odd-row offset)" % c)
+		if c % 2 == 0:
+			assert_true(p_row0 != null, "row 0 has peg at even col %d" % c)
+			assert_true(p_row1 == null, "row 1 has empty space at even col %d" % c)
+		else:
+			assert_true(p_row0 == null, "row 0 has empty space at odd col %d" % c)
+			assert_true(p_row1 != null, "row 1 has peg at odd col %d" % c)
 
 	board.free()
 
@@ -87,7 +94,7 @@ func test_pegs_and_polyomino_share_alignment() -> void:
 	var item := JunkBoxItem.new(&"box_item", JunkBoxItem.POLYOMINO_MODULE)
 	item.module_data = mod
 
-	var target_cell := Vector2i(3, 2)
+	var target_cell := Vector2i(2, 2)
 	var expected_origin_world: Vector2 = board.board_cell_to_world(target_cell)
 
 	var peg_at_target: Node = board.get_peg_at_cell(target_cell)
@@ -119,17 +126,17 @@ func test_grid_query_helpers() -> void:
 	assert_false(board.is_cell_in_bounds(Vector2i(16, 0)), "(16,0) is out of bounds")
 	assert_false(board.is_cell_in_bounds(Vector2i(0, 8)), "(0,8) is out of bounds")
 
-	# Full board has 0 empty cells initially
-	assert_eq(board.get_empty_grid_cells().size(), 0, "0 empty cells on full initial board")
-	assert_false(board.is_cell_empty(Vector2i(4, 3)), "cell (4,3) is not empty")
+	# Staggered board has 64 empty cells initially
+	assert_eq(board.get_empty_grid_cells().size(), 64, "64 empty cells on initial staggered board")
+	assert_false(board.is_cell_empty(Vector2i(0, 0)), "cell (0,0) has peg")
+	assert_true(board.is_cell_empty(Vector2i(1, 0)), "cell (1,0) is empty spot")
 
-	# Unslot peg at (4, 3)
-	var removed: Node = board.unslot_peg_at_cell(Vector2i(4, 3))
+	# Unslot peg at (0, 0)
+	var removed: Node = board.unslot_peg_at_cell(Vector2i(0, 0))
 	assert_true(removed != null, "unslot_peg_at_cell returns peg")
-	assert_true(board.is_cell_empty(Vector2i(4, 3)), "cell (4,3) is now empty")
-	assert_eq(board.get_peg_at_cell(Vector2i(4, 3)), null, "get_peg_at_cell returns null for empty cell")
-	assert_eq(board.get_empty_grid_cells().size(), 1, "1 empty cell on board")
-	assert_eq(board.get_empty_grid_cells()[0], Vector2i(4, 3), "empty cell is (4,3)")
+	assert_true(board.is_cell_empty(Vector2i(0, 0)), "cell (0,0) is now empty")
+	assert_eq(board.get_peg_at_cell(Vector2i(0, 0)), null, "get_peg_at_cell returns null for unslotted cell")
+	assert_eq(board.get_empty_grid_cells().size(), 65, "65 empty cells on board")
 
 	if removed:
 		removed.free()
@@ -141,20 +148,15 @@ func test_dynamic_peg_spawning_targets_empty_grid_cells() -> void:
 	board.set_script(BoardScript)
 	board._ready()
 
-	# Clear two specific cells: (6, 3) and (10, 4)
-	var p1: Node = board.unslot_peg_at_cell(Vector2i(6, 3))
-	var p2: Node = board.unslot_peg_at_cell(Vector2i(10, 4))
-	if p1: p1.free()
-	if p2: p2.free()
+	# (1, 0) is an empty cell in the staggered layout
+	assert_true(board.is_cell_empty(Vector2i(1, 0)), "cell (1,0) is empty")
 
-	assert_eq(board.get_empty_grid_cells().size(), 2, "2 empty cells available")
-
-	# Resolve position preferring near (6, 3)
-	var pref_world: Vector2 = board.board_cell_to_world(Vector2i(6, 3)) + Vector2(5.0, 5.0)
+	# Resolve position preferring near (1, 0)
+	var pref_world: Vector2 = board.board_cell_to_world(Vector2i(1, 0)) + Vector2(3.0, 4.0)
 	var resolved: Vector2 = board.resolve_milestone_event_position(pref_world, 100.0, 800.0)
-	var expected_pos: Vector2 = board.board_cell_to_world(Vector2i(6, 3))
-	assert_eq(resolved, expected_pos, "resolved position matches empty grid cell (6,3)")
-	assert_eq(board.world_to_board_cell(resolved), Vector2i(6, 3), "resolved cell is (6,3)")
+	var expected_pos: Vector2 = board.board_cell_to_world(Vector2i(1, 0))
+	assert_eq(resolved, expected_pos, "resolved position matches empty grid cell (1,0)")
+	assert_eq(board.world_to_board_cell(resolved), Vector2i(1, 0), "resolved cell is (1,0)")
 
 	# Milestone event peg spawn
 	var dynamic_id: int = board.spawn_milestone_event_peg_at(pref_world, 100.0, 800.0)
@@ -162,7 +164,7 @@ func test_dynamic_peg_spawning_targets_empty_grid_cells() -> void:
 	assert_true(dynamic_peg != null, "milestone peg spawned")
 	if dynamic_peg:
 		assert_eq(dynamic_peg.position, expected_pos, "milestone peg placed at exact grid coordinates")
-		assert_eq(board.world_to_board_cell(dynamic_peg.position), Vector2i(6, 3), "milestone peg at cell (6,3)")
+		assert_eq(board.world_to_board_cell(dynamic_peg.position), Vector2i(1, 0), "milestone peg at cell (1,0)")
 
 	board.free()
 
@@ -172,19 +174,21 @@ func test_unslot_and_place_peg_at_cell() -> void:
 	board.set_script(BoardScript)
 	board._ready()
 
-	var test_cell := Vector2i(7, 4)
-	var old_peg: Node = board.unslot_peg_at_cell(test_cell)
-	assert_true(old_peg != null, "old peg unslotted")
+	# (0, 0) has a peg initially
+	var old_peg: Node = board.unslot_peg_at_cell(Vector2i(0, 0))
+	assert_true(old_peg != null, "old peg unslotted from (0,0)")
 	if old_peg: old_peg.free()
 
-	assert_true(board.is_cell_empty(test_cell), "cell is empty")
+	assert_true(board.is_cell_empty(Vector2i(0, 0)), "cell (0,0) is now empty")
 
-	var new_peg: Node = board.place_peg_at_cell(test_cell, null, "bomb")
-	assert_true(new_peg != null, "new peg placed at cell")
+	# Place new bomb peg into empty staggered cell (1, 0)
+	assert_true(board.is_cell_empty(Vector2i(1, 0)), "cell (1,0) starts empty")
+	var new_peg: Node = board.place_peg_at_cell(Vector2i(1, 0), null, "bomb")
+	assert_true(new_peg != null, "new peg placed at cell (1,0)")
 	if new_peg:
-		assert_eq(new_peg.position, board.board_cell_to_world(test_cell), "new peg placed at exact grid world pos")
+		assert_eq(new_peg.position, board.board_cell_to_world(Vector2i(1, 0)), "new peg placed at exact grid world pos")
 		assert_eq(new_peg.peg_extra_kind, "bomb", "peg kind is bomb")
-		assert_eq(board.get_peg_at_cell(test_cell), new_peg, "get_peg_at_cell returns new peg")
-		assert_false(board.is_cell_empty(test_cell), "cell is no longer empty")
+		assert_eq(board.get_peg_at_cell(Vector2i(1, 0)), new_peg, "get_peg_at_cell returns new peg")
+		assert_false(board.is_cell_empty(Vector2i(1, 0)), "cell is no longer empty")
 
 	board.free()
