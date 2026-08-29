@@ -2707,15 +2707,21 @@ func set_drag_controller(controller: Node) -> void:
 	_drag_controller = controller
 
 func get_drag_controller() -> Node:
+	if _drag_controller == null:
+		_drag_controller = JunkBoxDragController.new()
+		_drag_controller.name = "JunkBoxDragController"
+		_drag_controller.board = self
+		add_child(_drag_controller)
 	return _drag_controller
 
 func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
 		_update_board_module_hover(get_global_mouse_position())
 
-	if not _drag_controller:
+	var controller: Node = get_drag_controller()
+	if not controller:
 		return
-	if "dragging_item" in _drag_controller and _drag_controller.dragging_item != null:
+	if "dragging_item" in controller and controller.dragging_item != null:
 		return
 	if event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
@@ -2727,8 +2733,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				var grab_offset: Vector2i = cell - origin_cell
 				unslot_module(item.instance_id if "instance_id" in item else &"")
 				KeywordDatabase.hide_flyout()
-				_drag_controller.start_drag(item, 1, origin_cell, grab_offset) # DragSource.BOARD = 1
-				get_viewport().set_input_as_handled()
+				controller.start_drag(item, 1, origin_cell, grab_offset) # DragSource.BOARD = 1
+				if is_inside_tree() and get_viewport():
+					get_viewport().set_input_as_handled()
 
 func _update_board_module_hover(mouse_pos: Vector2) -> void:
 	if _drag_controller and "dragging_item" in _drag_controller and _drag_controller.dragging_item != null:
@@ -2875,6 +2882,13 @@ func place_module(item: Resource, grid_pos: Vector2i, rotation: int = -1) -> boo
 	var occupied: Array = item.get_occupied_cells() if "get_occupied_cells" in item else [grid_pos]
 	for cell in occupied:
 		_occupied_board_cells[cell] = inst_id
+		var peg_node: Node = get_peg_at_cell(cell)
+		if peg_node and is_instance_valid(peg_node):
+			var pid: int = peg_node.peg_id if "peg_id" in peg_node else -1
+			if pid >= 0:
+				_peg_by_id.erase(pid)
+				_ghost_placed_pegs.erase(pid)
+			peg_node.queue_free()
 
 	_update_placed_module_visual(item)
 	var is_clear: bool = is_module_area_clear_of_balls(item)
