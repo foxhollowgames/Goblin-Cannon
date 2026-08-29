@@ -1,6 +1,6 @@
 # TASK-029: Peg and Relic Unified Grid Alignment
 
-- **Status:** READY
+- **Status:** IN_REVIEW
 - **Priority:** P1
 - **Category:** Systems / Board Physics
 - **Target Branch:** `feature/peg-and-relic-unified-grid-alignment`
@@ -39,8 +39,8 @@ Unify the spatial coordinate system between standard pegs and polyomino relics.
 
 ## Acceptance Criteria
 
-- [ ] Pegs spawn directly on integer grid coordinates without row offsets.
-- [ ] Pegs and polyomino relic cells share identical spacing and alignment.
-- [ ] Coordinate conversion functions map peg positions accurately to grid cells.
-- [ ] Dynamic peg spawning targets valid empty cells on the grid.
-- [ ] Headless unit tests verify grid alignment and position calculation.
+- [x] Pegs spawn directly on integer grid coordinates without row offsets.
+- [x] Pegs and polyomino relic cells share identical spacing and alignment.
+- [x] Coordinate conversion functions map peg positions accurately to grid cells.
+- [x] Dynamic peg spawning targets valid empty cells on the grid.
+- [x] Headless unit tests verify grid alignment and position calculation.
