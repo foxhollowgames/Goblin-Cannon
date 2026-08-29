@@ -27,6 +27,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-016`](#lrn-016) | TASK-029 | `board_systems` | Rectangular Pegboard Layout and Polyomino Grid Alignment | 2026-08-29 |
 | [`LRN-017`](#lrn-017) | TASK-029 | `board_systems` | Staggered Checkerboard Peg Lattice on Discrete Rectangular Grid | 2026-08-29 |
 | [`LRN-018`](#lrn-018) | TASK-033 | `subagents` | Open-Model Subagent Allocation & Test State Isolation | 2026-08-29 |
+| [`LRN-019`](#lrn-019) | TASK-032 | `audio_and_mechanics` | Relic Machinery Audio Attenuation and Concurrency Throttling | 2026-08-29 |
 
 ---
 
@@ -317,5 +318,21 @@ Qwen3 Coder and GLM 5.2 provide high accuracy for Godot 4 GDScript, and tests mu
 
 #### Actionable Guideline for Future Agents
 Define specialized subagents with clear Godot 4 constraints and call _ensure_clean_state() in test functions that instantiate Board.
+
+---
+
+### <a id="lrn-019"></a> LRN-019: Relic Machinery Audio Attenuation and Concurrency Throttling
+- **Task:** `TASK-032`
+- **Category:** `audio_and_mechanics`
+- **Created:** `2026-08-29T09:42:05.941172`
+
+#### Context & Problem
+Kinetic polyomino machinery caused rapid audio triggers and harsh volume spikes during multi-ball collisions.
+
+#### Key Insight & Learning
+Setting default component volume to -16 dB, routing to a dedicated Machinery bus, applying slight pitch modulation [0.95, 1.05], and throttling duplicate triggers within 50ms produces clean acoustic mixing.
+
+#### Actionable Guideline for Future Agents
+Always route kinetic machinery audio through dedicated sub-buses with decibel levels below -12 dB, apply pitch variation, and enforce timestamp-based concurrency throttling.
 
 ---
