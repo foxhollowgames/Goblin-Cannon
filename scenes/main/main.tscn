@@ -55,17 +55,20 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 color = Color(0.023529, 0.070588, 0.090196, 1)
 
 [node name="LeftPanelBg" type="ColorRect" parent="BackgroundLayer" unique_id=1944894009]
 offset_right = 960.0
 offset_bottom = 720.0
+mouse_filter = 2
 color = Color(0.188235, 0.109804, 0.062745, 1)
 
 [node name="RightPanelBg" type="ColorRect" parent="BackgroundLayer" unique_id=1897018250]
 offset_left = 960.0
 offset_right = 1280.0
 offset_bottom = 720.0
+mouse_filter = 2
 color = Color(0.133333, 0.14902, 0.25098, 1)
 
 [node name="UILayer" type="CanvasLayer" parent="." unique_id=1561640443]
@@ -75,6 +78,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 960.0
 offset_bottom = 720.0
+mouse_filter = 2
 
 [node name="RunGold" type="Label" parent="UILayer/LeftPanel" unique_id=1535948081]
 layout_mode = 1
@@ -475,6 +479,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 
 [node name="DebugOverlay" type="Control" parent="UI" unique_id=255153995]
 layout_mode = 1
@@ -483,6 +488,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("15_ui")
 
 [node name="EnergyLabel" type="Label" parent="UI/DebugOverlay" unique_id=1571550672]

@@ -16,6 +16,46 @@ func run() -> void:
 	test_board_drag_cancellation_restores_position_and_rotation()
 	test_board_drag_to_junk_box_transfer()
 	test_in_flight_rotation_dynamic_grab_offset()
+	test_board_input_click_triggers_drag_with_closed_junk_box_panel()
+
+func test_board_input_click_triggers_drag_with_closed_junk_box_panel() -> void:
+	begin("Board _input click triggers drag and keeps ghost preview visible when junk box is closed")
+	var overlay := CanvasLayer.new()
+	var scene: PackedScene = load("res://scenes/ui/junk_box/junk_box_panel.tscn") as PackedScene
+	var panel: Control = scene.instantiate() as Control
+	overlay.add_child(panel)
+
+	var board: Node2D = Node2D.new()
+	board.set_script(BoardScript)
+	panel.set_board(board)
+
+	assert_false(panel.visible, "junk box panel is closed/hidden")
+	assert_true(panel.drag_controller != null, "drag controller exists")
+	assert_eq(panel.drag_controller.get_parent(), overlay, "drag controller reparented to overlay")
+
+	var mod := PolyominoModuleData.new()
+	mod.cells = [Vector2i(0, 0), Vector2i(1, 0)]
+	var item := JunkBoxItem.new(&"live_drag_item", JunkBoxItem.POLYOMINO_MODULE)
+	item.module_data = mod
+	board.place_module(item, Vector2i(3, 2))
+
+	# Click on cell (3, 2)
+	var click_world_pos: Vector2 = board.board_cell_to_world(Vector2i(3, 2))
+	var event := InputEventMouseButton.new()
+	event.button_index = MOUSE_BUTTON_LEFT
+	event.pressed = true
+	event.position = click_world_pos
+
+	board._input(event)
+
+	assert_eq(panel.drag_controller.dragging_item, item, "drag initiated via _input")
+	assert_eq(panel.drag_controller.drag_source, JunkBoxDragController.DragSource.BOARD, "drag source is BOARD")
+	assert_true(panel.drag_controller.ghost_preview.visible, "ghost preview is visible")
+
+	panel.drag_controller._cancel_drag()
+	panel.free()
+	overlay.free()
+	board.free()
 
 func test_board_click_starts_drag() -> void:
 	begin("Board click on placed relic initiates drag mode with accurate grab offset")
