@@ -1,6 +1,6 @@
 # TASK-032: Relic Audio Level Balancing and Volume Attenuation
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Audio / Balance
 - **Target Branch:** `feature/relic-audio-balancing`
