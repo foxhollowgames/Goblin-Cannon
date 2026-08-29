@@ -1,6 +1,6 @@
 # TASK-024: Polyomino and Irregular Relic Shapes, Sizes, and Data Definitions
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Data
 - **Target Branch:** `feature/polyomino-relic-shapes`
@@ -149,8 +149,8 @@ Map every relic to a multi-cell footprint and internal kinetic mechanism to serv
 
 ## Acceptance Criteria
 
-- [ ] All relics in Campaign 1 have assigned spatial footprint shapes and internal machinery specifications.
-- [ ] Shape matrix offsets and rotation transforms support regular and irregular polyominos.
-- [ ] Data resources implement `PolyominoModuleData` in Godot.
-- [ ] Headless unit tests pass with `tests/run_tests.gd`.
+- [x] All relics in Campaign 1 have assigned spatial footprint shapes and internal machinery specifications.
+- [x] Shape matrix offsets and rotation transforms support regular and irregular polyominos.
+- [x] Data resources implement `PolyominoModuleData` in Godot.
+- [x] Headless unit tests pass with `tests/run_tests.gd`.
 
