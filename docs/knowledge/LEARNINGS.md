@@ -26,6 +26,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-015`](#lrn-015) | TASK-032 | `audio_and_mechanics` | Relic Audio Attenuation and Boundary Wall Physics Architecture | 2026-08-29 |
 | [`LRN-016`](#lrn-016) | TASK-029 | `board_systems` | Rectangular Pegboard Layout and Polyomino Grid Alignment | 2026-08-29 |
 | [`LRN-017`](#lrn-017) | TASK-029 | `board_systems` | Staggered Checkerboard Peg Lattice on Discrete Rectangular Grid | 2026-08-29 |
+| [`LRN-018`](#lrn-018) | TASK-033 | `subagents` | Open-Model Subagent Allocation & Test State Isolation | 2026-08-29 |
 
 ---
 
@@ -300,5 +301,21 @@ Gating peg generation by (row + col) % 2 == 0 creates an alternating plinko latt
 
 #### Actionable Guideline for Future Agents
 Use checkerboard gating (row + col) % 2 == 0 on discrete grid coordinates to achieve staggered layout without floating-point row offsets.
+
+---
+
+### <a id="lrn-018"></a> LRN-018: Open-Model Subagent Allocation & Test State Isolation
+- **Task:** `TASK-033`
+- **Category:** `subagents`
+- **Created:** `2026-08-29T09:23:36.894900`
+
+#### Context & Problem
+Dispatching subagents with open-source coding models requires explicit role definitions and test clean state isolation.
+
+#### Key Insight & Learning
+Qwen3 Coder and GLM 5.2 provide high accuracy for Godot 4 GDScript, and tests must explicitly clear GameState before board instantiations to prevent state leaks.
+
+#### Actionable Guideline for Future Agents
+Define specialized subagents with clear Godot 4 constraints and call _ensure_clean_state() in test functions that instantiate Board.
 
 ---
