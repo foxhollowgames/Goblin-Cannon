@@ -24,6 +24,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-013`](#lrn-013) | TASK-028 | `godot_engine` | Slotted Board Relic Modifiers & Instant Hover Tooltips | 2026-08-29 |
 | [`LRN-014`](#lrn-014) | TASK-029 | `board_systems` | Unified Board Grid and Relic Mutual Exclusivity Architecture | 2026-08-29 |
 | [`LRN-015`](#lrn-015) | TASK-032 | `audio_and_mechanics` | Relic Audio Attenuation and Boundary Wall Physics Architecture | 2026-08-29 |
+| [`LRN-016`](#lrn-016) | TASK-029 | `board_systems` | Rectangular Pegboard Layout and Polyomino Grid Alignment | 2026-08-29 |
 
 ---
 
@@ -266,5 +267,21 @@ Kinetic polyomino machinery produces rapid audio triggers during high ball volum
 
 #### Actionable Guideline for Future Agents
 Always route machinery audio to dedicated sub-buses with volume limits, and define perimeter walls and internal dividers as explicit edge segment shapes.
+
+---
+
+### <a id="lrn-016"></a> LRN-016: Rectangular Pegboard Layout and Polyomino Grid Alignment
+- **Task:** `TASK-029`
+- **Category:** `board_systems`
+- **Created:** `2026-08-29T09:16:01.625823`
+
+#### Context & Problem
+Standard pegboards historically used staggered odd-row offsets and checkerboard gaps, creating mismatch with polyomino relics.
+
+#### Key Insight & Learning
+Eliminating row offsets and placing pegs on the unified 16x8 rectangular board grid unifies coordinate conversions across pegs and polyomino tiles.
+
+#### Actionable Guideline for Future Agents
+Always position board pegs and polyomino modules on the canonical 16x8 board grid using board_cell_to_world and world_to_board_cell.
 
 ---
