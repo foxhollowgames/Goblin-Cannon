@@ -4,6 +4,7 @@ class_name JunkBoxGridView
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
 const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 const JunkBoxData = preload("res://resources/inventory/junk_box_data.gd")
+const JunkBoxDragController = preload("res://scenes/ui/junk_box/junk_box_drag_controller.gd")
 
 signal cell_clicked(cell_pos: Vector2i)
 signal item_clicked(item: JunkBoxItem)
@@ -15,6 +16,7 @@ const CELL_PAD: int = 2
 
 var hovered_cell: Vector2i = Vector2i(-1, -1)
 var hovered_item: JunkBoxItem = null
+var drag_controller: Node = null
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS
@@ -30,6 +32,13 @@ func _update_size() -> void:
 	var cols: int = GameState.junk_box.grid_columns
 	custom_minimum_size = Vector2(cols * CELL_SIZE, rows * CELL_SIZE)
 	size = custom_minimum_size
+
+func get_cell_at_global_pos(global_pos: Vector2) -> Vector2i:
+	var local_pos: Vector2 = global_pos - global_position
+	return Vector2i(int(floor(local_pos.x / CELL_SIZE)), int(floor(local_pos.y / CELL_SIZE)))
+
+func get_global_pos_for_cell(cell: Vector2i) -> Vector2:
+	return global_position + Vector2(cell.x * CELL_SIZE, cell.y * CELL_SIZE)
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
@@ -51,11 +60,14 @@ func _gui_input(event: InputEvent) -> void:
 			var item: JunkBoxItem = GameState.junk_box.get_item_at(cell)
 			if item != null:
 				item_clicked.emit(item)
+				if drag_controller:
+					var grab_offset: Vector2i = cell - item.grid_position
+					drag_controller.start_drag(item, 0, item.grid_position, grab_offset) # DragSource.JUNK_BOX = 0
 			else:
 				cell_clicked.emit(cell)
 
 func _pos_to_cell(pos: Vector2) -> Vector2i:
-	return Vector2i(int(pos.x / CELL_SIZE), int(pos.y / CELL_SIZE))
+	return Vector2i(int(floor(pos.x / CELL_SIZE)), int(floor(pos.y / CELL_SIZE)))
 
 func _draw() -> void:
 	var cols: int = GameState.junk_box.grid_columns

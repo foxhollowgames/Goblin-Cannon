@@ -14,6 +14,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-003`](#lrn-003) | TASK-027 | `worktrees` | Windows Binary DLL Lock Handling During Worktree Cleanup | 2026-08-28 |
 | [`LRN-004`](#lrn-004) | TASK-027 | `optimization` | Model Tier Allocation for Fast and Cheap Execution | 2026-08-28 |
 | [`LRN-005`](#lrn-005) | TASK-024 | `godot_engine` | Multi-Cell Polyomino Coordinate Anchoring & Clockwise Rotation | 2026-08-28 |
+| [`LRN-006`](#lrn-006) | TASK-025 | `godot_engine` | Headless Viewport & Mouse Position Safety | 2026-08-28 |
 
 ---
 
@@ -96,5 +97,21 @@ Standard mathematical 2D rotation around origin maps positive coordinates to neg
 
 #### Actionable Guideline for Future Agents
 Always apply bounding-box offset normalization after rotating: compute min_x and min_y of the rotated cell set, then subtract them (rx - min_x, ry - min_y) so the top-left-most cell is strictly anchored at (0, 0).
+
+---
+
+### <a id="lrn-006"></a> LRN-006: Headless Viewport & Mouse Position Safety
+- **Task:** `TASK-025`
+- **Category:** `godot_engine`
+- **Created:** `2026-08-28T20:04:48.934574`
+
+#### Context & Problem
+Calling get_global_mouse_position() on Controls outside the active SceneTree/Viewport causes engine error spam during headless testing.
+
+#### Key Insight & Learning
+Controls instantiated directly in headless tests or before add_child() lack a viewport reference, causing get_global_mouse_position() to fail.
+
+#### Actionable Guideline for Future Agents
+Always wrap mouse position lookups with a safe helper like 'if is_inside_tree() and get_viewport(): return get_global_mouse_position()' with Vector2.ZERO fallback.
 
 ---

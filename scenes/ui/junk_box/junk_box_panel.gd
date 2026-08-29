@@ -5,12 +5,14 @@ const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_
 const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 const JunkBoxData = preload("res://resources/inventory/junk_box_data.gd")
 const JunkBoxGridView = preload("res://scenes/ui/junk_box/junk_box_grid_view.gd")
+const JunkBoxDragController = preload("res://scenes/ui/junk_box/junk_box_drag_controller.gd")
 
 signal closed
 
 var _game_coordinator: Node
 var _reward_handler: Node
 var _paused_before_open: bool = false
+var drag_controller: Node = null
 
 @onready var grid_view: JunkBoxGridView = $CenterContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContent/ScrollContainer/JunkBoxGridView
 @onready var scroll_container: ScrollContainer = $CenterContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContent/ScrollContainer
@@ -21,6 +23,13 @@ var _paused_before_open: bool = false
 
 func _ready() -> void:
 	hide()
+	drag_controller = JunkBoxDragController.new()
+	drag_controller.name = "JunkBoxDragController"
+	add_child(drag_controller)
+	drag_controller.junk_box_grid_view = grid_view
+	drag_controller.scroll_container = scroll_container
+	grid_view.drag_controller = drag_controller
+
 	grid_view.item_hovered.connect(_on_item_hovered)
 	grid_view.item_unhovered.connect(_on_item_unhovered)
 	close_btn.pressed.connect(_close)
@@ -30,6 +39,16 @@ func _ready() -> void:
 func setup(coordinator: Node, reward_handler: Node) -> void:
 	_game_coordinator = coordinator
 	_reward_handler = reward_handler
+	if coordinator:
+		var b: Node = coordinator.get("board") if "board" in coordinator else coordinator.get("_board")
+		if b:
+			set_board(b)
+
+func set_board(p_board: Node) -> void:
+	if drag_controller:
+		drag_controller.board = p_board
+	if p_board and p_board.has_method("set_drag_controller"):
+		p_board.set_drag_controller(drag_controller)
 
 func toggle() -> void:
 	if visible:
@@ -95,6 +114,8 @@ func _update_tooltip(item: JunkBoxItem) -> void:
 	tooltip_lbl.text = text
 
 func _on_dim_input(event: InputEvent) -> void:
+	if drag_controller and drag_controller.dragging_item != null:
+		return
 	if event is InputEventMouseButton:
 		var mb: InputEventMouseButton = event as InputEventMouseButton
 		if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:

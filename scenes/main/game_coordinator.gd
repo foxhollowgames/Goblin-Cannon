@@ -947,6 +947,8 @@ func _create_inventory_ui() -> void:
 			overlay.add_child(_junk_box_panel)
 			if _junk_box_panel.has_method("setup"):
 				_junk_box_panel.setup(self, _reward_handler)
+			if _board and _junk_box_panel.has_method("set_board"):
+				_junk_box_panel.set_board(_board)
 	var almanac_scene: PackedScene = load("res://scenes/ui/almanac_panel.tscn") as PackedScene
 	if almanac_scene:
 		_almanac_panel = almanac_scene.instantiate() as Control
