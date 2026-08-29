@@ -5,13 +5,12 @@ class_name PolyominoMachineryComponent
 signal component_activated(component: PolyominoMachineryComponent, ball: Node, energy_granted: int, impulse: Vector2)
 
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
+const AudioPitchRandomizer = preload("res://autoloads/audio_pitch_randomizer.gd")
 const HIT_COOLDOWN_TICKS: int = 3
 const DEFAULT_VOLUME_DB: float = -16.0
 const MIN_AUDIO_INTERVAL_MSEC: int = 50
 const MIN_PITCH_SCALE: float = 0.95
 const MAX_PITCH_SCALE: float = 1.05
-
-static var _last_audio_play_msec: Dictionary = {}
 
 @export var local_cell: Vector2i = Vector2i.ZERO
 @export var cell_type: int = 0
@@ -51,9 +50,7 @@ func _setup_audio() -> void:
 	if _audio_player != null:
 		return
 	_audio_player = AudioStreamPlayer2D.new()
-	_audio_player.bus = &"Machinery"
-	_audio_player.volume_db = DEFAULT_VOLUME_DB
-	_audio_player.max_distance = 1200.0
+	AudioPitchRandomizer.configure_player(_audio_player, &"Machinery", DEFAULT_VOLUME_DB, 1200.0)
 	if _audio_stream:
 		_audio_player.stream = _audio_stream
 	add_child(_audio_player)
@@ -64,7 +61,7 @@ func get_audio_player() -> AudioStreamPlayer2D:
 	return _audio_player
 
 static func reset_audio_throttle() -> void:
-	_last_audio_play_msec.clear()
+	AudioPitchRandomizer.reset_throttle()
 
 func set_audio_stream(stream: AudioStream) -> void:
 	_audio_stream = stream
@@ -122,25 +119,18 @@ func _play_visual_feedback() -> void:
 	queue_redraw()
 
 func can_play_audio(now_msec: int = -1) -> bool:
-	if now_msec < 0:
-		now_msec = Time.get_ticks_msec()
 	var stream_key: Variant = _audio_stream if _audio_stream else cell_type
-	if _last_audio_play_msec.has(stream_key):
-		if (now_msec - _last_audio_play_msec[stream_key]) < MIN_AUDIO_INTERVAL_MSEC:
-			return false
-	return true
+	return AudioPitchRandomizer.can_play_audio(stream_key, MIN_AUDIO_INTERVAL_MSEC, now_msec)
 
 func _play_audio_feedback(now_msec: int = -1) -> bool:
 	if _audio_player == null:
 		_setup_audio()
-	if now_msec < 0:
-		now_msec = Time.get_ticks_msec()
-	if not can_play_audio(now_msec):
-		return false
 	var stream_key: Variant = _audio_stream if _audio_stream else cell_type
-	_last_audio_play_msec[stream_key] = now_msec
+	if not AudioPitchRandomizer.can_play_audio(stream_key, MIN_AUDIO_INTERVAL_MSEC, now_msec):
+		return false
+	AudioPitchRandomizer.record_audio_played(stream_key, now_msec)
 	if _audio_player:
-		_audio_player.pitch_scale = randf_range(MIN_PITCH_SCALE, MAX_PITCH_SCALE)
+		_audio_player.pitch_scale = AudioPitchRandomizer.get_randomized_pitch(MIN_PITCH_SCALE, MAX_PITCH_SCALE)
 		if _audio_player.stream and is_inside_tree():
 			# Protect against headless mode audio exceptions
 			if AudioServer.get_output_device_list().size() > 0 or not Engine.is_editor_hint():
