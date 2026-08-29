@@ -19,6 +19,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-008`](#lrn-008) | TASK-026 | `godot_engine` | Headless Node Hierarchy and Lazy Container Initialization | 2026-08-28 |
 | [`LRN-009`](#lrn-009) | TASK-020 | `godot_engine` | Live Board Ghost Placement Area Monitoring & Collision Transition | 2026-08-28 |
 | [`LRN-010`](#lrn-010) | TASK-028 | `ui` | Non-Modal Side Drawers for Dual-Surface Drag-and-Drop | 2026-08-28 |
+| [`LRN-011`](#lrn-011) | TASK-028 | `tooling` | Windows GUI Godot Binary Console Redirection | 2026-08-28 |
 
 ---
 
@@ -181,5 +182,21 @@ Using a right-anchored drawer panel with root mouse_filter set to IGNORE keeps t
 
 #### Actionable Guideline for Future Agents
 Always structure dual-surface drag inventories as docked side drawers with transparent root input filtering.
+
+---
+
+### <a id="lrn-011"></a> LRN-011: Windows GUI Godot Binary Console Redirection
+- **Task:** `TASK-028`
+- **Category:** `tooling`
+- **Created:** `2026-08-28T22:12:30.338547`
+
+#### Context & Problem
+On Windows, running Godot GUI binary directly in PowerShell with ampersand does not pipe stdout, masking GDScript parse errors.
+
+#### Key Insight & Learning
+Executing Godot headless commands through cmd.exe /c attaches standard I/O streams and reveals all compilation errors and test suite logs.
+
+#### Actionable Guideline for Future Agents
+Always run headless Godot tests via cmd.exe /c on Windows to prevent silent test failures.
 
 ---
