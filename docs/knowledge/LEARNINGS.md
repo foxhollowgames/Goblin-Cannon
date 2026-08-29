@@ -21,6 +21,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-010`](#lrn-010) | TASK-028 | `ui` | Non-Modal Side Drawers for Dual-Surface Drag-and-Drop | 2026-08-28 |
 | [`LRN-011`](#lrn-011) | TASK-028 | `tooling` | Windows GUI Godot Binary Console Redirection | 2026-08-28 |
 | [`LRN-012`](#lrn-012) | TASK-024 | `godot_engine` | Polyomino Relic Database & ID Alias Mapping | 2026-08-28 |
+| [`LRN-013`](#lrn-013) | TASK-028 | `godot_engine` | Slotted Board Relic Modifiers & Instant Hover Tooltips | 2026-08-29 |
 
 ---
 
@@ -215,5 +216,21 @@ Using a centralized PolyominoRelicDatabase registry with canonical definitions a
 
 #### Actionable Guideline for Future Agents
 Always route polyomino module creation through PolyominoRelicDatabase with alias resolution to ensure backwards compatibility across reward handlers, catalogs, and inventory systems.
+
+---
+
+### <a id="lrn-013"></a> LRN-013: Slotted Board Relic Modifiers & Instant Hover Tooltips
+- **Task:** `TASK-028`
+- **Category:** `godot_engine`
+- **Created:** `2026-08-29T07:52:50.756837`
+
+#### Context & Problem
+Relic passive effects must not activate immediately upon drafting into the inventory; they must apply only when the module is slotted on the active board grid, deactivate cleanly on unslot, and show instant tooltips on mouse hover.
+
+#### Key Insight & Learning
+Binding GameState relic modifier application and reversion directly to Board.place_module() and Board.unslot_module() guarantees state consistency, while KeywordDatabase.show_flyout_custom() provides instant, boundary-clamped hover tooltips for placed board modules.
+
+#### Actionable Guideline for Future Agents
+Always tie passive stat buffs and relic modifier lifecycles to physical board placement rather than inventory possession, and use KeywordDatabase for consistent in-game flyout tooltips.
 
 ---
