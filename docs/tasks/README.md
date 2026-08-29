@@ -46,7 +46,7 @@ All tasks use structured Markdown with status, priority, and clear acceptance cr
 | [TASK-025](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-025-polyomino-drag-drop-and-grid-snapping.md) | Polyomino Drag-and-Drop, Rotation, and Grid Snapping | UI/Controls | P1 | DONE | `feature/polyomino-drag-and-drop` |
 | [TASK-026](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-026-polyomino-internal-machinery-and-bumpers.md) | Polyomino Internal Kinetic Machinery and Bumper Mechanics | Gameplay/Physics | P1 | DONE | `feature/polyomino-internal-machinery` |
 | [TASK-027](TASK-027-junk-box-backpack-inventory-system.md) | Junk Box Backpack Inventory System | UI/Systems | P1 | DONE | `feature/junk-box-backpack-inventory` |
-| [TASK-028](TASK-028-junk-box-ui-opening-and-board-transfer.md) | Junk Box UI Opening, Representation, and Board Item Transfer | UI/Gameplay | P1 | READY | `feature/junk-box-ui-and-board-transfer` |
+| [TASK-028](TASK-028-junk-box-ui-opening-and-board-transfer.md) | Junk Box UI Opening, Representation, and Board Item Transfer | UI/Gameplay | P1 | DONE | `feature/junk-box-ui-and-board-transfer` |
 
 
 

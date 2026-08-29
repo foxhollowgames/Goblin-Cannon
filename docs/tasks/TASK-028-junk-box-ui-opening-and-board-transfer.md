@@ -1,6 +1,6 @@
 # TASK-028: Junk Box UI Opening, Representation, and Board Item Transfer
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Controls / Gameplay
 - **Parent Task:** [TASK-027](TASK-027-junk-box-backpack-inventory-system.md)
@@ -52,11 +52,11 @@ The player must be able to drag polyomino modules from the Junk Box onto the boa
 
 ## Acceptance Criteria
 
-- [ ] The HUD backpack button and keyboard shortcuts (`B`, `I`, `Esc`) open and close the Junk Box.
-- [ ] The Junk Box panel renders with comic style frames and does not obstruct the board grid.
-- [ ] The player can drag polyomino modules from the Junk Box onto valid board cells.
-- [ ] Modules rotate 90 degrees cleanly during drag operations.
-- [ ] Ghost overlays show green for valid placement and red for invalid placement.
-- [ ] Dropping a module on an invalid cell returns the item safely to the Junk Box.
-- [ ] The player can move placed modules from the board back into the Junk Box.
-- [ ] Headless unit tests verify UI opening logic, drag controller transfers, and state synchronization.
+- [x] The HUD backpack button and keyboard shortcuts (`B`, `I`, `Esc`) open and close the Junk Box.
+- [x] The Junk Box panel renders with comic style frames and does not obstruct the board grid.
+- [x] The player can drag polyomino modules from the Junk Box onto valid board cells.
+- [x] Modules rotate 90 degrees cleanly during drag operations.
+- [x] Ghost overlays show green for valid placement and red for invalid placement.
+- [x] Dropping a module on an invalid cell returns the item safely to the Junk Box.
+- [x] The player can move placed modules from the board back into the Junk Box.
+- [x] Headless unit tests verify UI opening logic, drag controller transfers, and state synchronization.

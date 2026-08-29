@@ -18,6 +18,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-007`](#lrn-007) | TASK-019 | `controls` | Hopper Steering and Keybind Separation | 2026-08-28 |
 | [`LRN-008`](#lrn-008) | TASK-026 | `godot_engine` | Headless Node Hierarchy and Lazy Container Initialization | 2026-08-28 |
 | [`LRN-009`](#lrn-009) | TASK-020 | `godot_engine` | Live Board Ghost Placement Area Monitoring & Collision Transition | 2026-08-28 |
+| [`LRN-010`](#lrn-010) | TASK-028 | `ui` | Non-Modal Side Drawers for Dual-Surface Drag-and-Drop | 2026-08-28 |
 
 ---
 
@@ -164,5 +165,21 @@ Newly positioned components must start at 50% opacity with collision_layer set t
 
 #### Actionable Guideline for Future Agents
 Always disable physics collision layers on newly placed components until active ball area checks confirm complete clearance.
+
+---
+
+### <a id="lrn-010"></a> LRN-010: Non-Modal Side Drawers for Dual-Surface Drag-and-Drop
+- **Task:** `TASK-028`
+- **Category:** `ui`
+- **Created:** `2026-08-28T22:10:21.434500`
+
+#### Context & Problem
+When implementing inventory containers that transfer items to the board, centered modals obscure the board and intercept mouse clicks.
+
+#### Key Insight & Learning
+Using a right-anchored drawer panel with root mouse_filter set to IGNORE keeps the board interactive and visible. Explicitly excluding the drawer panel rect in board coordinate checks prevents false-positive edge drops.
+
+#### Actionable Guideline for Future Agents
+Always structure dual-surface drag inventories as docked side drawers with transparent root input filtering.
 
 ---

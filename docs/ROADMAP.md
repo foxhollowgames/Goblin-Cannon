@@ -139,5 +139,5 @@ The specific art style is not yet determined (*Slots & Daggers* is currently und
 | [TASK-025](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-025-polyomino-drag-drop-and-grid-snapping.md) | Polyomino Drag-and-Drop, Rotation, and Grid Snapping | P1 | DONE |
 | [TASK-026](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-026-polyomino-internal-machinery-and-bumpers.md) | Polyomino Internal Kinetic Machinery and Bumper Mechanics | P1 | READY |
 | [TASK-027](tasks/TASK-027-junk-box-backpack-inventory-system.md) | Junk Box Backpack Inventory System | P1 | DONE |
-| [TASK-028](tasks/TASK-028-junk-box-ui-opening-and-board-transfer.md) | Junk Box UI Opening, Representation, and Board Item Transfer | P1 | READY |
+| [TASK-028](tasks/TASK-028-junk-box-ui-opening-and-board-transfer.md) | Junk Box UI Opening, Representation, and Board Item Transfer | P1 | DONE |
 
