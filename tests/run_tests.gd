@@ -50,6 +50,11 @@ const TEST_SCRIPTS: Array[String] = [
 ]
 
 func _initialize() -> void:
+	# Watchdog timer: automatically force exit if tests exceed 30 seconds
+	create_timer(30.0).timeout.connect(func() -> void:
+		printerr("ERROR: Test suite timed out after 30 seconds!")
+		quit(1)
+	)
 	call_deferred("_run_all_tests")
 
 func _run_all_tests() -> void:
@@ -65,12 +70,14 @@ func _run_all_tests() -> void:
 
 	for path in TEST_SCRIPTS:
 		var script: GDScript = load(path) as GDScript
-		if not script:
-			print("  [SKIP] Could not load: %s" % path)
+		if not script or not script.can_instantiate():
+			print("  [FAIL] Could not load or parse: %s" % path)
+			total_failed += 1
+			all_errors.append("%s > Failed to parse or instantiate" % path.get_file())
 			continue
 
 		var test_instance = script.new()
-		if not test_instance.has_method("run"):
+		if not test_instance or not test_instance.has_method("run"):
 			print("  [SKIP] No run() method: %s" % path)
 			continue
 
