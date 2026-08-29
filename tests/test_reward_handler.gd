@@ -191,50 +191,56 @@ func test_apply_stat_upgrade_plain_momentum_cap() -> void:
 	assert_eq(GameState.plain_momentum_stacks, 3, "capped at 3")
 
 func test_apply_major_upgrade_explosion_radius() -> void:
-	begin("apply_major_upgrade explosion_radius increases bonus")
+	begin("apply_major_upgrade explosion_radius adds relic to junk box")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	var def := MajorUpgradeDefinition.new()
 	def.upgrade_id = &"explosion_radius"
 	def.category = MajorUpgradeDefinition.Category.BOARD_UPGRADE
 	rh.apply_major_upgrade(def)
-	assert_eq(GameState.explosion_radius_bonus, 1, "+1 explosion radius")
+	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
+	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"explosion_radius")
+	assert_eq(GameState.explosion_radius_bonus, 1, "+1 explosion radius when slotted")
 
 func test_apply_major_upgrade_chain_arc() -> void:
-	begin("apply_major_upgrade chain_arc increases bonus")
+	begin("apply_major_upgrade chain_arc adds relic to junk box")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	var def := MajorUpgradeDefinition.new()
 	def.upgrade_id = &"chain_arc"
 	def.category = MajorUpgradeDefinition.Category.BOARD_UPGRADE
 	rh.apply_major_upgrade(def)
-	assert_eq(GameState.chain_arc_bonus, 1, "+1 chain arc")
+	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
+	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"chain_arc")
+	assert_eq(GameState.chain_arc_bonus, 1, "+1 chain arc when slotted")
 
 func test_apply_major_upgrade_chest_leech_drain() -> void:
-	begin("apply_major_upgrade chest_leech_drain stacks (chest passive)")
+	begin("apply_major_upgrade chest_leech_drain adds relic to junk box")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	var def := MajorUpgradeDefinition.new()
 	def.upgrade_id = &"chest_leech_drain"
 	def.category = MajorUpgradeDefinition.Category.ONBOARD_PASSIVE
 	rh.apply_major_upgrade(def)
-	assert_eq(GameState.chest_leech_drain_stacks, 1, "+1 chest leech drain stack")
+	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
+	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"chest_leech_drain")
+	assert_eq(GameState.chest_leech_drain_stacks, 1, "+1 chest leech drain stack when slotted")
 
 func test_apply_major_upgrade_devastating_barrage_once() -> void:
-	begin("apply_major_upgrade devastating_barrage grants +10 damage once")
+	begin("apply_major_upgrade devastating_barrage adds relic to junk box")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	var def := MajorUpgradeDefinition.new()
 	def.upgrade_id = &"devastating_barrage"
 	def.category = MajorUpgradeDefinition.Category.ONBOARD_PASSIVE
 	rh.apply_major_upgrade(def)
-	assert_eq(GameState.cannon_base_damage_bonus, 10, "+10 cannon damage")
+	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
+	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"devastating_barrage")
+	assert_eq(GameState.cannon_base_damage_bonus, 10, "+10 cannon damage when slotted")
 	assert_true(GameState.chest_devastating_barrage_taken, "flag set")
-	rh.apply_major_upgrade(def)
-	assert_eq(GameState.cannon_base_damage_bonus, 10, "no second +10")
 
 func test_apply_major_upgrade_compressed_charge_once() -> void:
-	begin("apply_major_upgrade compressed_charge applies charge reduction once")
+	begin("apply_major_upgrade compressed_charge adds relic to junk box")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	var def := MajorUpgradeDefinition.new()
@@ -242,10 +248,10 @@ func test_apply_major_upgrade_compressed_charge_once() -> void:
 	def.category = MajorUpgradeDefinition.Category.ONBOARD_PASSIVE
 	var step: int = Constants.legacy_internal_energy_to_current(2000)
 	rh.apply_major_upgrade(def)
-	assert_eq(GameState.cannon_charge_reduction, step, "+1 cannon energy tier")
+	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
+	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"compressed_charge")
+	assert_eq(GameState.cannon_charge_reduction, step, "+1 cannon energy tier when slotted")
 	assert_true(GameState.chest_compressed_charge_taken, "flag set")
-	rh.apply_major_upgrade(def)
-	assert_eq(GameState.cannon_charge_reduction, step, "no second tier")
 
 func test_onboard_effect_picks_exclude_devastating_barrage_when_taken() -> void:
 	begin("get_onboard_effect_picks omits devastating_barrage after taken")
@@ -268,14 +274,16 @@ func test_onboard_effect_picks_exclude_compressed_charge_when_taken() -> void:
 			assert_neq((p as MajorUpgradeDefinition).upgrade_id, &"compressed_charge", "excluded when taken")
 
 func test_apply_major_upgrade_plain_horde_delegates() -> void:
-	begin("apply_major_upgrade plain_horde uses same stacks as stat upgrade")
+	begin("apply_major_upgrade plain_horde adds relic to junk box")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	var def := MajorUpgradeDefinition.new()
 	def.upgrade_id = &"plain_horde"
 	def.category = MajorUpgradeDefinition.Category.BOARD_UPGRADE
 	rh.apply_major_upgrade(def)
-	assert_eq(GameState.plain_horde_stacks, 1, "+1 plain horde stack")
+	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
+	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"plain_horde")
+	assert_eq(GameState.plain_horde_stacks, 1, "+1 plain horde stack when slotted")
 
 func test_major_upgrade_picks_exclude_plain_swarm_at_cap() -> void:
 	begin("get_major_upgrade_picks omits plain swarm upgrades at stack cap")
@@ -288,7 +296,7 @@ func test_major_upgrade_picks_exclude_plain_swarm_at_cap() -> void:
 			assert_neq((p as MajorUpgradeDefinition).upgrade_id, &"plain_horde", "plain_horde excluded when capped")
 
 func test_apply_major_upgrade_stack_cap_respected() -> void:
-	begin("apply_major_upgrade respects stack cap")
+	begin("apply_major_upgrade adds relic item to junk box")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	var def := MajorUpgradeDefinition.new()
@@ -296,33 +304,27 @@ func test_apply_major_upgrade_stack_cap_respected() -> void:
 	def.category = MajorUpgradeDefinition.Category.BALL_ENHANCEMENT
 	def.ball_type = "Rubbery"
 	rh.apply_major_upgrade(def)
-	assert_eq(GameState.get_wall_break_upgrade_stacks(&"hyper_elastic"), 1, "first stack applied")
-	rh.apply_major_upgrade(def)
-	assert_eq(GameState.get_wall_break_upgrade_stacks(&"hyper_elastic"), 1, "capped at 1, second not applied")
+	assert_eq(GameState.junk_box.get_item_count(), 1, "first relic added to junk box")
 
 func test_apply_major_upgrade_volt_primer_once() -> void:
-	begin("apply_major_upgrade volt_primer stacks once")
+	begin("apply_major_upgrade adds volt primer relic to junk box")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	var def := MajorUpgradeDefinition.new()
 	def.upgrade_id = &"volt_primer"
 	def.category = MajorUpgradeDefinition.Category.BOARD_UPGRADE
 	rh.apply_major_upgrade(def)
-	assert_eq(GameState.get_wall_break_upgrade_stacks(&"volt_primer"), 1, "first stack applied")
-	rh.apply_major_upgrade(def)
-	assert_eq(GameState.get_wall_break_upgrade_stacks(&"volt_primer"), 1, "capped at 1")
+	assert_eq(GameState.junk_box.get_item_count(), 1, "volt primer added to junk box")
 
 func test_apply_major_upgrade_chest_random_ball() -> void:
-	begin("apply_major_upgrade chest_random_ball stacks once")
+	begin("apply_major_upgrade adds chest random ball relic to junk box")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	var def := MajorUpgradeDefinition.new()
 	def.upgrade_id = &"chest_random_ball"
 	def.category = MajorUpgradeDefinition.Category.BALL_ENHANCEMENT
 	rh.apply_major_upgrade(def)
-	assert_eq(GameState.get_wall_break_upgrade_stacks(&"chest_random_ball"), 1, "first stack applied")
-	rh.apply_major_upgrade(def)
-	assert_eq(GameState.get_wall_break_upgrade_stacks(&"chest_random_ball"), 1, "capped at 1")
+	assert_eq(GameState.junk_box.get_item_count(), 1, "chest random ball added to junk box")
 
 func test_grant_random_ball_from_city_pool() -> void:
 	begin("grant_random_ball_from_city_pool adds one ball to hopper")

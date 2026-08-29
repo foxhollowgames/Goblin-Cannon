@@ -2,6 +2,7 @@ extends Control
 ## Junk Box UI Drawer Panel.
 
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
+const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
 const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 const JunkBoxData = preload("res://resources/inventory/junk_box_data.gd")
 const JunkBoxGridView = preload("res://scenes/ui/junk_box/junk_box_grid_view.gd")
@@ -105,10 +106,24 @@ func _update_tooltip(item: JunkBoxItem) -> void:
 		return
 	
 	var text: String = "[b][color=#f4d06f]%s[/color][/b]\n" % item.display_name
+	var relic_id: StringName = &""
+	if "custom_payload" in item and item.custom_payload is Dictionary:
+		relic_id = StringName(item.custom_payload.get("relic_id", ""))
+	if relic_id == &"" and item.module_data != null:
+		relic_id = item.module_data.module_id
+
 	if item.module_data != null:
 		text += "Tier: [b]%d[/b]\n" % item.module_data.tier
 		text += "Size: [b]%d[/b] Cells\n" % item.module_data.get_cell_count()
 		
+		var shape_name: String = PolyominoRelicDatabase.get_relic_shape_name(relic_id) if relic_id != &"" else ""
+		if not shape_name.is_empty():
+			text += "Shape: [b]%s[/b]\n" % shape_name
+		
+		var desc: String = PolyominoRelicDatabase.get_relic_kinetic_description(relic_id) if relic_id != &"" else ""
+		if not desc.is_empty():
+			text += "\n[u]Machinery & Effect[/u]\n%s\n" % desc
+
 		var b: int = 0
 		var a: int = 0
 		var f: int = 0
@@ -120,7 +135,7 @@ func _update_tooltip(item: JunkBoxItem) -> void:
 			elif t == PolyominoModuleData.CellType.ROTARY_BOOSTER: r += 1
 		
 		if b > 0 or a > 0 or f > 0 or r > 0:
-			text += "\n[u]Kinetic Machinery[/u]\n"
+			text += "\n[u]Components[/u]\n"
 			if b > 0: text += "• Bumpers: %d\n" % b
 			if a > 0: text += "• Accelerators: %d\n" % a
 			if f > 0: text += "• Funnels: %d\n" % f

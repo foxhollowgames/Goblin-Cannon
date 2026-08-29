@@ -17,6 +17,7 @@ signal ghost_state_changed(component: Variant, is_ghost: bool)
 
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
 const PolyominoModuleNode = preload("res://scenes/board/machinery/polyomino_module_node.gd")
+const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
 const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 
 const BOARD_GRID_COLS: int = 16
@@ -54,6 +55,7 @@ var _occupied_board_cells: Dictionary = {}  # Vector2i -> instance_id (StringNam
 var _placed_module_nodes: Dictionary = {}  # instance_id -> Node2D
 var _ghost_placed_modules: Dictionary = {}  # instance_id (StringName) -> bool
 var _ghost_placed_pegs: Dictionary = {}  # peg_id (int) -> Node
+var _hovered_module_instance_id: StringName = &""
 var _modules_container: Node2D = null
 var _drag_controller: Node = null
 
@@ -2741,6 +2743,9 @@ func get_drag_controller() -> Node:
 	return _drag_controller
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion:
+		_update_board_module_hover(get_global_mouse_position())
+
 	if not _drag_controller:
 		return
 	if "dragging_item" in _drag_controller and _drag_controller.dragging_item != null:
@@ -2754,8 +2759,48 @@ func _unhandled_input(event: InputEvent) -> void:
 				var origin_cell: Vector2i = item.grid_position if "grid_position" in item else cell
 				var grab_offset: Vector2i = cell - origin_cell
 				unslot_module(item.instance_id if "instance_id" in item else &"")
+				KeywordDatabase.hide_flyout()
 				_drag_controller.start_drag(item, 1, origin_cell, grab_offset) # DragSource.BOARD = 1
 				get_viewport().set_input_as_handled()
+
+func _update_board_module_hover(mouse_pos: Vector2) -> void:
+	if _drag_controller and "dragging_item" in _drag_controller and _drag_controller.dragging_item != null:
+		if _hovered_module_instance_id != &"":
+			_hovered_module_instance_id = &""
+			KeywordDatabase.hide_flyout()
+		return
+
+	var cell := world_to_board_cell(mouse_pos)
+	var item: Resource = get_module_at_cell(cell)
+	if item != null and item is JunkBoxItem:
+		var inst_id: StringName = item.instance_id
+		if inst_id != _hovered_module_instance_id:
+			_hovered_module_instance_id = inst_id
+			var title_str: String = item.display_name
+			var body_str: String = _format_module_tooltip_body(item)
+			KeywordDatabase.show_flyout_custom(title_str, body_str, mouse_pos)
+	else:
+		if _hovered_module_instance_id != &"":
+			_hovered_module_instance_id = &""
+			KeywordDatabase.hide_flyout()
+
+func _format_module_tooltip_body(item: JunkBoxItem) -> String:
+	var body: String = ""
+	var relic_id: StringName = &""
+	if "custom_payload" in item and item.custom_payload is Dictionary:
+		relic_id = StringName(item.custom_payload.get("relic_id", ""))
+	if relic_id == &"" and item.module_data != null:
+		relic_id = item.module_data.module_id
+
+	if item.module_data != null:
+		body += "Tier: %d  |  Size: %d Cells\n" % [item.module_data.tier, item.module_data.get_cell_count()]
+	var shape_name: String = PolyominoRelicDatabase.get_relic_shape_name(relic_id) if relic_id != &"" else ""
+	if not shape_name.is_empty():
+		body += "Shape: %s\n" % shape_name
+	var desc: String = PolyominoRelicDatabase.get_relic_kinetic_description(relic_id) if relic_id != &"" else ""
+	if not desc.is_empty():
+		body += "\n[u]Machinery & Effect[/u]\n%s" % desc
+	return body
 
 ## Converts a global/board world position into integer board grid coordinates (col, row).
 func world_to_board_cell(world_pos: Vector2) -> Vector2i:
@@ -2844,6 +2889,14 @@ func place_module(item: Resource, grid_pos: Vector2i, rotation: int = -1) -> boo
 		ghost_state_changed.emit(item, false)
 		module_solidified.emit(item)
 
+	var relic_id: StringName = &""
+	if "custom_payload" in item and item.custom_payload is Dictionary:
+		relic_id = StringName(item.custom_payload.get("relic_id", ""))
+	if relic_id == &"" and "module_data" in item and item.module_data != null:
+		relic_id = item.module_data.module_id
+	if relic_id != &"":
+		PolyominoRelicDatabase.apply_relic_effects_to_game_state(relic_id)
+
 	module_placed_on_board.emit(item, grid_pos, item.rotation_step)
 	return true
 
@@ -2859,11 +2912,24 @@ func unslot_module(instance_id: StringName) -> Resource:
 	_placed_modules.erase(instance_id)
 	_ghost_placed_modules.erase(instance_id)
 
+	if _hovered_module_instance_id == instance_id:
+		_hovered_module_instance_id = &""
+		KeywordDatabase.hide_flyout()
+
 	if _placed_module_nodes.has(instance_id):
 		var node: Node = _placed_module_nodes[instance_id]
 		if is_instance_valid(node):
 			node.queue_free()
 		_placed_module_nodes.erase(instance_id)
+
+	var relic_id: StringName = &""
+	if item != null:
+		if "custom_payload" in item and item.custom_payload is Dictionary:
+			relic_id = StringName(item.custom_payload.get("relic_id", ""))
+		if relic_id == &"" and "module_data" in item and item.module_data != null:
+			relic_id = item.module_data.module_id
+	if relic_id != &"":
+		PolyominoRelicDatabase.remove_relic_effects_from_game_state(relic_id)
 
 	module_unslotted_from_board.emit(item)
 	return item
