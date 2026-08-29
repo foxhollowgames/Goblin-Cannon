@@ -55,6 +55,8 @@ var _occupied_board_cells: Dictionary = {}  # Vector2i -> instance_id (StringNam
 var _placed_module_nodes: Dictionary = {}  # instance_id -> Node2D
 var _ghost_placed_modules: Dictionary = {}  # instance_id (StringName) -> bool
 var _ghost_placed_pegs: Dictionary = {}  # peg_id (int) -> Node
+var _suppressed_pegs_by_cell: Dictionary = {}  # Vector2i -> Node
+var _suppressed_pegs_by_module: Dictionary = {}  # StringName -> Array[Node]
 var _hovered_module_instance_id: StringName = &""
 var _modules_container: Node2D = null
 var _drag_controller: Node = null
@@ -2809,8 +2811,21 @@ func board_cell_to_world(grid_pos: Vector2i) -> Vector2:
 func is_cell_in_bounds(grid_pos: Vector2i) -> bool:
 	return grid_pos.x >= 0 and grid_pos.x < BOARD_GRID_COLS and grid_pos.y >= 0 and grid_pos.y < BOARD_GRID_ROWS
 
-## Returns the peg occupying the specified grid cell, or null if no peg exists.
+## Returns the peg occupying the specified grid cell, or null if no peg exists or if currently suppressed by a relic.
 func get_peg_at_cell(grid_pos: Vector2i) -> Node:
+	if not is_cell_in_bounds(grid_pos):
+		return null
+	if _suppressed_pegs_by_cell.has(grid_pos):
+		return null
+	for pid in _peg_by_id:
+		var peg: Node = _peg_by_id[pid]
+		if peg and is_instance_valid(peg):
+			if world_to_board_cell(peg.position) == grid_pos:
+				return peg
+	return null
+
+## Returns any peg located at grid_pos, regardless of whether it is active or suppressed by a relic.
+func _get_raw_peg_at_cell(grid_pos: Vector2i) -> Node:
 	if not is_cell_in_bounds(grid_pos):
 		return null
 	for pid in _peg_by_id:
@@ -2819,6 +2834,38 @@ func get_peg_at_cell(grid_pos: Vector2i) -> Node:
 			if world_to_board_cell(peg.position) == grid_pos:
 				return peg
 	return null
+
+func _suppress_peg(peg: Node, cell: Vector2i) -> void:
+	if peg == null or not is_instance_valid(peg):
+		return
+	_suppressed_pegs_by_cell[cell] = peg
+	peg.visible = false
+	if peg.has_method("_set_collision_enabled"):
+		peg._set_collision_enabled(false)
+	else:
+		peg.collision_layer = 0
+		var col: CollisionShape2D = peg.get_node_or_null("CollisionShape2D") as CollisionShape2D
+		if col:
+			col.disabled = true
+	peg.set_process(false)
+
+func _unsuppress_peg(peg: Node, cell: Vector2i) -> void:
+	_suppressed_pegs_by_cell.erase(cell)
+	if peg == null or not is_instance_valid(peg):
+		return
+	peg.visible = true
+	if peg.has_method("_set_collision_enabled"):
+		var solid: bool = peg.get("_phase_peg_solid") if "_phase_peg_solid" in peg else true
+		var rec: int = peg.get("_recovery_ticks_remaining") if "_recovery_ticks_remaining" in peg else 0
+		var ghost: bool = peg.get("_is_ghost_placement") if "_is_ghost_placement" in peg else false
+		peg._set_collision_enabled(not ghost and solid and rec <= 0)
+	else:
+		peg.collision_layer = 1
+		var col: CollisionShape2D = peg.get_node_or_null("CollisionShape2D") as CollisionShape2D
+		if col:
+			col.disabled = false
+	peg.set_process(true)
+	peg.queue_redraw()
 
 ## Returns true if the cell is within bounds and has neither a peg nor a placed module.
 func is_cell_empty(grid_pos: Vector2i) -> bool:
@@ -2880,13 +2927,9 @@ func place_module(item: Resource, grid_pos: Vector2i, rotation: int = -1) -> boo
 	if not can_place_module(item, grid_pos, rotation, inst_id):
 		return false
 
-	# Clear previous occupied cells if already placed on board
+	# Clear previous occupied cells and unsuppress previous pegs if already placed on board
 	if _placed_modules.has(inst_id):
-		var prev_item: Resource = _placed_modules[inst_id]
-		if "get_occupied_cells" in prev_item:
-			for cell in prev_item.get_occupied_cells():
-				if _occupied_board_cells.get(cell) == inst_id:
-					_occupied_board_cells.erase(cell)
+		unslot_module(inst_id)
 
 	item.grid_position = grid_pos
 	if rotation >= 0:
@@ -2894,15 +2937,14 @@ func place_module(item: Resource, grid_pos: Vector2i, rotation: int = -1) -> boo
 
 	_placed_modules[inst_id] = item
 	var occupied: Array = item.get_occupied_cells() if "get_occupied_cells" in item else [grid_pos]
+	var suppressed_list: Array[Node] = []
 	for cell in occupied:
 		_occupied_board_cells[cell] = inst_id
-		var peg_node: Node = get_peg_at_cell(cell)
+		var peg_node: Node = _get_raw_peg_at_cell(cell)
 		if peg_node and is_instance_valid(peg_node):
-			var pid: int = peg_node.peg_id if "peg_id" in peg_node else -1
-			if pid >= 0:
-				_peg_by_id.erase(pid)
-				_ghost_placed_pegs.erase(pid)
-			peg_node.queue_free()
+			_suppress_peg(peg_node, cell)
+			suppressed_list.append(peg_node)
+	_suppressed_pegs_by_module[inst_id] = suppressed_list
 
 	_update_placed_module_visual(item)
 	var is_clear: bool = is_module_area_clear_of_balls(item)
@@ -2941,6 +2983,15 @@ func unslot_module(instance_id: StringName) -> Resource:
 			_occupied_board_cells.erase(cell)
 	_placed_modules.erase(instance_id)
 	_ghost_placed_modules.erase(instance_id)
+
+	# Restore any pegs that were suppressed under this module's footprint
+	if _suppressed_pegs_by_module.has(instance_id):
+		var suppressed_list: Array = _suppressed_pegs_by_module[instance_id]
+		for peg_node in suppressed_list:
+			if peg_node and is_instance_valid(peg_node):
+				var cell: Vector2i = world_to_board_cell(peg_node.position)
+				_unsuppress_peg(peg_node, cell)
+		_suppressed_pegs_by_module.erase(instance_id)
 
 	if _hovered_module_instance_id == instance_id:
 		_hovered_module_instance_id = &""

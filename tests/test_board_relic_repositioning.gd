@@ -142,7 +142,7 @@ func test_board_reposition_and_drop() -> void:
 	board.free()
 
 func test_board_relic_replaces_pegs_on_drop() -> void:
-	begin("Relic placement removes and frees underlying pegs on target grid cells")
+	begin("Relic placement suppresses pegs on occupied cells and unslotting restores them")
 	var board: Node2D = Node2D.new()
 	board.set_script(BoardScript)
 	board._ready()
@@ -161,8 +161,21 @@ func test_board_relic_replaces_pegs_on_drop() -> void:
 	assert_true(board.can_place_module(item, Vector2i(2, 2)), "can place relic over pegs")
 	board.place_module(item, Vector2i(2, 2))
 
-	assert_eq(board.get_peg_at_cell(Vector2i(2, 2)), null, "peg at (2,2) was removed on drop")
+	assert_eq(board.get_peg_at_cell(Vector2i(2, 2)), null, "peg at (2,2) is suppressed when relic is placed")
+	assert_false(peg_before.visible, "suppressed peg is hidden")
+	assert_eq(peg_before.collision_layer, 0, "suppressed peg collision is disabled")
 	assert_eq(board.get_module_at_cell(Vector2i(2, 2)), item, "module placed at (2,2)")
+
+	# Move / unslot relic from (2, 2) to (6, 4)
+	board.unslot_module(item.instance_id)
+	assert_eq(board.get_peg_at_cell(Vector2i(2, 2)), peg_before, "peg at (2,2) is fully restored after unslotting")
+	assert_true(peg_before.visible, "restored peg is visible")
+	assert_eq(peg_before.collision_layer, 1, "restored peg collision is re-enabled")
+
+	# Move relic to another cell and verify moving back and forth preserves all pegs
+	board.place_module(item, Vector2i(6, 4))
+	assert_eq(board.get_peg_at_cell(Vector2i(2, 2)), peg_before, "peg at (2,2) remains restored while relic is at (6,4)")
+	board.unslot_module(item.instance_id)
 
 	board.free()
 
