@@ -22,6 +22,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-011`](#lrn-011) | TASK-028 | `tooling` | Windows GUI Godot Binary Console Redirection | 2026-08-28 |
 | [`LRN-012`](#lrn-012) | TASK-024 | `godot_engine` | Polyomino Relic Database & ID Alias Mapping | 2026-08-28 |
 | [`LRN-013`](#lrn-013) | TASK-028 | `godot_engine` | Slotted Board Relic Modifiers & Instant Hover Tooltips | 2026-08-29 |
+| [`LRN-014`](#lrn-014) | TASK-029 | `board_systems` | Unified Board Grid and Relic Mutual Exclusivity Architecture | 2026-08-29 |
 
 ---
 
@@ -232,5 +233,21 @@ Binding GameState relic modifier application and reversion directly to Board.pla
 
 #### Actionable Guideline for Future Agents
 Always tie passive stat buffs and relic modifier lifecycles to physical board placement rather than inventory possession, and use KeywordDatabase for consistent in-game flyout tooltips.
+
+---
+
+### <a id="lrn-014"></a> LRN-014: Unified Board Grid and Relic Mutual Exclusivity Architecture
+- **Task:** `TASK-029`
+- **Category:** `board_systems`
+- **Created:** `2026-08-29T08:06:28.192880`
+
+#### Context & Problem
+Defining requirements for aligning the pegboard layout to the polyomino grid and replacing occupied pegs upon relic drop.
+
+#### Key Insight & Learning
+A shared orthogonal coordinate system simplifies mutual exclusivity checks and drag-and-drop collision detection between pegs and relics.
+
+#### Actionable Guideline for Future Agents
+Always align board peg positions to the same grid cell dimensions and coordinate functions as polyomino relics.
 
 ---
