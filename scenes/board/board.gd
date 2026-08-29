@@ -266,65 +266,43 @@ func get_peg_by_id(id: int) -> Node:
 
 ## Board-local position for milestone peg: never overlaps a peg center (same radius as normal pegs).
 func resolve_milestone_event_position(preferred: Vector2, x_min: float, x_max: float) -> Vector2:
-	if _is_clear_for_milestone_peg(preferred):
-		return preferred
-	var best: Vector2 = preferred
+	var preferred_cell := world_to_board_cell(preferred)
+	var preferred_world := board_cell_to_world(preferred_cell)
+	if is_cell_empty(preferred_cell) and preferred_world.x >= x_min and preferred_world.x <= x_max:
+		return preferred_world
+
+	var best_pos: Vector2 = preferred_world
 	var best_dist: float = INF
-	for slot in _layout_empty_slots:
-		var pos: Vector2 = slot
+	var empty_cells := get_empty_grid_cells()
+	for cell in empty_cells:
+		var pos: Vector2 = board_cell_to_world(cell)
 		if pos.x < x_min or pos.x > x_max:
-			continue
-		if absf(pos.y - preferred.y) > 48.0:
-			continue
-		if not _is_clear_for_milestone_peg(pos):
 			continue
 		var d: float = pos.distance_to(preferred)
 		if d < best_dist:
 			best_dist = d
-			best = pos
+			best_pos = pos
+
 	if best_dist < INF:
-		return best
-	best_dist = INF
-	for slot in _layout_empty_slots:
-		var pos: Vector2 = slot
-		if pos.x < x_min or pos.x > x_max:
-			continue
-		if not _is_clear_for_milestone_peg(pos):
-			continue
+		return best_pos
+
+	for cell in empty_cells:
+		var pos: Vector2 = board_cell_to_world(cell)
 		var d2: float = pos.distance_to(preferred)
 		if d2 < best_dist:
 			best_dist = d2
-			best = pos
+			best_pos = pos
+
 	if best_dist < INF:
-		return best
-	var x: float = x_min
-	while x <= x_max:
-		var candidate: Vector2 = Vector2(x, preferred.y)
-		if _is_clear_for_milestone_peg(candidate):
-			return candidate
-		x += 6.0
-	best_dist = INF
-	for slot in _layout_empty_slots:
-		var pos: Vector2 = slot
-		if not _is_clear_for_milestone_peg(pos):
-			continue
-		var d3: float = pos.distance_to(preferred)
-		if d3 < best_dist:
-			best_dist = d3
-			best = pos
-	if best_dist < INF:
-		return best
-	return preferred
+		return best_pos
+
+	var clamped_col: int = clampi(preferred_cell.x, 0, BOARD_GRID_COLS - 1)
+	var clamped_row: int = clampi(preferred_cell.y, 0, BOARD_GRID_ROWS - 1)
+	return board_cell_to_world(Vector2i(clamped_col, clamped_row))
 
 func _is_clear_for_milestone_peg(local_pos: Vector2) -> bool:
-	var min_d: float = 2.0 * Constants.PEG_RADIUS + 1.0
-	for pid in _peg_by_id:
-		var p: Node = _peg_by_id[pid]
-		if not p or not is_instance_valid(p):
-			continue
-		if p.position.distance_to(local_pos) < min_d:
-			return false
-	return true
+	var cell: Vector2i = world_to_board_cell(local_pos)
+	return is_cell_empty(cell)
 
 ## Spawn a milestone board-event peg at board-local position (caller: BoardEventController).
 func spawn_milestone_event_peg_at(local_pos: Vector2, x_min: float = 100.0, x_max: float = 860.0) -> int:
@@ -2363,32 +2341,19 @@ func _apply_magnet_and_gravity_well_forces() -> void:
 func _spawn_peg_layout() -> void:
 	if not _peg_scene:
 		return
-	# Full-width offset rows: each row has the same number of pegs across the board; odd rows offset by half spacing.
 	var peg_id_counter: int = 0
-	var row_spacing: float = 56.0
-	var col_spacing: float = 52.0
-	var center_x: float = 480.0
-	var top: float = 200.0  # Well below hopper exit
-	var num_rows: int = 8
-	var peg_field_width: float = 800.0  # Total width to fill
-	var cols_per_row: int = ceili(peg_field_width / col_spacing)
-	var row_width: float = (cols_per_row - 1) * col_spacing
-	var start_x: float = center_x - row_width * 0.5
-	var empty_slots: Array = []  # Checkerboard empty cells for wall-break extra pegs
-	for row in range(num_rows):
-		var row_offset_x: float = (col_spacing * 0.5) if (row % 2 == 1) else 0.0
-		for col in range(cols_per_row):
-			var pos: Vector2 = Vector2(start_x + row_offset_x + col * col_spacing, top + row * row_spacing)
-			if (row + col) % 2 != 0:
-				empty_slots.append(pos)  # Empty checkerboard slot
-				continue
+	for row in range(BOARD_GRID_ROWS):
+		for col in range(BOARD_GRID_COLS):
+			var grid_cell := Vector2i(col, row)
+			var pos: Vector2 = board_cell_to_world(grid_cell)
 			var p: Node = _peg_scene.instantiate()
 			p.position = pos
 			p.peg_id = peg_id_counter
+			p.set_meta("grid_cell", grid_cell)
 			_peg_by_id[peg_id_counter] = p
 			peg_id_counter += 1
 			add_child(p)
-	_layout_empty_slots = empty_slots
+	_layout_empty_slots.clear()
 	_next_dynamic_peg_id = peg_id_counter + 100000
 	var _ts_all_bombs: bool = TestScenario and TestScenario.enabled and TestScenario.all_pegs_bombs
 	var _ts_all_tramps: bool = TestScenario and TestScenario.enabled and TestScenario.all_pegs_trampolines
@@ -2817,6 +2782,41 @@ func board_cell_to_world(grid_pos: Vector2i) -> Vector2:
 		BOARD_GRID_START_Y + float(grid_pos.y) * BOARD_GRID_ROW_SPACING
 	)
 
+## Returns true if the specified grid coordinates fall within board bounds.
+func is_cell_in_bounds(grid_pos: Vector2i) -> bool:
+	return grid_pos.x >= 0 and grid_pos.x < BOARD_GRID_COLS and grid_pos.y >= 0 and grid_pos.y < BOARD_GRID_ROWS
+
+## Returns the peg occupying the specified grid cell, or null if no peg exists.
+func get_peg_at_cell(grid_pos: Vector2i) -> Node:
+	if not is_cell_in_bounds(grid_pos):
+		return null
+	for pid in _peg_by_id:
+		var peg: Node = _peg_by_id[pid]
+		if peg and is_instance_valid(peg):
+			if world_to_board_cell(peg.position) == grid_pos:
+				return peg
+	return null
+
+## Returns true if the cell is within bounds and has neither a peg nor a placed module.
+func is_cell_empty(grid_pos: Vector2i) -> bool:
+	if not is_cell_in_bounds(grid_pos):
+		return false
+	if _occupied_board_cells.has(grid_pos):
+		return false
+	if get_peg_at_cell(grid_pos) != null:
+		return false
+	return true
+
+## Returns all valid board grid coordinates that currently contain no pegs and no modules.
+func get_empty_grid_cells() -> Array[Vector2i]:
+	var empty: Array[Vector2i] = []
+	for r in range(BOARD_GRID_ROWS):
+		for c in range(BOARD_GRID_COLS):
+			var cell := Vector2i(c, r)
+			if is_cell_empty(cell):
+				empty.append(cell)
+	return empty
+
 ## Checks whether an item can be legally placed on the board grid at target grid_pos.
 func can_place_module(item: Resource, grid_pos: Vector2i, rotation: int = -1, ignore_instance_id: StringName = &"") -> bool:
 	if item == null:
@@ -3048,6 +3048,7 @@ func place_peg_at_cell(grid_pos: Vector2i, config: PegConfig = null, extra_kind:
 		p.set_script(p_script)
 	p.position = world_pos
 	p.peg_id = _next_dynamic_peg_id
+	p.set_meta("grid_cell", grid_pos)
 	_next_dynamic_peg_id += 1
 	if config:
 		p.peg_config = config
