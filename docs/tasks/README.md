@@ -45,8 +45,11 @@ All tasks use structured Markdown with status, priority, and clear acceptance cr
 | [TASK-024](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-024-polyomino-relic-shapes-and-sizes.md) | Polyomino Relic Shapes, Sizes, and Data Definitions | Systems/Data | P1 | DONE | `feature/polyomino-relic-shapes` |
 | [TASK-025](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-025-polyomino-drag-drop-and-grid-snapping.md) | Polyomino Drag-and-Drop, Rotation, and Grid Snapping | UI/Controls | P1 | DONE | `feature/polyomino-drag-and-drop` |
 | [TASK-026](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-026-polyomino-internal-machinery-and-bumpers.md) | Polyomino Internal Kinetic Machinery and Bumper Mechanics | Gameplay/Physics | P1 | DONE | `feature/polyomino-internal-machinery` |
-| [TASK-027](TASK-027-junk-box-backpack-inventory-system.md) | Junk Box Backpack Inventory System | UI/Systems | P1 | DONE | `feature/junk-box-backpack-inventory` |
-| [TASK-028](TASK-028-junk-box-ui-opening-and-board-transfer.md) | Junk Box UI Opening, Representation, and Board Item Transfer | UI/Gameplay | P1 | DONE | `feature/junk-box-ui-and-board-transfer` |
+| [TASK-027](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-027-junk-box-backpack-inventory-system.md) | Junk Box Backpack Inventory System | UI/Systems | P1 | DONE | `feature/junk-box-backpack-inventory` |
+| [TASK-028](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-028-junk-box-ui-opening-and-board-transfer.md) | Junk Box UI Opening, Representation, and Board Item Transfer | UI/Gameplay | P1 | DONE | `feature/junk-box-ui-and-board-transfer` |
+| [TASK-029](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-029-peg-and-relic-unified-grid-alignment.md) | Peg and Relic Unified Grid Alignment | Systems/Board Physics | P1 | READY | `feature/peg-and-relic-unified-grid-alignment` |
+| [TASK-030](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-030-relic-placement-peg-replacement-and-overlap-prevention.md) | Relic Placement Peg Replacement and Mutual Exclusivity | Systems/Gameplay | P1 | READY | `feature/relic-placement-peg-replacement` |
+| [TASK-031](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-031-board-relic-repositioning-and-dragging.md) | Board Relic Repositioning and In-Place Dragging | UI/Controls | P1 | READY | `feature/board-relic-repositioning` |
 
 
 
