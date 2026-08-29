@@ -34,12 +34,16 @@ var _prev_catchment_bodies: Array = []
 var _falling_carry_until: Dictionary = {}
 ## ball -> consecutive frames outside strict bin (gate closed only)
 var _outside_bin_frames: Dictionary = {}
+var _mouse_control_active: bool = false
+var _manual_steer_dir: float = 0.0
 
 const ARM_OPEN_ANGLE: float = PI / 2.0  # 90° each way when open
 const ARM_ANIM_DURATION: float = 0.5
 ## Slide along top track; match goblin grab / board play area.
 const TRACK_X_MIN: float = 60.0
 const TRACK_X_MAX: float = 900.0
+## Horizontal keyboard movement speed in pixels per second.
+const MOVE_SPEED: float = 162.5
 
 func _ready() -> void:
 	_ball_scene = load("res://scenes/balls/ball.tscn") as PackedScene
@@ -54,18 +58,49 @@ func _ready() -> void:
 	_catchment_area = get_node_or_null("HopperCatchment") as Area2D
 	scale.x = GameState.hopper_width_scale
 
-func _physics_process(_delta: float) -> void:
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventMouseMotion:
+		_mouse_control_active = true
+
+func _physics_process(delta: float) -> void:
 	if GameState and GameState.paused:
 		return
 	if GameState and GameState.run_flow_state != GameState.RunFlowState.FIGHTING:
 		return
 	_hopper_physics_frame += 1
 	var prev_x: float = global_position.x
-	global_position.x = clampf(get_global_mouse_position().x, TRACK_X_MIN, TRACK_X_MAX)
+	
+	var steer_dir: float = _manual_steer_dir
+	if is_zero_approx(steer_dir):
+		if Input.is_key_pressed(KEY_A) or Input.is_key_pressed(KEY_LEFT):
+			steer_dir -= 1.0
+		if Input.is_key_pressed(KEY_D) or Input.is_key_pressed(KEY_RIGHT):
+			steer_dir += 1.0
+	
+	if not is_zero_approx(steer_dir):
+		_mouse_control_active = false
+		global_position.x = clampf(global_position.x + steer_dir * MOVE_SPEED * delta, TRACK_X_MIN, TRACK_X_MAX)
+	elif _mouse_control_active:
+		global_position.x = clampf(get_global_mouse_position().x, TRACK_X_MIN, TRACK_X_MAX)
+	
 	var dx: float = global_position.x - prev_x
 	_apply_horizontal_carry(dx)
 	_sync_bin_membership()
 	_refresh_catchment_cache()
+
+## Steer the hopper horizontally by a direction (-1.0 to 1.0) and time delta.
+func steer(direction: float, delta: float) -> void:
+	_mouse_control_active = false
+	var prev_x: float = global_position.x
+	global_position.x = clampf(global_position.x + direction * MOVE_SPEED * delta, TRACK_X_MIN, TRACK_X_MAX)
+	var dx: float = global_position.x - prev_x
+	_apply_horizontal_carry(dx)
+
+## Sets the manual steer direction override (-1.0 to 1.0). Set to 0.0 to restore keyboard input.
+func set_steer_input(dir: float) -> void:
+	_manual_steer_dir = clampf(dir, -1.0, 1.0)
+	if not is_zero_approx(_manual_steer_dir):
+		_mouse_control_active = false
 
 func _is_carryable_ball(body: Node) -> bool:
 	if not body is RigidBody2D:

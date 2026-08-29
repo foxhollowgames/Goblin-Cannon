@@ -10,8 +10,13 @@ signal leech_drain(amount_display: int, alignment: int, peg_id: int)  ## Leech s
 signal gold_gained(amount: int, origin_position: Vector2)
 signal module_placed_on_board(item: Resource, grid_pos: Vector2i, rotation: int)
 signal module_unslotted_from_board(item: Resource)
+signal module_machinery_activated(component: Node, ball: Node, energy_granted: int, impulse: Vector2)
+signal module_solidified(item: Resource)
+signal peg_solidified(peg: Node)
+signal ghost_state_changed(component: Variant, is_ghost: bool)
 
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
+const PolyominoModuleNode = preload("res://scenes/board/machinery/polyomino_module_node.gd")
 const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 
 const BOARD_GRID_COLS: int = 16
@@ -47,6 +52,8 @@ const _GAS_CLOUD_VISUAL_SCRIPT: GDScript = preload("res://scenes/board/gas_cloud
 var _placed_modules: Dictionary = {}  # instance_id (StringName) -> JunkBoxItem
 var _occupied_board_cells: Dictionary = {}  # Vector2i -> instance_id (StringName)
 var _placed_module_nodes: Dictionary = {}  # instance_id -> Node2D
+var _ghost_placed_modules: Dictionary = {}  # instance_id (StringName) -> bool
+var _ghost_placed_pegs: Dictionary = {}  # peg_id (int) -> Node
 var _modules_container: Node2D = null
 var _drag_controller: Node = null
 
@@ -135,9 +142,10 @@ var _had_constellation_laser_visual: bool = false
 func _ready() -> void:
 	_hit_cooldown = HitCooldown.new()
 	var main: Node = get_parent()
-	_game_coordinator = main.get_node_or_null("GameCoordinator")
-	_hopper = main.get_node_or_null("Hopper")
-	_balls_container = main.get_node_or_null("BallsContainer") as Node2D
+	if main:
+		_game_coordinator = main.get_node_or_null("GameCoordinator")
+		_hopper = main.get_node_or_null("Hopper")
+		_balls_container = main.get_node_or_null("BallsContainer") as Node2D
 	if not _balls_container:
 		_balls_container = self
 	_peg_scene = load("res://scenes/board/peg.tscn") as PackedScene
@@ -163,6 +171,7 @@ func _process(_delta: float) -> void:
 	var hopper: Node2D = main.get_node_or_null("Hopper") as Node2D
 	if hopper:
 		_spawn_position.x = hopper.global_position.x
+	_process_ghost_states(_board_sim_tick)
 
 func get_active_ball_count() -> int:
 	return _active_balls.size()
@@ -1067,10 +1076,16 @@ func run_ball_steps(sim_tick: int) -> void:
 						elif ability_key == "Chain Lightning":
 							_chain_conduction_done_this_event = false
 							_apply_chain_lightning_hits(pid, b, bdef, sim_tick)
+		# Polyomino module kinetic machinery interaction
+		if not _placed_module_nodes.is_empty():
+			for mod_node in _placed_module_nodes.values():
+				if is_instance_valid(mod_node) and mod_node.has_method("check_ball_collision"):
+					mod_node.check_ball_collision(b, sim_tick)
 	_process_binary_ball_on_ball_splits(sim_tick)
 	_check_peg_destruction_upgrades(sim_tick)
 	_process_milestone_event_pegs(sim_tick)
 	_process_treasure_chest_pegs(sim_tick)
+	_process_ghost_states(sim_tick)
 
 func flush_tick(sim_tick: int) -> void:
 	_board_sim_tick = sim_tick
@@ -2197,6 +2212,14 @@ func _spawn_energy_popup(peg: Node, amount_display: int) -> void:
 	popup.position = peg.position + Vector2(0, -16)
 	popup.modulate = Color.WHITE
 
+func _spawn_energy_popup_at_pos(pos: Vector2, amount_display: int) -> void:
+	var popup: Node2D = _acquire_energy_popup()
+	if not popup:
+		return
+	popup.setup("+%d" % amount_display)
+	popup.position = pos + Vector2(0, -16)
+	popup.modulate = Color.WHITE
+
 func _spawn_trampoline_bounce_effect(world_pos: Vector2) -> void:
 	if not _hit_effect_scene:
 		return
@@ -2807,6 +2830,20 @@ func place_module(item: Resource, grid_pos: Vector2i, rotation: int = -1) -> boo
 		_occupied_board_cells[cell] = inst_id
 
 	_update_placed_module_visual(item)
+	var is_clear: bool = is_module_area_clear_of_balls(item)
+	var node: Node = _placed_module_nodes.get(inst_id)
+	if not is_clear:
+		_ghost_placed_modules[inst_id] = true
+		if node and node.has_method("set_ghost_state"):
+			node.set_ghost_state(true)
+		ghost_state_changed.emit(item, true)
+	else:
+		_ghost_placed_modules.erase(inst_id)
+		if node and node.has_method("set_ghost_state"):
+			node.set_ghost_state(false)
+		ghost_state_changed.emit(item, false)
+		module_solidified.emit(item)
+
 	module_placed_on_board.emit(item, grid_pos, item.rotation_step)
 	return true
 
@@ -2820,6 +2857,7 @@ func unslot_module(instance_id: StringName) -> Resource:
 		if _occupied_board_cells.get(cell) == instance_id:
 			_occupied_board_cells.erase(cell)
 	_placed_modules.erase(instance_id)
+	_ghost_placed_modules.erase(instance_id)
 
 	if _placed_module_nodes.has(instance_id):
 		var node: Node = _placed_module_nodes[instance_id]
@@ -2849,11 +2887,165 @@ func clear_all_placed_modules() -> void:
 	for inst_id in _placed_modules.keys().duplicate():
 		unslot_module(inst_id)
 	_occupied_board_cells.clear()
+	_ghost_placed_modules.clear()
 
-## Visual representation node for placed modules on the board.
+## Toggles the ghost state of a placed module.
+func set_module_ghost_state(instance_id: StringName, ghost: bool) -> void:
+	if ghost:
+		_ghost_placed_modules[instance_id] = true
+	else:
+		_ghost_placed_modules.erase(instance_id)
+
+	var node: Node = _placed_module_nodes.get(instance_id)
+	if node and is_instance_valid(node) and node.has_method("set_ghost_state"):
+		node.set_ghost_state(ghost)
+
+	var item: Resource = _placed_modules.get(instance_id)
+	if item:
+		ghost_state_changed.emit(item, ghost)
+		if not ghost:
+			module_solidified.emit(item)
+
+## Returns true if the placed module is currently in non-colliding ghost state.
+func is_module_in_ghost_state(instance_id: StringName) -> bool:
+	return _ghost_placed_modules.has(instance_id)
+
+## Returns true if the peg is currently in non-colliding ghost state.
+func is_peg_in_ghost_state(peg_id: int) -> bool:
+	return _ghost_placed_pegs.has(peg_id)
+
+## Returns an array of all modules currently in ghost state.
+func get_ghost_modules() -> Array:
+	var result: Array = []
+	for id in _ghost_placed_modules.keys():
+		var item: Resource = _placed_modules.get(id)
+		if item:
+			result.append(item)
+	return result
+
+## Returns an array of all pegs currently in ghost state.
+func get_ghost_pegs() -> Array:
+	var result: Array = []
+	for p in _ghost_placed_pegs.values():
+		if is_instance_valid(p):
+			result.append(p)
+	return result
+
+## Returns true if no active balls overlap the footprint of the given module item.
+func is_module_area_clear_of_balls(item: Resource) -> bool:
+	if item == null:
+		return true
+	var inst_id: StringName = item.instance_id if "instance_id" in item else StringName(str(item.get_instance_id()))
+	var node: Node = _placed_module_nodes.get(inst_id)
+	if node and is_instance_valid(node) and node.has_method("is_area_clear_of_balls"):
+		return node.is_area_clear_of_balls(_active_balls)
+
+	var occupied: Array = item.get_occupied_cells() if "get_occupied_cells" in item else [item.grid_position]
+	for grid_c in occupied:
+		var world_c: Vector2 = board_cell_to_world(grid_c)
+		var cell_rect := Rect2(world_c.x - BOARD_GRID_COL_SPACING * 0.5, world_c.y - BOARD_GRID_ROW_SPACING * 0.5, BOARD_GRID_COL_SPACING, BOARD_GRID_ROW_SPACING)
+		var check_rect: Rect2 = cell_rect.grow(Constants.BALL_RADIUS + 2.0)
+		for ball in _active_balls:
+			if not is_instance_valid(ball):
+				continue
+			var b_pos: Vector2 = ball.global_position if (ball.is_inside_tree() and "global_position" in ball) else (ball.position if "position" in ball else Vector2.ZERO)
+			if check_rect.has_point(b_pos):
+				return false
+	return true
+
+## Returns true if no active balls overlap the given peg's collision area.
+func is_peg_area_clear_of_balls(peg: Node) -> bool:
+	if not is_instance_valid(peg):
+		return true
+	if peg.has_method("is_area_clear_of_balls"):
+		return peg.is_area_clear_of_balls(_active_balls)
+	var peg_pos: Vector2 = peg.global_position if peg.is_inside_tree() else peg.position
+	var clear_dist: float = Constants.PEG_RADIUS + Constants.BALL_RADIUS + 2.0
+	var clear_dist_sq: float = clear_dist * clear_dist
+	for ball in _active_balls:
+		if not is_instance_valid(ball):
+			continue
+		var b_pos: Vector2 = ball.global_position if (ball.is_inside_tree() and "global_position" in ball) else (ball.position if "position" in ball else Vector2.ZERO)
+		if peg_pos.distance_squared_to(b_pos) <= clear_dist_sq:
+			return false
+	return true
+
+## Places a peg at target grid_pos, entering ghost state if balls overlap.
+func place_peg_at_cell(grid_pos: Vector2i, config: PegConfig = null, extra_kind: String = "") -> Node:
+	var world_pos: Vector2 = board_cell_to_world(grid_pos)
+	var p: Node = null
+	if _peg_scene:
+		p = _peg_scene.instantiate()
+	else:
+		var p_script: GDScript = preload("res://scenes/board/peg.gd")
+		p = StaticBody2D.new()
+		p.set_script(p_script)
+	p.position = world_pos
+	p.peg_id = _next_dynamic_peg_id
+	_next_dynamic_peg_id += 1
+	if config:
+		p.peg_config = config
+	if extra_kind != "":
+		p.peg_extra_kind = extra_kind
+	_peg_by_id[p.peg_id] = p
+	add_child(p)
+
+	if not is_peg_area_clear_of_balls(p):
+		_ghost_placed_pegs[p.peg_id] = p
+		if p.has_method("set_ghost_placement"):
+			p.set_ghost_placement(true)
+		ghost_state_changed.emit(p, true)
+	else:
+		if p.has_method("set_ghost_placement"):
+			p.set_ghost_placement(false)
+		ghost_state_changed.emit(p, false)
+		peg_solidified.emit(p)
+	return p
+
+## Unslots and removes a peg occupying target grid_pos.
+func unslot_peg_at_cell(grid_pos: Vector2i) -> Node:
+	var world_pos: Vector2 = board_cell_to_world(grid_pos)
+	for pid in _ghost_placed_pegs.keys():
+		var p: Node = _ghost_placed_pegs.get(pid)
+		if p and is_instance_valid(p) and p.position.distance_to(world_pos) < 16.0:
+			_ghost_placed_pegs.erase(pid)
+			_peg_by_id.erase(pid)
+			return p
+	for pid in _peg_by_id.keys():
+		var p: Node = _peg_by_id.get(pid)
+		if p and is_instance_valid(p):
+			if p.position.distance_to(world_pos) < 16.0:
+				_peg_by_id.erase(pid)
+				_ghost_placed_pegs.erase(pid)
+				return p
+	return null
+
+## Updates ghost-state modules and pegs, solidifying them once active balls clear.
+func _process_ghost_states(_sim_tick: int) -> void:
+	for inst_id in _ghost_placed_modules.keys().duplicate():
+		var item: Resource = _placed_modules.get(inst_id)
+		if item and is_module_area_clear_of_balls(item):
+			set_module_ghost_state(inst_id, false)
+
+	for pid in _ghost_placed_pegs.keys().duplicate():
+		var peg: Node = _peg_by_id.get(pid)
+		if peg and is_instance_valid(peg):
+			if is_peg_area_clear_of_balls(peg):
+				if peg.has_method("set_ghost_placement"):
+					peg.set_ghost_placement(false)
+				_ghost_placed_pegs.erase(pid)
+				ghost_state_changed.emit(peg, false)
+				peg_solidified.emit(peg)
+		else:
+			_ghost_placed_pegs.erase(pid)
+
+## Visual and kinetic machinery representation node for placed modules on the board.
 func _update_placed_module_visual(item: Resource) -> void:
 	if not _modules_container:
-		return
+		_modules_container = Node2D.new()
+		_modules_container.name = "PlacedModules"
+		_modules_container.z_index = 2
+		add_child(_modules_container)
 	var inst_id: StringName = item.instance_id if "instance_id" in item else StringName(str(item.get_instance_id()))
 	if _placed_module_nodes.has(inst_id):
 		var old_node: Node = _placed_module_nodes[inst_id]
@@ -2861,55 +3053,37 @@ func _update_placed_module_visual(item: Resource) -> void:
 			old_node.queue_free()
 		_placed_module_nodes.erase(inst_id)
 
-	var node: Node2D = Node2D.new()
+	var node: PolyominoModuleNode = PolyominoModuleNode.new()
 	node.name = "Module_%s" % str(inst_id)
+	node.position = board_cell_to_world(item.grid_position)
+	node.setup_module(item, item.grid_position, item.rotation_step)
+	node.machinery_triggered.connect(_on_module_machinery_triggered)
 	_modules_container.add_child(node)
 	_placed_module_nodes[inst_id] = node
 
-	var tier: int = item.module_data.tier if ("module_data" in item and item.module_data != null) else 1
-	var base_color: Color = Constants.shop_rarity_accent_color(tier)
-	var occupied: Array = item.get_occupied_cells() if "get_occupied_cells" in item else [item.grid_position]
-	var local_cells: Array = item.get_local_cells() if "get_local_cells" in item else [Vector2i.ZERO]
-
-	for idx in range(occupied.size()):
-		var grid_c: Vector2i = occupied[idx]
-		var world_c: Vector2 = board_cell_to_world(grid_c)
-		var cell_w: float = BOARD_GRID_COL_SPACING - 4.0
-		var cell_h: float = BOARD_GRID_ROW_SPACING - 4.0
-		var cell_rect: Rect2 = Rect2(world_c.x - cell_w * 0.5, world_c.y - cell_h * 0.5, cell_w, cell_h)
-
-		var cell_draw := _PlacedCellVisual.new()
-		cell_draw.rect = cell_rect
-		cell_draw.base_color = base_color
-		if idx < local_cells.size() and "module_data" in item and item.module_data != null:
-			var l_cell: Vector2i = local_cells[idx]
-			var c_type: int = PolyominoModuleData.CellType.EMPTY
-			if item.module_data.cell_types.has(l_cell):
-				c_type = item.module_data.cell_types[l_cell]
-			elif item.module_data.cell_types.has("%d,%d" % [l_cell.x, l_cell.y]):
-				c_type = item.module_data.cell_types["%d,%d" % [l_cell.x, l_cell.y]]
-			cell_draw.cell_type = c_type
-		node.add_child(cell_draw)
-
-# Helper inner class to render individual polyomino cells on the board
-class _PlacedCellVisual extends Node2D:
-	var rect: Rect2
-	var base_color: Color
-	var cell_type: int = 0
-
-	func _draw() -> void:
-		draw_rect(rect, base_color)
-		draw_rect(rect, base_color.lightened(0.3), false, 2.0)
-		var center: Vector2 = rect.get_center()
-		var icon_col: Color = base_color.darkened(0.5)
-		if cell_type == 3: # BUMPER
-			draw_circle(center, rect.size.x * 0.22, icon_col)
-		elif cell_type == 4: # ACCELERATOR
-			var pts: PackedVector2Array = [center + Vector2(0, -10), center + Vector2(10, 10), center + Vector2(-10, 10)]
-			draw_colored_polygon(pts, icon_col)
-		elif cell_type == 2: # FUNNEL
-			draw_line(center + Vector2(-10, -10), center + Vector2(0, 10), icon_col, 2.0)
-			draw_line(center + Vector2(10, -10), center + Vector2(0, 10), icon_col, 2.0)
-		elif cell_type == 5: # ROTARY_BOOSTER
-			draw_arc(center, 10.0, 0, TAU, 16, icon_col, 2.0)
+func _on_module_machinery_triggered(comp: Node, ball: Node, energy: int, impulse: Vector2) -> void:
+	module_machinery_activated.emit(comp, ball, energy, impulse)
+	if energy > 0 and comp:
+		_spawn_energy_popup_at_pos(comp.global_position, energy)
+	if _hit_effect_scene and comp:
+		var fx: Node2D = _hit_effect_scene.instantiate() as Node2D
+		if fx and fx is BallHitEffect:
+			fx.global_position = comp.global_position
+			fx.z_index = 100
+			var eff_type: BallHitEffect.EffectType = BallHitEffect.EffectType.EXPLOSIVE
+			if "cell_type" in comp:
+				match comp.cell_type:
+					PolyominoModuleData.CellType.BUMPER:
+						eff_type = BallHitEffect.EffectType.EXPLOSIVE
+					PolyominoModuleData.CellType.ACCELERATOR, PolyominoModuleData.CellType.ROTARY_BOOSTER:
+						eff_type = BallHitEffect.EffectType.LIGHTNING
+					PolyominoModuleData.CellType.MANA_SIPHON:
+						eff_type = BallHitEffect.EffectType.LEECH
+					PolyominoModuleData.CellType.DIRECTIONAL_DEFLECTOR, PolyominoModuleData.CellType.FUNNEL, PolyominoModuleData.CellType.GUIDE_RAIL:
+						eff_type = BallHitEffect.EffectType.RUBBERY
+			fx.setup_effect(eff_type)
+			if get_parent():
+				get_parent().add_child(fx)
+			else:
+				add_child(fx)
 

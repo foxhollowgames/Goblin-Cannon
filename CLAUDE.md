@@ -5,7 +5,8 @@ Use this file as the **single entry point**. Do not explore the repo at random u
 ## Project Rules
 - **Always be up to date with `main`**: Before making any changes in this project, make sure that we're up to date with `main` (`git pull origin main`).
 - **Sub-Agent Immediate Teardown**: When delegating work to sub-agents, the orchestrator agent must explicitly terminate them (`manage_subagents(Action="kill")` or `manage_subagents(Action="kill_all")`) immediately after their deliverables are received and verified.
-- **Post-Merge Learning Evaluation Loop**: After merging a task into `main`, evaluate and record learnings via `python scripts/learnings.py add` into [`docs/knowledge/LEARNINGS.md`](./docs/knowledge/LEARNINGS.md).
+- **Mandatory PR Review & Learning Loop**: Every fix and feature must complete the full cycle: (1) Knowledge retrieval, (2) Feature branch, (3) Headless tests pass, (4) PR creation (`gh pr create`), (5) Independent `pr_reviewer` sub-agent review pass, (6) PR merge (`gh pr merge`), (7) Sub-agent teardown, (8) Post-merge learning loop (`python scripts/learnings.py add`).
+
 
 ## Reading order (by task)
 

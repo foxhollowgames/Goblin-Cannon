@@ -398,13 +398,16 @@ func _unhandled_input(event: InputEvent) -> void:
 	var key_event: InputEventKey = event as InputEventKey
 	if not key_event.pressed or key_event.echo:
 		return
-	if key_event.keycode == KEY_D:
+	var vp: Viewport = get_viewport()
+	if key_event.keycode == KEY_F3 or key_event.keycode == KEY_QUOTELEFT:
 		if _debug_overlay:
 			_debug_overlay.visible = !_debug_overlay.visible
-		get_viewport().set_input_as_handled()
+		if vp:
+			vp.set_input_as_handled()
 	elif key_event.keycode == KEY_I or key_event.keycode == KEY_B:
 		_toggle_junk_box()
-		get_viewport().set_input_as_handled()
+		if vp:
+			vp.set_input_as_handled()
 	elif key_event.keycode == KEY_ESCAPE:
 		# Open inventory; let other ESC handlers (almanac, inventory close, debug modals) run first.
 		if _game_over or _victory:
@@ -418,14 +421,18 @@ func _unhandled_input(event: InputEvent) -> void:
 		if _debug_event_spawn_modal and _debug_event_spawn_modal.visible:
 			return
 		_toggle_junk_box()
-		get_viewport().set_input_as_handled()
-	elif key_event.keycode == KEY_A:
+		if vp:
+			vp.set_input_as_handled()
+	elif key_event.keycode == KEY_L or key_event.keycode == KEY_TAB:
 		_on_almanac_pressed()
-		get_viewport().set_input_as_handled()
+		if vp:
+			vp.set_input_as_handled()
 	elif key_event.keycode == KEY_P:
 		if not _game_over and not _victory:
-			get_tree().paused = !get_tree().paused
-			get_viewport().set_input_as_handled()
+			if get_tree():
+				get_tree().paused = !get_tree().paused
+			if vp:
+				vp.set_input_as_handled()
 
 func _toggle_junk_box() -> void:
 	if _junk_box_panel:
@@ -967,6 +974,9 @@ func _create_inventory_ui() -> void:
 			left_panel.add_child(_almanac_btn)
 			_inventory_btn = _build_bag_button()
 			left_panel.add_child(_inventory_btn)
+			if GameState.junk_box and not GameState.junk_box.inventory_changed.is_connected(_update_bag_button_badge):
+				GameState.junk_box.inventory_changed.connect(_update_bag_button_badge)
+			_update_bag_button_badge()
 			left_panel.add_child(_build_debug_tools_column())
 
 func _build_debug_tools_column() -> Control:
@@ -1179,7 +1189,7 @@ func _create_debug_city_jump_ui(main: Node) -> void:
 func _build_almanac_button() -> Button:
 	var btn: Button = Button.new()
 	btn.text = ""
-	btn.tooltip_text = "Almanac (A): Open the catalog of all balls, pegs, and relics."
+	btn.tooltip_text = "Almanac (L): Open the catalog of all balls, pegs, and relics."
 	btn.custom_minimum_size = Vector2(36, 32)
 	btn.position = Vector2(198, 8)
 	btn.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -1230,7 +1240,7 @@ func _create_book_icon_image() -> Image:
 func _build_bag_button() -> Button:
 	var btn: Button = Button.new()
 	btn.text = ""
-	btn.tooltip_text = "Inventory (I / Esc): Open your run items, stats, and relic inventory."
+	btn.tooltip_text = "Junk Box (I / B / Esc): Open your Junk Box inventory and drag modules to the board."
 	btn.custom_minimum_size = Vector2(36, 32)
 	btn.position = Vector2(240, 8)  # to the right of almanac (198 + 36 + 6 gap)
 	btn.process_mode = Node.PROCESS_MODE_ALWAYS
@@ -1254,8 +1264,37 @@ func _build_bag_button() -> Button:
 	var bag_icon: Image = _create_bag_icon_image()
 	if bag_icon:
 		btn.icon = ImageTexture.create_from_image(bag_icon)
+	
+	var badge: Label = Label.new()
+	badge.name = "ItemCountBadge"
+	badge.anchors_preset = Control.PRESET_BOTTOM_RIGHT
+	badge.anchor_left = 1.0
+	badge.anchor_top = 1.0
+	badge.anchor_right = 1.0
+	badge.anchor_bottom = 1.0
+	badge.offset_left = -16.0
+	badge.offset_top = -14.0
+	badge.offset_right = 2.0
+	badge.offset_bottom = 2.0
+	badge.add_theme_font_size_override("font_size", 10)
+	badge.add_theme_color_override("font_color", MonsterPalette.SWATCH_CREAM())
+	badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	btn.add_child(badge)
+
 	btn.pressed.connect(_on_inventory_pressed)
 	return btn
+
+func _update_bag_button_badge() -> void:
+	var count: int = GameState.junk_box.get_item_count() if GameState.junk_box != null else 0
+	if _inventory_btn:
+		var badge: Label = _inventory_btn.get_node_or_null("ItemCountBadge") as Label
+		if badge:
+			badge.text = str(count) if count > 0 else ""
+	var main: Node = get_parent()
+	if main:
+		var bag_lbl: Label = main.get_node_or_null("UILayer/CenterPanel/BagPanel/BagLabel") as Label
+		if bag_lbl:
+			bag_lbl.text = "JUNK: %d" % count
 
 func _create_bag_icon_image() -> Image:
 	var s: int = 20

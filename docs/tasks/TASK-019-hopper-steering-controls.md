@@ -1,6 +1,6 @@
 # TASK-019: Hopper Steering and Active Aiming Controls
 
-- **Status:** READY
+- **Status:** COMPLETED
 - **Priority:** P1
 - **Category:** Controls / Gameplay
 - **Parent Task:** [TASK-001](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-001-gameplay-loop-and-pacing.md)
@@ -24,6 +24,6 @@ The player steers the hopper left and right during active combat to aim ball dro
 
 ## Acceptance Criteria
 
-- [ ] The hopper moves smoothly between the left and right grid limits.
-- [ ] Keyboard input does not interrupt automated ball drop timers.
-- [ ] Headless unit tests verify movement boundaries and input handling.
+- [x] The hopper moves smoothly between the left and right grid limits.
+- [x] Keyboard input does not interrupt automated ball drop timers.
+- [x] Headless unit tests verify movement boundaries and input handling.

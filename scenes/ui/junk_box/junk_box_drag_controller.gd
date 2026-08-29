@@ -17,6 +17,7 @@ var grab_offset_cell: Vector2i = Vector2i.ZERO
 
 var junk_box_data: JunkBoxData
 var junk_box_grid_view: Control
+var junk_box_panel: Control
 var scroll_container: ScrollContainer
 var board: Node
 
@@ -240,6 +241,8 @@ func _is_mouse_over(control: Node) -> bool:
 
 func _is_mouse_over_board() -> bool:
 	if not board or not (is_inside_tree() and get_viewport()):
+		return false
+	if junk_box_panel and junk_box_panel.is_visible_in_tree() and _is_mouse_over(junk_box_panel):
 		return false
 	var mouse_pos: Vector2 = _get_safe_mouse_position()
 	# Board field occupies X: [0, 960], Y: [80, 720]

@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://c3m7x4n8v9p2"]
+
+[ext_resource type="Script" path="res://scenes/board/machinery/polyomino_module_node.gd" id="1_x8d4k"]
+
+[node name="PolyominoModuleNode" type="Node2D"]
+script = ExtResource("1_x8d4k")

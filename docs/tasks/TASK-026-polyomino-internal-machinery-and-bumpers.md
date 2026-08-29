@@ -1,6 +1,6 @@
 # TASK-026: Polyomino Internal Kinetic Machinery and Bumper Mechanics
 
-- **Status:** READY
+- **Status:** COMPLETED
 - **Priority:** P1
 - **Category:** Gameplay / Physics
 - **Target Branch:** `feature/polyomino-internal-machinery`
@@ -26,7 +26,7 @@ Implement the kinetic contraptions and interactive mechanisms embedded inside po
 
 ## Acceptance Criteria
 
-- [ ] Bumpers and speed wheels apply deterministic physics impulses to colliding balls.
-- [ ] Internal machinery generates correct energy amounts to weapon pools.
-- [ ] Visual animations and impact audio play reliably on ball contact.
-- [ ] Headless unit tests pass with `tests/run_tests.gd`.
+- [x] Bumpers and speed wheels apply deterministic physics impulses to colliding balls.
+- [x] Internal machinery generates correct energy amounts to weapon pools.
+- [x] Visual animations and impact audio play reliably on ball contact.
+- [x] Headless unit tests pass with `tests/run_tests.gd`.
