@@ -25,6 +25,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-014`](#lrn-014) | TASK-029 | `board_systems` | Unified Board Grid and Relic Mutual Exclusivity Architecture | 2026-08-29 |
 | [`LRN-015`](#lrn-015) | TASK-032 | `audio_and_mechanics` | Relic Audio Attenuation and Boundary Wall Physics Architecture | 2026-08-29 |
 | [`LRN-016`](#lrn-016) | TASK-029 | `board_systems` | Rectangular Pegboard Layout and Polyomino Grid Alignment | 2026-08-29 |
+| [`LRN-017`](#lrn-017) | TASK-029 | `board_systems` | Staggered Checkerboard Peg Lattice on Discrete Rectangular Grid | 2026-08-29 |
 
 ---
 
@@ -283,5 +284,21 @@ Eliminating row offsets and placing pegs on the unified 16x8 rectangular board g
 
 #### Actionable Guideline for Future Agents
 Always position board pegs and polyomino modules on the canonical 16x8 board grid using board_cell_to_world and world_to_board_cell.
+
+---
+
+### <a id="lrn-017"></a> LRN-017: Staggered Checkerboard Peg Lattice on Discrete Rectangular Grid
+- **Task:** `TASK-029`
+- **Category:** `board_systems`
+- **Created:** `2026-08-29T09:20:53.739643`
+
+#### Context & Problem
+A dense peg layout places pegs at every grid point, which reduces ball deflection randomness and prevents open spaces.
+
+#### Key Insight & Learning
+Gating peg generation by (row + col) % 2 == 0 creates an alternating plinko lattice with 50% empty spots on the same unified 16x8 grid.
+
+#### Actionable Guideline for Future Agents
+Use checkerboard gating (row + col) % 2 == 0 on discrete grid coordinates to achieve staggered layout without floating-point row offsets.
 
 ---
