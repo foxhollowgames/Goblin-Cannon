@@ -2,6 +2,10 @@
 
 Use this file as the **single entry point**. Do not explore the repo at random until you have skimmed the steps below.
 
+## Project Rules
+- **Always be up to date with `main`**: Before making any changes in this project, make sure that we're up to date with `main` (`git pull origin main`).
+- **Sub-Agent Immediate Teardown**: When delegating work to sub-agents, the orchestrator agent must explicitly terminate them (`manage_subagents(Action="kill")` or `manage_subagents(Action="kill_all")`) immediately after their deliverables are received and verified.
+
 ## Reading order (by task)
 
 | Order | File | Purpose |
