@@ -1276,8 +1276,8 @@ func _build_bag_button() -> Button:
 	badge.offset_top = -14.0
 	badge.offset_right = 2.0
 	badge.offset_bottom = 2.0
-	badge.theme_override_font_sizes/font_size = 10
-	badge.theme_override_colors/font_color = MonsterPalette.SWATCH_CREAM()
+	badge.add_theme_font_size_override("font_size", 10)
+	badge.add_theme_color_override("font_color", MonsterPalette.SWATCH_CREAM())
 	badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	btn.add_child(badge)
 

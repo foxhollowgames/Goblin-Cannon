@@ -22,18 +22,26 @@ var drag_controller: Node = null
 
 func _ready() -> void:
 	hide()
-	drag_controller = JunkBoxDragController.new()
-	drag_controller.name = "JunkBoxDragController"
-	add_child(drag_controller)
-	drag_controller.junk_box_grid_view = grid_view
-	drag_controller.junk_box_panel = drawer_panel
-	drag_controller.scroll_container = scroll_container
-	grid_view.drag_controller = drag_controller
+	if drag_controller == null:
+		drag_controller = JunkBoxDragController.new()
+		drag_controller.name = "JunkBoxDragController"
+		add_child(drag_controller)
+	if grid_view:
+		drag_controller.junk_box_grid_view = grid_view
+		grid_view.drag_controller = drag_controller
+		if not grid_view.item_hovered.is_connected(_on_item_hovered):
+			grid_view.item_hovered.connect(_on_item_hovered)
+		if not grid_view.item_unhovered.is_connected(_on_item_unhovered):
+			grid_view.item_unhovered.connect(_on_item_unhovered)
+	if drawer_panel:
+		drag_controller.junk_box_panel = drawer_panel
+	if scroll_container:
+		drag_controller.scroll_container = scroll_container
 
-	grid_view.item_hovered.connect(_on_item_hovered)
-	grid_view.item_unhovered.connect(_on_item_unhovered)
-	close_btn.pressed.connect(_close)
-	sort_btn.pressed.connect(_on_sort_pressed)
+	if close_btn and not close_btn.pressed.is_connected(_close):
+		close_btn.pressed.connect(_close)
+	if sort_btn and not sort_btn.pressed.is_connected(_on_sort_pressed):
+		sort_btn.pressed.connect(_on_sort_pressed)
 
 func setup(coordinator: Node, reward_handler: Node) -> void:
 	_game_coordinator = coordinator
@@ -82,9 +90,18 @@ func _on_item_hovered(item: JunkBoxItem) -> void:
 func _on_item_unhovered() -> void:
 	_update_tooltip(null)
 
+func _get_tooltip_lbl() -> RichTextLabel:
+	if tooltip_lbl:
+		return tooltip_lbl
+	tooltip_lbl = get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/VBoxInfo/InfoPanel/TooltipLabel") as RichTextLabel
+	return tooltip_lbl
+
 func _update_tooltip(item: JunkBoxItem) -> void:
+	var lbl: RichTextLabel = _get_tooltip_lbl()
+	if lbl == null:
+		return
 	if item == null:
-		tooltip_lbl.text = "[color=#cfbba8]Hover an item in the box to inspect details.[/color]"
+		lbl.text = "[color=#cfbba8]Hover an item in the box to inspect details.[/color]"
 		return
 	
 	var text: String = "[b][color=#f4d06f]%s[/color][/b]\n" % item.display_name
@@ -108,4 +125,4 @@ func _update_tooltip(item: JunkBoxItem) -> void:
 			if a > 0: text += "• Accelerators: %d\n" % a
 			if f > 0: text += "• Funnels: %d\n" % f
 			if r > 0: text += "• Boosters: %d\n" % r
-	tooltip_lbl.text = text
+	lbl.text = text
