@@ -1,6 +1,6 @@
 # TASK-031: Board Relic Repositioning and In-Place Dragging
 
-- **Status:** READY
+- **Status:** IN_REVIEW
 - **Priority:** P1
 - **Category:** UI / Controls
 - **Target Branch:** `feature/board-relic-repositioning`
@@ -46,8 +46,8 @@ Enable smooth repositioning and re-arrangement of slotted relics on the grid.
 
 ## Acceptance Criteria
 
-- [ ] The player can click and drag placed relics directly on the board.
-- [ ] Relics rotate and snap accurately to new grid coordinates.
-- [ ] Relics replace pegs at the new target location upon drop.
-- [ ] Drag cancellation restores the relic to its previous position.
-- [ ] Headless unit tests verify board drag and repositioning logic.
+- [x] The player can click and drag placed relics directly on the board.
+- [x] Relics rotate and snap accurately to new grid coordinates.
+- [x] Relics replace pegs at the new target location upon drop.
+- [x] Drag cancellation restores the relic to its previous position.
+- [x] Headless unit tests verify board drag and repositioning logic.

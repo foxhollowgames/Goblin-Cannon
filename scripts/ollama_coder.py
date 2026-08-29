@@ -66,12 +66,15 @@ def query_ollama(
         method="POST",
     )
     try:
-        with urllib.request.urlopen(req, timeout=120) as resp:
+        with urllib.request.urlopen(req, timeout=600) as resp:
             res = json.loads(resp.read().decode("utf-8"))
             return res.get("response", "")
     except urllib.error.URLError as e:
         print(f"Error: Unable to connect to Ollama at {clean_url}. Is the Ollama server running?", file=sys.stderr)
         print(f"Details: {e}", file=sys.stderr)
+        sys.exit(1)
+    except TimeoutError as e:
+        print(f"Error: Request timed out after 600s at {clean_url}.", file=sys.stderr)
         sys.exit(1)
 
 def extract_code_block(text: str) -> str:

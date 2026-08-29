@@ -14,6 +14,7 @@ var drag_source: int = DragSource.JUNK_BOX
 var current_rotation_step: int = 0
 var drag_origin_cell: Vector2i = Vector2i.ZERO
 var grab_offset_cell: Vector2i = Vector2i.ZERO
+var grabbed_cell_index: int = 0
 
 var junk_box_data: JunkBoxData
 var junk_box_grid_view: Control
@@ -58,6 +59,14 @@ func start_drag(item: JunkBoxItem, source: int, origin_cell: Vector2i, offset_ce
 	drag_origin_cell = origin_cell
 	grab_offset_cell = offset_cell
 
+	grabbed_cell_index = 0
+	if item.module_data != null and not item.module_data.cells.is_empty():
+		var initial_cells: Array[Vector2i] = item.module_data.get_anchored_rotated_cells(current_rotation_step)
+		for i in range(initial_cells.size()):
+			if initial_cells[i] == offset_cell:
+				grabbed_cell_index = i
+				break
+
 	if junk_box_data == null and GameState and GameState.junk_box != null:
 		junk_box_data = GameState.junk_box
 
@@ -74,18 +83,22 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_R:
 			_rotate_item()
-			get_viewport().set_input_as_handled()
+			if is_inside_tree() and get_viewport():
+				get_viewport().set_input_as_handled()
 		elif event.keycode == KEY_ESCAPE:
 			_cancel_drag()
-			get_viewport().set_input_as_handled()
+			if is_inside_tree() and get_viewport():
+				get_viewport().set_input_as_handled()
 	elif event is InputEventMouseButton and event.pressed:
 		if event.button_index == MOUSE_BUTTON_RIGHT:
 			_rotate_item()
-			get_viewport().set_input_as_handled()
+			if is_inside_tree() and get_viewport():
+				get_viewport().set_input_as_handled()
 	elif event is InputEventMouseButton and not event.pressed:
 		if event.button_index == MOUSE_BUTTON_LEFT:
 			_handle_drop()
-			get_viewport().set_input_as_handled()
+			if is_inside_tree() and get_viewport():
+				get_viewport().set_input_as_handled()
 	elif event is InputEventMouseMotion:
 		_update_ghost()
 
@@ -105,6 +118,13 @@ func _process(delta: float) -> void:
 func _rotate_item() -> void:
 	current_rotation_step = (current_rotation_step + 1) % 4
 	_update_ghost()
+
+func get_current_grab_offset() -> Vector2i:
+	if dragging_item and dragging_item.module_data != null and not dragging_item.module_data.cells.is_empty():
+		var rot_cells: Array[Vector2i] = dragging_item.module_data.get_anchored_rotated_cells(current_rotation_step)
+		if grabbed_cell_index >= 0 and grabbed_cell_index < rot_cells.size():
+			return rot_cells[grabbed_cell_index]
+	return grab_offset_cell
 
 func _get_safe_mouse_position() -> Vector2:
 	if is_inside_tree() and get_viewport():
@@ -134,7 +154,7 @@ func _update_ghost() -> void:
 			var local_pos: Vector2 = junk_box_grid_view.get_local_mouse_position()
 			target_cell = Vector2i(int(floor(local_pos.x / 48.0)), int(floor(local_pos.y / 48.0)))
 
-		var final_cell: Vector2i = target_cell - grab_offset_cell
+		var final_cell: Vector2i = target_cell - get_current_grab_offset()
 		var valid: bool = false
 		if junk_box_data:
 			var ignore_id: StringName = dragging_item.instance_id if drag_source == DragSource.JUNK_BOX else &""
@@ -154,7 +174,7 @@ func _update_ghost() -> void:
 		var target_cell: Vector2i = Vector2i.ZERO
 		if board.has_method("world_to_board_cell"):
 			target_cell = board.world_to_board_cell(mouse_pos)
-		var final_cell: Vector2i = target_cell - grab_offset_cell
+		var final_cell: Vector2i = target_cell - get_current_grab_offset()
 
 		var valid: bool = false
 		if board.has_method("can_place_module"):
@@ -185,7 +205,7 @@ func _handle_drop() -> void:
 			var local_pos: Vector2 = junk_box_grid_view.get_local_mouse_position()
 			target_cell = Vector2i(int(floor(local_pos.x / 48.0)), int(floor(local_pos.y / 48.0)))
 
-		var final_cell: Vector2i = target_cell - grab_offset_cell
+		var final_cell: Vector2i = target_cell - get_current_grab_offset()
 		var ignore_id: StringName = dragging_item.instance_id if drag_source == DragSource.JUNK_BOX else &""
 		var valid: bool = junk_box_data.can_place_item(dragging_item, final_cell, current_rotation_step, ignore_id)
 
@@ -202,7 +222,7 @@ func _handle_drop() -> void:
 		var target_cell: Vector2i = Vector2i.ZERO
 		if board.has_method("world_to_board_cell"):
 			target_cell = board.world_to_board_cell(mouse_pos)
-		var final_cell: Vector2i = target_cell - grab_offset_cell
+		var final_cell: Vector2i = target_cell - get_current_grab_offset()
 		var ignore_id: StringName = dragging_item.instance_id if drag_source == DragSource.BOARD else &""
 		var valid: bool = board.can_place_module(dragging_item, final_cell, current_rotation_step, ignore_id)
 
@@ -296,3 +316,4 @@ class _GhostPreviewVisual extends Control:
 				draw_line(center + Vector2(8, -8), center + Vector2(0, 8), icon_col, 2.0)
 			elif c_type == 5: # ROTARY_BOOSTER
 				draw_arc(center, 8.0, 0, TAU, 16, icon_col, 2.0)
+
