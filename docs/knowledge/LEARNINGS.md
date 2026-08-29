@@ -23,6 +23,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-012`](#lrn-012) | TASK-024 | `godot_engine` | Polyomino Relic Database & ID Alias Mapping | 2026-08-28 |
 | [`LRN-013`](#lrn-013) | TASK-028 | `godot_engine` | Slotted Board Relic Modifiers & Instant Hover Tooltips | 2026-08-29 |
 | [`LRN-014`](#lrn-014) | TASK-029 | `board_systems` | Unified Board Grid and Relic Mutual Exclusivity Architecture | 2026-08-29 |
+| [`LRN-015`](#lrn-015) | TASK-032 | `audio_and_mechanics` | Relic Audio Attenuation and Boundary Wall Physics Architecture | 2026-08-29 |
 
 ---
 
@@ -249,5 +250,21 @@ A shared orthogonal coordinate system simplifies mutual exclusivity checks and d
 
 #### Actionable Guideline for Future Agents
 Always align board peg positions to the same grid cell dimensions and coordinate functions as polyomino relics.
+
+---
+
+### <a id="lrn-015"></a> LRN-015: Relic Audio Attenuation and Boundary Wall Physics Architecture
+- **Task:** `TASK-032`
+- **Category:** `audio_and_mechanics`
+- **Created:** `2026-08-29T08:18:05.426562`
+
+#### Context & Problem
+Defining requirements for reducing loud sound playback on kinetic components and adding perimeter boundary walls with internal lane dividers to polyomino relics.
+
+#### Key Insight & Learning
+Kinetic polyomino machinery produces rapid audio triggers during high ball volume, requiring dedicated bus attenuation and edge collision segment specifications.
+
+#### Actionable Guideline for Future Agents
+Always route machinery audio to dedicated sub-buses with volume limits, and define perimeter walls and internal dividers as explicit edge segment shapes.
 
 ---
