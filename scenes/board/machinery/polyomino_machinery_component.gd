@@ -6,6 +6,12 @@ signal component_activated(component: PolyominoMachineryComponent, ball: Node, e
 
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
 const HIT_COOLDOWN_TICKS: int = 3
+const DEFAULT_VOLUME_DB: float = -16.0
+const MIN_AUDIO_INTERVAL_MSEC: int = 50
+const MIN_PITCH_SCALE: float = 0.95
+const MAX_PITCH_SCALE: float = 1.05
+
+static var _last_audio_play_msec: Dictionary = {}
 
 @export var local_cell: Vector2i = Vector2i.ZERO
 @export var cell_type: int = 0
@@ -42,13 +48,23 @@ func _setup_collision() -> void:
 		add_child(col_shape)
 
 func _setup_audio() -> void:
+	if _audio_player != null:
+		return
 	_audio_player = AudioStreamPlayer2D.new()
-	_audio_player.bus = &"Master"
-	_audio_player.volume_db = -6.0
+	_audio_player.bus = &"Machinery"
+	_audio_player.volume_db = DEFAULT_VOLUME_DB
 	_audio_player.max_distance = 1200.0
 	if _audio_stream:
 		_audio_player.stream = _audio_stream
 	add_child(_audio_player)
+
+func get_audio_player() -> AudioStreamPlayer2D:
+	if _audio_player == null:
+		_setup_audio()
+	return _audio_player
+
+static func reset_audio_throttle() -> void:
+	_last_audio_play_msec.clear()
 
 func set_audio_stream(stream: AudioStream) -> void:
 	_audio_stream = stream
@@ -105,11 +121,31 @@ func _play_visual_feedback() -> void:
 	_spark_progress = 0.0
 	queue_redraw()
 
-func _play_audio_feedback() -> void:
-	if _audio_player and _audio_player.stream and is_inside_tree():
-		# Protect against headless mode audio exceptions
-		if AudioServer.get_output_device_list().size() > 0 or not Engine.is_editor_hint():
-			_audio_player.play()
+func can_play_audio(now_msec: int = -1) -> bool:
+	if now_msec < 0:
+		now_msec = Time.get_ticks_msec()
+	var stream_key: Variant = _audio_stream if _audio_stream else cell_type
+	if _last_audio_play_msec.has(stream_key):
+		if (now_msec - _last_audio_play_msec[stream_key]) < MIN_AUDIO_INTERVAL_MSEC:
+			return false
+	return true
+
+func _play_audio_feedback(now_msec: int = -1) -> bool:
+	if _audio_player == null:
+		_setup_audio()
+	if now_msec < 0:
+		now_msec = Time.get_ticks_msec()
+	if not can_play_audio(now_msec):
+		return false
+	var stream_key: Variant = _audio_stream if _audio_stream else cell_type
+	_last_audio_play_msec[stream_key] = now_msec
+	if _audio_player:
+		_audio_player.pitch_scale = randf_range(MIN_PITCH_SCALE, MAX_PITCH_SCALE)
+		if _audio_player.stream and is_inside_tree():
+			# Protect against headless mode audio exceptions
+			if AudioServer.get_output_device_list().size() > 0 or not Engine.is_editor_hint():
+				_audio_player.play()
+	return true
 
 func _process(delta: float) -> void:
 	var needs_redraw: bool = false

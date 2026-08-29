@@ -1,6 +1,6 @@
 # TASK-032: Relic Audio Level Balancing and Volume Attenuation
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Audio / Balance
 - **Target Branch:** `feature/relic-audio-balancing`
@@ -44,8 +44,8 @@ Add concurrency throttling to prevent loud sound spikes during heavy ball collis
 
 ## Acceptance Criteria
 
-- [ ] Relic machinery component sound effects play at comfortable, reduced volume levels.
-- [ ] Sound effects route through a dedicated machinery audio bus.
-- [ ] Multiple simultaneous collisions do not cause audio clipping or harsh volume spikes.
-- [ ] Pitch modulation varies sound playback naturally.
-- [ ] Headless unit tests verify audio configuration and volume limits.
+- [x] Relic machinery component sound effects play at comfortable, reduced volume levels.
+- [x] Sound effects route through a dedicated machinery audio bus.
+- [x] Multiple simultaneous collisions do not cause audio clipping or harsh volume spikes.
+- [x] Pitch modulation varies sound playback naturally.
+- [x] Headless unit tests verify audio configuration and volume limits.
