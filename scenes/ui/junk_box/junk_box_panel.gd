@@ -21,12 +21,19 @@ var drag_controller: Node = null
 @onready var close_btn: Button = $DrawerPanel/MarginContainer/VBoxContainer/HBoxTitle/CloseBtn
 @onready var sort_btn: Button = $DrawerPanel/MarginContainer/VBoxContainer/HBoxTitle/SortBtn
 
-func _ready() -> void:
-	hide()
+func _ensure_drag_controller_exists() -> void:
 	if drag_controller == null:
 		drag_controller = JunkBoxDragController.new()
 		drag_controller.name = "JunkBoxDragController"
-		add_child(drag_controller)
+		var p: Node = get_parent()
+		if p:
+			p.add_child(drag_controller)
+		else:
+			add_child(drag_controller)
+
+func _ready() -> void:
+	hide()
+	_ensure_drag_controller_exists()
 	if grid_view:
 		drag_controller.junk_box_grid_view = grid_view
 		grid_view.drag_controller = drag_controller
@@ -44,7 +51,20 @@ func _ready() -> void:
 	if sort_btn and not sort_btn.pressed.is_connected(_on_sort_pressed):
 		sort_btn.pressed.connect(_on_sort_pressed)
 
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_PARENTED:
+		_ensure_drag_controller_on_parent()
+
+func _ensure_drag_controller_on_parent() -> void:
+	_ensure_drag_controller_exists()
+	if drag_controller and drag_controller.get_parent() == self:
+		var p: Node = get_parent()
+		if p:
+			remove_child(drag_controller)
+			p.add_child(drag_controller)
+
 func setup(coordinator: Node, reward_handler: Node) -> void:
+	_ensure_drag_controller_on_parent()
 	_game_coordinator = coordinator
 	_reward_handler = reward_handler
 	if coordinator:
@@ -53,6 +73,7 @@ func setup(coordinator: Node, reward_handler: Node) -> void:
 			set_board(b)
 
 func set_board(p_board: Node) -> void:
+	_ensure_drag_controller_on_parent()
 	if drag_controller:
 		drag_controller.board = p_board
 	if p_board and p_board.has_method("set_drag_controller"):

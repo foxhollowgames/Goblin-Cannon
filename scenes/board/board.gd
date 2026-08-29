@@ -2714,9 +2714,15 @@ func get_drag_controller() -> Node:
 		add_child(_drag_controller)
 	return _drag_controller
 
-func _unhandled_input(event: InputEvent) -> void:
+func _input(event: InputEvent) -> void:
+	var mouse_pos: Vector2 = Vector2.ZERO
+	if event is InputEventMouse:
+		mouse_pos = (event as InputEventMouse).position
+	elif is_inside_tree() and get_viewport():
+		mouse_pos = get_global_mouse_position()
+
 	if event is InputEventMouseMotion:
-		_update_board_module_hover(get_global_mouse_position())
+		_update_board_module_hover(mouse_pos)
 
 	var controller: Node = get_drag_controller()
 	if not controller:
@@ -2726,7 +2732,12 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventMouseButton:
 		var mb := event as InputEventMouseButton
 		if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
-			var cell := world_to_board_cell(get_global_mouse_position())
+			if "junk_box_panel" in controller and controller.junk_box_panel != null:
+				if controller.junk_box_panel.is_visible_in_tree() and controller._is_mouse_over(controller.junk_box_panel):
+					return
+			if mouse_pos.x < 0.0 or mouse_pos.x > 960.0 or mouse_pos.y < 80.0 or mouse_pos.y > 720.0:
+				return
+			var cell := world_to_board_cell(mouse_pos)
 			var item: Resource = get_module_at_cell(cell)
 			if item and item.has_method("get_occupied_cells"):
 				var origin_cell: Vector2i = item.grid_position if "grid_position" in item else cell
@@ -2736,6 +2747,9 @@ func _unhandled_input(event: InputEvent) -> void:
 				controller.start_drag(item, 1, origin_cell, grab_offset) # DragSource.BOARD = 1
 				if is_inside_tree() and get_viewport():
 					get_viewport().set_input_as_handled()
+
+func _unhandled_input(event: InputEvent) -> void:
+	_input(event)
 
 func _update_board_module_hover(mouse_pos: Vector2) -> void:
 	if _drag_controller and "dragging_item" in _drag_controller and _drag_controller.dragging_item != null:
