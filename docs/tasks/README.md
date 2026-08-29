@@ -50,6 +50,8 @@ All tasks use structured Markdown with status, priority, and clear acceptance cr
 | [TASK-029](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-029-peg-and-relic-unified-grid-alignment.md) | Peg and Relic Unified Grid Alignment | Systems/Board Physics | P1 | READY | `feature/peg-and-relic-unified-grid-alignment` |
 | [TASK-030](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-030-relic-placement-peg-replacement-and-overlap-prevention.md) | Relic Placement Peg Replacement and Mutual Exclusivity | Systems/Gameplay | P1 | READY | `feature/relic-placement-peg-replacement` |
 | [TASK-031](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-031-board-relic-repositioning-and-dragging.md) | Board Relic Repositioning and In-Place Dragging | UI/Controls | P1 | READY | `feature/board-relic-repositioning` |
+| [TASK-032](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-032-relic-audio-level-balancing-and-attenuation.md) | Relic Audio Level Balancing and Volume Attenuation | Audio/Balance | P1 | READY | `feature/relic-audio-balancing` |
+| [TASK-033](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-033-relic-bounding-enclosures-and-dividing-lanes.md) | Relic Bounding Enclosures, Perimeter Walls, and Dividing Lanes | Systems/Physics | P1 | READY | `feature/relic-bounding-enclosures` |
 
 
 
