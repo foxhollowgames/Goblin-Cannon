@@ -14,12 +14,12 @@ signal module_machinery_activated(component: Node, ball: Node, energy_granted: i
 signal module_solidified(item: Resource)
 signal peg_solidified(peg: Node)
 signal ghost_state_changed(component: Variant, is_ghost: bool)
-
+signal relic_goal_achieved(module_node: Node, goal_type: int, reward_type: int, triggering_ball: Node, reward_data: Dictionary)
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
 const PolyominoModuleNode = preload("res://scenes/board/machinery/polyomino_module_node.gd")
 const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
+const PolyominoGoalRewardHandler = preload("res://scenes/board/machinery/polyomino_goal_reward_handler.gd")
 const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
-
 const BOARD_GRID_COLS: int = 16
 const BOARD_GRID_ROWS: int = 8
 const BOARD_GRID_START_X: float = 90.0
@@ -3200,12 +3200,12 @@ func _update_placed_module_visual(item: Resource) -> void:
 		if is_instance_valid(old_node):
 			old_node.queue_free()
 		_placed_module_nodes.erase(inst_id)
-
 	var node: PolyominoModuleNode = PolyominoModuleNode.new()
 	node.name = "Module_%s" % str(inst_id)
 	node.position = board_cell_to_world(item.grid_position)
 	node.setup_module(item, item.grid_position, item.rotation_step)
 	node.machinery_triggered.connect(_on_module_machinery_triggered)
+	node.goal_completed.connect(_on_module_goal_completed)
 	_modules_container.add_child(node)
 	_placed_module_nodes[inst_id] = node
 
@@ -3221,17 +3221,16 @@ func _on_module_machinery_triggered(comp: Node, ball: Node, energy: int, impulse
 			var eff_type: BallHitEffect.EffectType = BallHitEffect.EffectType.EXPLOSIVE
 			if "cell_type" in comp:
 				match comp.cell_type:
-					PolyominoModuleData.CellType.BUMPER:
-						eff_type = BallHitEffect.EffectType.EXPLOSIVE
 					PolyominoModuleData.CellType.ACCELERATOR, PolyominoModuleData.CellType.ROTARY_BOOSTER:
 						eff_type = BallHitEffect.EffectType.LIGHTNING
 					PolyominoModuleData.CellType.MANA_SIPHON:
 						eff_type = BallHitEffect.EffectType.LEECH
 					PolyominoModuleData.CellType.DIRECTIONAL_DEFLECTOR, PolyominoModuleData.CellType.FUNNEL, PolyominoModuleData.CellType.GUIDE_RAIL:
 						eff_type = BallHitEffect.EffectType.RUBBERY
+					_:
+						eff_type = BallHitEffect.EffectType.EXPLOSIVE
 			fx.setup_effect(eff_type)
-			if get_parent():
-				get_parent().add_child(fx)
-			else:
-				add_child(fx)
+			(get_parent() if get_parent() else self).add_child(fx)
 
+func _on_module_goal_completed(module_node: Node, goal_type: int, reward_type: int, ball: Node, reward_data: Dictionary) -> void:
+	PolyominoGoalRewardHandler.handle_goal_reward(self, module_node, goal_type, reward_type, ball, reward_data)

@@ -7,6 +7,8 @@ const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_
 const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 
 const CellType = PolyominoModuleData.CellType
+const GoalArchetype = PolyominoModuleData.GoalArchetype
+const RewardType = PolyominoModuleData.RewardType
 
 const _ALIASES: Dictionary = {
 	&"chain_surge_wrench": &"arc_surge_wrench",
@@ -57,6 +59,18 @@ static func get_relic_display_name(relic_id: StringName) -> String:
 		return str(d.get("display_name", ""))
 	return ""
 
+static func get_relic_goal_title(relic_id: StringName) -> String:
+	var g: Dictionary = _get_goal_def(relic_id)
+	return str(g.get("title", "Bank Clear"))
+
+static func get_relic_goal_description(relic_id: StringName) -> String:
+	var g: Dictionary = _get_goal_def(relic_id)
+	return str(g.get("desc", "Hit all components in module."))
+
+static func get_relic_reward_description(relic_id: StringName) -> String:
+	var g: Dictionary = _get_goal_def(relic_id)
+	return str(g.get("reward_desc", "+100 Energy Surge"))
+
 static func create_module_for_relic(relic_id: StringName) -> PolyominoModuleData:
 	var resolved_id: StringName = _resolve_id(relic_id)
 	var def = _get_defs().get(resolved_id, null)
@@ -95,6 +109,24 @@ static func create_module_for_relic(relic_id: StringName) -> PolyominoModuleData
 		var pos: Vector2i = k if k is Vector2i else _parse_vector2i(str(k))
 		mod.energy_values[pos] = int(raw_energies[k])
 
+	var g: Dictionary = _get_goal_def(resolved_id)
+	if not g.is_empty():
+		mod.goal_type = int(g.get("type", GoalArchetype.TARGET_BANK))
+		mod.reward_type = int(g.get("reward", RewardType.ENERGY_SURGE))
+		mod.goal_title = str(g.get("title", ""))
+		mod.goal_description = str(g.get("desc", ""))
+		mod.reward_description = str(g.get("reward_desc", ""))
+		mod.reward_energy = int(g.get("energy", 0))
+		mod.reward_ball_count = int(g.get("balls", 0))
+		mod.goal_target_count = int(g.get("target_count", 0))
+		mod.goal_time_limit = float(g.get("time_limit", 0.0))
+		var seq: Array = g.get("sequence", [])
+		var typed_seq: Array[Vector2i] = []
+		for s in seq:
+			if s is Vector2i:
+				typed_seq.append(s)
+		mod.goal_target_sequence = typed_seq
+
 	return mod
 
 static func create_item_for_relic(relic_id: StringName) -> JunkBoxItem:
@@ -108,7 +140,10 @@ static func create_item_for_relic(relic_id: StringName) -> JunkBoxItem:
 		"relic_id": str(_resolve_id(relic_id)),
 		"tier": mod.tier,
 		"shape_name": get_relic_shape_name(relic_id),
-		"machinery_desc": get_relic_kinetic_description(relic_id)
+		"machinery_desc": get_relic_kinetic_description(relic_id),
+		"goal_title": mod.goal_title,
+		"goal_desc": mod.goal_description,
+		"reward_desc": mod.reward_description
 	}
 	return item
 
@@ -285,6 +320,92 @@ static func _parse_vector2i(s: String) -> Vector2i:
 	if parts.size() == 2:
 		return Vector2i(int(parts[0]), int(parts[1]))
 	return Vector2i.ZERO
+
+static func _get_goal_def(id: StringName) -> Dictionary:
+	var defs: Dictionary = {
+		&"cascade_reactor": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.BOARD_SUPERCHARGE, "title": "Reactor Core Ignition", "desc": "Hit all 4 corner boosters + center siphon.", "reward_desc": "Board Supercharge (+3 Energize to all pegs)"},
+		&"perpetual_engine": {"type": GoalArchetype.ORBIT_FLOW, "reward": RewardType.MULTIBALL_CASCADE, "title": "Perpetual Loop", "desc": "Complete 3 continuous accelerator loops.", "reward_desc": "Multiball Cascade (4 extra balls)", "target_count": 3, "balls": 4},
+		&"storm_of_fragments": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.MULTIBALL_CASCADE, "title": "Fragment Cluster", "desc": "Hit all 3 pop bumpers.", "reward_desc": "Multiball Cascade (5 fragment balls)", "balls": 5},
+		&"explosive_contagion": {"type": GoalArchetype.JACKPOT_ACCUMULATOR, "reward": RewardType.GLOBAL_BOARD_KNOCK, "title": "Spore Overload", "desc": "Charge siphons and hit bumper to detonate.", "reward_desc": "Global Board Knock (All pegs hit once)"},
+		&"superconductor": {"type": GoalArchetype.HURRY_UP_FRENZY, "reward": RewardType.ENERGY_SURGE, "title": "Superconductor Surge", "desc": "Hit spark rail, then bumper within 4s.", "reward_desc": "+200 Energy Surge to ball", "energy": 200, "time_limit": 4.0},
+		&"rubber_storm": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.CONCUSSIVE_OVERDRIVE, "title": "Triangle Ricochet", "desc": "Hit all 3 triangle bumpers.", "reward_desc": "Concussive Overdrive Blast +180 Energy", "energy": 180},
+		&"fragment_swarm": {"type": GoalArchetype.SINKHOLE_LOCK, "reward": RewardType.MULTIBALL_CASCADE, "title": "Swarm Chute", "desc": "Guide ball into the catch funnel.", "reward_desc": "Multiball Cascade (4 swarm balls)", "balls": 4},
+		&"overdrive_cascade": {"type": GoalArchetype.ORBIT_FLOW, "reward": RewardType.BOARD_SUPERCHARGE, "title": "Overdrive Orbit", "desc": "Deflect through 3 gates in continuous flow.", "reward_desc": "Board Supercharge (+3 Energize stacks)", "target_count": 3},
+		&"goblin_width_tempest": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.ENERGY_SURGE, "title": "Tempest Run", "desc": "Hit Accelerator -> Funnel -> Bumper.", "reward_desc": "+180 Energy Surge to ball", "energy": 180},
+		&"blood_tithe": {"type": GoalArchetype.SINKHOLE_LOCK, "reward": RewardType.GLOBAL_BOARD_KNOCK, "title": "Tithe Gate", "desc": "Sink ball into top catch gate.", "reward_desc": "Global Board Knock (All pegs hit once)"},
+		&"crown_ricochet": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Crown Ricochet", "desc": "Hit all 3 crown bumpers.", "reward_desc": "+150 Energy Surge to ball", "energy": 150},
+		&"twin_mandate": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.ENERGY_SURGE, "title": "Dual Rail Route", "desc": "Hit Left Accelerator -> Right Accelerator.", "reward_desc": "+160 Energy Surge to ball", "energy": 160},
+		&"velocity_dividend": {"type": GoalArchetype.JACKPOT_ACCUMULATOR, "reward": RewardType.ENERGY_SURGE, "title": "Vault Dividend", "desc": "Bumpers charge vault, hit booster to collect.", "reward_desc": "+220 Jackpot Energy Surge", "energy": 220},
+		&"phase_sovereign": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.BOARD_SUPERCHARGE, "title": "Phase Alignment", "desc": "Hit ghost booster + all 3 siphons.", "reward_desc": "Board Supercharge (+3 Energize stacks)"},
+		&"resonant_well": {"type": GoalArchetype.JACKPOT_ACCUMULATOR, "reward": RewardType.ENERGY_SURGE, "title": "Resonant Well", "desc": "Resonator wheels charge well, siphon collects.", "reward_desc": "+220 Jackpot Energy Surge", "energy": 220},
+		&"renewal_pact": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.GLOBAL_BOARD_KNOCK, "title": "Pact Solenoid", "desc": "Hit all 3 pulse solenoids.", "reward_desc": "Global Board Knock (All pegs hit once)"},
+		&"gilded_covenant": {"type": GoalArchetype.SINKHOLE_LOCK, "reward": RewardType.ENERGY_SURGE, "title": "Gilded Vacuum", "desc": "Sink ball into top vacuum chute.", "reward_desc": "+250 Mega Energy Surge", "energy": 250},
+		&"iron_bloom": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.GLOBAL_BOARD_KNOCK, "title": "Magnetic Matrix", "desc": "Hit all 4 corner magnetic wheels.", "reward_desc": "Global Board Knock (All pegs hit once)"},
+		&"echoes_of_wrench": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.ENERGY_SURGE, "title": "Wrench Circuit", "desc": "Hit Bumper -> Siphon -> Center Booster.", "reward_desc": "+175 Energy Surge to ball", "energy": 175},
+		&"stormgrid_coupling": {"type": GoalArchetype.ORBIT_FLOW, "reward": RewardType.MULTIBALL_CASCADE, "title": "Stormgrid Orbit", "desc": "Pass through rails and boosters 3 times.", "reward_desc": "Multiball Cascade (3 balls)", "target_count": 3, "balls": 3},
+		&"leech_singularity": {"type": GoalArchetype.JACKPOT_ACCUMULATOR, "reward": RewardType.ENERGY_SURGE, "title": "Singularity Siphon", "desc": "Siphons charge core, hit rotary core to collect.", "reward_desc": "+200 Energy Surge to ball", "energy": 200},
+		&"phantom_resonance": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.BOARD_SUPERCHARGE, "title": "Spectral Network", "desc": "Hit Tesla resonator + all 3 siphons.", "reward_desc": "Board Supercharge (+3 Energize stacks)"},
+		&"supernova_peg": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.CONCUSSIVE_OVERDRIVE, "title": "Supernova Ignition", "desc": "Hit booster + both bumpers.", "reward_desc": "Concussive Overdrive Blast +130 Energy", "energy": 130},
+		&"chain_conduction": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.ENERGY_SURGE, "title": "Conduction Circuit", "desc": "Hit Rail -> Bumper -> Rail.", "reward_desc": "+120 Energy Surge to ball", "energy": 120},
+		&"overcharged_drain": {"type": GoalArchetype.SINKHOLE_LOCK, "reward": RewardType.ENERGY_SURGE, "title": "Funnel Drain", "desc": "Sink ball into catch funnel.", "reward_desc": "+130 Energy Surge to ball", "energy": 130},
+		&"final_arc_detonation": {"type": GoalArchetype.HURRY_UP_FRENZY, "reward": RewardType.CONCUSSIVE_OVERDRIVE, "title": "Arc Hurry-Up", "desc": "Hit rotary core, then bumper in 4s.", "reward_desc": "Concussive Overdrive Blast", "energy": 125, "time_limit": 4.0},
+		&"energy_collapse": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.GLOBAL_BOARD_KNOCK, "title": "Collapse Matrix", "desc": "Hit both siphons + both bumpers.", "reward_desc": "Global Board Knock (All pegs hit once)"},
+		&"shrapnel_split": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.MULTIBALL_CASCADE, "title": "Shrapnel Deflector", "desc": "Hit left + right deflector plates.", "reward_desc": "Multiball Cascade (3 split balls)", "balls": 3},
+		&"energized_fragments": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.ENERGY_SURGE, "title": "Fragment Acceleration", "desc": "Hit Roller 1 -> Roller 2 -> Bumper.", "reward_desc": "+110 Energy Surge to ball", "energy": 110},
+		&"arc_twins": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.ENERGY_SURGE, "title": "Twin Arc Bridge", "desc": "Hit Left Booster -> Rails -> Right Booster.", "reward_desc": "+125 Energy Surge to ball", "energy": 125},
+		&"phase_siphon": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Dual Siphon", "desc": "Hit both siphon nodes.", "reward_desc": "+100 Energy Surge to ball", "energy": 100},
+		&"phase_detonation": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.CONCUSSIVE_OVERDRIVE, "title": "Detonation Sequence", "desc": "Hit Rotary Booster -> Rail -> Bumper.", "reward_desc": "Concussive Overdrive Blast", "energy": 115},
+		&"spectral_conduit": {"type": GoalArchetype.ORBIT_FLOW, "reward": RewardType.ENERGY_SURGE, "title": "Spectral Orbit", "desc": "Loop through rails and accelerators 2 times.", "reward_desc": "+115 Energy Surge to ball", "energy": 115, "target_count": 2},
+		&"impact_burst": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.GLOBAL_BOARD_KNOCK, "title": "Triple Bumper Bank", "desc": "Hit all 3 kinetic bumpers.", "reward_desc": "Global Board Knock (All pegs hit once)"},
+		&"kinetic_charge": {"type": GoalArchetype.JACKPOT_ACCUMULATOR, "reward": RewardType.ENERGY_SURGE, "title": "Kinetic Capacitor", "desc": "Boost wheel charges, siphon collects.", "reward_desc": "+140 Energy Surge to ball", "energy": 140},
+		&"static_bounce": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Static Triangle", "desc": "Hit sensor + both bumpers.", "reward_desc": "+105 Energy Surge to ball", "energy": 105},
+		&"parasitic_arc": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.ENERGY_SURGE, "title": "Parasitic Combo", "desc": "Hit Left Deflector -> Siphon -> Right Deflector.", "reward_desc": "+110 Energy Surge to ball", "energy": 110},
+		&"draining_fragments": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.MULTIBALL_CASCADE, "title": "Drain Swarm", "desc": "Hit both siphons + bumper.", "reward_desc": "Multiball Cascade (3 balls)", "balls": 3},
+		&"resonant_bounce": {"type": GoalArchetype.HURRY_UP_FRENZY, "reward": RewardType.ENERGY_SURGE, "title": "Resonance Hurry-Up", "desc": "Hit tuning core, then bumper in 4s.", "reward_desc": "+120 Energy Surge to ball", "energy": 120, "time_limit": 4.0},
+		&"ricochet_blast": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.GLOBAL_BOARD_KNOCK, "title": "Ricochet Bank", "desc": "Hit sensor + all 3 bumpers.", "reward_desc": "Global Board Knock (All pegs hit once)"},
+		&"blast_launch": {"type": GoalArchetype.SINKHOLE_LOCK, "reward": RewardType.ENERGY_SURGE, "title": "Launch Spring Eject", "desc": "Sink ball into launch spring chute.", "reward_desc": "+135 Energy Surge to ball", "energy": 135},
+		&"arc_surge_wrench": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.BOARD_SUPERCHARGE, "title": "Dual Solenoids", "desc": "Hit both rotary solenoids.", "reward_desc": "Board Supercharge (+2 Energize stacks)"},
+		&"goblin_width_pulse": {"type": GoalArchetype.SINKHOLE_LOCK, "reward": RewardType.ENERGY_SURGE, "title": "Surge Chute", "desc": "Sink ball into chute funnel.", "reward_desc": "+110 Energy Surge to ball", "energy": 110},
+		&"magnet_arc_snare": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Snare Matrix", "desc": "Hit both snare funnels + spark terminal.", "reward_desc": "+120 Energy Surge to ball", "energy": 120},
+		&"spark_trampoline": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Trampoline Combo", "desc": "Hit both bumpers + spring plate.", "reward_desc": "+130 Energy Surge to ball", "energy": 130},
+		&"hyper_elastic": {"type": GoalArchetype.ORBIT_FLOW, "reward": RewardType.ENERGY_SURGE, "title": "Elastic Track", "desc": "Pass through both boost rollers.", "reward_desc": "+80 Energy Surge to ball", "energy": 80, "target_count": 2},
+		&"overdrive_hits": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Overdrive Bank", "desc": "Hit bumper + multiplier.", "reward_desc": "+75 Energy Surge to ball", "energy": 75},
+		&"overclock_network": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.ENERGY_SURGE, "title": "Overclock Route", "desc": "Hit Rail -> Bumper -> Rail.", "reward_desc": "+70 Energy Surge to ball", "energy": 70},
+		&"spreading_rot": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.GLOBAL_BOARD_KNOCK, "title": "Rot Spores", "desc": "Hit both rot siphons + bumper.", "reward_desc": "Global Board Knock (All pegs hit once)"},
+		&"cluster_grenade": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.MULTIBALL_CASCADE, "title": "Cluster Munitions", "desc": "Hit all 3 sub-munition bumpers.", "reward_desc": "Multiball Cascade (3 balls)", "balls": 3},
+		&"blast_lift": {"type": GoalArchetype.ORBIT_FLOW, "reward": RewardType.ENERGY_SURGE, "title": "Lift Loop", "desc": "Pass through both concussion chutes.", "reward_desc": "+85 Energy Surge to ball", "energy": 85, "target_count": 2},
+		&"fragmentation_tag": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Impact Tag", "desc": "Hit impact sensor + pop bumper.", "reward_desc": "+65 Energy Surge to ball", "energy": 65},
+		&"storm_feedback": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Feedback Solenoid", "desc": "Hit solenoid + bumper.", "reward_desc": "+70 Energy Surge to ball", "energy": 70},
+		&"overcurrent_surge": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Discharge Core", "desc": "Hit discharge resistor + bumper.", "reward_desc": "+75 Energy Surge to ball", "energy": 75},
+		&"fragment_echo": {"type": GoalArchetype.SINKHOLE_LOCK, "reward": RewardType.MULTIBALL_CASCADE, "title": "Echo Spawner", "desc": "Sink ball into exit funnel.", "reward_desc": "Multiball Cascade (2 echo balls)", "balls": 2},
+		&"mass_cascade": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.GLOBAL_BOARD_KNOCK, "title": "Collision Core", "desc": "Hit collision plate + rotary sensor.", "reward_desc": "Global Board Knock (All pegs hit once)"},
+		&"ghost_trail": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.ENERGY_SURGE, "title": "Ghost Trail", "desc": "Hit Permeable Rail -> Siphon.", "reward_desc": "+60 Energy Surge to ball", "energy": 60},
+		&"phase_instability": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.ENERGY_SURGE, "title": "Phase Track", "desc": "Hit Boost Roller -> Rotary Sensor.", "reward_desc": "+65 Energy Surge to ball", "energy": 65},
+		&"chest_random_ball": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.MULTIBALL_CASCADE, "title": "Vault Plunder", "desc": "Hit scrap vault core + bumper.", "reward_desc": "Multiball Cascade (2 balls)", "balls": 2},
+		&"plain_surge": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Surge Bank", "desc": "Hit kinetic bumper + boost roller.", "reward_desc": "+60 Energy Surge to ball", "energy": 60},
+		&"plain_horde": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.MULTIBALL_CASCADE, "title": "Horde Alarm", "desc": "Hit horde sensor + pop bumper.", "reward_desc": "Multiball Cascade (3 balls)", "balls": 3},
+		&"plain_momentum": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.ENERGY_SURGE, "title": "Momentum Lane", "desc": "Hit Bumper -> Boost Roller.", "reward_desc": "+70 Energy Surge to ball", "energy": 70},
+		&"volt_primer": {"type": GoalArchetype.HURRY_UP_FRENZY, "reward": RewardType.ENERGY_SURGE, "title": "Volt Primer", "desc": "Hit discount core, then rail in 4s.", "reward_desc": "+75 Energy Surge to ball", "energy": 75, "time_limit": 4.0},
+		&"explosion_radius": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.CONCUSSIVE_OVERDRIVE, "title": "Blast Core", "desc": "Hit bumper + blast expansion core.", "reward_desc": "Concussive Overdrive Blast", "energy": 70},
+		&"explosion_peg_hit_count": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.GLOBAL_BOARD_KNOCK, "title": "Shrapnel Bank", "desc": "Hit bumper + spark deflector.", "reward_desc": "Global Board Knock (All pegs hit once)"},
+		&"explosion_impulse": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.ENERGY_SURGE, "title": "Wave Launch", "desc": "Hit Wave Accelerator -> Bumper.", "reward_desc": "+60 Energy Surge to ball", "energy": 60},
+		&"chain_arc": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.BOARD_SUPERCHARGE, "title": "Arc Extender", "desc": "Hit arc core + guide rail.", "reward_desc": "Board Supercharge (+2 Energize stacks)"},
+		&"chain_range": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.ENERGY_SURGE, "title": "Voltage Conduction", "desc": "Hit Voltage Rail -> Rotary Core.", "reward_desc": "+65 Energy Surge to ball", "energy": 65},
+		&"max_energize_stacks": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.BOARD_SUPERCHARGE, "title": "Dual Capacitor", "desc": "Hit capacitor + siphon.", "reward_desc": "Board Supercharge (+2 Energize stacks)"},
+		&"energize_decays_slower": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.BOARD_SUPERCHARGE, "title": "Insulation Flow", "desc": "Hit Insulation Rail -> Siphon.", "reward_desc": "Board Supercharge (+2 Energize stacks)"},
+		&"energized_pegs_repair_faster": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.BOARD_SUPERCHARGE, "title": "Nanite Network", "desc": "Hit nanite tube + siphon.", "reward_desc": "Board Supercharge (+2 Energize stacks)"},
+		&"global_peg_durability": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.GLOBAL_BOARD_KNOCK, "title": "Armor Bank", "desc": "Hit both armor bumpers.", "reward_desc": "Global Board Knock (All pegs hit once)"},
+		&"peg_recovery_speed": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.GLOBAL_BOARD_KNOCK, "title": "Reset Matrix", "desc": "Hit both reset bumpers + spring roller.", "reward_desc": "Global Board Knock (All pegs hit once)"},
+		&"devastating_barrage": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.GLOBAL_BOARD_KNOCK, "title": "Heavy Barrage", "desc": "Hit both heavy bumpers + rotary core.", "reward_desc": "Global Board Knock (All pegs hit once)"},
+		&"compressed_charge": {"type": GoalArchetype.JACKPOT_ACCUMULATOR, "reward": RewardType.ENERGY_SURGE, "title": "Charge Capacitor", "desc": "Capacitors charge, siphon collects.", "reward_desc": "+100 Energy Surge to ball", "energy": 100},
+		&"chest_leech_drain": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Leech Siphon Bank", "desc": "Hit drain siphon + bumper.", "reward_desc": "+55 Energy Surge to ball", "energy": 55},
+		&"chest_leech_duration": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.ENERGY_SURGE, "title": "Leech Conduit", "desc": "Hit Leech Siphon -> Guide Rail.", "reward_desc": "+55 Energy Surge to ball", "energy": 55},
+		&"chest_phantom_energy": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Spectral Bank", "desc": "Hit spectral siphon + guide rail.", "reward_desc": "+55 Energy Surge to ball", "energy": 55},
+		&"chest_rubbery_energy": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Elastic Combo", "desc": "Hit elastic bumper + boost roller.", "reward_desc": "+60 Energy Surge to ball", "energy": 60},
+		&"chest_bounce_energy": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Bounce Pair", "desc": "Hit standard bumper + rotary sensor.", "reward_desc": "+50 Energy Surge to ball", "energy": 50},
+		&"chest_split_energy": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.MULTIBALL_CASCADE, "title": "Split Chute", "desc": "Hit Fragment Deflector -> Boost Roller.", "reward_desc": "Multiball Cascade (2 balls)", "balls": 2},
+	}
+	return defs.get(_resolve_id(id), {})
 
 static func _def(id: StringName, name: String, tier: int, shape_name: String, machinery_desc: String, cells: Array[Vector2i], types: Dictionary = {}, dirs: Dictionary = {}, energies: Dictionary = {}) -> void:
 	_DEFINITIONS[id] = {
