@@ -54,6 +54,7 @@ All tasks use structured Markdown with status, priority, and clear acceptance cr
 | [TASK-033](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-033-relic-bounding-enclosures-and-dividing-lanes.md) | Relic Bounding Enclosures, Perimeter Walls, and Dividing Lanes | Systems/Physics | P1 | READY | `feature/relic-bounding-enclosures` |
 | [TASK-034](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-034-repetitive-sfx-pitch-randomization.md) | Repetitive Sound Effect Pitch Randomization | Audio/Polish | P1 | DONE | `feature/repetitive-sfx-pitch-randomization` |
 | [TASK-035](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-035-relic-selection-layout-and-machinery-preview.md) | Relic Selection Screen Layout and Machine Composition Preview | UI/Visuals | P1 | DONE | `feature/relic-selection-preview` |
+| [TASK-036](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-036-pinball-kinetic-machinery-and-lane-switches.md) | Pinball Kinetic Machinery, Rollover Lane Switches, and Device Roster Revision | Systems/Gameplay | P1 | READY | `feature/pinball-kinetic-machinery` |
 
 ---
 

@@ -22,6 +22,7 @@ func _assert(condition: bool, message: String) -> void:
 func run() -> void:
 	test_database_completeness()
 	test_relic_tiers_and_cell_counts()
+	test_relic_empty_cells_present()
 	test_relic_rotation_anchoring()
 	test_relic_bounding_boxes()
 	test_relic_cell_types_and_machinery()
@@ -57,13 +58,25 @@ func test_relic_tiers_and_cell_counts() -> void:
 
 		match tier:
 			1:
-				_assert(count >= 2 and count <= 3, "Tier 1 relic '%s' cell count (%d) must be between 2 and 3" % [str(id), count])
+				_assert(count >= 4 and count <= 6, "Tier 1 relic '%s' cell count (%d) must be between 4 and 6" % [str(id), count])
 			2:
-				_assert(count >= 3 and count <= 5, "Tier 2 relic '%s' cell count (%d) must be between 3 and 5" % [str(id), count])
+				_assert(count >= 6 and count <= 9, "Tier 2 relic '%s' cell count (%d) must be between 6 and 9" % [str(id), count])
 			3:
-				_assert(count >= 5 and count <= 9, "Tier 3 relic '%s' cell count (%d) must be between 5 and 9" % [str(id), count])
+				_assert(count >= 9 and count <= 14, "Tier 3 relic '%s' cell count (%d) must be between 9 and 14" % [str(id), count])
 			_:
 				_assert(false, "Relic '%s' has unexpected tier %d" % [str(id), tier])
+
+func test_relic_empty_cells_present() -> void:
+	var ids: Array[StringName] = PolyominoRelicDatabase.get_all_relic_ids()
+	for id in ids:
+		var mod: PolyominoModuleData = PolyominoRelicDatabase.create_module_for_relic(id)
+		if mod == null:
+			continue
+		var empty_cells: Array[Vector2i] = mod.get_empty_cells()
+		var machine_cells: Array[Vector2i] = mod.get_occupied_machine_cells()
+		_assert(empty_cells.size() >= 1, "Relic '%s' must have at least 1 empty playfield cell, got %d" % [str(id), empty_cells.size()])
+		_assert(machine_cells.size() >= 1, "Relic '%s' must have at least 1 machine cell, got %d" % [str(id), machine_cells.size()])
+		_assert(empty_cells.size() + machine_cells.size() == mod.get_cell_count(), "Empty + machine cells count must equal total cells for '%s'" % str(id))
 
 func test_relic_rotation_anchoring() -> void:
 	var ids: Array[StringName] = PolyominoRelicDatabase.get_all_relic_ids()
@@ -102,7 +115,7 @@ func test_relic_bounding_boxes() -> void:
 		_assert(bb.size.x >= 1 and bb.size.y >= 1, "Bounding box size must be >= 1 for '%s'" % str(id))
 
 		if mod.tier == 3:
-			_assert(bb.size.x <= 3 and bb.size.y <= 3, "Tier 3 boss relic '%s' bounding box must fit within 3x3 (got %dx%d)" % [str(id), bb.size.x, bb.size.y])
+			_assert(bb.size.x <= 4 and bb.size.y <= 4, "Tier 3 boss relic '%s' bounding box must fit within 4x4 (got %dx%d)" % [str(id), bb.size.x, bb.size.y])
 
 func test_relic_cell_types_and_machinery() -> void:
 	var ids: Array[StringName] = PolyominoRelicDatabase.get_all_relic_ids()
