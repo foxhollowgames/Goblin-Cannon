@@ -35,6 +35,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-024`](#lrn-024) | TASK-031 | `godot_engine` | Drag Controller Overlay Hierarchy and Control Mouse Filter Pass-Through | 2026-08-29 |
 | [`LRN-025`](#lrn-025) | TASK-031 | `board_systems` | Baseline Peg Suppression and Restoration Under Movable Polyomino Relics | 2026-08-29 |
 | [`LRN-026`](#lrn-026) | TASK-LINT-01 | `tooling` | File Length Limit (500 lines) and Baseline Allowlist | 2026-08-29 |
+| [`LRN-027`](#lrn-027) | TASK-024 | `board_systems` | Polyomino Relic Footprint Scaling and Empty Playfield Spacing | 2026-08-29 |
 
 ---
 
@@ -453,5 +454,21 @@ A Python lint tool and a Godot headless test ensure all new files stay under 500
 
 #### Actionable Guideline for Future Agents
 Run python scripts/lint_file_lengths.py or headless tests to audit file lengths before merging.
+
+---
+
+### <a id="lrn-027"></a> LRN-027: Polyomino Relic Footprint Scaling and Empty Playfield Spacing
+- **Task:** `TASK-024`
+- **Category:** `board_systems`
+- **Created:** `2026-08-29T19:45:10.095441`
+
+#### Context & Problem
+Relics felt too small and crowded with machinery on every cell, allowing full inventories on the board without strategic layout compromises.
+
+#### Key Insight & Learning
+Differentiating CellType.EMPTY from active kinetic machinery allows multi-cell relics to occupy realistic pinball widget footprints where balls travel through open corridors between bumpers and gates.
+
+#### Actionable Guideline for Future Agents
+Always reserve full multi-cell footprints on the board grid while skipping machinery instantiation and glyph drawing for CellType.EMPTY cells.
 
 ---
