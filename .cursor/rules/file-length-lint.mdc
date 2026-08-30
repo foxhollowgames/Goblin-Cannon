@@ -1,0 +1,32 @@
+---
+description: Enforce maximum file length of 500 lines for all source files
+globs:
+alwaysApply: true
+---
+
+# File Length Limit Rule
+
+## Rule Summary
+- Source files must not exceed 500 lines.
+- Keep components modular and focused.
+- Break large classes into smaller components, helper scripts, or sub-resources.
+
+## Enforcement and Verification
+
+### 1. Python Linter
+Run the Python lint script to audit file line counts across the repository:
+```bash
+python scripts/lint_file_lengths.py
+```
+
+### 2. Godot Headless Test Suite
+The Godot test suite verifies all GDScript file lengths:
+```powershell
+cmd.exe /c "C:\Users\josep\Desktop\Games\Godot_v4.6.1-stable_win64.exe --headless -s tests/run_tests.gd"
+```
+
+## Legacy Files Baseline
+- Existing legacy files that exceed 500 lines are tracked in a baseline dictionary.
+- Legacy files cannot grow longer than their baseline line count.
+- Refactor legacy files below 500 lines when you update them.
+
