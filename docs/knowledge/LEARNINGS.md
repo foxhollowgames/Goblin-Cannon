@@ -36,6 +36,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-025`](#lrn-025) | TASK-031 | `board_systems` | Baseline Peg Suppression and Restoration Under Movable Polyomino Relics | 2026-08-29 |
 | [`LRN-026`](#lrn-026) | TASK-LINT-01 | `tooling` | File Length Limit (500 lines) and Baseline Allowlist | 2026-08-29 |
 | [`LRN-027`](#lrn-027) | TASK-024 | `board_systems` | Polyomino Relic Footprint Scaling and Empty Playfield Spacing | 2026-08-29 |
+| [`LRN-028`](#lrn-028) | TASK-033 | `board_systems` | Polyomino Relic Exterior Perimeter Wall and Transparent Chassis Drawing | 2026-08-29 |
 
 ---
 
@@ -470,5 +471,21 @@ Differentiating CellType.EMPTY from active kinetic machinery allows multi-cell r
 
 #### Actionable Guideline for Future Agents
 Always reserve full multi-cell footprints on the board grid while skipping machinery instantiation and glyph drawing for CellType.EMPTY cells.
+
+---
+
+### <a id="lrn-028"></a> LRN-028: Polyomino Relic Exterior Perimeter Wall and Transparent Chassis Drawing
+- **Task:** `TASK-033`
+- **Category:** `board_systems`
+- **Created:** `2026-08-29T19:48:36.236273`
+
+#### Context & Problem
+Internal connection struts between adjacent cell centers created a wireframe lattice that doubled back and cluttered empty playfield spaces.
+
+#### Key Insight & Learning
+Checking 4-way cardinal neighbor presence in the module cell set allows drawing walls strictly on exterior boundaries, while drawing a unified translucent fill provides seamless open chambers.
+
+#### Actionable Guideline for Future Agents
+Never draw connection lines between adjacent cell centers; iterate over module cells and draw wall segments only on edges without an adjacent neighbor in the module.
 
 ---
