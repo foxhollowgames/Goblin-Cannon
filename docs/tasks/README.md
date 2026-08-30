@@ -55,6 +55,7 @@ All tasks use structured Markdown with status, priority, and clear acceptance cr
 | [TASK-034](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-034-repetitive-sfx-pitch-randomization.md) | Repetitive Sound Effect Pitch Randomization | Audio/Polish | P1 | DONE | `feature/repetitive-sfx-pitch-randomization` |
 | [TASK-035](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-035-relic-selection-layout-and-machinery-preview.md) | Relic Selection Screen Layout and Machine Composition Preview | UI/Visuals | P1 | DONE | `feature/relic-selection-preview` |
 | [TASK-036](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-036-pinball-kinetic-machinery-and-lane-switches.md) | Pinball Kinetic Machinery, Rollover Lane Switches, and Device Roster Revision | Systems/Gameplay | P1 | READY | `feature/pinball-kinetic-machinery` |
+| [TASK-037](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-037-organic-physics-and-anti-looping.md) | Organic Ball Physics, Hopper Stacking Prevention, and Upward Kinetic Anti-Looping | Physics/Systems | P1 | READY | `feature/organic-physics-and-anti-looping` |
 
 ---
 
