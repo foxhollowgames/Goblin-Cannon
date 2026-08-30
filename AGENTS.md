@@ -18,6 +18,7 @@ Do not duplicate long exploration: follow that order before opening unrelated pa
    7. Terminate all sub-agents immediately (`manage_subagents(Action="kill_all")`).
    8. Run the post-merge learning loop (`python scripts/learnings.py add`).
 5. **Mandatory Local Ollama Code Generation**: For all code generation, editing, and test authoring, use `python scripts/ollama_coder.py [generate|edit|test]` with local Qwen 2.5 Coder.
+6. **Maximum File Length (500 lines)**: Source files must not exceed 500 lines. Run `python scripts/lint_file_lengths.py` to audit file lengths across the repository.
 
 
 
