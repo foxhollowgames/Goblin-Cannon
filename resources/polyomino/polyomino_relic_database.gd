@@ -307,348 +307,91 @@ static func _build_all_definitions() -> void:
 	_build_treasure_chest_passives()
 
 static func _build_boss_amplifiers() -> void:
-	# Tier 3 (5 to 9 Cells — 3×3 Bounding Box)
-	_def(&"cascade_reactor", "Cascade Reactor", 3, "3x3 Solid Block", "4 Corner Tesla Coils + Central Energy Siphon + 4 Bounce Rails",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2)],
-		{Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.ROTARY_BOOSTER, Vector2i(0,2): CellType.ROTARY_BOOSTER, Vector2i(2,2): CellType.ROTARY_BOOSTER, Vector2i(1,1): CellType.MANA_SIPHON, Vector2i(1,0): CellType.BUMPER, Vector2i(0,1): CellType.BUMPER, Vector2i(2,1): CellType.BUMPER, Vector2i(1,2): CellType.BUMPER})
-
-	_def(&"perpetual_engine", "Perpetual Engine", 3, "3x3 Hollow Ring", "Top Catch Chute + Circular Boost Ring + Bottom Emitter",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2)],
-		{Vector2i(1,0): CellType.FUNNEL, Vector2i(0,0): CellType.ACCELERATOR, Vector2i(2,0): CellType.ACCELERATOR, Vector2i(0,1): CellType.ACCELERATOR, Vector2i(2,1): CellType.ACCELERATOR, Vector2i(0,2): CellType.ACCELERATOR, Vector2i(2,2): CellType.ACCELERATOR, Vector2i(1,2): CellType.DIRECTIONAL_DEFLECTOR},
-		{Vector2i(1,0): Vector2i.DOWN, Vector2i(0,0): Vector2i.DOWN, Vector2i(2,0): Vector2i.DOWN, Vector2i(0,1): Vector2i.DOWN, Vector2i(2,1): Vector2i.UP, Vector2i(0,2): Vector2i.RIGHT, Vector2i(2,2): Vector2i.LEFT, Vector2i(1,2): Vector2i.DOWN})
-
-	_def(&"storm_of_fragments", "Storm of Fragments", 3, "3x3 5-Cell Cross", "Central Splitter Core + 4 Spark Deflector Nodes",
-		[Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(1,2)],
-		{Vector2i(1,1): CellType.ROTARY_BOOSTER, Vector2i(1,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(0,1): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(2,1): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(1,2): CellType.DIRECTIONAL_DEFLECTOR},
-		{Vector2i(1,0): Vector2i.UP, Vector2i(0,1): Vector2i.LEFT, Vector2i(2,1): Vector2i.RIGHT, Vector2i(1,2): Vector2i.DOWN})
-
-	_def(&"explosive_contagion", "Explosive Contagion", 3, "3x3 Giant Z-Ramp", "3 Concussive Vents + 3 Spore Dispersal Chambers",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(1,1), Vector2i(2,1), Vector2i(1,2), Vector2i(2,2)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.BUMPER, Vector2i(2,2): CellType.BUMPER, Vector2i(1,0): CellType.MANA_SIPHON, Vector2i(2,1): CellType.MANA_SIPHON, Vector2i(1,2): CellType.MANA_SIPHON})
-
-	_def(&"superconductor", "Superconductor", 3, "3x3 Corner Fortress", "Dual Spark Rails + 2 Corner Pinball Bumpers",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2), Vector2i(1,2)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(2,0): CellType.BUMPER, Vector2i(0,2): CellType.BUMPER, Vector2i(1,0): CellType.GUIDE_RAIL, Vector2i(0,1): CellType.GUIDE_RAIL, Vector2i(1,1): CellType.ACCELERATOR, Vector2i(1,2): CellType.ACCELERATOR})
-
-	_def(&"rubber_storm", "Rubber Storm", 3, "3x3 Pinball Chamber", "4 Corner High-Tension Bumpers + 4 Edge Accelerator Rollers",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(2,0): CellType.BUMPER, Vector2i(0,2): CellType.BUMPER, Vector2i(2,2): CellType.BUMPER, Vector2i(1,0): CellType.ACCELERATOR, Vector2i(0,1): CellType.ACCELERATOR, Vector2i(2,1): CellType.ACCELERATOR, Vector2i(1,2): CellType.ACCELERATOR})
-
-	_def(&"fragment_swarm", "Fragment Swarm", 3, "3x3 Giant Archway", "Top Ball Catch Funnel + 3 Fragment Diverter Chutes",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1), Vector2i(0,2), Vector2i(2,2)],
-		{Vector2i(1,0): CellType.FUNNEL, Vector2i(0,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(2,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(0,1): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(2,1): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(0,2): CellType.BUMPER, Vector2i(2,2): CellType.BUMPER},
-		{Vector2i(1,0): Vector2i.DOWN, Vector2i(0,0): Vector2i.LEFT, Vector2i(2,0): Vector2i.RIGHT, Vector2i(0,1): Vector2i.LEFT, Vector2i(2,1): Vector2i.RIGHT})
-
-	_def(&"overdrive_cascade", "Overdrive Cascade", 3, "3x3 Diamond Rhombus", "Central Overdrive Sensor + 4 Angled Deflector Plates",
-		[Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(1,2)],
-		{Vector2i(1,1): CellType.ROTARY_BOOSTER, Vector2i(1,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(0,1): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(2,1): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(1,2): CellType.DIRECTIONAL_DEFLECTOR},
-		{Vector2i(1,0): Vector2i.UP, Vector2i(0,1): Vector2i.LEFT, Vector2i(2,1): Vector2i.RIGHT, Vector2i(1,2): Vector2i.DOWN})
-
-	_def(&"goblin_width_tempest", "Goblin Width Tempest", 3, "3x3 Stepped Pyramid", "Wide Return Funnel + Upward Launch Spring",
-		[Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(0,2), Vector2i(2,2)],
-		{Vector2i(1,0): CellType.ACCELERATOR, Vector2i(1,1): CellType.FUNNEL, Vector2i(0,1): CellType.FUNNEL, Vector2i(2,1): CellType.FUNNEL, Vector2i(0,2): CellType.BUMPER, Vector2i(2,2): CellType.BUMPER},
-		{Vector2i(1,0): Vector2i.UP, Vector2i(1,1): Vector2i.DOWN, Vector2i(0,1): Vector2i.RIGHT, Vector2i(2,1): Vector2i.LEFT})
-
-	_def(&"blood_tithe", "Blood Tithe", 3, "3x3 Horseshoe Arch", "Dual High-Volume Drain Siphons + Catch Gate",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1)],
-		{Vector2i(1,0): CellType.FUNNEL, Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(2,0): CellType.MANA_SIPHON, Vector2i(0,1): CellType.MANA_SIPHON, Vector2i(2,1): CellType.MANA_SIPHON})
-
-	_def(&"crown_ricochet", "Crown Ricochet", 3, "3x3 Corner Fortress", "2 Heavy Pinball Bumpers + 1 Vector Boost Ramp",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(2,0): CellType.BUMPER, Vector2i(0,2): CellType.BUMPER, Vector2i(1,0): CellType.ACCELERATOR, Vector2i(0,1): CellType.ACCELERATOR, Vector2i(1,1): CellType.ROTARY_BOOSTER})
-
-	_def(&"twin_mandate", "Twin Mandate", 3, "3x3 Diagonal Bar", "3 Fragment Speed Rollers + 2 Energy Siphons",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(1,1), Vector2i(2,1), Vector2i(2,2)],
-		{Vector2i(0,0): CellType.ACCELERATOR, Vector2i(1,1): CellType.ACCELERATOR, Vector2i(2,2): CellType.ACCELERATOR, Vector2i(1,0): CellType.MANA_SIPHON, Vector2i(2,1): CellType.MANA_SIPHON})
-
-	_def(&"velocity_dividend", "Velocity Dividend", 3, "3x3 Plus Core", "High-Speed Impact Gate + 4 Shock Absorbers",
-		[Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(1,2)],
-		{Vector2i(1,1): CellType.ROTARY_BOOSTER, Vector2i(1,0): CellType.BUMPER, Vector2i(0,1): CellType.BUMPER, Vector2i(2,1): CellType.BUMPER, Vector2i(1,2): CellType.BUMPER})
-
-	_def(&"phase_sovereign", "Phase Sovereign", 3, "3x3 Spectral Tunnel", "Permeable Siphon Rails + Ghost Sensor",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1), Vector2i(0,2), Vector2i(2,2)],
-		{Vector2i(1,0): CellType.ROTARY_BOOSTER, Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(2,0): CellType.MANA_SIPHON, Vector2i(0,1): CellType.MANA_SIPHON, Vector2i(2,1): CellType.MANA_SIPHON, Vector2i(0,2): CellType.GUIDE_RAIL, Vector2i(2,2): CellType.GUIDE_RAIL})
-
-	_def(&"resonant_well", "Resonant Well", 3, "3x3 Hollow Ring", "Resonator Ring + Energize Amplifiers",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2)],
-		{Vector2i(0,0): CellType.GUIDE_RAIL, Vector2i(1,0): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.GUIDE_RAIL, Vector2i(0,1): CellType.MANA_SIPHON, Vector2i(2,1): CellType.MANA_SIPHON, Vector2i(0,2): CellType.GUIDE_RAIL, Vector2i(1,2): CellType.ROTARY_BOOSTER, Vector2i(2,2): CellType.GUIDE_RAIL})
-
-	_def(&"renewal_pact", "Renewal Pact", 3, "3x3 Stepped Chevron", "3 Pulse Solenoids + 2 Repair Nodes",
-		[Vector2i(0,0), Vector2i(2,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1)],
-		{Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.ROTARY_BOOSTER, Vector2i(1,1): CellType.ROTARY_BOOSTER, Vector2i(0,1): CellType.MANA_SIPHON, Vector2i(2,1): CellType.MANA_SIPHON})
-
-	_def(&"gilded_covenant", "Gilded Covenant", 3, "3x3 Vault Gate", "Gold Coin Vacuum + 2 Vault Bumpers",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1), Vector2i(1,2)],
-		{Vector2i(1,0): CellType.FUNNEL, Vector2i(0,0): CellType.BUMPER, Vector2i(2,0): CellType.BUMPER, Vector2i(0,1): CellType.GUIDE_RAIL, Vector2i(2,1): CellType.GUIDE_RAIL, Vector2i(1,2): CellType.ROTARY_BOOSTER},
-		{Vector2i(1,0): Vector2i.DOWN})
-
-	_def(&"iron_bloom", "Iron Bloom", 3, "3x3 Giant Solenoid", "Dual Magnetic Core Wheels + Field Emitter",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2)],
-		{Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.ROTARY_BOOSTER, Vector2i(0,2): CellType.ROTARY_BOOSTER, Vector2i(2,2): CellType.ROTARY_BOOSTER, Vector2i(1,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(1,2): CellType.DIRECTIONAL_DEFLECTOR})
-
-	_def(&"echoes_of_wrench", "Echoes of the Wrench", 3, "3x3 T-Beam", "Repair Capacitor Array + 2 Shock Plates",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1), Vector2i(1,2)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(2,0): CellType.BUMPER, Vector2i(1,0): CellType.MANA_SIPHON, Vector2i(1,1): CellType.ROTARY_BOOSTER, Vector2i(1,2): CellType.MANA_SIPHON})
-
-	_def(&"stormgrid_coupling", "Stormgrid Coupling", 3, "3x3 Corner Cradle", "Magnetic Stabilizer Track + Arc Terminal",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2), Vector2i(1,2)],
-		{Vector2i(0,0): CellType.GUIDE_RAIL, Vector2i(0,1): CellType.GUIDE_RAIL, Vector2i(0,2): CellType.GUIDE_RAIL, Vector2i(1,0): CellType.ROTARY_BOOSTER, Vector2i(1,1): CellType.BUMPER, Vector2i(1,2): CellType.ROTARY_BOOSTER})
-
-	_def(&"leech_singularity", "Leech Singularity", 3, "3x3 Horseshoe Arch", "Dual High-Volume Drain Siphons + Energize Well",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1)],
-		{Vector2i(1,0): CellType.ROTARY_BOOSTER, Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(2,0): CellType.MANA_SIPHON, Vector2i(0,1): CellType.MANA_SIPHON, Vector2i(2,1): CellType.MANA_SIPHON})
-
-	_def(&"phantom_resonance", "Phantom Resonance", 3, "3x3 Spectral Tunnel", "Permeable Siphon Rails + Tesla Arc Resonator",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1), Vector2i(0,2), Vector2i(2,2)],
-		{Vector2i(1,0): CellType.ROTARY_BOOSTER, Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(2,0): CellType.MANA_SIPHON, Vector2i(0,1): CellType.MANA_SIPHON, Vector2i(2,1): CellType.MANA_SIPHON, Vector2i(0,2): CellType.GUIDE_RAIL, Vector2i(2,2): CellType.GUIDE_RAIL})
+	_def(&"cascade_reactor", "Cascade Reactor", 3, "3x3 Solid Block", "4 Corner Boosters + Center Siphon + 4 Corridors", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.ROTARY_BOOSTER, Vector2i(0,2): CellType.ROTARY_BOOSTER, Vector2i(2,2): CellType.ROTARY_BOOSTER, Vector2i(1,1): CellType.MANA_SIPHON}, {})
+	_def(&"perpetual_engine", "Perpetual Engine", 3, "4x3 Pinball Loop", "Top Catch Chute + Boost Ring + Deflector Exit", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(3,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2), Vector2i(3,2)], {Vector2i(1,0): CellType.FUNNEL, Vector2i(0,1): CellType.ACCELERATOR, Vector2i(3,1): CellType.ACCELERATOR, Vector2i(1,2): CellType.BUMPER, Vector2i(2,2): CellType.DIRECTIONAL_DEFLECTOR}, {Vector2i(1,0): Vector2i.DOWN, Vector2i(0,1): Vector2i.DOWN, Vector2i(3,1): Vector2i.UP, Vector2i(2,2): Vector2i.DOWN})
+	_def(&"storm_of_fragments", "Storm of Fragments", 3, "3x4 Diamond Chamber", "3 Pop Bumpers + Splitter Core + Spark Deflector", [Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2), Vector2i(0,3), Vector2i(1,3), Vector2i(2,3)], {Vector2i(1,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(1,1): CellType.ROTARY_BOOSTER, Vector2i(0,1): CellType.BUMPER, Vector2i(2,1): CellType.BUMPER, Vector2i(1,3): CellType.BUMPER}, {Vector2i(1,0): Vector2i.UP})
+	_def(&"explosive_contagion", "Explosive Contagion", 3, "4x3 Z-Chamber", "3 Pop Bumpers + 2 Spore Siphons + 5 Free Corridors", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(3,1), Vector2i(1,2), Vector2i(2,2), Vector2i(3,2)], {Vector2i(0,0): CellType.BUMPER, Vector2i(2,1): CellType.BUMPER, Vector2i(3,2): CellType.BUMPER, Vector2i(1,0): CellType.MANA_SIPHON, Vector2i(2,2): CellType.MANA_SIPHON}, {})
+	_def(&"superconductor", "Superconductor", 3, "4x3 Fortress Chamber", "3 Corner Pop Bumpers + Dual Spark Rails + 6 Playfield Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2), Vector2i(3,2), Vector2i(3,1)], {Vector2i(0,0): CellType.BUMPER, Vector2i(2,0): CellType.BUMPER, Vector2i(3,2): CellType.BUMPER, Vector2i(0,1): CellType.GUIDE_RAIL, Vector2i(1,1): CellType.GUIDE_RAIL}, {})
+	_def(&"rubber_storm", "Rubber Storm", 3, "4x3 Pinball Cluster", "3 Pop Bumpers in Triangle + 2 Edge Boosters + 7 Bounce Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(3,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2), Vector2i(3,2)], {Vector2i(1,0): CellType.BUMPER, Vector2i(3,0): CellType.BUMPER, Vector2i(2,1): CellType.BUMPER, Vector2i(0,2): CellType.ACCELERATOR, Vector2i(3,2): CellType.ACCELERATOR}, {Vector2i(0,2): Vector2i.UP, Vector2i(3,2): Vector2i.UP})
+	_def(&"fragment_swarm", "Fragment Swarm", 3, "3x4 Giant Arch", "Top Catch Funnel + 2 Spark Deflectors + 2 Heavy Bumpers", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1), Vector2i(0,2), Vector2i(2,2), Vector2i(0,3), Vector2i(1,3), Vector2i(2,3), Vector2i(1,2)], {Vector2i(1,0): CellType.FUNNEL, Vector2i(0,1): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(2,1): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(0,3): CellType.BUMPER, Vector2i(2,3): CellType.BUMPER}, {Vector2i(1,0): Vector2i.DOWN, Vector2i(0,1): Vector2i.LEFT, Vector2i(2,1): Vector2i.RIGHT})
+	_def(&"overdrive_cascade", "Overdrive Cascade", 3, "4x3 Diamond Rhombus", "Central Overdrive Sensor + 3 Angled Deflector Plates", [Vector2i(1,0), Vector2i(2,0), Vector2i(3,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(3,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2)], {Vector2i(1,1): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(0,1): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(2,2): CellType.DIRECTIONAL_DEFLECTOR}, {Vector2i(2,0): Vector2i.UP, Vector2i(0,1): Vector2i.LEFT, Vector2i(2,2): Vector2i.DOWN})
+	_def(&"goblin_width_tempest", "Goblin Width Tempest", 3, "3x4 Stepped Chamber", "Wide Catch Funnels + Upward Spring + 2 Corner Bumpers", [Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2), Vector2i(0,3), Vector2i(1,3), Vector2i(2,3), Vector2i(0,0)], {Vector2i(1,0): CellType.ACCELERATOR, Vector2i(1,1): CellType.FUNNEL, Vector2i(2,1): CellType.FUNNEL, Vector2i(0,3): CellType.BUMPER, Vector2i(2,3): CellType.BUMPER}, {Vector2i(1,0): Vector2i.UP, Vector2i(1,1): Vector2i.DOWN, Vector2i(2,1): Vector2i.LEFT})
+	_def(&"blood_tithe", "Blood Tithe", 3, "4x3 Horseshoe Arch", "Top Catch Gate + 3 High-Volume Drain Siphons + 6 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0), Vector2i(0,1), Vector2i(3,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2), Vector2i(3,2)], {Vector2i(1,0): CellType.FUNNEL, Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(3,0): CellType.MANA_SIPHON, Vector2i(0,2): CellType.MANA_SIPHON}, {Vector2i(1,0): Vector2i.DOWN})
+	_def(&"crown_ricochet", "Crown Ricochet", 3, "4x3 Crown Chamber", "3 Pop Bumpers in Triangle + 1 Vector Booster + 7 Playfield Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2), Vector2i(3,2)], {Vector2i(0,0): CellType.BUMPER, Vector2i(3,0): CellType.BUMPER, Vector2i(1,1): CellType.BUMPER, Vector2i(2,2): CellType.ROTARY_BOOSTER}, {})
+	_def(&"twin_mandate", "Twin Mandate", 3, "4x3 Dual Track", "2 Speed Boost Rollers + 2 Energy Siphons + 6 Bounce Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(3,1), Vector2i(1,2), Vector2i(2,2), Vector2i(3,2), Vector2i(0,2)], {Vector2i(0,0): CellType.ACCELERATOR, Vector2i(3,2): CellType.ACCELERATOR, Vector2i(1,0): CellType.MANA_SIPHON, Vector2i(2,1): CellType.MANA_SIPHON}, {Vector2i(0,0): Vector2i.RIGHT, Vector2i(3,2): Vector2i.LEFT})
+	_def(&"velocity_dividend", "Velocity Dividend", 3, "3x4 Pinball Vault", "3 Pop Bumpers + 1 Center Booster + 7 Free Travel Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2), Vector2i(1,3), Vector2i(2,3)], {Vector2i(0,0): CellType.BUMPER, Vector2i(2,0): CellType.BUMPER, Vector2i(1,2): CellType.BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER}, {})
+	_def(&"phase_sovereign", "Phase Sovereign", 3, "4x3 Spectral Tunnel", "1 Ghost Sensor + 3 Siphon Nodes + 7 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0), Vector2i(0,1), Vector2i(1,1), Vector2i(3,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2), Vector2i(3,2)], {Vector2i(1,0): CellType.ROTARY_BOOSTER, Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(3,0): CellType.MANA_SIPHON, Vector2i(1,1): CellType.MANA_SIPHON}, {})
+	_def(&"resonant_well", "Resonant Well", 3, "4x3 Resonator Ring", "2 Resonator Wheels + 2 Energize Siphons + 8 Travel Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(3,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2), Vector2i(3,2)], {Vector2i(1,0): CellType.ROTARY_BOOSTER, Vector2i(2,2): CellType.ROTARY_BOOSTER, Vector2i(0,1): CellType.MANA_SIPHON, Vector2i(3,1): CellType.MANA_SIPHON}, {})
+	_def(&"renewal_pact", "Renewal Pact", 3, "4x3 Solenoid Field", "3 Pulse Solenoids + 2 Repair Siphons + 5 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0), Vector2i(1,1), Vector2i(2,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2), Vector2i(3,2)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(3,0): CellType.ROTARY_BOOSTER, Vector2i(1,1): CellType.ROTARY_BOOSTER, Vector2i(0,2): CellType.MANA_SIPHON, Vector2i(3,2): CellType.MANA_SIPHON}, {})
+	_def(&"gilded_covenant", "Gilded Covenant", 3, "4x3 Vault Chamber", "Top Vacuum Chute + 2 Vault Bumpers + 1 Rotary Coin Emitter", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0), Vector2i(0,1), Vector2i(1,1), Vector2i(3,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2), Vector2i(3,2)], {Vector2i(1,0): CellType.FUNNEL, Vector2i(0,0): CellType.BUMPER, Vector2i(3,0): CellType.BUMPER, Vector2i(2,2): CellType.ROTARY_BOOSTER}, {Vector2i(1,0): Vector2i.DOWN})
+	_def(&"iron_bloom", "Iron Bloom", 3, "4x3 Solenoid Core", "4 Corner Magnetic Wheels + 2 Deflector Gates + 4 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0), Vector2i(0,1), Vector2i(3,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2), Vector2i(3,2)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(3,0): CellType.ROTARY_BOOSTER, Vector2i(0,2): CellType.ROTARY_BOOSTER, Vector2i(3,2): CellType.ROTARY_BOOSTER, Vector2i(1,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(2,2): CellType.DIRECTIONAL_DEFLECTOR}, {})
+	_def(&"echoes_of_wrench", "Echoes of the Wrench", 3, "4x3 T-Beam Frame", "2 Shock Plates + 2 Repair Siphons + 1 Central Booster", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(3,1), Vector2i(1,2), Vector2i(2,2)], {Vector2i(0,0): CellType.BUMPER, Vector2i(3,0): CellType.BUMPER, Vector2i(1,0): CellType.MANA_SIPHON, Vector2i(2,2): CellType.MANA_SIPHON, Vector2i(1,1): CellType.ROTARY_BOOSTER}, {})
+	_def(&"stormgrid_coupling", "Stormgrid Coupling", 3, "4x3 Magnetic Cradle", "2 Rotary Wheels + 1 Center Bumper + 2 Guide Rails + 6 Open Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2), Vector2i(3,2)], {Vector2i(1,0): CellType.ROTARY_BOOSTER, Vector2i(2,2): CellType.ROTARY_BOOSTER, Vector2i(1,1): CellType.BUMPER, Vector2i(0,0): CellType.GUIDE_RAIL, Vector2i(0,1): CellType.GUIDE_RAIL}, {})
+	_def(&"leech_singularity", "Leech Singularity", 3, "4x3 Arch Siphon", "1 Rotary Core + 3 High-Volume Siphons + 6 Open Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0), Vector2i(0,1), Vector2i(3,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2), Vector2i(3,2)], {Vector2i(1,0): CellType.ROTARY_BOOSTER, Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(3,0): CellType.MANA_SIPHON, Vector2i(0,2): CellType.MANA_SIPHON}, {})
+	_def(&"phantom_resonance", "Phantom Resonance", 3, "4x3 Spectral Loop", "1 Tesla Resonator + 3 Siphons + 2 Rails + 5 Open Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0), Vector2i(0,1), Vector2i(1,1), Vector2i(3,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2), Vector2i(3,2)], {Vector2i(1,0): CellType.ROTARY_BOOSTER, Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(3,0): CellType.MANA_SIPHON, Vector2i(1,1): CellType.MANA_SIPHON, Vector2i(0,2): CellType.GUIDE_RAIL, Vector2i(3,2): CellType.GUIDE_RAIL}, {})
 
 static func _build_wall_break_cross_links() -> void:
-	# Tier 2: Synergy Modules & Cross-Links (3 to 5 Cells)
-	_def(&"supernova_peg", "Supernova Peg", 2, "2x2 Box", "Central Embedded Bomb Core + 4 Spark Pins",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,0): CellType.BUMPER, Vector2i(0,1): CellType.BUMPER, Vector2i(1,1): CellType.BUMPER})
-
-	_def(&"chain_conduction", "Chain Conduction", 2, "4x1 Straight Rail", "Linear Lightning Rail + 4 Contact Pins",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0)],
-		{Vector2i(0,0): CellType.GUIDE_RAIL, Vector2i(1,0): CellType.BUMPER, Vector2i(2,0): CellType.BUMPER, Vector2i(3,0): CellType.GUIDE_RAIL})
-
-	_def(&"overcharged_drain", "Overcharged Drain", 2, "4-Cell L-Shape", "2 Leech Siphons + 1 Overcharge Bumper + 1 Funnel",
-		[Vector2i(0,0), Vector2i(0,1), Vector2i(0,2), Vector2i(1,2)],
-		{Vector2i(0,0): CellType.FUNNEL, Vector2i(0,1): CellType.MANA_SIPHON, Vector2i(0,2): CellType.MANA_SIPHON, Vector2i(1,2): CellType.BUMPER})
-
-	_def(&"final_arc_detonation", "Final Arc Detonation", 2, "3-Cell V-Chevron", "Spark Sensor + Angled Blast Cap",
-		[Vector2i(0,0), Vector2i(1,1), Vector2i(2,0)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.BUMPER})
-
-	_def(&"energy_collapse", "Energy Collapse", 2, "4-Cell Z-Shape", "Volatile Drain Siphon + Concussive Spring",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(1,1), Vector2i(2,1)],
-		{Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(1,0): CellType.MANA_SIPHON, Vector2i(1,1): CellType.BUMPER, Vector2i(2,1): CellType.BUMPER})
-
-	_def(&"shrapnel_split", "Shrapnel Split", 2, "4-Cell T-Shape", "Fragment Deflector + Bomb Trigger Plate",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(2,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(1,0): CellType.BUMPER, Vector2i(1,1): CellType.BUMPER},
-		{Vector2i(0,0): Vector2i.LEFT, Vector2i(2,0): Vector2i.RIGHT})
-
-	_def(&"energized_fragments", "Energized Fragments", 2, "3-Cell Skew Rhombus", "Dual Energize Rollers + Contact Plate",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.ACCELERATOR, Vector2i(1,0): CellType.ACCELERATOR, Vector2i(1,1): CellType.BUMPER})
-
-	_def(&"arc_twins", "Arc Twins", 2, "4x1 Gap Rail", "Dual Spark Terminals + Open Center Gap",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0)],
-		{Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,0): CellType.GUIDE_RAIL, Vector2i(2,0): CellType.GUIDE_RAIL, Vector2i(3,0): CellType.ROTARY_BOOSTER})
-
-	_def(&"phase_siphon", "Phase Siphon", 2, "3-Cell V-Chevron", "Permeable Siphon Core + Energy Drain Plate",
-		[Vector2i(0,0), Vector2i(1,1), Vector2i(2,0)],
-		{Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(1,1): CellType.MANA_SIPHON, Vector2i(2,0): CellType.BUMPER})
-
-	_def(&"phase_detonation", "Phase Detonation", 2, "4-Cell Hook", "Phantom Detection Gate + Blast Chamber",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(2,1)],
-		{Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,0): CellType.GUIDE_RAIL, Vector2i(2,0): CellType.BUMPER, Vector2i(2,1): CellType.BUMPER})
-
-	_def(&"spectral_conduit", "Spectral Conduit", 2, "4-Cell Stepped Diagonal", "Spectral Trail Rail + Spark Guide",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(1,1), Vector2i(2,1)],
-		{Vector2i(0,0): CellType.GUIDE_RAIL, Vector2i(1,0): CellType.ACCELERATOR, Vector2i(1,1): CellType.GUIDE_RAIL, Vector2i(2,1): CellType.ACCELERATOR})
-
-	_def(&"impact_burst", "Impact Burst", 2, "4-Cell T-Shape", "Heavy Kinetic Bumper + Impact Sensor",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,0): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.BUMPER, Vector2i(1,1): CellType.BUMPER})
-
-	_def(&"kinetic_charge", "Kinetic Charge", 2, "3-Cell Skew Rhombus", "Speed Boost Wheel + Energize Battery",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.ACCELERATOR, Vector2i(1,0): CellType.MANA_SIPHON, Vector2i(1,1): CellType.ROTARY_BOOSTER})
-
-	_def(&"static_bounce", "Static Bounce", 2, "3-Cell L-Tromino", "Overdrive Sensor + Tesla Spark Node",
-		[Vector2i(0,0), Vector2i(0,1), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(0,1): CellType.BUMPER, Vector2i(1,1): CellType.BUMPER})
-
-	_def(&"parasitic_arc", "Parasitic Arc", 2, "3-Cell V-Chevron", "Arc Spreader + Drain Mist Nozzle",
-		[Vector2i(0,0), Vector2i(1,1), Vector2i(2,0)],
-		{Vector2i(0,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(1,1): CellType.MANA_SIPHON, Vector2i(2,0): CellType.DIRECTIONAL_DEFLECTOR},
-		{Vector2i(0,0): Vector2i.LEFT, Vector2i(2,0): Vector2i.RIGHT})
-
-	_def(&"draining_fragments", "Draining Fragments", 2, "3-Cell Skew Rhombus", "Fragment Siphon Needle Array",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(1,0): CellType.MANA_SIPHON, Vector2i(1,1): CellType.BUMPER})
-
-	_def(&"resonant_bounce", "Resonant Bounce", 2, "3-Cell Straight Bar", "Resonance Tuning Plate",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,0): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.BUMPER})
-
-	_def(&"ricochet_blast", "Ricochet Blast", 2, "4-Cell L-Shape", "Overdrive Sensor + Concussive Bumper",
-		[Vector2i(0,0), Vector2i(0,1), Vector2i(0,2), Vector2i(1,2)],
-		{Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(0,1): CellType.BUMPER, Vector2i(0,2): CellType.BUMPER, Vector2i(1,2): CellType.BUMPER})
-
-	_def(&"blast_launch", "Blast Launch", 2, "3-Cell V-Chevron", "Blast Deflector + Upward Spring Ramp",
-		[Vector2i(0,0), Vector2i(1,1), Vector2i(2,0)],
-		{Vector2i(0,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(1,1): CellType.ACCELERATOR, Vector2i(2,0): CellType.DIRECTIONAL_DEFLECTOR},
-		{Vector2i(0,0): Vector2i.UP, Vector2i(1,1): Vector2i.UP, Vector2i(2,0): Vector2i.UP})
-
-	_def(&"arc_surge_wrench", "Arc Surge Wrench", 2, "3-Cell Straight Bar", "Repair Pulse Solenoid + Wire Harness",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0)],
-		{Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,0): CellType.GUIDE_RAIL, Vector2i(2,0): CellType.ROTARY_BOOSTER})
-
-	_def(&"goblin_width_pulse", "Goblin Surge Chute", 2, "3-Cell Skew Rhombus", "Ball Return Sensor + Chute Expander",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,0): CellType.FUNNEL, Vector2i(1,1): CellType.FUNNEL})
-
-	_def(&"magnet_arc_snare", "Magnet Arc Snare", 2, "3-Cell V-Chevron", "Magnetic Snare Coil + Spark Terminal",
-		[Vector2i(0,0), Vector2i(1,1), Vector2i(2,0)],
-		{Vector2i(0,0): CellType.FUNNEL, Vector2i(1,1): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.FUNNEL})
-
-	_def(&"spark_trampoline", "Spark Trampoline", 2, "3-Cell Straight Bar", "Charged Spring Plate + Grounding Wire",
-		[Vector2i(0,0), Vector2i(1,0), Vector2i(2,0)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,0): CellType.ACCELERATOR, Vector2i(2,0): CellType.BUMPER},
-		{Vector2i(1,0): Vector2i.UP})
+	_def(&"supernova_peg", "Supernova Peg", 2, "3x3 Box Chamber", "1 Rotary Booster + 2 Pop Bumpers + 4 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1), Vector2i(0,2), Vector2i(2,2)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.BUMPER, Vector2i(2,2): CellType.BUMPER}, {})
+	_def(&"chain_conduction", "Chain Conduction", 2, "4x2 Rail Frame", "2 Pop Bumpers + 2 Lightning Rails + 3 Corridors", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0), Vector2i(0,1), Vector2i(2,1), Vector2i(3,1)], {Vector2i(0,0): CellType.GUIDE_RAIL, Vector2i(1,0): CellType.BUMPER, Vector2i(2,0): CellType.BUMPER, Vector2i(3,0): CellType.GUIDE_RAIL}, {})
+	_def(&"overcharged_drain", "Overcharged Drain", 2, "3x3 L-Chamber", "1 Funnel + 2 Siphons + 1 Bumper + 3 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2)], {Vector2i(0,0): CellType.FUNNEL, Vector2i(0,1): CellType.MANA_SIPHON, Vector2i(0,2): CellType.MANA_SIPHON, Vector2i(2,2): CellType.BUMPER}, {})
+	_def(&"final_arc_detonation", "Final Arc Detonation", 2, "3x3 V-Chamber", "2 Bumpers + 1 Rotary Core + 3 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1), Vector2i(0,2), Vector2i(2,2)], {Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.BUMPER}, {})
+	_def(&"energy_collapse", "Energy Collapse", 2, "3x3 Z-Chamber", "2 Siphons + 2 Concussive Bumpers + 3 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2)], {Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(1,0): CellType.MANA_SIPHON, Vector2i(1,1): CellType.BUMPER, Vector2i(2,2): CellType.BUMPER}, {})
+	_def(&"shrapnel_split", "Shrapnel Split", 2, "3x3 T-Chamber", "2 Deflectors + 2 Bumpers + 3 Free Corridors", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2)], {Vector2i(0,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(2,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(1,0): CellType.BUMPER, Vector2i(1,2): CellType.BUMPER}, {Vector2i(0,0): Vector2i.LEFT, Vector2i(2,0): Vector2i.RIGHT})
+	_def(&"energized_fragments", "Energized Fragments", 2, "3x3 Skew Chamber", "2 Energize Rollers + 1 Contact Bumper + 3 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1), Vector2i(2,1), Vector2i(2,2)], {Vector2i(0,0): CellType.ACCELERATOR, Vector2i(1,0): CellType.ACCELERATOR, Vector2i(2,2): CellType.BUMPER}, {})
+	_def(&"arc_twins", "Arc Twins", 2, "4x2 Dual Rail", "2 Rotary Boosters + 2 Guide Rails + 3 Free Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(3,0), Vector2i(0,1), Vector2i(1,1), Vector2i(3,1)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,0): CellType.GUIDE_RAIL, Vector2i(2,0): CellType.GUIDE_RAIL, Vector2i(3,0): CellType.ROTARY_BOOSTER}, {})
+	_def(&"phase_siphon", "Phase Siphon", 2, "3x3 V-Chamber", "2 Siphon Nodes + 1 Bumper + 3 Open Travel Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1), Vector2i(0,2), Vector2i(2,2)], {Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(1,1): CellType.MANA_SIPHON, Vector2i(2,0): CellType.BUMPER}, {})
+	_def(&"phase_detonation", "Phase Detonation", 2, "3x3 Hook Chamber", "1 Rotary Booster + 1 Rail + 2 Bumpers + 3 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(2,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,0): CellType.GUIDE_RAIL, Vector2i(2,0): CellType.BUMPER, Vector2i(2,2): CellType.BUMPER}, {})
+	_def(&"spectral_conduit", "Spectral Conduit", 2, "3x3 Stepped Rail", "2 Rails + 2 Accelerators + 3 Travel Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1), Vector2i(2,1), Vector2i(0,2), Vector2i(2,2)], {Vector2i(0,0): CellType.GUIDE_RAIL, Vector2i(1,0): CellType.ACCELERATOR, Vector2i(1,1): CellType.GUIDE_RAIL, Vector2i(2,2): CellType.ACCELERATOR}, {})
+	_def(&"impact_burst", "Impact Burst", 2, "3x3 T-Chamber", "3 Heavy Kinetic Bumpers + 1 Rotary Sensor + 3 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2)], {Vector2i(0,0): CellType.BUMPER, Vector2i(1,0): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.BUMPER, Vector2i(1,2): CellType.BUMPER}, {})
+	_def(&"kinetic_charge", "Kinetic Charge", 2, "3x3 Skew Chamber", "1 Boost Wheel + 1 Siphon + 1 Rotary Core + 3 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1), Vector2i(2,1), Vector2i(2,2)], {Vector2i(0,0): CellType.ACCELERATOR, Vector2i(1,0): CellType.MANA_SIPHON, Vector2i(2,2): CellType.ROTARY_BOOSTER}, {})
+	_def(&"static_bounce", "Static Bounce", 2, "3x3 L-Chamber", "1 Rotary Sensor + 2 Pop Bumpers + 3 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2), Vector2i(1,2)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(0,1): CellType.BUMPER, Vector2i(1,2): CellType.BUMPER}, {})
+	_def(&"parasitic_arc", "Parasitic Arc", 2, "3x3 V-Chamber", "2 Spark Deflectors + 1 Drain Siphon + 3 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1), Vector2i(0,2), Vector2i(2,2)], {Vector2i(0,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(1,1): CellType.MANA_SIPHON, Vector2i(2,0): CellType.DIRECTIONAL_DEFLECTOR}, {Vector2i(0,0): Vector2i.LEFT, Vector2i(2,0): Vector2i.RIGHT})
+	_def(&"draining_fragments", "Draining Fragments", 2, "3x3 Skew Chamber", "2 Fragment Siphons + 1 Contact Bumper + 3 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1), Vector2i(2,1), Vector2i(2,2)], {Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(1,0): CellType.MANA_SIPHON, Vector2i(2,2): CellType.BUMPER}, {})
+	_def(&"resonant_bounce", "Resonant Bounce", 2, "3x3 Straight Chamber", "2 Bumpers + 1 Resonance Tuning Core + 3 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1)], {Vector2i(0,0): CellType.BUMPER, Vector2i(1,0): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.BUMPER}, {})
+	_def(&"ricochet_blast", "Ricochet Blast", 2, "3x3 L-Chamber", "1 Rotary Sensor + 3 Concussive Bumpers + 3 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(0,1): CellType.BUMPER, Vector2i(0,2): CellType.BUMPER, Vector2i(2,2): CellType.BUMPER}, {})
+	_def(&"blast_launch", "Blast Launch", 2, "3x3 V-Chamber", "2 Deflectors + 1 Upward Launch Spring + 3 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1), Vector2i(0,2), Vector2i(2,2)], {Vector2i(0,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(1,1): CellType.ACCELERATOR, Vector2i(2,0): CellType.DIRECTIONAL_DEFLECTOR}, {Vector2i(0,0): Vector2i.UP, Vector2i(1,1): Vector2i.UP, Vector2i(2,0): Vector2i.UP})
+	_def(&"arc_surge_wrench", "Arc Surge Wrench", 2, "3x3 Straight Chamber", "2 Rotary Solenoids + 1 Wire Harness + 3 Travel Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,0): CellType.GUIDE_RAIL, Vector2i(2,0): CellType.ROTARY_BOOSTER}, {})
+	_def(&"goblin_width_pulse", "Goblin Surge Chute", 2, "3x3 Skew Chamber", "1 Rotary Sensor + 2 Chute Funnels + 3 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1), Vector2i(2,1), Vector2i(2,2)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,0): CellType.FUNNEL, Vector2i(2,2): CellType.FUNNEL}, {})
+	_def(&"magnet_arc_snare", "Magnet Arc Snare", 2, "3x3 V-Chamber", "2 Snare Funnels + 1 Spark Terminal + 3 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1), Vector2i(0,2), Vector2i(2,2)], {Vector2i(0,0): CellType.FUNNEL, Vector2i(1,1): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.FUNNEL}, {})
+	_def(&"spark_trampoline", "Spark Trampoline", 2, "3x3 Trampoline Chamber", "2 Bumpers + 1 Charged Spring Plate + 3 Travel Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1)], {Vector2i(0,0): CellType.BUMPER, Vector2i(1,0): CellType.ACCELERATOR, Vector2i(2,0): CellType.BUMPER}, {Vector2i(1,0): Vector2i.UP})
 
 static func _build_single_ball_enhancements() -> void:
-	# Tier 1 (2 to 3 Cells)
-	_def(&"hyper_elastic", "Hyper Elastic", 1, "1x2 Vertical Bar", "Upward Boost Accelerator Track",
-		[Vector2i(0,0), Vector2i(0,1)],
-		{Vector2i(0,0): CellType.ACCELERATOR, Vector2i(0,1): CellType.ACCELERATOR},
-		{Vector2i(0,0): Vector2i.UP, Vector2i(0,1): Vector2i.UP})
-
-	_def(&"overdrive_hits", "Overdrive Hits", 1, "2-Cell Diagonal Skew", "Overdrive Multiplier Gate",
-		[Vector2i(0,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER})
-
-	_def(&"overclock_network", "Overclock Network", 1, "3-Cell V-Chevron", "Grid Resonance Mesh",
-		[Vector2i(0,0), Vector2i(1,1), Vector2i(2,0)],
-		{Vector2i(0,0): CellType.GUIDE_RAIL, Vector2i(1,1): CellType.BUMPER, Vector2i(2,0): CellType.GUIDE_RAIL})
-
-	_def(&"spreading_rot", "Spreading Rot", 1, "3-Cell L-Tromino", "Spore Dispenser + Rot Siphon",
-		[Vector2i(0,0), Vector2i(0,1), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(0,1): CellType.MANA_SIPHON, Vector2i(1,1): CellType.BUMPER})
-
-	_def(&"cluster_grenade", "Cluster Grenade", 1, "3-Cell V-Chevron", "Sub-Munition Dispenser",
-		[Vector2i(0,0), Vector2i(1,1), Vector2i(2,0)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.BUMPER, Vector2i(2,0): CellType.BUMPER})
-
-	_def(&"blast_lift", "Blast Lift", 1, "1x2 Vertical Bar", "Upward Concussion Chute",
-		[Vector2i(0,0), Vector2i(0,1)],
-		{Vector2i(0,0): CellType.ACCELERATOR, Vector2i(0,1): CellType.ACCELERATOR},
-		{Vector2i(0,0): Vector2i.UP, Vector2i(0,1): Vector2i.UP})
-
-	_def(&"fragmentation_tag", "Fragmentation Tag", 1, "2-Cell Diagonal Skew", "Blast Impact Sensor Core",
-		[Vector2i(0,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER})
-
-	_def(&"storm_feedback", "Storm Feedback", 1, "1x2 Horizontal Bar", "Energy Feedback Solenoid",
-		[Vector2i(0,0), Vector2i(1,0)],
-		{Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,0): CellType.BUMPER})
-
-	_def(&"overcurrent_surge", "Overcurrent Surge", 1, "2-Cell Diagonal Skew", "Rapid Discharge Resistor",
-		[Vector2i(0,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER})
-
-	_def(&"fragment_echo", "Fragment Echo", 1, "1x2 Horizontal Bar", "Exit Funnel + Top Spawner Link",
-		[Vector2i(0,0), Vector2i(1,0)],
-		{Vector2i(0,0): CellType.FUNNEL, Vector2i(1,0): CellType.ROTARY_BOOSTER})
-
-	_def(&"mass_cascade", "Mass Cascade", 1, "2-Cell Diagonal Skew", "Fragment Collision Plate",
-		[Vector2i(0,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER})
-
-	_def(&"ghost_trail", "Ghost Trail", 1, "1x2 Vertical Bar", "Permeable Trail Emitter",
-		[Vector2i(0,0), Vector2i(0,1)],
-		{Vector2i(0,0): CellType.GUIDE_RAIL, Vector2i(0,1): CellType.MANA_SIPHON})
-
-	_def(&"phase_instability", "Phase Instability", 1, "1x2 Horizontal Bar", "Zero-Hit Siphon Return Track",
-		[Vector2i(0,0), Vector2i(1,0)],
-		{Vector2i(0,0): CellType.ACCELERATOR, Vector2i(1,0): CellType.ROTARY_BOOSTER})
-
-	_def(&"chest_random_ball", "Plunderer's Cut", 1, "2-Cell Diagonal Skew", "Locked Scrap Vault",
-		[Vector2i(0,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,1): CellType.BUMPER})
-
-	_def(&"plain_surge", "Plain Surge", 1, "1x2 Horizontal Bar", "Plain Kinetic Bumper Array",
-		[Vector2i(0,0), Vector2i(1,0)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,0): CellType.ACCELERATOR})
-
-	_def(&"plain_horde", "Plain Horde", 1, "2-Cell Diagonal Skew", "Horde Sensor Core",
-		[Vector2i(0,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER})
-
-	_def(&"plain_momentum", "Plain Momentum", 1, "1x2 Vertical Bar", "Overdrive Kinetic Plate",
-		[Vector2i(0,0), Vector2i(0,1)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(0,1): CellType.ACCELERATOR})
-
-	_def(&"volt_primer", "Volt Primer", 1, "1x2 Horizontal Bar", "Cannon Discount Capacitor",
-		[Vector2i(0,0), Vector2i(1,0)],
-		{Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,0): CellType.GUIDE_RAIL})
+	_def(&"hyper_elastic", "Hyper Elastic", 1, "2x3 Vertical Track", "2 Upward Boost Rollers + 3 Free Travel Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2)], {Vector2i(0,0): CellType.ACCELERATOR, Vector2i(0,2): CellType.ACCELERATOR}, {Vector2i(0,0): Vector2i.UP, Vector2i(0,2): Vector2i.UP})
+	_def(&"overdrive_hits", "Overdrive Hits", 1, "2x2 Box Chamber", "1 Pop Bumper + 1 Overdrive Multiplier + 2 Free Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER}, {})
+	_def(&"overclock_network", "Overclock Network", 1, "3x2 V-Mesh", "2 Grid Rails + 1 Bumper + 2 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(1,1), Vector2i(2,1)], {Vector2i(0,0): CellType.GUIDE_RAIL, Vector2i(1,1): CellType.BUMPER, Vector2i(2,0): CellType.GUIDE_RAIL}, {})
+	_def(&"spreading_rot", "Spreading Rot", 1, "2x3 L-Shape", "2 Rot Siphons + 1 Bumper + 2 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(0,2), Vector2i(1,2)], {Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(0,1): CellType.MANA_SIPHON, Vector2i(1,2): CellType.BUMPER}, {})
+	_def(&"cluster_grenade", "Cluster Grenade", 1, "3x2 Chevron", "3 Sub-Munition Pop Bumpers + 2 Travel Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1)], {Vector2i(0,0): CellType.BUMPER, Vector2i(2,0): CellType.BUMPER, Vector2i(1,0): CellType.BUMPER}, {})
+	_def(&"blast_lift", "Blast Lift", 1, "2x3 Vertical Track", "2 Upward Concussion Chutes + 3 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2)], {Vector2i(0,0): CellType.ACCELERATOR, Vector2i(0,2): CellType.ACCELERATOR}, {Vector2i(0,0): Vector2i.UP, Vector2i(0,2): Vector2i.UP})
+	_def(&"fragmentation_tag", "Fragmentation Tag", 1, "2x2 Box Chamber", "1 Impact Sensor + 1 Pop Bumper + 2 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER}, {})
+	_def(&"storm_feedback", "Storm Feedback", 1, "3x2 Horizontal Bar", "1 Feedback Solenoid + 1 Bumper + 3 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.BUMPER}, {})
+	_def(&"overcurrent_surge", "Overcurrent Surge", 1, "2x2 Box Chamber", "1 Discharge Resistor + 1 Bumper + 2 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER}, {})
+	_def(&"fragment_echo", "Fragment Echo", 1, "3x2 Horizontal Bar", "1 Exit Funnel + 1 Top Spawner + 3 Free Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1)], {Vector2i(0,0): CellType.FUNNEL, Vector2i(2,0): CellType.ROTARY_BOOSTER}, {})
+	_def(&"mass_cascade", "Mass Cascade", 1, "2x2 Box Chamber", "1 Collision Plate + 1 Rotary Sensor + 2 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER}, {})
+	_def(&"ghost_trail", "Ghost Trail", 1, "2x3 Vertical Track", "1 Permeable Rail + 1 Siphon + 3 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2)], {Vector2i(0,0): CellType.GUIDE_RAIL, Vector2i(0,2): CellType.MANA_SIPHON}, {})
+	_def(&"phase_instability", "Phase Instability", 1, "3x2 Horizontal Track", "1 Boost Roller + 1 Rotary Sensor + 3 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1)], {Vector2i(0,0): CellType.ACCELERATOR, Vector2i(2,0): CellType.ROTARY_BOOSTER}, {})
+	_def(&"chest_random_ball", "Plunderer's Cut", 1, "2x2 Box Chamber", "1 Scrap Vault Core + 1 Bumper + 2 Open Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,1): CellType.BUMPER}, {})
+	_def(&"plain_surge", "Plain Surge", 1, "3x2 Horizontal Bar", "1 Kinetic Bumper + 1 Boost Roller + 3 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1)], {Vector2i(0,0): CellType.BUMPER, Vector2i(2,0): CellType.ACCELERATOR}, {})
+	_def(&"plain_horde", "Plain Horde", 1, "2x2 Box Chamber", "1 Horde Sensor + 1 Pop Bumper + 2 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER}, {})
+	_def(&"plain_momentum", "Plain Momentum", 1, "2x3 Vertical Bar", "1 Overdrive Bumper + 1 Boost Roller + 3 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2)], {Vector2i(0,0): CellType.BUMPER, Vector2i(0,2): CellType.ACCELERATOR}, {})
+	_def(&"volt_primer", "Volt Primer", 1, "3x2 Horizontal Bar", "1 Cannon Discount Core + 1 Wire Rail + 3 Open Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.GUIDE_RAIL}, {})
 
 static func _build_treasure_chest_passives() -> void:
-	# Tier 1 (2 to 3 Cells)
-	_def(&"explosion_radius", "Bigger Blasts", 1, "2-Cell Diagonal Skew", "Blast Expansion Chamber",
-		[Vector2i(0,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER})
+	_def(&"explosion_radius", "Bigger Blasts", 1, "2x2 Box Chamber", "1 Blast Expansion Core + 1 Pop Bumper + 2 Free Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER}, {})
+	_def(&"explosion_peg_hit_count", "More Explosion Hits", 1, "3x2 Horizontal Bar", "1 Shrapnel Bumper + 1 Spark Deflector + 3 Free Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1)], {Vector2i(0,0): CellType.BUMPER, Vector2i(2,0): CellType.DIRECTIONAL_DEFLECTOR}, {Vector2i(2,0): Vector2i.RIGHT})
+	_def(&"explosion_impulse", "Stronger Blast Push", 1, "2x3 Vertical Bar", "1 Wave Accelerator + 1 Pop Bumper + 3 Free Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2)], {Vector2i(0,0): CellType.ACCELERATOR, Vector2i(0,2): CellType.BUMPER}, {Vector2i(0,0): Vector2i.UP})
+	_def(&"chain_arc", "+1 Chain Jump", 1, "2x2 Box Chamber", "1 Arc Extender Core + 1 Guide Rail + 2 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,1): CellType.GUIDE_RAIL}, {})
+	_def(&"chain_range", "Longer Chains", 1, "3x2 Horizontal Bar", "1 Voltage Rail + 1 Rotary Core + 3 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1)], {Vector2i(0,0): CellType.GUIDE_RAIL, Vector2i(2,0): CellType.ROTARY_BOOSTER}, {})
+	_def(&"max_energize_stacks", "Deeper Energize", 1, "2x2 Box Chamber", "1 Dual Capacitor + 1 Siphon + 2 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,1): CellType.MANA_SIPHON}, {})
+	_def(&"energize_decays_slower", "Slower Energize Fade", 1, "2x3 Vertical Bar", "1 Insulation Rail + 1 Siphon + 3 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2)], {Vector2i(0,0): CellType.GUIDE_RAIL, Vector2i(0,2): CellType.MANA_SIPHON}, {})
+	_def(&"energized_pegs_repair_faster", "Fast Heal (Energized)", 1, "2x2 Box Chamber", "1 Nanite Tube + 1 Siphon + 2 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,1): CellType.MANA_SIPHON}, {})
+	_def(&"global_peg_durability", "Tough Pegs", 1, "3x2 Chevron", "2 Armor Plating Bumpers + 3 Free Travel Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1)], {Vector2i(0,0): CellType.BUMPER, Vector2i(2,0): CellType.BUMPER}, {})
+	_def(&"peg_recovery_speed", "Faster Peg Recovery", 1, "3x2 Chevron", "2 Reset Bumpers + 1 Spring Roller + 2 Free Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1)], {Vector2i(0,0): CellType.BUMPER, Vector2i(2,0): CellType.BUMPER, Vector2i(1,0): CellType.ACCELERATOR}, {})
+	_def(&"devastating_barrage", "Devastating Barrage", 1, "2x3 L-Chamber", "2 Heavy Shell Bumpers + 1 Rotary Core + 2 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(0,2), Vector2i(1,2)], {Vector2i(0,0): CellType.BUMPER, Vector2i(0,1): CellType.ROTARY_BOOSTER, Vector2i(1,2): CellType.BUMPER}, {})
+	_def(&"compressed_charge", "Compressed Charge", 1, "2x3 L-Chamber", "2 Rotary Capacitors + 1 Siphon + 2 Free Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(0,2), Vector2i(1,2)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(0,1): CellType.MANA_SIPHON, Vector2i(1,2): CellType.ROTARY_BOOSTER}, {})
+	_def(&"chest_leech_drain", "Leech Drain Up", 1, "2x2 Box Chamber", "1 Drain Siphon + 1 Pop Bumper + 2 Free Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(1,1): CellType.BUMPER}, {})
+	_def(&"chest_leech_duration", "Longer Leech", 1, "2x3 Vertical Bar", "1 Leech Siphon + 1 Guide Rail + 3 Free Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2)], {Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(0,2): CellType.GUIDE_RAIL}, {})
+	_def(&"chest_phantom_energy", "Phantom Energy", 1, "2x2 Box Chamber", "1 Spectral Siphon + 1 Guide Rail + 2 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(1,1): CellType.GUIDE_RAIL}, {})
+	_def(&"chest_rubbery_energy", "Rubbery Energy", 1, "3x2 Horizontal Bar", "1 Elastic Bumper + 1 Boost Roller + 3 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1)], {Vector2i(0,0): CellType.BUMPER, Vector2i(2,0): CellType.ACCELERATOR}, {})
+	_def(&"chest_bounce_energy", "Plain Energy", 1, "2x2 Box Chamber", "1 Standard Bumper + 1 Rotary Sensor + 2 Free Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER}, {})
+	_def(&"chest_split_energy", "Split Energy", 1, "2x3 Vertical Bar", "1 Fragment Deflector + 1 Boost Roller + 3 Free Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2)], {Vector2i(0,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(0,2): CellType.ACCELERATOR}, {Vector2i(0,0): Vector2i.DOWN, Vector2i(0,2): Vector2i.DOWN})
 
-	_def(&"explosion_peg_hit_count", "More Explosion Hits", 1, "1x2 Horizontal Bar", "Shrapnel Dispersion Tube",
-		[Vector2i(0,0), Vector2i(1,0)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,0): CellType.DIRECTIONAL_DEFLECTOR},
-		{Vector2i(1,0): Vector2i.RIGHT})
-
-	_def(&"explosion_impulse", "Stronger Blast Push", 1, "1x2 Vertical Bar", "Concussion Wave Baffle",
-		[Vector2i(0,0), Vector2i(0,1)],
-		{Vector2i(0,0): CellType.ACCELERATOR, Vector2i(0,1): CellType.BUMPER},
-		{Vector2i(0,0): Vector2i.UP})
-
-	_def(&"chain_arc", "+1 Chain Jump", 1, "2-Cell Diagonal Skew", "Arc Extender Node",
-		[Vector2i(0,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,1): CellType.GUIDE_RAIL})
-
-	_def(&"chain_range", "Longer Chains", 1, "1x2 Horizontal Bar", "High-Voltage Spark Rail",
-		[Vector2i(0,0), Vector2i(1,0)],
-		{Vector2i(0,0): CellType.GUIDE_RAIL, Vector2i(1,0): CellType.ROTARY_BOOSTER})
-
-	_def(&"max_energize_stacks", "Deeper Energize", 1, "2-Cell Diagonal Skew", "Dual Capacitor Cell",
-		[Vector2i(0,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,1): CellType.MANA_SIPHON})
-
-	_def(&"energize_decays_slower", "Slower Energize Fade", 1, "1x2 Vertical Bar", "Insulation Mesh Core",
-		[Vector2i(0,0), Vector2i(0,1)],
-		{Vector2i(0,0): CellType.GUIDE_RAIL, Vector2i(0,1): CellType.MANA_SIPHON})
-
-	_def(&"energized_pegs_repair_faster", "Fast Heal (Energized)", 1, "2-Cell Diagonal Skew", "Nanite Dispenser Tube",
-		[Vector2i(0,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(1,1): CellType.MANA_SIPHON})
-
-	_def(&"global_peg_durability", "Tough Pegs", 1, "3-Cell V-Chevron", "Armor Plating Bracket",
-		[Vector2i(0,0), Vector2i(1,1), Vector2i(2,0)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.BUMPER, Vector2i(2,0): CellType.BUMPER})
-
-	_def(&"peg_recovery_speed", "Faster Peg Recovery", 1, "3-Cell V-Chevron", "Rapid Reset Spring Frame",
-		[Vector2i(0,0), Vector2i(1,1), Vector2i(2,0)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.ACCELERATOR, Vector2i(2,0): CellType.BUMPER})
-
-	_def(&"devastating_barrage", "Devastating Barrage", 1, "3-Cell L-Tromino", "Heavy Shell Breech + Ammo Track",
-		[Vector2i(0,0), Vector2i(0,1), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(0,1): CellType.ROTARY_BOOSTER, Vector2i(1,1): CellType.BUMPER})
-
-	_def(&"compressed_charge", "Compressed Charge", 1, "3-Cell L-Tromino", "High-Density Capacitor Bank",
-		[Vector2i(0,0), Vector2i(0,1), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(0,1): CellType.MANA_SIPHON, Vector2i(1,1): CellType.ROTARY_BOOSTER})
-
-	_def(&"chest_leech_drain", "Leech Drain Up", 1, "2-Cell Diagonal Skew", "Micro Drain Siphon Rail",
-		[Vector2i(0,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(1,1): CellType.BUMPER})
-
-	_def(&"chest_leech_duration", "Longer Leech", 1, "1x2 Vertical Bar", "Leech Sustainer Capsule",
-		[Vector2i(0,0), Vector2i(0,1)],
-		{Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(0,1): CellType.GUIDE_RAIL})
-
-	_def(&"chest_phantom_energy", "Phantom Energy", 1, "2-Cell Diagonal Skew", "Spectral Permeability Siphon",
-		[Vector2i(0,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.MANA_SIPHON, Vector2i(1,1): CellType.GUIDE_RAIL})
-
-	_def(&"chest_rubbery_energy", "Rubbery Energy", 1, "1x2 Horizontal Bar", "Elastic Impact Siphon",
-		[Vector2i(0,0), Vector2i(1,0)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,0): CellType.ACCELERATOR})
-
-	_def(&"chest_bounce_energy", "Plain Energy", 1, "2-Cell Diagonal Skew", "Standard Impact Siphon",
-		[Vector2i(0,0), Vector2i(1,1)],
-		{Vector2i(0,0): CellType.BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER})
-
-	_def(&"chest_split_energy", "Split Energy", 1, "1x2 Vertical Bar", "Fragment Impact Siphon",
-		[Vector2i(0,0), Vector2i(0,1)],
-		{Vector2i(0,0): CellType.DIRECTIONAL_DEFLECTOR, Vector2i(0,1): CellType.ACCELERATOR},
-		{Vector2i(0,0): Vector2i.DOWN, Vector2i(0,1): Vector2i.DOWN})

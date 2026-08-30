@@ -113,22 +113,27 @@ func _draw() -> void:
 	for c in module_data.cells:
 		var cell_pos := Vector2(origin_x + float(c.x) * cell_size, origin_y + float(c.y) * cell_size)
 		var rect := Rect2(cell_pos.x + cell_pad, cell_pos.y + cell_pad, cell_size - cell_pad * 2.0, cell_size - cell_pad * 2.0)
-
-		# Dark comic ink background
-		draw_rect(rect, DARK_INK_BORDER)
-		# Tier accent fill
-		draw_rect(rect.grow(-1.5), accent_color.darkened(0.65))
-		# Inner highlight bevel
-		draw_rect(rect.grow(-1.5), accent_color.lightened(0.2), false, 1.0)
-		# Outer ink border outline
-		draw_rect(rect, DARK_INK_BORDER, false, 2.0)
-
-		# Render internal kinetic machinery glyph
 		var c_type: int = module_data.get_cell_type_at(c)
-		var c_dir: Vector2 = module_data.get_cell_direction_at(c)
-		_draw_kinetic_glyph(rect.get_center(), c_type, c_dir, rect.size.x * 0.5)
+
+		if c_type == CellType.EMPTY:
+			# Open playfield empty space: subtle dark floor with thin comic border
+			draw_rect(rect, DARK_INK_BORDER)
+			draw_rect(rect.grow(-1.5), Color(0.08, 0.08, 0.14, 0.75))
+			draw_rect(rect, DARK_INK_BORDER.lightened(0.25), false, 1.0)
+		else:
+			# Kinetic machine cell: bold tier accent fill, inner bevel, and comic outline
+			draw_rect(rect, DARK_INK_BORDER)
+			draw_rect(rect.grow(-1.5), accent_color.darkened(0.65))
+			draw_rect(rect.grow(-1.5), accent_color.lightened(0.2), false, 1.0)
+			draw_rect(rect, DARK_INK_BORDER, false, 2.0)
+
+			# Render internal kinetic machinery glyph
+			var c_dir: Vector2 = module_data.get_cell_direction_at(c)
+			_draw_kinetic_glyph(rect.get_center(), c_type, c_dir, rect.size.x * 0.5)
 
 func _draw_kinetic_glyph(center: Vector2, type: int, dir: Vector2, radius: float) -> void:
+	if type == CellType.EMPTY:
+		return
 	var s: float = radius
 	match type:
 		CellType.BUMPER:

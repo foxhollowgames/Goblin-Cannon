@@ -57,11 +57,15 @@ func _rebuild_components() -> void:
 		var orig_c: Vector2i = orig_cells[idx] if idx < orig_cells.size() else local_c
 
 		var c_type: int = module_data.get_cell_type_at(orig_c)
+		if c_type == PolyominoModuleData.CellType.EMPTY:
+			continue
 		var orig_dir: Vector2 = module_data.get_cell_direction_at(orig_c)
 		var rot_dir: Vector2 = PolyominoModuleData.get_rotated_direction(orig_dir, rotation_step)
 		var energy_val: int = module_data.get_cell_energy_value(orig_c)
 
 		var comp: PolyominoMachineryComponent = _create_component_for_type(c_type)
+		if comp == null:
+			continue
 		comp.local_cell = local_c
 		comp.cell_type = c_type
 		comp.direction = rot_dir
@@ -79,6 +83,8 @@ func _rebuild_components() -> void:
 
 func _create_component_for_type(c_type: int) -> PolyominoMachineryComponent:
 	match c_type:
+		PolyominoModuleData.CellType.EMPTY:
+			return null
 		PolyominoModuleData.CellType.BUMPER:
 			return PinballBumperScript.new()
 		PolyominoModuleData.CellType.ACCELERATOR, PolyominoModuleData.CellType.ROTARY_BOOSTER:

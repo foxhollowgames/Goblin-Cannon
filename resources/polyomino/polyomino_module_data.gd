@@ -85,6 +85,23 @@ func get_cell_type_at(cell: Vector2i) -> int:
 		return int(cell_types[key_str])
 	return CellType.EMPTY
 
+func is_cell_empty(cell: Vector2i) -> bool:
+	return get_cell_type_at(cell) == CellType.EMPTY
+
+func get_occupied_machine_cells() -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	for c in cells:
+		if get_cell_type_at(c) != CellType.EMPTY:
+			result.append(c)
+	return result
+
+func get_empty_cells() -> Array[Vector2i]:
+	var result: Array[Vector2i] = []
+	for c in cells:
+		if get_cell_type_at(c) == CellType.EMPTY:
+			result.append(c)
+	return result
+
 func set_cell_type_at(cell: Vector2i, type: int) -> void:
 	cell_types[cell] = type
 
