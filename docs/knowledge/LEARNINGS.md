@@ -37,6 +37,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-026`](#lrn-026) | TASK-LINT-01 | `tooling` | File Length Limit (500 lines) and Baseline Allowlist | 2026-08-29 |
 | [`LRN-027`](#lrn-027) | TASK-024 | `board_systems` | Polyomino Relic Footprint Scaling and Empty Playfield Spacing | 2026-08-29 |
 | [`LRN-028`](#lrn-028) | TASK-033 | `board_systems` | Polyomino Relic Exterior Perimeter Wall and Transparent Chassis Drawing | 2026-08-29 |
+| [`LRN-029`](#lrn-029) | TASK-049 | `godot_engine` | Polyomino Relic Pinball Goals and Reward Dispatching | 2026-08-29 |
 
 ---
 
@@ -487,5 +488,21 @@ Checking 4-way cardinal neighbor presence in the module cell set allows drawing 
 
 #### Actionable Guideline for Future Agents
 Never draw connection lines between adjacent cell centers; iterate over module cells and draw wall segments only on edges without an adjacent neighbor in the module.
+
+---
+
+### <a id="lrn-029"></a> LRN-029: Polyomino Relic Pinball Goals and Reward Dispatching
+- **Task:** `TASK-049`
+- **Category:** `godot_engine`
+- **Created:** `2026-08-29T23:07:06.524921`
+
+#### Context & Problem
+Relics need self-contained pinball objectives and board rewards without bloating board.gd line limits.
+
+#### Key Insight & Learning
+PolyominoModuleNode tracks cell hits and progress counters locally while delegating reward execution to PolyominoGoalRewardHandler, keeping Board.gd well under line limits.
+
+#### Actionable Guideline for Future Agents
+Keep Board.gd lean by delegating specialized mechanic triggers to standalone handlers and use PolyominoModuleNode runtime state for compound shape tracking.
 
 ---
