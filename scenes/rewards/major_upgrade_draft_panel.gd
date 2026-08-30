@@ -211,6 +211,22 @@ func _make_card(pick: Resource, index: int) -> Control:
 		var preview: RelicLayoutPreview = RelicLayoutPreview.new()
 		preview.setup_for_relic(upgrade_id)
 		card_vbox.add_child(preview)
+
+		var g_title: String = PolyominoRelicDatabase.get_relic_goal_title(upgrade_id)
+		var g_desc: String = PolyominoRelicDatabase.get_relic_goal_description(upgrade_id)
+		var r_desc: String = PolyominoRelicDatabase.get_relic_reward_description(upgrade_id)
+		if not g_title.is_empty():
+			var goal_label: RichTextLabel = RichTextLabel.new()
+			goal_label.bbcode_enabled = true
+			goal_label.fit_content = true
+			goal_label.scroll_active = false
+			goal_label.mouse_filter = Control.MOUSE_FILTER_PASS
+			goal_label.custom_minimum_size = Vector2(180, 0)
+			goal_label.add_theme_font_size_override("normal_font_size", 12)
+			goal_label.add_theme_font_size_override("bold_font_size", 12)
+			var goal_text: String = "[center][color=#ffcc44][b]★ %s[/b][/color]\n[color=#cfcfcf]%s[/color]\n[color=#44ffaa]%s[/color][/center]" % [g_title, g_desc, r_desc]
+			goal_label.text = goal_text
+			card_vbox.add_child(goal_label)
 	else:
 		var fallback_spacer: Control = Control.new()
 		fallback_spacer.custom_minimum_size = Vector2(0, 8)

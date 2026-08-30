@@ -14,6 +14,26 @@ enum CellType {
 	DIRECTIONAL_DEFLECTOR = 7
 }
 
+enum GoalArchetype {
+	NONE = 0,
+	TARGET_BANK = 1,
+	SEQUENCE_ROUTE = 2,
+	ORBIT_FLOW = 3,
+	SINKHOLE_LOCK = 4,
+	JACKPOT_ACCUMULATOR = 5,
+	HURRY_UP_FRENZY = 6,
+	MULTIBALL_RESERVOIR = 7
+}
+
+enum RewardType {
+	NONE = 0,
+	ENERGY_SURGE = 1,
+	BOARD_SUPERCHARGE = 2,
+	MULTIBALL_CASCADE = 3,
+	GLOBAL_BOARD_KNOCK = 4,
+	CONCUSSIVE_OVERDRIVE = 5
+}
+
 @export var module_id: StringName = &""
 @export var display_name: String = ""
 @export var tier: int = 1
@@ -29,6 +49,18 @@ enum CellType {
 @export var bumper_durability: int = 0
 ## Default or current rotation step (0..3).
 @export var rotation_step: int = 0
+
+## Pinball goal archetype and reward definition
+@export var goal_type: int = GoalArchetype.NONE
+@export var reward_type: int = RewardType.NONE
+@export var goal_target_sequence: Array[Vector2i] = []
+@export var goal_target_count: int = 0
+@export var goal_time_limit: float = 0.0
+@export var reward_energy: int = 0
+@export var reward_ball_count: int = 0
+@export var goal_title: String = ""
+@export var goal_description: String = ""
+@export var reward_description: String = ""
 
 func get_cell_count() -> int:
 	return cells.size()
@@ -188,6 +220,10 @@ func serialize() -> Dictionary:
 		var key_str: String = "%d,%d" % [k.x, k.y] if k is Vector2i else str(k)
 		serialized_energies[key_str] = int(energy_values[k])
 
+	var serialized_seq: Array = []
+	for s in goal_target_sequence:
+		serialized_seq.append([s.x, s.y])
+
 	return {
 		"module_id": str(module_id),
 		"display_name": display_name,
@@ -198,6 +234,16 @@ func serialize() -> Dictionary:
 		"energy_values": serialized_energies,
 		"bumper_durability": bumper_durability,
 		"rotation_step": rotation_step,
+		"goal_type": goal_type,
+		"reward_type": reward_type,
+		"goal_target_sequence": serialized_seq,
+		"goal_target_count": goal_target_count,
+		"goal_time_limit": goal_time_limit,
+		"reward_energy": reward_energy,
+		"reward_ball_count": reward_ball_count,
+		"goal_title": goal_title,
+		"goal_description": goal_description,
+		"reward_description": reward_description,
 	}
 
 func deserialize(dict: Dictionary) -> void:
@@ -206,6 +252,24 @@ func deserialize(dict: Dictionary) -> void:
 	tier = int(dict.get("tier", 1))
 	bumper_durability = int(dict.get("bumper_durability", 0))
 	rotation_step = int(dict.get("rotation_step", 0))
+	goal_type = int(dict.get("goal_type", GoalArchetype.NONE))
+	reward_type = int(dict.get("reward_type", RewardType.NONE))
+	goal_target_count = int(dict.get("goal_target_count", 0))
+	goal_time_limit = float(dict.get("goal_time_limit", 0.0))
+	reward_energy = int(dict.get("reward_energy", 0))
+	reward_ball_count = int(dict.get("reward_ball_count", 0))
+	goal_title = str(dict.get("goal_title", ""))
+	goal_description = str(dict.get("goal_description", ""))
+	reward_description = str(dict.get("reward_description", ""))
+
+	goal_target_sequence.clear()
+	var raw_seq = dict.get("goal_target_sequence", [])
+	if raw_seq is Array:
+		for s in raw_seq:
+			if s is Vector2i:
+				goal_target_sequence.append(s)
+			elif s is Array and s.size() >= 2:
+				goal_target_sequence.append(Vector2i(int(s[0]), int(s[1])))
 
 	cells.clear()
 	var raw_cells = dict.get("cells", [])
