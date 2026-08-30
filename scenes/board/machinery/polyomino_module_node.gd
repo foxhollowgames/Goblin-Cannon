@@ -153,25 +153,46 @@ func get_component_at_local_cell(cell: Vector2i) -> PolyominoMachineryComponent:
 	return _components_by_cell.get(cell, null)
 
 func _draw() -> void:
-	# Draw module background chassis connecting cells
-	var half_w: float = (CELL_WIDTH - 4.0) * 0.5
-	var half_h: float = (CELL_HEIGHT - 4.0) * 0.5
-	var bg_col: Color = _accent_color.darkened(0.85)
-	var border_col: Color = _accent_color.darkened(0.3)
+	if _anchored_cells.is_empty():
+		return
 
+	# Transparent unified background shared across all cells in the relic
+	var half_w: float = CELL_WIDTH * 0.5
+	var half_h: float = CELL_HEIGHT * 0.5
+	var bg_col := Color(_accent_color.r, _accent_color.g, _accent_color.b, 0.15)
+	var wall_ink_col := Color(0.08, 0.05, 0.12, 0.95)
+	var wall_highlight_col := _accent_color.lightened(0.2)
+
+	# 1. Draw transparent background for all cells (empty and occupied)
 	for c in _anchored_cells:
 		var center := Vector2(float(c.x) * CELL_WIDTH, float(c.y) * CELL_HEIGHT)
-		var cell_rect := Rect2(center.x - half_w, center.y - half_h, half_w * 2.0, half_h * 2.0)
+		var cell_rect := Rect2(center.x - half_w, center.y - half_h, CELL_WIDTH, CELL_HEIGHT)
 		draw_rect(cell_rect, bg_col)
-		draw_rect(cell_rect, border_col, false, 2.0)
 
-	# Draw connection struts between adjacent cells in module
-	for i in range(_anchored_cells.size()):
-		for j in range(i + 1, _anchored_cells.size()):
-			var c1: Vector2i = _anchored_cells[i]
-			var c2: Vector2i = _anchored_cells[j]
-			var dist: int = abs(c1.x - c2.x) + abs(c1.y - c2.y)
-			if dist == 1:
-				var p1 := Vector2(float(c1.x) * CELL_WIDTH, float(c1.y) * CELL_HEIGHT)
-				var p2 := Vector2(float(c2.x) * CELL_WIDTH, float(c2.y) * CELL_HEIGHT)
-				draw_line(p1, p2, border_col.lightened(0.2), 6.0)
+	# 2. Draw outer perimeter walls ONLY where boundary edges actually exist
+	for c in _anchored_cells:
+		var center := Vector2(float(c.x) * CELL_WIDTH, float(c.y) * CELL_HEIGHT)
+		var top_l := Vector2(center.x - half_w, center.y - half_h)
+		var top_r := Vector2(center.x + half_w, center.y - half_h)
+		var bot_l := Vector2(center.x - half_w, center.y + half_h)
+		var bot_r := Vector2(center.x + half_w, center.y + half_h)
+
+		# Top edge
+		if not _anchored_cells.has(Vector2i(c.x, c.y - 1)):
+			draw_line(top_l, top_r, wall_ink_col, 3.5)
+			draw_line(top_l, top_r, wall_highlight_col, 1.5)
+
+		# Bottom edge
+		if not _anchored_cells.has(Vector2i(c.x, c.y + 1)):
+			draw_line(bot_l, bot_r, wall_ink_col, 3.5)
+			draw_line(bot_l, bot_r, wall_highlight_col, 1.5)
+
+		# Left edge
+		if not _anchored_cells.has(Vector2i(c.x - 1, c.y)):
+			draw_line(top_l, bot_l, wall_ink_col, 3.5)
+			draw_line(top_l, bot_l, wall_highlight_col, 1.5)
+
+		# Right edge
+		if not _anchored_cells.has(Vector2i(c.x + 1, c.y)):
+			draw_line(top_r, bot_r, wall_ink_col, 3.5)
+			draw_line(top_r, bot_r, wall_highlight_col, 1.5)

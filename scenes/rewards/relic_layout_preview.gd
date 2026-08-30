@@ -96,40 +96,52 @@ func _draw() -> void:
 	var total_h: float = float(rows) * cell_size
 	var origin_x: float = (size.x - total_w) * 0.5 - float(min_x) * cell_size
 	var origin_y: float = (size.y - total_h) * 0.5 - float(min_y) * cell_size
+	var bg_col := Color(accent_color.r, accent_color.g, accent_color.b, 0.2)
+	var wall_highlight := accent_color.lightened(0.2)
 
-	# Draw connecting chassis struts between adjacent occupied cells
-	for i in range(module_data.cells.size()):
-		for j in range(i + 1, module_data.cells.size()):
-			var c1: Vector2i = module_data.cells[i]
-			var c2: Vector2i = module_data.cells[j]
-			var dist: int = abs(c1.x - c2.x) + abs(c1.y - c2.y)
-			if dist == 1:
-				var p1 := Vector2(origin_x + (float(c1.x) + 0.5) * cell_size, origin_y + (float(c1.y) + 0.5) * cell_size)
-				var p2 := Vector2(origin_x + (float(c2.x) + 0.5) * cell_size, origin_y + (float(c2.y) + 0.5) * cell_size)
-				draw_line(p1, p2, DARK_INK_BORDER, cell_size * 0.6)
-				draw_line(p1, p2, accent_color.darkened(0.5), cell_size * 0.45)
-
-	# Draw individual occupied polyomino cells
+	# 1. Draw unified transparent background for all cells
 	for c in module_data.cells:
 		var cell_pos := Vector2(origin_x + float(c.x) * cell_size, origin_y + float(c.y) * cell_size)
-		var rect := Rect2(cell_pos.x + cell_pad, cell_pos.y + cell_pad, cell_size - cell_pad * 2.0, cell_size - cell_pad * 2.0)
+		var rect := Rect2(cell_pos, Vector2(cell_size, cell_size))
+		draw_rect(rect, bg_col)
+
+	# 2. Draw outer perimeter walls ONLY where boundary edges actually exist
+	for c in module_data.cells:
+		var cell_pos := Vector2(origin_x + float(c.x) * cell_size, origin_y + float(c.y) * cell_size)
+		var top_l := cell_pos
+		var top_r := Vector2(cell_pos.x + cell_size, cell_pos.y)
+		var bot_l := Vector2(cell_pos.x, cell_pos.y + cell_size)
+		var bot_r := Vector2(cell_pos.x + cell_size, cell_pos.y + cell_size)
+
+		# Top edge
+		if not module_data.cells.has(Vector2i(c.x, c.y - 1)):
+			draw_line(top_l, top_r, DARK_INK_BORDER, 3.0)
+			draw_line(top_l, top_r, wall_highlight, 1.5)
+
+		# Bottom edge
+		if not module_data.cells.has(Vector2i(c.x, c.y + 1)):
+			draw_line(bot_l, bot_r, DARK_INK_BORDER, 3.0)
+			draw_line(bot_l, bot_r, wall_highlight, 1.5)
+
+		# Left edge
+		if not module_data.cells.has(Vector2i(c.x - 1, c.y)):
+			draw_line(top_l, bot_l, DARK_INK_BORDER, 3.0)
+			draw_line(top_l, bot_l, wall_highlight, 1.5)
+
+		# Right edge
+		if not module_data.cells.has(Vector2i(c.x + 1, c.y)):
+			draw_line(top_r, bot_r, DARK_INK_BORDER, 3.0)
+			draw_line(top_r, bot_r, wall_highlight, 1.5)
+
+	# 3. Render internal kinetic machinery glyphs only on occupied machine cells
+	for c in module_data.cells:
 		var c_type: int = module_data.get_cell_type_at(c)
-
 		if c_type == CellType.EMPTY:
-			# Open playfield empty space: subtle dark floor with thin comic border
-			draw_rect(rect, DARK_INK_BORDER)
-			draw_rect(rect.grow(-1.5), Color(0.08, 0.08, 0.14, 0.75))
-			draw_rect(rect, DARK_INK_BORDER.lightened(0.25), false, 1.0)
-		else:
-			# Kinetic machine cell: bold tier accent fill, inner bevel, and comic outline
-			draw_rect(rect, DARK_INK_BORDER)
-			draw_rect(rect.grow(-1.5), accent_color.darkened(0.65))
-			draw_rect(rect.grow(-1.5), accent_color.lightened(0.2), false, 1.0)
-			draw_rect(rect, DARK_INK_BORDER, false, 2.0)
-
-			# Render internal kinetic machinery glyph
-			var c_dir: Vector2 = module_data.get_cell_direction_at(c)
-			_draw_kinetic_glyph(rect.get_center(), c_type, c_dir, rect.size.x * 0.5)
+			continue
+		var cell_pos := Vector2(origin_x + float(c.x) * cell_size, origin_y + float(c.y) * cell_size)
+		var cell_center := cell_pos + Vector2(cell_size * 0.5, cell_size * 0.5)
+		var c_dir: Vector2 = module_data.get_cell_direction_at(c)
+		_draw_kinetic_glyph(cell_center, c_type, c_dir, (cell_size - cell_pad * 2.0) * 0.5)
 
 func _draw_kinetic_glyph(center: Vector2, type: int, dir: Vector2, radius: float) -> void:
 	if type == CellType.EMPTY:
