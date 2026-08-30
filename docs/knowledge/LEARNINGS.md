@@ -34,6 +34,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-023`](#lrn-023) | TASK-031 | `ui_and_controls` | Dynamic Grab Offset Preservation on Polyomino Relic In-Flight Rotation | 2026-08-29 |
 | [`LRN-024`](#lrn-024) | TASK-031 | `godot_engine` | Drag Controller Overlay Hierarchy and Control Mouse Filter Pass-Through | 2026-08-29 |
 | [`LRN-025`](#lrn-025) | TASK-031 | `board_systems` | Baseline Peg Suppression and Restoration Under Movable Polyomino Relics | 2026-08-29 |
+| [`LRN-026`](#lrn-026) | TASK-LINT-01 | `tooling` | File Length Limit (500 lines) and Baseline Allowlist | 2026-08-29 |
 
 ---
 
@@ -436,5 +437,21 @@ Suppressing pegs (disabling collision, hiding visibility, pausing process) rathe
 
 #### Actionable Guideline for Future Agents
 Never permanently free baseline board elements under temporary or repositionable overlays; track and suppress them, then unsuppress on removal.
+
+---
+
+### <a id="lrn-026"></a> LRN-026: File Length Limit (500 lines) and Baseline Allowlist
+- **Task:** `TASK-LINT-01`
+- **Category:** `tooling`
+- **Created:** `2026-08-29T18:21:15.131579`
+
+#### Context & Problem
+Files were growing too large without an automated check, requiring an audit and lint rule.
+
+#### Key Insight & Learning
+A Python lint tool and a Godot headless test ensure all new files stay under 500 lines while pinning legacy files to baseline limits.
+
+#### Actionable Guideline for Future Agents
+Run python scripts/lint_file_lengths.py or headless tests to audit file lengths before merging.
 
 ---
