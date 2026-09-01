@@ -1,3 +1,4 @@
+class_name GameBallManager
 extends Node
 ## Ball inventory tracking, ability assignment, and catalog lookups for GameCoordinator.
 

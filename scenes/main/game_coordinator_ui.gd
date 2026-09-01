@@ -18,7 +18,7 @@ func setup(coordinator_root: Node) -> void:
 
 #region UI Creation API
 ## Creates and attaches the inventory UI panel.
-func create_inventory_ui() -> void:
+func setup_inventory_ui() -> void:
 	if not _coordinator_root:
 		return
 	if _coordinator_root.has_method("_create_inventory_ui_internal"):

@@ -1,3 +1,4 @@
+class_name GameCoordinatorFlow
 extends Node
 ## Static helper class for GameCoordinator wall break, boss reward transitions, and end screen flows.
 

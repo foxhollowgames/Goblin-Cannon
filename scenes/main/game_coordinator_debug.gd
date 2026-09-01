@@ -1,3 +1,4 @@
+class_name GameCoordinatorDebug
 extends Node
 ## Debug tools, test scenario overrides, and debug modal handlers for GameCoordinator.
 
