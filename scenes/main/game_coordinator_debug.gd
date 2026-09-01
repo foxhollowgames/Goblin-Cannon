@@ -40,7 +40,7 @@ func build_debug_tools_column() -> Control:
 	col.add_theme_constant_override("separation", 4)
 	col.process_mode = Node.PROCESS_MODE_ALWAYS
 	col.add_child(_build_tool_button("+100 Gold", "Add +100 gold", "_on_add_gold_pressed"))
-	col.add_child(_build_tool_button("Merchant", "Trigger merchant shop", "_on_shop_pressed"))
+	col.add_child(_build_tool_button("Merchant", "Trigger merchant shop", "debug_trigger_milestone_shop"))
 	col.add_child(_build_tool_button("Events", "Spawn board event", "open_debug_event_spawn_modal"))
 	col.add_child(_build_tool_button("Full store", "Open item catalog", "open_debug_store_modal"))
 	col.add_child(_build_tool_button("Go to city…", "Jump to city/wall", "open_debug_city_jump_modal"))

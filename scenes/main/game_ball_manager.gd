@@ -376,5 +376,3 @@ static func reset_starting_ball_pool(c: Node) -> void:
 		c._hopper.clear_stored_balls()
 	spawn_initial_balls(c)
 #endregion
-
-

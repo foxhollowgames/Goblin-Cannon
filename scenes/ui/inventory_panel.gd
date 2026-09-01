@@ -95,6 +95,7 @@ func _rebuild() -> void:
 	title.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	title_row.add_child(title)
 	var close_btn: Button = Button.new()
+	close_btn.name = "CloseBtn"
 	close_btn.text = "✕"
 	close_btn.add_theme_font_size_override("font_size", 18)
 	close_btn.process_mode = Node.PROCESS_MODE_ALWAYS

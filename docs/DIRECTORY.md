@@ -82,6 +82,7 @@
 | `test_slotted_relic_effects.gd` | `SlottedRelicEffects` | [tests/test_slotted_relic_effects.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_slotted_relic_effects.gd) |
 | `test_sticky_slime_event.gd` | `StickySlimeEvent` | [tests/test_sticky_slime_event.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_sticky_slime_event.gd) |
 | `test_test_scenario.gd` | `TestScenario` | [tests/test_test_scenario.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_test_scenario.gd) |
+| `test_ui_buttons_audit.gd` | `UIButtonAudit` | [tests/test_ui_buttons_audit.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_ui_buttons_audit.gd) |
 | `test_volatile_gas.gd` | `VolatileGas` | [tests/test_volatile_gas.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_volatile_gas.gd) |
 
 ## 5. Quick Reference: Where Do I Find...?
