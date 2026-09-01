@@ -42,6 +42,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-031`](#lrn-031) | TASK-BOARD-DECOMP-01 | `godot_engine` | Board Scene Sub-Manager Decomposition and VFX Pooling Lifecycle | 2026-08-31 |
 | [`LRN-032`](#lrn-032) | TASK-COORD-DECOMP-01 | `godot_engine` | GameCoordinator Sub-Manager Decomposition | 2026-09-01 |
 | [`LRN-033`](#lrn-033) | TASK-PEG-DECOMP-01 | `godot_engine` | Peg Drawing Static Class Extraction | 2026-09-01 |
+| [`LRN-034`](#lrn-034) | TASK-REWARD-DRAFT-01 | `godot_engine` | RewardDraftPanel UI Component Extraction via Ollama | 2026-09-01 |
 
 ---
 
@@ -492,4 +493,3 @@ Checking 4-way cardinal neighbor presence in the module cell set allows drawing 
 
 #### Actionable Guideline for Future Agents
 Never draw connection lines between adjacent cell centers; iterate over module cells and draw wall segments only on edges without an adjacent neighbor in the module.
-
