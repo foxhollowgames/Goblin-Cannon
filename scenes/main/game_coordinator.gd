@@ -36,6 +36,8 @@ var _victory: bool = false
 var _fail_screen: Control = null
 var _wall_break_is_last_wall: bool = false
 var _junk_box_panel: Control
+var _debug_manager: Node = null
+var _input_manager: Node = null
 
 func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -82,100 +84,10 @@ func _sync_battlefield_wall_index() -> void:
 	if battlefield and battlefield.has_method("set_wall_index"):
 		battlefield.set_wall_index(_combat_manager.get_current_wall_index())
 
-## Old wall-break peg IDs in TestScenario.starting_upgrades → grant peg counts (no longer stored as wall-break upgrades).
-const _LEGACY_PEG_UPGRADE_ID_TO_KIND: Dictionary = {
-	"add_bomb_peg": "bomb",
-	"add_trampoline_peg": "trampoline",
-	"add_goblin_reset_node": "goblin_reset",
-	"add_eternal_peg": "eternal",
-	"add_extreme_bouncer_peg": "extreme_bouncer",
-	"add_magnet_peg": "magnet",
-	"add_splitter_peg": "splitter",
-	"add_gold_peg": "gold",
-	"add_lucky_gold_peg": "lucky_gold",
-	"add_gravity_well_peg": "gravity_well",
-	"add_phase_peg": "phase",
-	"add_wrench_peg": "wrench",
-}
-
-func _test_scenario_add_peg_stacks(kind: String, stacks: int) -> void:
-	for _i in stacks:
-		match kind:
-			"bomb":
-				GameState.bomb_peg_count += 1
-			"trampoline":
-				GameState.trampoline_peg_count += 1
-			"goblin_reset":
-				GameState.goblin_reset_node_count += 1
-			"eternal":
-				GameState.eternal_peg_count += 1
-			"extreme_bouncer":
-				GameState.extreme_bouncer_peg_count += 1
-			"magnet":
-				GameState.magnet_peg_count += 1
-			"splitter":
-				GameState.splitter_peg_count += 1
-			"gold":
-				GameState.gold_peg_count += 1
-			"lucky_gold":
-				GameState.lucky_gold_peg_count += 1
-			"gravity_well":
-				GameState.gravity_well_peg_count += 1
-			"phase":
-				GameState.phase_peg_count += 1
-			"wrench":
-				GameState.wrench_peg_count += 1
-			_:
-				pass
-
 func _apply_test_scenario() -> void:
-	if not TestScenario or not TestScenario.enabled:
-		return
-	if TestScenario.starting_city_id >= 0:
-		GameState.current_city_id = TestScenario.starting_city_id
-	for stat_key in TestScenario.starting_stats:
-		var value = TestScenario.starting_stats[stat_key]
-		match stat_key:
-			"cannon_damage":
-				GameState.cannon_base_damage_bonus += int(value)
-			"cannon_energy":
-				GameState.cannon_charge_reduction += Constants.legacy_internal_energy_to_current(int(value))
-			"main_charge":
-				GameState.main_charge_bonus += float(value)
-			"door_interval":
-				GameState.conduit_wave_interval_scale = maxf(0.5, GameState.conduit_wave_interval_scale - float(value))
-			"door_duration":
-				GameState.conduit_open_duration_scale += float(value)
-			"plain_surge":
-				GameState.plain_surge_stacks = mini(5, GameState.plain_surge_stacks + int(value))
-			"plain_horde":
-				GameState.plain_horde_stacks = mini(3, GameState.plain_horde_stacks + int(value))
-			"plain_momentum":
-				GameState.plain_momentum_stacks = mini(3, GameState.plain_momentum_stacks + int(value))
-	for entry in TestScenario.starting_upgrades:
-		if entry is String:
-			var s_uid: String = entry as String
-			if _LEGACY_PEG_UPGRADE_ID_TO_KIND.has(s_uid):
-				_test_scenario_add_peg_stacks(str(_LEGACY_PEG_UPGRADE_ID_TO_KIND[s_uid]), 1)
-			else:
-				GameState.add_wall_break_upgrade(StringName(entry), 1)
-		elif entry is Dictionary:
-			var uid: String = entry.get("id", "")
-			var stacks: int = entry.get("stacks", 1)
-			if not uid.is_empty():
-				if _LEGACY_PEG_UPGRADE_ID_TO_KIND.has(uid):
-					_test_scenario_add_peg_stacks(str(_LEGACY_PEG_UPGRADE_ID_TO_KIND[uid]), stacks)
-				else:
-					GameState.add_wall_break_upgrade(StringName(uid), stacks)
-	if TestScenario.starting_peg_counts.has("bomb"):
-		GameState.bomb_peg_count += int(TestScenario.starting_peg_counts["bomb"])
-	if TestScenario.starting_peg_counts.has("trampoline"):
-		GameState.trampoline_peg_count += int(TestScenario.starting_peg_counts["trampoline"])
-	if TestScenario.starting_peg_counts.has("goblin_reset"):
-		GameState.goblin_reset_node_count += int(TestScenario.starting_peg_counts["goblin_reset"])
-	var summary: String = TestScenario.get_summary()
-	if not summary.is_empty():
-		print("[TestScenario] ACTIVE — %s" % summary)
+	var ts_script: Script = load("res://scenes/main/game_coordinator_test_scenario.gd") as Script
+	if ts_script and ts_script.has_method("apply_test_scenario"):
+		ts_script.call("apply_test_scenario")
 
 func _defer_arm_board_event_test() -> void:
 	if not _board:
@@ -360,6 +272,18 @@ func _acquire_children() -> void:
 		_center_panel_ui = ui_layer.get_node_or_null("CenterPanel") as Control
 	_battlefield = main.get_node_or_null("CombatContainer/BattlefieldView")
 	_debug_overlay = main.get_node_or_null("UI/DebugOverlay") as Control
+	var debug_script: Script = load("res://scenes/main/game_coordinator_debug.gd") as Script
+	if debug_script:
+		_debug_manager = debug_script.new()
+		add_child(_debug_manager)
+		if _debug_manager.has_method("setup"):
+			_debug_manager.setup(self)
+	var input_script: Script = load("res://scenes/main/game_coordinator_input.gd") as Script
+	if input_script:
+		_input_manager = input_script.new()
+		add_child(_input_manager)
+		if _input_manager.has_method("setup"):
+			_input_manager.setup(self)
 
 func _wire_signals() -> void:
 	if _hopper and _hopper.has_signal("ball_entered_board"):
@@ -393,46 +317,36 @@ func _wire_signals() -> void:
 		_battlefield.set_main_cannon(mc)
 
 func _unhandled_input(event: InputEvent) -> void:
-	if not event is InputEventKey:
+	if not _input_manager:
+		var input_script: Script = load("res://scenes/main/game_coordinator_input.gd") as Script
+		if input_script:
+			_input_manager = input_script.new()
+			add_child(_input_manager)
+			if _input_manager.has_method("setup"):
+				_input_manager.setup(self)
+	if _input_manager and _input_manager.has_method("handle_unhandled_input"):
+		_input_manager.handle_unhandled_input(event)
+
+func _toggle_debug_overlay() -> void:
+	if _debug_overlay:
+		_debug_overlay.visible = not _debug_overlay.visible
+
+func _handle_escape_key() -> void:
+	if _game_over or _victory:
 		return
-	var key_event: InputEventKey = event as InputEventKey
-	if not key_event.pressed or key_event.echo:
+	if _almanac_panel and _almanac_panel.visible:
 		return
-	var vp: Viewport = get_viewport()
-	if key_event.keycode == KEY_F3 or key_event.keycode == KEY_QUOTELEFT:
-		if _debug_overlay:
-			_debug_overlay.visible = !_debug_overlay.visible
-		if vp:
-			vp.set_input_as_handled()
-	elif key_event.keycode == KEY_I or key_event.keycode == KEY_B:
-		_toggle_junk_box()
-		if vp:
-			vp.set_input_as_handled()
-	elif key_event.keycode == KEY_ESCAPE:
-		# Open inventory; let other ESC handlers (almanac, inventory close, debug modals) run first.
-		if _game_over or _victory:
-			return
-		if _almanac_panel and _almanac_panel.visible:
-			return
-		if _inventory_panel and _inventory_panel.visible:
-			return
-		if _junk_box_panel and _junk_box_panel.visible:
-			return
-		if _debug_event_spawn_modal and _debug_event_spawn_modal.visible:
-			return
-		_toggle_junk_box()
-		if vp:
-			vp.set_input_as_handled()
-	elif key_event.keycode == KEY_L or key_event.keycode == KEY_TAB:
-		_on_almanac_pressed()
-		if vp:
-			vp.set_input_as_handled()
-	elif key_event.keycode == KEY_P:
-		if not _game_over and not _victory:
-			if get_tree():
-				get_tree().paused = !get_tree().paused
-			if vp:
-				vp.set_input_as_handled()
+	if _inventory_panel and _inventory_panel.visible:
+		return
+	if _junk_box_panel and _junk_box_panel.visible:
+		return
+	if _debug_event_spawn_modal and _debug_event_spawn_modal.visible:
+		return
+	_toggle_junk_box()
+
+func _toggle_pause_state() -> void:
+	if not _game_over and not _victory and get_tree():
+		get_tree().paused = not get_tree().paused
 
 func _toggle_junk_box() -> void:
 	if _junk_box_panel:
@@ -706,110 +620,7 @@ func _on_next_wall_intro_finished() -> void:
 	GameState.set_run_flow_state(GameState.RunFlowState.FIGHTING)
 
 func _show_wall_title_card(title_text: String, subtitle_text: String, on_finished: Callable) -> void:
-	var overlay: CanvasLayer = CanvasLayer.new()
-	overlay.layer = 15
-	overlay.name = "WallTitleCard"
-	overlay.process_mode = Node.PROCESS_MODE_ALWAYS
-
-	var center_y: float = 290.0
-	var band_total_height: float = 180.0
-
-	# Gradient band via GradientTexture2D for soft top/bottom edges
-	var grad: Gradient = Gradient.new()
-	var v: Color = MonsterPalette.VOID()
-	grad.colors = PackedColorArray([Color(v.r, v.g, v.b, 0), Color(v.r, v.g, v.b, 0.88), Color(v.r, v.g, v.b, 0.88), Color(v.r, v.g, v.b, 0)])
-	grad.offsets = PackedFloat32Array([0.0, 0.22, 0.78, 1.0])
-	var grad_tex: GradientTexture2D = GradientTexture2D.new()
-	grad_tex.gradient = grad
-	grad_tex.fill_from = Vector2(0.5, 0.0)
-	grad_tex.fill_to = Vector2(0.5, 1.0)
-	grad_tex.width = 4
-	grad_tex.height = 128
-	var band: TextureRect = TextureRect.new()
-	band.texture = grad_tex
-	band.stretch_mode = TextureRect.STRETCH_SCALE
-	band.position = Vector2(0, center_y)
-	band.size = Vector2(1280, band_total_height)
-	band.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	band.modulate.a = 0.0
-	overlay.add_child(band)
-
-	# Decorative line above title
-	var line_top: ColorRect = ColorRect.new()
-	line_top.color = MonsterPalette.TITLE_CARD_LINE()
-	line_top.size = Vector2(340, 1)
-	line_top.position = Vector2(470, center_y + 58)
-	line_top.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	line_top.modulate.a = 0.0
-	overlay.add_child(line_top)
-
-	# Title label
-	var title_label: Label = Label.new()
-	title_label.text = title_text
-	title_label.add_theme_font_size_override("font_size", 44)
-	title_label.add_theme_color_override("font_color", MonsterPalette.TITLE_CARD_TITLE())
-	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	title_label.position = Vector2(40, center_y + 64)
-	title_label.size = Vector2(1280, 54)
-	title_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	title_label.modulate.a = 0.0
-	overlay.add_child(title_label)
-
-	# Decorative line below title
-	var line_bottom: ColorRect = ColorRect.new()
-	line_bottom.color = MonsterPalette.TITLE_CARD_LINE()
-	line_bottom.size = Vector2(340, 1)
-	line_bottom.position = Vector2(470, center_y + 122)
-	line_bottom.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	line_bottom.modulate.a = 0.0
-	overlay.add_child(line_bottom)
-
-	# Subtitle label (shown below title when provided)
-	var sub_label: Label = null
-	if not subtitle_text.is_empty():
-		sub_label = Label.new()
-		sub_label.text = subtitle_text
-		sub_label.add_theme_font_size_override("font_size", 20)
-		sub_label.add_theme_color_override("font_color", MonsterPalette.TITLE_CARD_SUB())
-		sub_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		sub_label.position = Vector2(0, center_y + 126)
-		sub_label.size = Vector2(1280, 30)
-		sub_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		sub_label.modulate.a = 0.0
-		overlay.add_child(sub_label)
-
-	get_parent().add_child(overlay)
-
-	# --- Animation timeline ---
-	var tween: Tween = create_tween()
-
-	# Fade in (parallel)
-	tween.set_parallel(true)
-	tween.tween_property(band, "modulate:a", 1.0, 0.7).set_ease(Tween.EASE_OUT)
-	tween.tween_property(line_top, "modulate:a", 1.0, 0.6).set_delay(0.15)
-	tween.tween_property(line_bottom, "modulate:a", 1.0, 0.6).set_delay(0.15)
-	tween.tween_property(title_label, "modulate:a", 1.0, 0.9).set_delay(0.25).set_ease(Tween.EASE_OUT)
-	tween.tween_property(title_label, "position:x", 0.0, 0.9).set_delay(0.25).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
-	if sub_label:
-		tween.tween_property(sub_label, "modulate:a", 1.0, 0.7).set_delay(0.45).set_ease(Tween.EASE_OUT)
-	tween.set_parallel(false)
-
-	# Hold
-	tween.tween_interval(1.6)
-
-	# Fade out (parallel)
-	tween.set_parallel(true)
-	tween.tween_property(band, "modulate:a", 0.0, 0.65).set_ease(Tween.EASE_IN)
-	tween.tween_property(title_label, "modulate:a", 0.0, 0.5).set_ease(Tween.EASE_IN)
-	tween.tween_property(line_top, "modulate:a", 0.0, 0.5)
-	tween.tween_property(line_bottom, "modulate:a", 0.0, 0.5)
-	if sub_label:
-		tween.tween_property(sub_label, "modulate:a", 0.0, 0.4).set_ease(Tween.EASE_IN)
-	tween.set_parallel(false)
-
-	# Cleanup and trigger next phase
-	tween.tween_callback(overlay.queue_free)
-	tween.tween_callback(on_finished)
+	GameCoordinatorScreenBuilder.show_wall_title_card(get_parent(), title_text, subtitle_text, on_finished)
 
 func _on_time_expired() -> void:
 	_game_over = true
@@ -838,44 +649,7 @@ func _show_victory_screen() -> void:
 		overlay.add_child(screen)
 
 func _build_victory_screen() -> Control:
-	var root: ColorRect = ColorRect.new()
-	root.color = MonsterPalette.UI_DIM()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.mouse_filter = Control.MOUSE_FILTER_STOP
-	root.process_mode = Node.PROCESS_MODE_ALWAYS
-
-	var vbox: VBoxContainer = VBoxContainer.new()
-	vbox.set_anchors_preset(Control.PRESET_CENTER)
-	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 20)
-	vbox.custom_minimum_size = Vector2(400, 220)
-	vbox.position = Vector2(-200, -110)
-	root.add_child(vbox)
-
-	var title: Label = Label.new()
-	title.text = "VICTORY!"
-	title.add_theme_font_size_override("font_size", 64)
-	title.add_theme_color_override("font_color", MonsterPalette.MINT())
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(title)
-
-	var btn_play: Button = Button.new()
-	btn_play.text = "Play Again"
-	btn_play.custom_minimum_size = Vector2(220, 56)
-	btn_play.add_theme_font_size_override("font_size", 24)
-	btn_play.process_mode = Node.PROCESS_MODE_ALWAYS
-	btn_play.pressed.connect(_on_restart_pressed)
-	vbox.add_child(btn_play)
-
-	var btn_endless: Button = Button.new()
-	btn_endless.text = "Endless Mode"
-	btn_endless.custom_minimum_size = Vector2(160, 36)
-	btn_endless.add_theme_font_size_override("font_size", 16)
-	btn_endless.process_mode = Node.PROCESS_MODE_ALWAYS
-	btn_endless.pressed.connect(_on_endless_mode_pressed)
-	vbox.add_child(btn_endless)
-
-	return root
+	return GameCoordinatorScreenBuilder.build_victory_screen(_on_restart_pressed, _on_endless_mode_pressed)
 
 func _on_endless_mode_pressed() -> void:
 	var main: Node = get_parent()
@@ -894,36 +668,7 @@ func _on_endless_mode_pressed() -> void:
 	_show_wall_title_card("Endless Mode", "Wave 1", _begin_next_wall_intro)
 
 func _build_end_screen(title_text: String, title_color: Color, button_text: String) -> Control:
-	var root: ColorRect = ColorRect.new()
-	root.color = MonsterPalette.UI_DIM()
-	root.set_anchors_preset(Control.PRESET_FULL_RECT)
-	root.mouse_filter = Control.MOUSE_FILTER_STOP
-	root.process_mode = Node.PROCESS_MODE_ALWAYS
-
-	var vbox: VBoxContainer = VBoxContainer.new()
-	vbox.set_anchors_preset(Control.PRESET_CENTER)
-	vbox.alignment = BoxContainer.ALIGNMENT_CENTER
-	vbox.add_theme_constant_override("separation", 32)
-	vbox.custom_minimum_size = Vector2(400, 200)
-	vbox.position = Vector2(-200, -100)
-	root.add_child(vbox)
-
-	var title: Label = Label.new()
-	title.text = title_text
-	title.add_theme_font_size_override("font_size", 64)
-	title.add_theme_color_override("font_color", title_color)
-	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	vbox.add_child(title)
-
-	var btn: Button = Button.new()
-	btn.text = button_text
-	btn.custom_minimum_size = Vector2(220, 56)
-	btn.add_theme_font_size_override("font_size", 24)
-	btn.process_mode = Node.PROCESS_MODE_ALWAYS
-	btn.pressed.connect(_on_restart_pressed)
-	vbox.add_child(btn)
-
-	return root
+	return GameCoordinatorScreenBuilder.build_end_screen(title_text, title_color, button_text, _on_restart_pressed)
 
 func _on_restart_pressed() -> void:
 	GameState.paused = false
@@ -977,54 +722,8 @@ func _create_inventory_ui() -> void:
 			if GameState.junk_box and not GameState.junk_box.inventory_changed.is_connected(_update_bag_button_badge):
 				GameState.junk_box.inventory_changed.connect(_update_bag_button_badge)
 			_update_bag_button_badge()
-			left_panel.add_child(_build_debug_tools_column())
-
-func _build_debug_tools_column() -> Control:
-	var col: VBoxContainer = VBoxContainer.new()
-	col.name = "DebugTools"
-	col.position = Vector2(8, 8)
-	col.add_theme_constant_override("separation", 4)
-	col.process_mode = Node.PROCESS_MODE_ALWAYS
-	var gold_btn: Button = _build_debug_tool_button("+100 Gold", "Add +100 gold to your run (debug)")
-	gold_btn.pressed.connect(_on_debug_add_gold_pressed)
-	var shop_btn: Button = _build_debug_tool_button("Merchant", "Trigger merchant shop immediately (debug)")
-	shop_btn.pressed.connect(_on_debug_milestone_shop_pressed)
-	var events_btn: Button = _build_debug_tool_button("Events", "Spawn or trigger board event types (debug)")
-	events_btn.pressed.connect(_on_debug_spawn_event_menu_pressed)
-	var full_store_btn: Button = _build_debug_tool_button("Full store", "Open catalog to purchase any item directly (debug)")
-	full_store_btn.pressed.connect(_on_debug_full_store_pressed)
-	var city_jump_btn: Button = _build_debug_tool_button("Go to city…", "Jump directly to any city and wall index (debug)")
-	city_jump_btn.pressed.connect(_on_debug_city_jump_pressed)
-	col.add_child(gold_btn)
-	col.add_child(shop_btn)
-	col.add_child(events_btn)
-	col.add_child(full_store_btn)
-	col.add_child(city_jump_btn)
-	return col
-
-func _build_debug_tool_button(text: String, tooltip: String) -> Button:
-	var btn: Button = Button.new()
-	btn.text = text
-	btn.tooltip_text = tooltip
-	btn.custom_minimum_size = Vector2(112, 28)
-	btn.process_mode = Node.PROCESS_MODE_ALWAYS
-	var btn_style: StyleBoxFlat = StyleBoxFlat.new()
-	btn_style.bg_color = MonsterPalette.DEBUG_BTN_BG()
-	btn_style.border_width_left = 1
-	btn_style.border_width_right = 1
-	btn_style.border_width_top = 1
-	btn_style.border_width_bottom = 1
-	btn_style.border_color = MonsterPalette.DEBUG_BTN_BORDER()
-	btn_style.set_corner_radius_all(4)
-	btn.add_theme_stylebox_override("normal", btn_style)
-	var btn_hover: StyleBoxFlat = btn_style.duplicate()
-	btn_hover.bg_color = MonsterPalette.DEBUG_BTN_HOVER()
-	btn.add_theme_stylebox_override("hover", btn_hover)
-	var btn_pressed_style: StyleBoxFlat = btn_style.duplicate()
-	btn_pressed_style.bg_color = MonsterPalette.RUST().lerp(MonsterPalette.WARM_BROWN(), 0.25)
-	btn.add_theme_stylebox_override("pressed", btn_pressed_style)
-	btn.add_theme_font_size_override("font_size", 13)
-	return btn
+			if _debug_manager and _debug_manager.has_method("build_debug_tools_column"):
+				left_panel.add_child(_debug_manager.build_debug_tools_column())
 
 func _on_debug_add_gold_pressed() -> void:
 	if _game_over or _victory:
@@ -1094,36 +793,12 @@ func debug_trigger_boss_reward() -> void:
 		_rewards_manager.on_boss_reward()
 
 func _create_debug_event_spawn_ui(main: Node) -> void:
-	if not main:
-		return
-	var event_layer: CanvasLayer = CanvasLayer.new()
-	event_layer.layer = 11
-	event_layer.name = "DebugEventSpawnLayer"
-	event_layer.process_mode = Node.PROCESS_MODE_ALWAYS
-	main.add_child(event_layer)
-	var modal_script: GDScript = load("res://scenes/ui/debug_event_spawn_modal.gd") as GDScript
-	if not modal_script:
-		return
-	_debug_event_spawn_modal = modal_script.new() as Control
-	event_layer.add_child(_debug_event_spawn_modal)
-	if _debug_event_spawn_modal.has_method("setup"):
-		_debug_event_spawn_modal.setup(self)
+	if _debug_manager and _debug_manager.has_method("create_debug_event_spawn_ui"):
+		_debug_event_spawn_modal = _debug_manager.create_debug_event_spawn_ui(main)
 
 func _create_debug_full_store_ui(main: Node) -> void:
-	if not main:
-		return
-	var store_layer: CanvasLayer = CanvasLayer.new()
-	store_layer.layer = 12
-	store_layer.name = "DebugFullStoreLayer"
-	store_layer.process_mode = Node.PROCESS_MODE_ALWAYS
-	main.add_child(store_layer)
-	var store_script: GDScript = load("res://scenes/ui/debug_full_store_modal.gd") as GDScript
-	if not store_script:
-		return
-	_debug_full_store_modal = store_script.new() as Control
-	store_layer.add_child(_debug_full_store_modal)
-	if _debug_full_store_modal.has_method("setup"):
-		_debug_full_store_modal.setup(self, _reward_handler)
+	if _debug_manager and _debug_manager.has_method("create_debug_full_store_ui"):
+		_debug_full_store_modal = _debug_manager.create_debug_full_store_ui(main, _reward_handler)
 
 func _on_debug_full_store_pressed() -> void:
 	if _game_over or _victory:
@@ -1171,99 +846,17 @@ func debug_jump_to_city_and_wall(city_index: int, wall_index: int) -> void:
 	GameState.set_run_flow_state(GameState.RunFlowState.FIGHTING)
 
 func _create_debug_city_jump_ui(main: Node) -> void:
-	if not main:
-		return
-	var jump_layer: CanvasLayer = CanvasLayer.new()
-	jump_layer.layer = 13
-	jump_layer.name = "DebugCityJumpLayer"
-	jump_layer.process_mode = Node.PROCESS_MODE_ALWAYS
-	main.add_child(jump_layer)
-	var jump_script: GDScript = load("res://scenes/ui/debug_city_jump_modal.gd") as GDScript
-	if not jump_script:
-		return
-	_debug_city_jump_modal = jump_script.new() as Control
-	jump_layer.add_child(_debug_city_jump_modal)
-	if _debug_city_jump_modal.has_method("setup"):
-		_debug_city_jump_modal.setup(self)
+	if _debug_manager and _debug_manager.has_method("create_debug_city_jump_ui"):
+		_debug_city_jump_modal = _debug_manager.create_debug_city_jump_ui(main)
 
 func _build_almanac_button() -> Button:
-	var btn: Button = Button.new()
-	btn.text = ""
-	btn.tooltip_text = "Almanac (L): Open the catalog of all balls, pegs, and relics."
-	btn.custom_minimum_size = Vector2(36, 32)
-	btn.position = Vector2(198, 8)
-	btn.process_mode = Node.PROCESS_MODE_ALWAYS
-	var btn_style: StyleBoxFlat = StyleBoxFlat.new()
-	btn_style.bg_color = MonsterPalette.ALMANAC_BTN_BG()
-	btn_style.border_width_left = 1
-	btn_style.border_width_right = 1
-	btn_style.border_width_top = 1
-	btn_style.border_width_bottom = 1
-	btn_style.border_color = MonsterPalette.ALMANAC_BTN_BORDER()
-	btn_style.set_corner_radius_all(4)
-	btn.add_theme_stylebox_override("normal", btn_style)
-	var btn_hover: StyleBoxFlat = btn_style.duplicate()
-	var hc: Color = MonsterPalette.SLATE().lerp(MonsterPalette.INDIGO(), 0.4)
-	btn_hover.bg_color = Color(hc.r, hc.g, hc.b, 0.95)
-	btn.add_theme_stylebox_override("hover", btn_hover)
-	var btn_pressed_style: StyleBoxFlat = btn_style.duplicate()
-	var pc: Color = MonsterPalette.INDIGO().lerp(MonsterPalette.VOID(), 0.2)
-	btn_pressed_style.bg_color = Color(pc.r, pc.g, pc.b, 0.95)
-	btn.add_theme_stylebox_override("pressed", btn_pressed_style)
-	var book_icon: Image = _create_book_icon_image()
-	if book_icon:
-		btn.icon = ImageTexture.create_from_image(book_icon)
-	btn.pressed.connect(_on_almanac_pressed)
-	return btn
+	return GameCoordinatorUI.build_almanac_button(_on_almanac_pressed)
 
 func _create_book_icon_image() -> Image:
-	var s: int = 20
-	var img: Image = Image.create(s, s, false, Image.FORMAT_RGBA8)
-	var paper: Color = MonsterPalette.SWATCH_CREAM()
-	var ink: Color = MonsterPalette.INDIGO()
-	for y in range(4, 17):
-		for x in range(5, 10):
-			img.set_pixel(x, y, paper)
-		for x in range(11, 16):
-			img.set_pixel(x, y, paper)
-	for x in range(5, 16):
-		img.set_pixel(x, 4, ink)
-		img.set_pixel(x, 16, ink)
-	for y in range(4, 17):
-		img.set_pixel(5, y, ink)
-		img.set_pixel(15, y, ink)
-	for x in range(7, 14):
-		img.set_pixel(x, 8, ink)
-		img.set_pixel(x, 11, ink)
-	return img
+	return GameCoordinatorUI.create_book_icon_image()
 
 func _build_bag_button() -> Button:
-	var btn: Button = Button.new()
-	btn.text = ""
-	btn.tooltip_text = "Junk Box (I / B / Esc): Open your Junk Box inventory and drag modules to the board."
-	btn.custom_minimum_size = Vector2(36, 32)
-	btn.position = Vector2(240, 8)  # to the right of almanac (198 + 36 + 6 gap)
-	btn.process_mode = Node.PROCESS_MODE_ALWAYS
-	var btn_style: StyleBoxFlat = StyleBoxFlat.new()
-	btn_style.bg_color = MonsterPalette.BAG_BTN_BG()
-	btn_style.border_width_left = 1
-	btn_style.border_width_right = 1
-	btn_style.border_width_top = 1
-	btn_style.border_width_bottom = 1
-	btn_style.border_color = MonsterPalette.BAG_BTN_BORDER()
-	btn_style.set_corner_radius_all(4)
-	btn.add_theme_stylebox_override("normal", btn_style)
-	var btn_hover: StyleBoxFlat = btn_style.duplicate()
-	var bag_h: Color = MonsterPalette.INDIGO().lerp(MonsterPalette.TAN(), 0.15)
-	btn_hover.bg_color = Color(bag_h.r, bag_h.g, bag_h.b, 0.95)
-	btn.add_theme_stylebox_override("hover", btn_hover)
-	var btn_pressed_style: StyleBoxFlat = btn_style.duplicate()
-	var bag_p: Color = MonsterPalette.WARM_BROWN().lerp(MonsterPalette.INDIGO(), 0.35)
-	btn_pressed_style.bg_color = Color(bag_p.r, bag_p.g, bag_p.b, 0.95)
-	btn.add_theme_stylebox_override("pressed", btn_pressed_style)
-	var bag_icon: Image = _create_bag_icon_image()
-	if bag_icon:
-		btn.icon = ImageTexture.create_from_image(bag_icon)
+	var btn: Button = GameCoordinatorUI.build_bag_button(_on_inventory_pressed)
 	
 	var badge: Label = Label.new()
 	badge.name = "ItemCountBadge"
@@ -1358,28 +951,11 @@ func _accumulate_ball_def_count(counts: Dictionary, def: Resource) -> void:
 	var key: String = _ball_catalog_key_from_def(d)
 	counts[key] = counts.get(key, 0) + 1
 
-## Counts balls in hopper, on board, and in the bag queue by ability_name + tier (e.g. Split|2 → 3).
 func get_ball_definition_counts() -> Dictionary:
-	var counts: Dictionary = {}
-	var main: Node = get_parent()
-	if _hopper and _hopper.has_method("get_stored_balls"):
-		for ball in _hopper.get_stored_balls():
-			if not is_instance_valid(ball):
-				continue
-			var def: Resource = ball.get_definition() if ball.has_method("get_definition") else null
-			_accumulate_ball_def_count(counts, def)
-	var balls_container: Node = main.get_node_or_null("BallsContainer") if main else null
-	if balls_container:
-		for ball in balls_container.get_children():
-			if not is_instance_valid(ball):
-				continue
-			if ball.has_method("is_split_twin") and ball.is_split_twin():
-				continue
-			var def2: Resource = ball.get_definition() if ball.has_method("get_definition") else null
-			_accumulate_ball_def_count(counts, def2)
-	for def3 in _bag_queue:
-		_accumulate_ball_def_count(counts, def3)
-	return counts
+	var bm_script: Script = load("res://scenes/main/game_ball_manager.gd") as Script
+	if bm_script:
+		return bm_script.call("get_ball_definition_counts", get_parent(), _hopper, _bag_queue) as Dictionary
+	return {}
 
 func get_debug_shop_ball_definitions() -> Array:
 	var out: Array = []

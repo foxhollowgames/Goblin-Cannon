@@ -17,25 +17,42 @@ func setup(coordinator_root: Node) -> void:
 	_coordinator_root = coordinator_root
 #endregion
 
-#region Catalog Registration
-## Registers a ball definition under the specified ability name.
-func register_ball_definition(ability_name: StringName, definition: Resource) -> void:
-	_ball_catalog[ability_name] = definition
+#region Ball Counts and Catalog API
+## Returns key for catalog dictionary (e.g. Split|2).
+static func catalog_key_from_def(def: BallDefinition) -> String:
+	var ab: String = def.ability_name if not def.ability_name.is_empty() else "Plain"
+	return "%s|%d" % [ab, def.tier]
 
-## Registers many ball definitions from a dictionary of ability names to resources.
-func register_ball_definitions(definitions: Dictionary) -> void:
-	for key in definitions:
-		_ball_catalog[key] = definitions[key]
+## Counts balls in hopper, on board, and in bag queue by ability_name + tier.
+static func get_ball_definition_counts(parent_node: Node, hopper: Node, bag_queue: Array) -> Dictionary:
+	var counts: Dictionary = {}
+	if hopper and hopper.has_method("get_stored_balls"):
+		for ball in hopper.get_stored_balls():
+			if not is_instance_valid(ball):
+				continue
+			var def: Resource = ball.get_definition() if ball.has_method("get_definition") else null
+			_accumulate_def_count(counts, def)
+	var balls_container: Node = parent_node.get_node_or_null("BallsContainer") if parent_node else null
+	if balls_container:
+		for ball in balls_container.get_children():
+			if not is_instance_valid(ball):
+				continue
+			if ball.has_method("is_split_twin") and ball.is_split_twin():
+				continue
+			var def2: Resource = ball.get_definition() if ball.has_method("get_definition") else null
+			_accumulate_def_count(counts, def2)
+	for def3 in bag_queue:
+		_accumulate_def_count(counts, def3)
+	return counts
 
-## Sets the starting ball inventory for new runs.
-func set_starting_balls(balls: Array) -> void:
-	_starting_balls = balls
-
-## Clears the entire ball catalog and starting inventory.
-func clear_catalog() -> void:
-	_ball_catalog.clear()
-	_starting_balls.clear()
+static func _accumulate_def_count(counts: Dictionary, def: Resource) -> void:
+	if not def is BallDefinition:
+		return
+	var d: BallDefinition = def as BallDefinition
+	var key: String = catalog_key_from_def(d)
+	counts[key] = counts.get(key, 0) + 1
 #endregion
+
 
 #region Ball Catalog API
 ## Returns the BallDefinition resource for the specified ability name.

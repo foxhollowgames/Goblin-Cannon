@@ -1,3 +1,4 @@
+class_name GameFlowController
 extends Node
 ## City progression, wall transitions, title cards, and campaign game state handlers for GameCoordinator.
 
