@@ -20,12 +20,30 @@ func _ready() -> void:
 func preallocate_energy_popups() -> void:
 	if not energy_popup_scene:
 		return
+	var release_cb := Callable(self, "_release_energy_popup_to_pool")
 	for i in range(ENERGY_POPUP_POOL_PREALLOC):
 		var popup: Node2D = energy_popup_scene.instantiate() as Node2D
 		if popup:
+			if popup.has_method("set_pool_release"):
+				popup.set_pool_release(release_cb)
 			add_child(popup)
 			popup.visible = false
+			popup.set_process(false)
+			popup.modulate = Color.WHITE
 			_energy_popup_pool_idle.append(popup)
+
+func _release_energy_popup_to_pool(popup: Node) -> void:
+	if not is_instance_valid(popup) or not (popup is Node2D):
+		return
+	var p2: Node2D = popup as Node2D
+	p2.set_process(false)
+	p2.visible = false
+	p2.position = Vector2.ZERO
+	p2.modulate = Color.WHITE
+	if _energy_popup_pool_idle.size() >= ENERGY_POPUP_POOL_MAX_IDLE:
+		p2.queue_free()
+		return
+	_energy_popup_pool_idle.append(p2)
 #endregion
 
 #region Public API
@@ -42,6 +60,7 @@ func spawn_energy_popup_at_pos(pos: Vector2, amount_display: int) -> void:
 		if popup.has_method("setup"):
 			popup.setup("+%d" % amount_display)
 		popup.position = pos
+		popup.modulate = Color.WHITE
 		popup.visible = true
 
 ## Spawns a leech popup with custom color formatting.
@@ -64,7 +83,9 @@ func spawn_trampoline_bounce_effect(world_pos: Vector2) -> void:
 	if effect:
 		add_child(effect)
 		effect.global_position = world_pos
-		effect.visible = true
+		effect.z_index = 100
+		if effect.has_method("setup_effect"):
+			effect.setup_effect(BallHitEffect.EffectType.TRAMPOLINE)
 
 ## Spawns a hit effect at the specified position with a given effect type.
 func spawn_hit_effect(world_pos: Vector2, effect_type: int) -> void:
@@ -74,9 +95,8 @@ func spawn_hit_effect(world_pos: Vector2, effect_type: int) -> void:
 	if effect:
 		add_child(effect)
 		effect.global_position = world_pos
-		effect.visible = true
-		if "effect_type" in effect:
-			effect.effect_type = effect_type
+		if effect.has_method("setup_effect"):
+			effect.setup_effect(effect_type as BallHitEffect.EffectType)
 
 ## Spawns a chain lightning arc from one position to another.
 func spawn_chain_lightning_arc(from_pos: Vector2, to_pos: Vector2) -> void:
@@ -85,10 +105,9 @@ func spawn_chain_lightning_arc(from_pos: Vector2, to_pos: Vector2) -> void:
 	var effect: Node2D = chain_lightning_arc_effect_scene.instantiate() as Node2D
 	if effect:
 		add_child(effect)
-		effect.global_position = from_pos
-		effect.visible = true
-		if "to_pos" in effect:
-			effect.to_pos = to_pos
+		effect.global_position = Vector2.ZERO
+		if effect.has_method("setup_chain"):
+			effect.setup_chain([from_pos, to_pos])
 
 ## Spawns a treasure chest break effect at the specified position.
 func spawn_treasure_chest_break_effect(world_pos: Vector2) -> void:
@@ -102,14 +121,21 @@ func spawn_treasure_chest_break_effect(world_pos: Vector2) -> void:
 
 ## Retrieves a popup instance from the pool or creates a new one.
 func get_from_pool() -> Node2D:
+	var popup: Node2D = null
 	if not _energy_popup_pool_idle.is_empty():
-		var popup: Node2D = _energy_popup_pool_idle.pop_back()
-		return popup
-	if energy_popup_scene:
-		var new_popup: Node2D = energy_popup_scene.instantiate() as Node2D
-		if new_popup:
-			add_child(new_popup)
-			return new_popup
-	return null
+		popup = _energy_popup_pool_idle.pop_back()
+	elif energy_popup_scene:
+		var release_cb := Callable(self, "_release_energy_popup_to_pool")
+		popup = energy_popup_scene.instantiate() as Node2D
+		if popup and popup.has_method("set_pool_release"):
+			popup.set_pool_release(release_cb)
+		if popup:
+			add_child(popup)
+	if popup:
+		popup.visible = true
+		popup.set_process(true)
+		popup.modulate = Color.WHITE
+	return popup
 #endregion
+
 
