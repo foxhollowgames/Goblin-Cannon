@@ -38,44 +38,6 @@ const SHOP_PRICE_TEXT_COLOR_PURCHASED: Color = Color(0.55, 0.52, 0.48, 1)
 ## Gap between the two shop rows so each card’s price reads with the frame above.
 const SHOP_ROWS_SEPARATION: int = 16
 
-## Drawn at top of shop cards. Rarity → shape: 0 common = square, 1 uncommon = diamond, 2 rare = triangle, 3+ epic = circle.
-class RarityShapeMarker extends Control:
-	var rarity: int = 0
-	var shape_color: Color = Color.WHITE
-
-	func _draw() -> void:
-		var kind: int = 3
-		if rarity <= 0:
-			kind = 0
-		elif rarity == 1:
-			kind = 1
-		elif rarity == 2:
-			kind = 2
-		var s: float = minf(size.x, size.y)
-		var cx: float = size.x * 0.5
-		var cy: float = size.y * 0.5
-		match kind:
-			0:
-				var half: float = s * 0.38
-				draw_rect(Rect2(cx - half, cy - half, half * 2.0, half * 2.0), shape_color)
-			1:
-				var pts: PackedVector2Array = PackedVector2Array([
-					Vector2(cx, cy - s * 0.45),
-					Vector2(cx + s * 0.45, cy),
-					Vector2(cx, cy + s * 0.45),
-					Vector2(cx - s * 0.45, cy),
-				])
-				draw_colored_polygon(pts, shape_color)
-			2:
-				var pts2: PackedVector2Array = PackedVector2Array([
-					Vector2(cx, cy - s * 0.42),
-					Vector2(cx + s * 0.45, cy + s * 0.45),
-					Vector2(cx - s * 0.45, cy + s * 0.45),
-				])
-				draw_colored_polygon(pts2, shape_color)
-			3:
-				draw_circle(Vector2(cx, cy), s * 0.44, shape_color)
-
 var _picks: Array = []
 var _purchased_flags: Array = []
 var _shop_offer_roots_by_index: Array = []
@@ -503,13 +465,13 @@ func _make_shop_card_layer(panel: PanelContainer, rarity: int) -> VBoxContainer:
 	card_vbox.add_theme_constant_override("separation", 4)
 	card_vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
 	card_vbox.offset_top = SHOP_CARD_BODY_TOP_INSET
-	layer.add_child(card_vbox)
-	var marker: RarityShapeMarker = RarityShapeMarker.new()
-	marker.rarity = rarity
-	marker.shape_color = border_color
-	marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	marker.z_index = 1
-	layer.add_child(marker)
+	var builder_script: Script = load("res://scenes/rewards/reward_card_builder.gd") as Script
+	var marker: Control = builder_script.call("create_rarity_marker", rarity) as Control if builder_script else null
+	if marker:
+		marker.set("shape_color", border_color)
+		marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		marker.z_index = 1
+		layer.add_child(marker)
 	var half_sz: float = SHOP_CARD_RARITY_MARKER_SIZE / 2.0
 	var border_center_y: float = -float(SHOP_CARD_BORDER_WIDTH) / 2.0
 	marker.anchor_left = 0.5
