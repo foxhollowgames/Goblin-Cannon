@@ -207,7 +207,12 @@ static func debug_trigger_boss_reward(c: Node) -> void:
 	if not c._game_over and not c._victory and c._rewards_manager and c._rewards_manager.has_method("on_boss_reward"):
 		c._rewards_manager.on_boss_reward()
 
-
-
-
-
+func _open_modal_by_name(modal_name: String) -> void:
+	if not _coordinator_root:
+		return
+	var modal: Node = _coordinator_root.find_child(modal_name, true, false)
+	if modal:
+		if modal.has_method("show_modal"):
+			modal.show_modal()
+		elif modal.has_method("show"):
+			modal.show()
