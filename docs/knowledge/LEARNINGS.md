@@ -45,6 +45,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-034`](#lrn-034) | TASK-REWARD-DRAFT-01 | `godot_engine` | RewardDraftPanel UI Component Extraction via Ollama | 2026-09-01 |
 | [`LRN-035`](#lrn-035) | TASK-COORD-UI-01 | `godot_engine` | GameCoordinator UI Sub-Manager Extraction | 2026-09-01 |
 | [`LRN-036`](#lrn-036) | TASK-COORD-DECOMP-02 | `godot_engine` | GameCoordinator Full Sub-Manager Refactoring | 2026-09-01 |
+| [`LRN-037`](#lrn-037) | Decompose large source files | `Architecture` | game_coordinator_decomposition | 2026-09-01 |
 
 ---
 
@@ -493,3 +494,151 @@ Internal connection struts between adjacent cell centers created a wireframe lat
 #### Key Insight & Learning
 Checking 4-way cardinal neighbor presence in the module cell set allows drawing walls strictly on exterior boundaries, while drawing a unified translucent fill provides seamless open chambers.
 
+#### Actionable Guideline for Future Agents
+Never draw connection lines between adjacent cell centers; iterate over module cells and draw wall segments only on edges without an adjacent neighbor in the module.
+
+---
+
+### <a id="lrn-029"></a> LRN-029: Polyomino Relic Pinball Goals and Reward Dispatching
+- **Task:** `TASK-049`
+- **Category:** `godot_engine`
+- **Created:** `2026-08-29T23:07:06.524921`
+
+#### Context & Problem
+Relics need self-contained pinball objectives and board rewards without bloating board.gd line limits.
+
+#### Key Insight & Learning
+PolyominoModuleNode tracks cell hits and progress counters locally while delegating reward execution to PolyominoGoalRewardHandler, keeping Board.gd well under line limits.
+
+#### Actionable Guideline for Future Agents
+Keep Board.gd lean by delegating specialized mechanic triggers to standalone handlers and use PolyominoModuleNode runtime state for compound shape tracking.
+
+---
+
+### <a id="lrn-030"></a> LRN-030: AI Codebase Directory and Automated Quality Tooling
+- **Task:** `TASK-DIRECTORY-01`
+- **Category:** `tooling`
+- **Created:** `2026-08-31T21:44:23.298306`
+
+#### Context & Problem
+AI agents needed a single reference for repo file locations, signal wiring, and GDScript standards without doing expensive grep passes.
+
+#### Key Insight & Learning
+Generating docs/DIRECTORY.md via python scripts/generate_directory.py and verifying freshness in python scripts/lint_gdscript.py keeps AI navigation accurate and prevents drift.
+
+#### Actionable Guideline for Future Agents
+Run python scripts/generate_directory.py whenever creating, renaming, or refactoring files, and run python scripts/lint_gdscript.py before opening PRs.
+
+---
+
+### <a id="lrn-031"></a> LRN-031: Board Scene Sub-Manager Decomposition and VFX Pooling Lifecycle
+- **Task:** `TASK-BOARD-DECOMP-01`
+- **Category:** `godot_engine`
+- **Created:** `2026-08-31T22:22:05.866330`
+
+#### Context & Problem
+Extracting large script responsibilities into modular sub-managers requires strict pooling lifecycle management and explicit scene setup API calls.
+
+#### Key Insight & Learning
+When preallocating UI nodes or VFX objects in sub-managers, call set_process(false), bind set_pool_release(release_cb), and reset modulate/transform on release and reuse to prevent auto-destruction and color contamination.
+
+#### Actionable Guideline for Future Agents
+Always wire object pool release callbacks during preallocation in sub-managers and reset instance properties in get_from_pool.
+
+---
+
+### <a id="lrn-032"></a> LRN-032: GameCoordinator Sub-Manager Decomposition
+- **Task:** `TASK-COORD-DECOMP-01`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-01T08:38:03.790138`
+
+#### Context & Problem
+Extracting coordinator responsibilities into debug, ball manager, and flow controller sub-managers.
+
+#### Key Insight & Learning
+Sub-manager scripts that do not render 2D content must extend Node not Node2D. Always verify callback method names match the actual parent script signatures before wiring delegation calls.
+
+#### Actionable Guideline for Future Agents
+Use find_child for dynamically-instantiated modal lookups instead of fixed node paths.
+
+---
+
+### <a id="lrn-033"></a> LRN-033: Peg Drawing Static Class Extraction
+- **Task:** `TASK-PEG-DECOMP-01`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-01T08:43:36.541289`
+
+#### Context & Problem
+Peg drawing methods run on the same CanvasItem and cannot move to a child Node.
+
+#### Key Insight & Learning
+Use static RefCounted classes (PegKindDrawing, PegDrawing) that accept the CanvasItem as a parameter to extract draw routines without breaking the Godot _draw() lifecycle.
+
+#### Actionable Guideline for Future Agents
+For CanvasItem draw extraction, prefer static utility classes that accept ci: CanvasItem rather than composition nodes.
+
+---
+
+### <a id="lrn-034"></a> LRN-034: RewardDraftPanel UI Component Extraction via Ollama
+- **Task:** `TASK-REWARD-DRAFT-01`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-01T15:28:08.377561`
+
+#### Context & Problem
+Extracting UI component markers and static card builders from RewardDraftPanel.
+
+#### Key Insight & Learning
+Dynamic script loading (load()) for static helper classes prevents class_name symbol resolution cache errors during headless unit test execution.
+
+#### Actionable Guideline for Future Agents
+Use dynamic script loading for extracted RefCounted UI builders to ensure zero symbol cache conflicts.
+
+---
+
+### <a id="lrn-035"></a> LRN-035: GameCoordinator UI Sub-Manager Extraction
+- **Task:** `TASK-COORD-UI-01`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-01T15:47:13.912272`
+
+#### Context & Problem
+Extracting UI creation and modal toggle methods from GameCoordinator.
+
+#### Key Insight & Learning
+GameCoordinator UI sub-managers reduce coordinator responsibilities by delegating modal toggles and UI creation callbacks.
+
+#### Actionable Guideline for Future Agents
+Keep UI creation and modal management logic in GameCoordinatorUI.
+
+---
+
+### <a id="lrn-036"></a> LRN-036: GameCoordinator Full Sub-Manager Refactoring
+- **Task:** `TASK-COORD-DECOMP-02`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-01T16:00:49.081229`
+
+#### Context & Problem
+Decomposing GameCoordinator into modular sub-managers.
+
+#### Key Insight & Learning
+GameCoordinator can delegate UI, screen building, input, signals, test scenarios, and ball inventory to sub-managers to achieve full modularity.
+
+#### Actionable Guideline for Future Agents
+Keep sub-manager responsibilities tightly scoped to maintain source files under 500 lines.
+
+---
+
+### <a id="lrn-037"></a> LRN-037: game_coordinator_decomposition
+- **Task:** `Decompose large source files`
+- **Category:** `Architecture`
+- **Created:** `2026-09-01T16:18:09.032806`
+
+#### Context & Problem
+All repository source files required to be under 500 lines
+
+#### Key Insight & Learning
+Decomposed GameCoordinator, RewardHandler, and RewardDraftPanel into modular static helpers and sub-managers
+
+#### Actionable Guideline for Future Agents
+Keep source files under 500 lines by delegating specialized sub-tasks to dedicated helper classes
+
+---
