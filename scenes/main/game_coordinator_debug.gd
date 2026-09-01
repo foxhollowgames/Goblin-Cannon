@@ -3,7 +3,10 @@ extends Node
 ## Debug tools, test scenario overrides, and debug modal handlers for GameCoordinator.
 
 #region State and References
-var _coordinator_root: Node = null
+@export var _coordinator_root: Node = null
+var _event_spawn_modal: Control = null
+var _full_store_modal: Control = null
+var _city_jump_modal: Control = null
 #endregion
 
 #region Initialization
@@ -15,15 +18,24 @@ func setup(coordinator_root: Node) -> void:
 #region Debug Modals API
 ## Opens the debug event spawn modal.
 func open_debug_event_spawn_modal() -> void:
-	_open_modal_by_name("DebugEventSpawnModal")
+	if _event_spawn_modal:
+		_event_spawn_modal.show_modal()
+	else:
+		_open_modal_by_name("DebugEventSpawnModal")
 
 ## Opens the debug full store modal.
 func open_debug_store_modal() -> void:
-	_open_modal_by_name("DebugFullStoreModal")
+	if _full_store_modal:
+		_full_store_modal.show_modal()
+	else:
+		_open_modal_by_name("DebugFullStoreModal")
 
 ## Opens the debug city jump modal.
 func open_debug_city_jump_modal() -> void:
-	_open_modal_by_name("DebugCityJumpModal")
+	if _city_jump_modal:
+		_city_jump_modal.show_modal()
+	else:
+		_open_modal_by_name("DebugCityJumpModal")
 
 ## Applies TestScenario autoload overrides if enabled.
 func apply_test_scenario_overrides() -> void:
@@ -40,7 +52,7 @@ func build_debug_tools_column() -> Control:
 	col.add_theme_constant_override("separation", 4)
 	col.process_mode = Node.PROCESS_MODE_ALWAYS
 	col.add_child(_build_tool_button("+100 Gold", "Add +100 gold", "_on_add_gold_pressed"))
-	col.add_child(_build_tool_button("Merchant", "Trigger merchant shop", "debug_trigger_milestone_shop"))
+	col.add_child(_build_tool_button("Merchant", "Trigger merchant shop", "_on_shop_pressed"))
 	col.add_child(_build_tool_button("Events", "Spawn board event", "open_debug_event_spawn_modal"))
 	col.add_child(_build_tool_button("Full store", "Open item catalog", "open_debug_store_modal"))
 	col.add_child(_build_tool_button("Go to city…", "Jump to city/wall", "open_debug_city_jump_modal"))
@@ -81,7 +93,20 @@ func _on_add_gold_pressed() -> void:
 func _on_shop_pressed() -> void:
 	if _coordinator_root and _coordinator_root.has_method("debug_trigger_milestone_shop"):
 		_coordinator_root.debug_trigger_milestone_shop()
+#endregion
+
 #region Debug Modal UI Creation
+## Instantiates all debug modals.
+func create_all_debug_modals(main: Node, reward_handler: Node) -> Dictionary:
+	var modals: Dictionary = {}
+	_event_spawn_modal = create_debug_event_spawn_ui(main)
+	modals["event_spawn_modal"] = _event_spawn_modal
+	_full_store_modal = create_debug_full_store_ui(main, reward_handler)
+	modals["full_store_modal"] = _full_store_modal
+	_city_jump_modal = create_debug_city_jump_ui(main)
+	modals["city_jump_modal"] = _city_jump_modal
+	return modals
+
 ## Instantiates debug event spawn modal overlay layer.
 func create_debug_event_spawn_ui(main: Node) -> Control:
 	if not main:
@@ -135,6 +160,8 @@ func create_debug_city_jump_ui(main: Node) -> Control:
 	if modal.has_method("setup"):
 		modal.setup(_coordinator_root)
 	return modal
+#endregion
+
 #region Debug Event Triggers
 ## Triggers immediate milestone board event spawn if valid.
 func debug_spawn_board_milestone_event(board: Node) -> void:
@@ -206,13 +233,20 @@ static func debug_trigger_wall_break_reward(c: Node) -> void:
 static func debug_trigger_boss_reward(c: Node) -> void:
 	if not c._game_over and not c._victory and c._rewards_manager and c._rewards_manager.has_method("on_boss_reward"):
 		c._rewards_manager.on_boss_reward()
+#endregion
 
 func _open_modal_by_name(modal_name: String) -> void:
 	if not _coordinator_root:
 		return
-	var modal: Node = _coordinator_root.find_child(modal_name, true, false)
+	var main: Node = _coordinator_root.get_parent()
+	var modal: Node = null
+	if main:
+		modal = main.find_child(modal_name, true, false)
+	if not modal:
+		modal = _coordinator_root.find_child(modal_name, true, false)
 	if modal:
 		if modal.has_method("show_modal"):
 			modal.show_modal()
 		elif modal.has_method("show"):
 			modal.show()
+
