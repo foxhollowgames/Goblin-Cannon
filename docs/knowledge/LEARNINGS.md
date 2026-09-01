@@ -37,6 +37,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-027`](#lrn-027) | TASK-024 | `board_systems` | Polyomino Relic Footprint Scaling and Empty Playfield Spacing | 2026-08-29 |
 | [`LRN-028`](#lrn-028) | TASK-033 | `board_systems` | Polyomino Relic Exterior Perimeter Wall and Transparent Chassis Drawing | 2026-08-29 |
 | [`LRN-029`](#lrn-029) | TASK-049 | `godot_engine` | Polyomino Relic Pinball Goals and Reward Dispatching | 2026-08-29 |
+| [`LRN-030`](#lrn-030) | TASK-DIRECTORY-01 | `tooling` | AI Codebase Directory and Automated Quality Tooling | 2026-08-31 |
 
 
 ## Detailed Learnings
@@ -474,3 +475,19 @@ PolyominoModuleNode tracks cell hits and progress counters locally while delegat
 
 #### Actionable Guideline for Future Agents
 Keep Board.gd lean by delegating specialized mechanic triggers to standalone handlers and use PolyominoModuleNode runtime state for compound shape tracking.
+
+
+### <a id="lrn-030"></a> LRN-030: AI Codebase Directory and Automated Quality Tooling
+- **Task:** `TASK-DIRECTORY-01`
+- **Category:** `tooling`
+- **Created:** `2026-08-31T21:44:23.298306`
+
+#### Context & Problem
+AI agents needed a single reference for repo file locations, signal wiring, and GDScript standards without doing expensive grep passes.
+
+#### Key Insight & Learning
+Generating docs/DIRECTORY.md via python scripts/generate_directory.py and verifying freshness in python scripts/lint_gdscript.py keeps AI navigation accurate and prevents drift.
+
+#### Actionable Guideline for Future Agents
+Run python scripts/generate_directory.py whenever creating, renaming, or refactoring files, and run python scripts/lint_gdscript.py before opening PRs.
+
