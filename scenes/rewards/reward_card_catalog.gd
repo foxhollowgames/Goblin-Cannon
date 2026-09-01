@@ -78,6 +78,15 @@ static func mk_cross(def_name: String, desc: String, uid: StringName, req_types:
 	u.required_ball_types = req_types
 	return u
 
+static func mk_boss(def_name: String, desc: String, uid: StringName, req_types: Array[String] = []) -> MajorUpgradeDefinition:
+	var u: MajorUpgradeDefinition = MajorUpgradeDefinition.new()
+	u.display_name = def_name
+	u.description = desc
+	u.upgrade_id = StringName(uid)
+	u.category = MajorUpgradeDefinition.Category.BALL_ENHANCEMENT
+	u.required_ball_types = req_types
+	return u
+
 static func build_onboard_effect_candidates() -> Array:
 	var list: Array = []
 	var cat_on: int = MajorUpgradeDefinition.Category.ONBOARD_PASSIVE

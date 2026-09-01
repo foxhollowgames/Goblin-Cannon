@@ -2,14 +2,14 @@ class_name RewardDraftLayout
 extends RefCounted
 ## Static styling and UI container builders for RewardDraftPanel cards.
 
-static func create_card_style(rarity: int, is_purchased: bool) -> StyleBoxFlat:
+static func create_card_style(border_color: Color, is_purchased: bool) -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
 	if is_purchased:
-		style.bg_color = MonsterPalette.MUTED_LINE()
-		style.border_color = MonsterPalette.SUBTLE_BG()
+		style.bg_color = Color(0.04, 0.04, 0.05, 0.8)
+		style.border_color = Color(0.2, 0.2, 0.2, 0.5)
 	else:
-		style.bg_color = MonsterPalette.CARD_BG_UNCOMMONS()
-		style.border_color = MonsterPalette.RARITY_COLOR(rarity)
+		style.bg_color = Color(0.08, 0.07, 0.1, 1)
+		style.border_color = border_color
 	style.border_width_left = 2
 	style.border_width_right = 2
 	style.border_width_top = 2
@@ -71,12 +71,23 @@ static func build_show_rewards_button_styles() -> Dictionary:
 	var show_hover: StyleBoxFlat = show_style.duplicate()
 	show_hover.bg_color = Color(0.22, 0.16, 0.32, 0.98)
 
+	return {
+		"normal": show_style,
+		"hover": show_hover
+	}
+
 static func shop_kill_hover_tween(root: Control) -> void:
 	if root and root.has_meta("hover_tween"):
 		var tw: Tween = root.get_meta("hover_tween") as Tween
 		if tw and is_instance_valid(tw):
 			tw.kill()
 		root.remove_meta("hover_tween")
+
+static func create_rarity_marker(rarity: int) -> Control:
+	var shape_control: Control = Control.new()
+	shape_control.set_script(load("res://scenes/ui/rarity_shape_control.gd") as GDScript)
+	shape_control.set("rarity", rarity)
+	return shape_control
 
 static func wire_shop_offer_interactions(col: Control, index: int, can_interact_cb: Callable, on_pick_cb: Callable, hover_scale: float, hover_sec: float) -> void:
 	col.mouse_filter = Control.MOUSE_FILTER_STOP
@@ -100,6 +111,16 @@ static func wire_shop_offer_interactions(col: Control, index: int, can_interact_
 		col.set_meta("hover_tween", tw)
 		tw.tween_property(col, "scale", Vector2(hover_scale, hover_scale), hover_sec).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
 		col.z_index = 1
+	)
+	col.mouse_exited.connect(func() -> void:
+		shop_kill_hover_tween(col)
+		var tw: Tween = col.create_tween()
+		tw.set_ignore_time_scale(true)
+		col.set_meta("hover_tween", tw)
+		tw.tween_property(col, "scale", Vector2(1.0, 1.0), hover_sec)
+		col.z_index = 0
+	)
+
 static func setup_modal_contents(modal_panel: PanelContainer, on_refresh: Callable, on_hide: Callable, on_done: Callable, shop_rows_sep: int) -> Dictionary:
 	var margin: MarginContainer = MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 14)
@@ -176,11 +197,3 @@ static func setup_modal_contents(modal_panel: PanelContainer, on_refresh: Callab
 		"bottom_row": bottom_row,
 		"done_btn": done_btn
 	}
-	col.mouse_exited.connect(func() -> void:
-		shop_kill_hover_tween(col)
-		var tw: Tween = col.create_tween()
-		tw.set_ignore_time_scale(true)
-		col.set_meta("hover_tween", tw)
-		tw.tween_property(col, "scale", Vector2(1.0, 1.0), hover_sec)
-		col.z_index = 0
-	)

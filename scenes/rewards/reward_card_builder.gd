@@ -187,7 +187,7 @@ static func make_shop_card_layer(panel: PanelContainer, rarity: int, border_colo
 	card_vbox.add_theme_constant_override("separation", 4)
 	card_vbox.set_anchors_preset(Control.PRESET_FULL_RECT)
 	card_vbox.offset_top = top_inset
-	var marker: Control = create_rarity_marker(rarity)
+	var marker: Control = RewardDraftLayout.create_rarity_marker(rarity)
 	if marker:
 		marker.set("shape_color", border_color)
 		marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -221,6 +221,9 @@ static func make_basic_batch_ball_row(batch_size: int) -> Control:
 	row.add_theme_constant_override("separation", 4)
 	row.alignment = BoxContainer.ALIGNMENT_CENTER
 	var px: int = 16
+	for _i in range(batch_size):
+		row.add_child(make_ball_preview_icon(Constants.ALIGNMENT_MAIN, -1, px, "Plain"))
+	return row
 ## Constructs card panel container with stylebox and fixed size settings.
 static func make_card_panel(border_color: Color, border_width: int, card_width: int, card_height: int) -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()

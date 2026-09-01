@@ -275,6 +275,15 @@ func _set_card_purchased(index: int) -> void:
 			# Subtle gray so the card stays readable while being clearly "used".
 			panel.modulate = Color(0.75, 0.75, 0.75, 1)
 
+func _set_overlay_visible(overlay_on: bool) -> void:
+	var modal_root: Control = get_node_or_null("ModalRoot") as Control
+	if modal_root:
+		modal_root.visible = overlay_on
+	var peek_btn: Control = get_node_or_null("PeekButton") as Control
+	if peek_btn:
+		peek_btn.visible = not overlay_on
+	mouse_filter = Control.MOUSE_FILTER_STOP if overlay_on else Control.MOUSE_FILTER_IGNORE
+
 func _on_hide_overlay_pressed() -> void:
 	set_process(false)
 	_set_overlay_visible(false)
