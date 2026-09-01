@@ -743,36 +743,20 @@ func _on_debug_spawn_event_menu_pressed() -> void:
 		_debug_event_spawn_modal.show_modal()
 
 func debug_spawn_board_milestone_event() -> void:
-	if _game_over or _victory:
-		return
-	var bec: Node = _board.get_node_or_null("BoardEventController") if _board else null
-	if bec and bec.has_method("debug_arm_immediate_spawn"):
-		if not bec.debug_arm_immediate_spawn():
-			push_warning("Debug: milestone board event not armed (need FIGHTING flow and idle BoardEventController).")
+	if not _game_over and not _victory and _debug_manager and _debug_manager.has_method("debug_spawn_board_milestone_event"):
+		_debug_manager.debug_spawn_board_milestone_event(_board)
 
 func debug_spawn_treasure_chest_event() -> void:
-	if _game_over or _victory:
-		return
-	var tcc: Node = _board.get_node_or_null("TreasureChestController") if _board else null
-	if tcc and tcc.has_method("debug_arm_immediate_spawn"):
-		if not tcc.debug_arm_immediate_spawn():
-			push_warning("Debug: treasure chest event not armed (need FIGHTING flow and idle TreasureChestController).")
+	if not _game_over and not _victory and _debug_manager and _debug_manager.has_method("debug_spawn_treasure_chest_event"):
+		_debug_manager.debug_spawn_treasure_chest_event(_board)
 
 func debug_spawn_sticky_slime_event() -> void:
-	if _game_over or _victory:
-		return
-	var ssc: Node = _board.get_node_or_null("StickySlimeController") if _board else null
-	if ssc and ssc.has_method("debug_arm_immediate_spawn"):
-		if not ssc.debug_arm_immediate_spawn():
-			push_warning("Debug: sticky slime event not armed (Human Kingdom, FIGHTING flow, idle controller).")
+	if not _game_over and not _victory and _debug_manager and _debug_manager.has_method("debug_spawn_sticky_slime_event"):
+		_debug_manager.debug_spawn_sticky_slime_event(_board)
 
 func debug_spawn_black_hole_event() -> void:
-	if _game_over or _victory:
-		return
-	var bhc: Node = _board.get_node_or_null("BlackHoleController") if _board else null
-	if bhc and bhc.has_method("debug_arm_immediate_spawn"):
-		if not bhc.debug_arm_immediate_spawn():
-			push_warning("Debug: black hole event not armed (Elf Palace, FIGHTING flow, idle controller).")
+	if not _game_over and not _victory and _debug_manager and _debug_manager.has_method("debug_spawn_black_hole_event"):
+		_debug_manager.debug_spawn_black_hole_event(_board)
 
 func debug_trigger_milestone_shop() -> void:
 	if _game_over or _victory:
@@ -890,29 +874,7 @@ func _update_bag_button_badge() -> void:
 			bag_lbl.text = "JUNK: %d" % count
 
 func _create_bag_icon_image() -> Image:
-	var s: int = 20
-	var img: Image = Image.create(s, s, false, Image.FORMAT_RGBA8)
-	var gold: Color = MonsterPalette.SWATCH_CREAM()
-	var dark_gold: Color = MonsterPalette.DARK_OLIVE()
-	# Bag body (trapezoid: narrow top, wider bottom)
-	for y in range(8, 18):
-		var t: float = float(y - 8) / 9.0
-		var half_w: int = int(lerpf(5.0, 8.0, t))
-		for x in range(s / 2 - half_w, s / 2 + half_w):
-			img.set_pixel(x, y, gold)
-	# Top edge (tie)
-	for x in range(5, 15):
-		img.set_pixel(x, 8, dark_gold)
-	# Drawstring arc
-	for x in range(7, 14):
-		img.set_pixel(x, 5, gold)
-	img.set_pixel(6, 6, gold)
-	img.set_pixel(7, 6, gold)
-	img.set_pixel(13, 6, gold)
-	img.set_pixel(14, 6, gold)
-	img.set_pixel(6, 7, gold)
-	img.set_pixel(14, 7, gold)
-	return img
+	return GameCoordinatorUI.create_bag_icon_image()
 
 func _on_inventory_pressed() -> void:
 	if _game_over or _victory:

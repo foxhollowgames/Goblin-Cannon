@@ -134,6 +134,28 @@ func create_debug_city_jump_ui(main: Node) -> Control:
 	if modal.has_method("setup"):
 		modal.setup(_coordinator_root)
 	return modal
+#region Debug Event Triggers
+## Triggers immediate milestone board event spawn if valid.
+func debug_spawn_board_milestone_event(board: Node) -> void:
+	var bec: Node = board.get_node_or_null("BoardEventController") if board else null
+	if bec and bec.has_method("debug_arm_immediate_spawn"):
+		if not bec.debug_arm_immediate_spawn():
+			push_warning("Debug: milestone board event not armed.")
+
+## Triggers immediate treasure chest event spawn if valid.
+func debug_spawn_treasure_chest_event(board: Node) -> void:
+	var tcc: Node = board.get_node_or_null("TreasureChestController") if board else null
+	if tcc and tcc.has_method("debug_arm_immediate_spawn"):
+		if not tcc.debug_arm_immediate_spawn():
+			push_warning("Debug: treasure chest event not armed.")
+
+## Triggers immediate sticky slime event spawn if valid.
+func debug_spawn_sticky_slime_event(board: Node) -> void:
+	var ssc: Node = board.get_node_or_null("StickySlimeController") if board else null
+	if ssc and ssc.has_method("debug_arm_immediate_spawn"):
+		if not ssc.debug_arm_immediate_spawn():
+			push_warning("Debug: sticky slime event not armed.")
+
 #region Helper Methods
 func _open_modal_by_name(modal_name: String) -> void:
 	if not _coordinator_root:
