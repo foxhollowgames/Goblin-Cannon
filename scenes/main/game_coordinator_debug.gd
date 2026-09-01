@@ -42,6 +42,7 @@ func apply_test_scenario_overrides() -> void:
 	if TestScenario and TestScenario.enabled:
 		if _coordinator_root and _coordinator_root.has_method("_apply_test_scenario"):
 			_coordinator_root._apply_test_scenario()
+#endregion
 
 #region Debug Tools UI
 ## Builds the left panel debug tools button column.
