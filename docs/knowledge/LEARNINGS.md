@@ -44,6 +44,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-033`](#lrn-033) | TASK-PEG-DECOMP-01 | `godot_engine` | Peg Drawing Static Class Extraction | 2026-09-01 |
 | [`LRN-034`](#lrn-034) | TASK-REWARD-DRAFT-01 | `godot_engine` | RewardDraftPanel UI Component Extraction via Ollama | 2026-09-01 |
 | [`LRN-035`](#lrn-035) | TASK-COORD-UI-01 | `godot_engine` | GameCoordinator UI Sub-Manager Extraction | 2026-09-01 |
+| [`LRN-036`](#lrn-036) | TASK-COORD-DECOMP-02 | `godot_engine` | GameCoordinator Full Sub-Manager Refactoring | 2026-09-01 |
 
 ---
 
@@ -492,4 +493,3 @@ Internal connection struts between adjacent cell centers created a wireframe lat
 #### Key Insight & Learning
 Checking 4-way cardinal neighbor presence in the module cell set allows drawing walls strictly on exterior boundaries, while drawing a unified translucent fill provides seamless open chambers.
 
-#### Actionable Guideline for Future Agents
