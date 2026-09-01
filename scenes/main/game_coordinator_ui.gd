@@ -129,8 +129,35 @@ static func build_bag_button(pressed_cb: Callable) -> Button:
 	var bag_icon: Image = create_bag_icon_image()
 	if bag_icon:
 		btn.icon = ImageTexture.create_from_image(bag_icon)
+	var badge: Label = Label.new()
+	badge.name = "ItemCountBadge"
+	badge.anchors_preset = Control.PRESET_BOTTOM_RIGHT
+	badge.anchor_left = 1.0
+	badge.anchor_top = 1.0
+	badge.anchor_right = 1.0
+	badge.anchor_bottom = 1.0
+	badge.offset_left = -16.0
+	badge.offset_top = -14.0
+	badge.offset_right = 2.0
+	badge.offset_bottom = 2.0
+	badge.add_theme_font_size_override("font_size", 10)
+	badge.add_theme_color_override("font_color", MonsterPalette.SWATCH_CREAM())
+	badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	btn.add_child(badge)
 	btn.pressed.connect(pressed_cb)
 	return btn
+
+## Updates ItemCountBadge label and CenterPanel Junk label with current item count.
+static func update_bag_button_badge(inventory_btn: Button, parent_node: Node) -> void:
+	var count: int = GameState.junk_box.get_item_count() if GameState.junk_box != null else 0
+	if inventory_btn:
+		var badge: Label = inventory_btn.get_node_or_null("ItemCountBadge") as Label
+		if badge:
+			badge.text = str(count) if count > 0 else ""
+	if parent_node:
+		var bag_lbl: Label = parent_node.get_node_or_null("UILayer/CenterPanel/BagPanel/BagLabel") as Label
+		if bag_lbl:
+			bag_lbl.text = "JUNK: %d" % count
 
 ## Creates procedural 20x20 pixel bag icon image.
 static func create_bag_icon_image() -> Image:
@@ -151,5 +178,82 @@ static func create_bag_icon_image() -> Image:
 		img.set_pixel(x, 4, trim)
 		img.set_pixel(x, 5, trim)
 	return img
+## Updates center panel fortification, gold, bag count, cannon charge, and timer.
+static func update_center_ui(center_panel_ui: Control, combat_manager: Node, systems_container: Node, bag_queue_size: int) -> void:
+	if not center_panel_ui:
+		return
+	var wall_hp: int = 200
+	var wall_max: int = 200
+	if combat_manager:
+		if combat_manager.has_method("get_wall_hp"):
+			wall_hp = combat_manager.get_wall_hp()
+		if combat_manager.has_method("get_wall_hp_max"):
+			wall_max = combat_manager.get_wall_hp_max()
+	if center_panel_ui.has_method("set_fortification"):
+		center_panel_ui.set_fortification(wall_hp, wall_max)
+	if center_panel_ui.has_method("set_run_gold") and GameState:
+		center_panel_ui.set_run_gold(GameState.run_gold)
+	if center_panel_ui.has_method("set_bag"):
+		center_panel_ui.set_bag(bag_queue_size)
+	var main_energy: int = 0
+	if systems_container:
+		var mc: Node = systems_container.get_node_or_null("MainCannon")
+		if mc and mc.has_method("get_current_energy"):
+			main_energy = mc.get_current_energy()
+	var charge_max: int = Constants.main_cannon_charge_internal()
+	if systems_container:
+		var mc: Node = systems_container.get_node_or_null("MainCannon")
+		if mc and mc.has_method("get_charge_threshold"):
+			charge_max = mc.get_charge_threshold()
+	if center_panel_ui.has_method("set_charge"):
+		center_panel_ui.set_charge(main_energy, charge_max)
+	if center_panel_ui.has_method("set_timer") and combat_manager and combat_manager.has_method("get_timer_seconds_remaining"):
+		center_panel_ui.set_timer(combat_manager.get_timer_seconds_remaining())
+
+## Instantiates inventory overlay, junk box panel, and almanac modal panels.
+static func create_inventory_ui(coordinator: Node, reward_handler: Node, board: Node) -> Dictionary:
+	var main: Node = coordinator.get_parent() if coordinator else null
+	if not main:
+		return {}
+	var overlay: CanvasLayer = CanvasLayer.new()
+	overlay.layer = 8
+	overlay.name = "InventoryOverlay"
+	overlay.process_mode = Node.PROCESS_MODE_ALWAYS
+	main.add_child(overlay)
+
+	var inv_panel: Control = null
+	var panel_scene: PackedScene = load("res://scenes/ui/inventory_panel.tscn") as PackedScene
+	if panel_scene:
+		inv_panel = panel_scene.instantiate() as Control
+		if inv_panel:
+			overlay.add_child(inv_panel)
+			if inv_panel.has_method("setup"):
+				inv_panel.setup(coordinator, reward_handler)
+
+	var jb_panel: Control = null
+	var junk_box_scene: PackedScene = load("res://scenes/ui/junk_box/junk_box_panel.tscn") as PackedScene
+	if junk_box_scene:
+		jb_panel = junk_box_scene.instantiate() as Control
+		if jb_panel:
+			overlay.add_child(jb_panel)
+			if jb_panel.has_method("setup"):
+				jb_panel.setup(coordinator, reward_handler)
+			if board and jb_panel.has_method("set_board"):
+				jb_panel.set_board(board)
+
+	var alm_panel: Control = null
+	var almanac_scene: PackedScene = load("res://scenes/ui/almanac_panel.tscn") as PackedScene
+	if almanac_scene:
+		alm_panel = almanac_scene.instantiate() as Control
+		if alm_panel:
+			overlay.add_child(alm_panel)
+			if alm_panel.has_method("setup"):
+				alm_panel.setup(coordinator, reward_handler)
+
+	return {
+		"inventory_panel": inv_panel,
+		"junk_box_panel": jb_panel,
+		"almanac_panel": alm_panel
+	}
 #endregion
 

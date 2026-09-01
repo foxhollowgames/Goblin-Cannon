@@ -156,17 +156,55 @@ func debug_spawn_sticky_slime_event(board: Node) -> void:
 		if not ssc.debug_arm_immediate_spawn():
 			push_warning("Debug: sticky slime event not armed.")
 
-#region Helper Methods
-func _open_modal_by_name(modal_name: String) -> void:
-	if not _coordinator_root:
+## Debug: set city index and wall index (0 = World 1), refresh combat and UI; does not reset run inventory/upgrades.
+static func jump_to_city_and_wall(c: Node, city_index: int, wall_index: int) -> void:
+	var main: Node = c.get_parent()
+	if main:
+		var vo: Node = main.get_node_or_null("VictoryOverlay")
+		if vo:
+			vo.queue_free()
+		var fo: Node = main.get_node_or_null("FailOverlay")
+		if fo:
+			fo.queue_free()
+	GameState.paused = false
+	Engine.time_scale = 1.0
+	c.get_tree().paused = false
+	c._game_over = false
+	c._victory = false
+	c._fail_screen = null
+	if c._rewards_manager and c._rewards_manager.has_method("debug_discard_open_reward_ui"):
+		c._rewards_manager.debug_discard_open_reward_ui()
+	if c._debug_event_spawn_modal and c._debug_event_spawn_modal.has_method("hide_modal"):
+		c._debug_event_spawn_modal.hide_modal()
+	if c._debug_full_store_modal and c._debug_full_store_modal.has_method("hide_modal"):
+		c._debug_full_store_modal.hide_modal()
+	GameState.endless_mode = false
+	GameState.current_city_id = clampi(city_index, 0, Constants.CITY_DEFINITION_PATHS.size() - 1)
+	var city: CityDefinition = GameState.get_current_city_definition()
+	if city == null:
 		return
-	var modal: Node = _coordinator_root.find_child(modal_name, true, false)
-	if modal:
-		if modal.has_method("show_modal"):
-			modal.show_modal()
-		elif modal.has_method("show"):
-			modal.show()
-#endregion
+	if c._combat_manager and c._combat_manager.has_method("init_from_city_at_wall"):
+		c._combat_manager.init_from_city_at_wall(city, wall_index)
+	if c._milestone_tracker and c._milestone_tracker.has_method("set_thresholds_from_city"):
+		c._milestone_tracker.set_thresholds_from_city(city.get_milestone_thresholds_int())
+	c._refresh_conquest_ui()
+	c._sync_battlefield_wall_index()
+	GameState.set_run_flow_state(GameState.RunFlowState.FIGHTING)
+
+## Triggers milestone shop reward modal.
+static func debug_trigger_milestone_shop(c: Node) -> void:
+	if not c._game_over and not c._victory and c._rewards_manager and c._rewards_manager.has_method("on_milestone_reached"):
+		c._rewards_manager.on_milestone_reached(0, 0)
+
+## Triggers wall break reward modal.
+static func debug_trigger_wall_break_reward(c: Node) -> void:
+	if not c._game_over and not c._victory and c._rewards_manager and c._rewards_manager.has_method("on_wall_break"):
+		c._rewards_manager.on_wall_break()
+
+## Triggers boss reward modal.
+static func debug_trigger_boss_reward(c: Node) -> void:
+	if not c._game_over and not c._victory and c._rewards_manager and c._rewards_manager.has_method("on_boss_reward"):
+		c._rewards_manager.on_boss_reward()
 
 
 

@@ -38,6 +38,6 @@ func test_bloom_spawn_marks_temporary_for_lifecycle() -> void:
 	var board_script: GDScript = load("res://scenes/board/board.gd") as GDScript
 	var src: String = board_script.source_code
 	assert_true(src.contains("mark_as_bloom_spawn"), "spawn marks bloom balls")
-	var gc_script: GDScript = load("res://scenes/main/game_coordinator.gd") as GDScript
+	var gc_script: GDScript = load("res://scenes/main/game_ball_manager.gd") as GDScript
 	var gcs: String = gc_script.source_code
-	assert_true(gcs.contains("is_bloom_spawn"), "coordinator checks bloom spawn before hopper return")
+	assert_true(gcs.contains("is_bloom_spawn"), "ball manager checks bloom spawn before hopper return")
