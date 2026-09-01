@@ -8,6 +8,7 @@ Use this file as the **single entry point**. Do not explore the repo at random u
 - **Mandatory PR Review & Learning Loop**: Every fix and feature must complete the full cycle: (1) Knowledge retrieval, (2) Feature branch, (3) Headless tests pass, (4) PR creation (`gh pr create`), (5) Independent `pr_reviewer` sub-agent review pass, (6) PR merge (`gh pr merge`), (7) Sub-agent teardown, (8) Post-merge learning loop (`python scripts/learnings.py add`).
 - **Mandatory Local Ollama Code Generation**: For all code generation, editing, and test authoring, use `python scripts/ollama_coder.py [generate|edit|test]` with local Qwen 2.5 Coder.
 - **Maximum File Length (500 lines)**: Source files must not exceed 500 lines. Run `python scripts/lint_file_lengths.py` to audit file lengths.
+- **GDScript Quality & Directory Maintenance**: All code must follow `docs/CODING_STANDARDS.md`. Run `python scripts/generate_directory.py` and `python scripts/lint_gdscript.py` before submitting a PR.
 
 
 ## Reading order (by task)
@@ -16,11 +17,13 @@ Use this file as the **single entry point**. Do not explore the repo at random u
 |------:|------|---------|
 | 1 | **`project.godot`** | Main scene, autoloads, display, physics (small file). |
 | 2 | **`docs/ARCHITECTURE.md`** | Game design: pipeline, signals, managers, determinism, folder intent. |
-| 3 | **`docs/knowledge/LEARNINGS.md`** | Historical learnings & Gotchas database (`python scripts/learnings.py query`). |
-| 4 | **`.cursor/rules/testing.mdc`** | When and how to run headless tests (`tests/run_tests.gd`). |
-| 5 | **`.cursor/rules/godot-path.mdc`** | Full path to the Godot executable on this machine (for running tests). |
-| 6 | **`docs/ROADMAP.md`** | Master roadmap: 6-playthrough story campaign, incremental loop, comic UI. |
-| 7 | **`docs/tasks/README.md`** | Master task board: active tasks, workflow states, and priorities. |
+| 3 | **`docs/DIRECTORY.md`** | AI codebase map: every file, signal, system, and "where to find it" reference. |
+| 4 | **`docs/CODING_STANDARDS.md`** | GDScript style, type annotations, 45-line func limit, docstrings, region tags. |
+| 5 | **`docs/knowledge/LEARNINGS.md`** | Historical learnings & Gotchas database (`python scripts/learnings.py query`). |
+| 6 | **`.cursor/rules/testing.mdc`** | When and how to run headless tests (`tests/run_tests.gd`). |
+| 7 | **`.cursor/rules/godot-path.mdc`** | Full path to the Godot executable on this machine (for running tests). |
+| 8 | **`docs/ROADMAP.md`** | Master roadmap: 6-playthrough story campaign, incremental loop, comic UI. |
+| 9 | **`docs/tasks/README.md`** | Master task board: active tasks, workflow states, and priorities. |
 
 
 **Only if** the user is doing **backlog / planner / multi-step agent workflow** (not normal gameplay coding): **`docs/agent-orchestration.md`** — conventions for planning vs implementation, isolation, quality loop.

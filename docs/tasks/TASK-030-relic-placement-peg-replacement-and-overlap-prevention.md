@@ -1,6 +1,6 @@
 # TASK-030: Relic Placement Peg Replacement and Mutual Exclusivity
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay
 - **Target Branch:** `feature/relic-placement-peg-replacement`

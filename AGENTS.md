@@ -11,14 +11,17 @@ Do not duplicate long exploration: follow that order before opening unrelated pa
 4. **Mandatory Feature & Fix Workflow Cycle**: For any bug fix, improvement, or feature work:
    1. Pre-Task Knowledge Retrieval (`python scripts/learnings.py query <topic>`).
    2. Branch and implement changes on a dedicated feature branch (`feature/...` or `fix/...`).
-   3. Verify headless test suite passes (`godot --headless -s tests/run_tests.gd`).
-   4. Open a GitHub Pull Request (`gh pr create`).
-   5. Invoke an independent `pr_reviewer` sub-agent to audit code quality and test coverage.
-   6. Resolve any findings, get approval, and merge into `main` (`gh pr merge`).
-   7. Terminate all sub-agents immediately (`manage_subagents(Action="kill_all")`).
-   8. Run the post-merge learning loop (`python scripts/learnings.py add`).
+   3. Update AI directory (`python scripts/generate_directory.py`) if files or signatures changed.
+   4. Run GDScript quality & length linter (`python scripts/lint_gdscript.py`).
+   5. Verify headless test suite passes (`godot --headless -s tests/run_tests.gd`).
+   6. Open a GitHub Pull Request (`gh pr create`).
+   7. Invoke an independent `pr_reviewer` sub-agent to audit code quality and test coverage.
+   8. Resolve any findings, get approval, and merge into `main` (`gh pr merge`).
+   9. Terminate all sub-agents immediately (`manage_subagents(Action="kill_all")`).
+   10. Run the post-merge learning loop (`python scripts/learnings.py add`).
 5. **Mandatory Local Ollama Code Generation**: For all code generation, editing, and test authoring, use `python scripts/ollama_coder.py [generate|edit|test]` with local Qwen 2.5 Coder.
 6. **Maximum File Length (500 lines)**: Source files must not exceed 500 lines. Run `python scripts/lint_file_lengths.py` to audit file lengths across the repository.
+7. **Directory Maintenance & Coding Standards**: Follow `docs/CODING_STANDARDS.md`. Maintain `docs/DIRECTORY.md` via `python scripts/generate_directory.py`.
 
 
 

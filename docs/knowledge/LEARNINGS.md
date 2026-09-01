@@ -3,7 +3,6 @@
 This canonical knowledge base stores lessons, patterns, and optimization rules learned by agents during task execution.
 **All agents must review this document or query `python scripts/learnings.py query <topic>` before starting complex tasks.**
 
----
 
 ## Quick Index
 
@@ -39,7 +38,6 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-028`](#lrn-028) | TASK-033 | `board_systems` | Polyomino Relic Exterior Perimeter Wall and Transparent Chassis Drawing | 2026-08-29 |
 | [`LRN-029`](#lrn-029) | TASK-049 | `godot_engine` | Polyomino Relic Pinball Goals and Reward Dispatching | 2026-08-29 |
 
----
 
 ## Detailed Learnings
 
@@ -57,7 +55,6 @@ Godot headless script compilation parses classes before all global class_name sy
 #### Actionable Guideline for Future Agents
 Use explicit 'const MyType = preload(...)' in autoloads and UI panels when referring to custom resources. In static factory methods (e.g. from_dict), return base Resource or untyped value to avoid circular self-references.
 
----
 
 ### <a id="lrn-002"></a> LRN-002: Sub-Agent Immediate Lifecycle Teardown
 - **Task:** `TASK-027`
@@ -73,7 +70,6 @@ Sub-agents do not self-destruct by default. If the orchestrator does not explici
 #### Actionable Guideline for Future Agents
 Always call manage_subagents(Action='kill_all') or kill specific conversation IDs immediately after receiving and verifying sub-agent deliverables.
 
----
 
 ### <a id="lrn-003"></a> LRN-003: Windows Binary DLL Lock Handling During Worktree Cleanup
 - **Task:** `TASK-027`
@@ -89,7 +85,6 @@ Worktree removal can fail with 'Access is denied' or 'Resource busy' if child pr
 #### Actionable Guideline for Future Agents
 Use 'git worktree prune' to clean up git metadata after worktree operations. If physical directory deletion is locked, allow background handles to close or prune git references first.
 
----
 
 ### <a id="lrn-004"></a> LRN-004: Model Tier Allocation for Fast and Cheap Execution
 - **Task:** `TASK-027`
@@ -105,7 +100,6 @@ Data models, serialization, and test writing are deterministic and execute rapid
 #### Actionable Guideline for Future Agents
 Partition tasks into (1) Data/Model layer -> flash, (2) UI/Input/Visuals -> pro, (3) Testing/QA -> flash, (4) Integration/Review -> pro for maximum speed and cost efficiency.
 
----
 
 ### <a id="lrn-005"></a> LRN-005: Multi-Cell Polyomino Coordinate Anchoring & Clockwise Rotation
 - **Task:** `TASK-024`
@@ -121,7 +115,6 @@ Standard mathematical 2D rotation around origin maps positive coordinates to neg
 #### Actionable Guideline for Future Agents
 Always apply bounding-box offset normalization after rotating: compute min_x and min_y of the rotated cell set, then subtract them (rx - min_x, ry - min_y) so the top-left-most cell is strictly anchored at (0, 0).
 
----
 
 ### <a id="lrn-006"></a> LRN-006: Headless Viewport & Mouse Position Safety
 - **Task:** `TASK-025`
@@ -137,7 +130,6 @@ Controls instantiated directly in headless tests or before add_child() lack a vi
 #### Actionable Guideline for Future Agents
 Always wrap mouse position lookups with a safe helper like 'if is_inside_tree() and get_viewport(): return get_global_mouse_position()' with Vector2.ZERO fallback.
 
----
 
 ### <a id="lrn-007"></a> LRN-007: Hopper Steering and Keybind Separation
 - **Task:** `TASK-019`
@@ -153,7 +145,6 @@ Game controls must not conflict with debug hotkeys. Moving debug toggles to func
 #### Actionable Guideline for Future Agents
 Reserve WASD and Arrow keys exclusively for player-controlled motion. Use function keys (F1-F12) or modifier combinations for debug tools.
 
----
 
 ### <a id="lrn-008"></a> LRN-008: Headless Node Hierarchy and Lazy Container Initialization
 - **Task:** `TASK-026`
@@ -169,7 +160,6 @@ In Godot 4 headless tests, nodes created with .new do not run _ready automatical
 #### Actionable Guideline for Future Agents
 Lazily initialize child containers on first access in manager and board scripts, and check is_inside_tree before querying global_position to support headless unit tests.
 
----
 
 ### <a id="lrn-009"></a> LRN-009: Live Board Ghost Placement Area Monitoring & Collision Transition
 - **Task:** `TASK-020`
@@ -185,7 +175,6 @@ Newly positioned components must start at 50% opacity with collision_layer set t
 #### Actionable Guideline for Future Agents
 Always disable physics collision layers on newly placed components until active ball area checks confirm complete clearance.
 
----
 
 ### <a id="lrn-010"></a> LRN-010: Non-Modal Side Drawers for Dual-Surface Drag-and-Drop
 - **Task:** `TASK-028`
@@ -201,7 +190,6 @@ Using a right-anchored drawer panel with root mouse_filter set to IGNORE keeps t
 #### Actionable Guideline for Future Agents
 Always structure dual-surface drag inventories as docked side drawers with transparent root input filtering.
 
----
 
 ### <a id="lrn-011"></a> LRN-011: Windows GUI Godot Binary Console Redirection
 - **Task:** `TASK-028`
@@ -217,7 +205,6 @@ Executing Godot headless commands through cmd.exe /c attaches standard I/O strea
 #### Actionable Guideline for Future Agents
 Always run headless Godot tests via cmd.exe /c on Windows to prevent silent test failures.
 
----
 
 ### <a id="lrn-012"></a> LRN-012: Polyomino Relic Database & ID Alias Mapping
 - **Task:** `TASK-024`
@@ -233,7 +220,6 @@ Using a centralized PolyominoRelicDatabase registry with canonical definitions a
 #### Actionable Guideline for Future Agents
 Always route polyomino module creation through PolyominoRelicDatabase with alias resolution to ensure backwards compatibility across reward handlers, catalogs, and inventory systems.
 
----
 
 ### <a id="lrn-013"></a> LRN-013: Slotted Board Relic Modifiers & Instant Hover Tooltips
 - **Task:** `TASK-028`
@@ -249,7 +235,6 @@ Binding GameState relic modifier application and reversion directly to Board.pla
 #### Actionable Guideline for Future Agents
 Always tie passive stat buffs and relic modifier lifecycles to physical board placement rather than inventory possession, and use KeywordDatabase for consistent in-game flyout tooltips.
 
----
 
 ### <a id="lrn-014"></a> LRN-014: Unified Board Grid and Relic Mutual Exclusivity Architecture
 - **Task:** `TASK-029`
@@ -265,7 +250,6 @@ A shared orthogonal coordinate system simplifies mutual exclusivity checks and d
 #### Actionable Guideline for Future Agents
 Always align board peg positions to the same grid cell dimensions and coordinate functions as polyomino relics.
 
----
 
 ### <a id="lrn-015"></a> LRN-015: Relic Audio Attenuation and Boundary Wall Physics Architecture
 - **Task:** `TASK-032`
@@ -281,7 +265,6 @@ Kinetic polyomino machinery produces rapid audio triggers during high ball volum
 #### Actionable Guideline for Future Agents
 Always route machinery audio to dedicated sub-buses with volume limits, and define perimeter walls and internal dividers as explicit edge segment shapes.
 
----
 
 ### <a id="lrn-016"></a> LRN-016: Rectangular Pegboard Layout and Polyomino Grid Alignment
 - **Task:** `TASK-029`
@@ -297,7 +280,6 @@ Eliminating row offsets and placing pegs on the unified 16x8 rectangular board g
 #### Actionable Guideline for Future Agents
 Always position board pegs and polyomino modules on the canonical 16x8 board grid using board_cell_to_world and world_to_board_cell.
 
----
 
 ### <a id="lrn-017"></a> LRN-017: Staggered Checkerboard Peg Lattice on Discrete Rectangular Grid
 - **Task:** `TASK-029`
@@ -313,7 +295,6 @@ Gating peg generation by (row + col) % 2 == 0 creates an alternating plinko latt
 #### Actionable Guideline for Future Agents
 Use checkerboard gating (row + col) % 2 == 0 on discrete grid coordinates to achieve staggered layout without floating-point row offsets.
 
----
 
 ### <a id="lrn-018"></a> LRN-018: Open-Model Subagent Allocation & Test State Isolation
 - **Task:** `TASK-033`
@@ -329,7 +310,6 @@ Qwen3 Coder and GLM 5.2 provide high accuracy for Godot 4 GDScript, and tests mu
 #### Actionable Guideline for Future Agents
 Define specialized subagents with clear Godot 4 constraints and call _ensure_clean_state() in test functions that instantiate Board.
 
----
 
 ### <a id="lrn-019"></a> LRN-019: Relic Machinery Audio Attenuation and Concurrency Throttling
 - **Task:** `TASK-032`
@@ -345,7 +325,6 @@ Setting default component volume to -16 dB, routing to a dedicated Machinery bus
 #### Actionable Guideline for Future Agents
 Always route kinetic machinery audio through dedicated sub-buses with decibel levels below -12 dB, apply pitch variation, and enforce timestamp-based concurrency throttling.
 
----
 
 ### <a id="lrn-020"></a> LRN-020: Zero-Dependency Local Ollama Code Generation CLI
 - **Task:** `TASK-034`
@@ -361,7 +340,6 @@ Using a standalone standard-library Python CLI script (urllib) avoids external d
 #### Actionable Guideline for Future Agents
 Use python scripts/ollama_coder.py [generate|edit|test] to produce GDScript with local Qwen at zero cost.
 
----
 
 ### <a id="lrn-021"></a> LRN-021: Relic Selection Screen Layout and Machinery Composition Preview Specification
 - **Task:** `TASK-035`
@@ -377,7 +355,6 @@ Draft reward cards require compact normalized 2D polyomino shape rendering and d
 #### Actionable Guideline for Future Agents
 When designing relic reward draft cards, inspect PolyominoRelicDatabase and render multi-cell shapes and component glyphs directly below the card title.
 
----
 
 ### <a id="lrn-022"></a> LRN-022: Normalized Polyomino Relic Layout and Kinetic Machinery Preview
 - **Task:** `TASK-035`
@@ -393,7 +370,6 @@ Calculating min and max bounding coordinates centers irregular polyomino shapes 
 #### Actionable Guideline for Future Agents
 Always normalize local cell coordinates and center polyomino bounds horizontally and vertically in UI reward cards.
 
----
 
 ### <a id="lrn-023"></a> LRN-023: Dynamic Grab Offset Preservation on Polyomino Relic In-Flight Rotation
 - **Task:** `TASK-031`
@@ -409,7 +385,6 @@ Storing the grabbed cell index and querying the anchored rotated shape at that i
 #### Actionable Guideline for Future Agents
 Always track the grabbed cell index during drag initiation and dynamically compute the rotated cell offset using get_anchored_rotated_cells.
 
----
 
 ### <a id="lrn-024"></a> LRN-024: Drag Controller Overlay Hierarchy and Control Mouse Filter Pass-Through
 - **Task:** `TASK-031`
@@ -425,7 +400,6 @@ Setting mouse_filter to MOUSE_FILTER_IGNORE on layout containers allows clicks t
 #### Actionable Guideline for Future Agents
 Always set mouse_filter to IGNORE on full-screen container controls and mount global drag preview controllers on top-level CanvasLayers.
 
----
 
 ### <a id="lrn-025"></a> LRN-025: Baseline Peg Suppression and Restoration Under Movable Polyomino Relics
 - **Task:** `TASK-031`
@@ -441,7 +415,6 @@ Suppressing pegs (disabling collision, hiding visibility, pausing process) rathe
 #### Actionable Guideline for Future Agents
 Never permanently free baseline board elements under temporary or repositionable overlays; track and suppress them, then unsuppress on removal.
 
----
 
 ### <a id="lrn-026"></a> LRN-026: File Length Limit (500 lines) and Baseline Allowlist
 - **Task:** `TASK-LINT-01`
@@ -457,7 +430,6 @@ A Python lint tool and a Godot headless test ensure all new files stay under 500
 #### Actionable Guideline for Future Agents
 Run python scripts/lint_file_lengths.py or headless tests to audit file lengths before merging.
 
----
 
 ### <a id="lrn-027"></a> LRN-027: Polyomino Relic Footprint Scaling and Empty Playfield Spacing
 - **Task:** `TASK-024`
@@ -473,7 +445,6 @@ Differentiating CellType.EMPTY from active kinetic machinery allows multi-cell r
 #### Actionable Guideline for Future Agents
 Always reserve full multi-cell footprints on the board grid while skipping machinery instantiation and glyph drawing for CellType.EMPTY cells.
 
----
 
 ### <a id="lrn-028"></a> LRN-028: Polyomino Relic Exterior Perimeter Wall and Transparent Chassis Drawing
 - **Task:** `TASK-033`
@@ -489,7 +460,6 @@ Checking 4-way cardinal neighbor presence in the module cell set allows drawing 
 #### Actionable Guideline for Future Agents
 Never draw connection lines between adjacent cell centers; iterate over module cells and draw wall segments only on edges without an adjacent neighbor in the module.
 
----
 
 ### <a id="lrn-029"></a> LRN-029: Polyomino Relic Pinball Goals and Reward Dispatching
 - **Task:** `TASK-049`
@@ -504,5 +474,3 @@ PolyominoModuleNode tracks cell hits and progress counters locally while delegat
 
 #### Actionable Guideline for Future Agents
 Keep Board.gd lean by delegating specialized mechanic triggers to standalone handlers and use PolyominoModuleNode runtime state for compound shape tracking.
-
----
