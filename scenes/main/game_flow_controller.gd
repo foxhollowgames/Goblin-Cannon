@@ -1,4 +1,4 @@
-extends Node2D
+extends Node
 ## City progression, wall transitions, title cards, and campaign game state handlers for GameCoordinator.
 
 #region Signals
@@ -32,25 +32,26 @@ func get_current_wall_index() -> int:
 func start_city(city_index: int) -> void:
 	_current_city_index = city_index
 	_current_wall_index = 0
-	if _coordinator_root and _coordinator_root.has_method("_load_city_definition"):
-		_coordinator_root._load_city_definition(city_index)
+	if _coordinator_root and _coordinator_root.has_method("_init_from_current_city"):
+		_coordinator_root._init_from_current_city()
 
 ## Advances to the next wall in the active city.
 func advance_to_next_wall() -> void:
 	_current_wall_index += 1
 	wall_advanced.emit(_current_city_index, _current_wall_index)
 
-## Shows victory screen and triggers city completion.
+## Shows the victory screen and triggers city completion.
 func show_victory_screen() -> void:
 	city_completed.emit(_current_city_index)
-	if _coordinator_root and _coordinator_root.has_method("_on_city_conquered"):
-		_coordinator_root._on_city_conquered()
+	if _coordinator_root and _coordinator_root.has_method("_show_victory_screen"):
+		_coordinator_root._show_victory_screen()
 
-## Shows run failure screen on time expiry or defeat.
+## Shows the run failure screen on time expiry or defeat.
 func show_fail_screen() -> void:
 	campaign_failed.emit()
-	if _coordinator_root and _coordinator_root.has_method("_on_run_failed"):
-		_coordinator_root._on_run_failed()
+	if _coordinator_root and _coordinator_root.has_method("_show_fail_screen"):
+		_coordinator_root._show_fail_screen()
 #endregion
+
 
 
