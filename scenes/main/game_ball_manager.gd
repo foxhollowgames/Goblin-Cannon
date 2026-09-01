@@ -81,8 +81,6 @@ func convert_ball_ability(ball: Node, new_ability: StringName) -> void:
 static func plain_ball_def(alignment: int) -> BallDefinition:
 	var def: BallDefinition = BallDefinition.new()
 	def.ability_name = ""
-	def.display_name = "Plain Ball"
-	def.description = "Standard pinball."
 	def.tier = 1
 	def.alignment = alignment
 	return def
