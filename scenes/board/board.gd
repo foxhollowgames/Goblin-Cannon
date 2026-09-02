@@ -2782,14 +2782,19 @@ func _format_module_tooltip_body(item: JunkBoxItem) -> String:
 	if relic_id == &"" and item.module_data != null:
 		relic_id = item.module_data.module_id
 
-	if item.module_data != null:
-		body += "Tier: %d  |  Size: %d Cells\n" % [item.module_data.tier, item.module_data.get_cell_count()]
-	var shape_name: String = PolyominoRelicDatabase.get_relic_shape_name(relic_id) if relic_id != &"" else ""
-	if not shape_name.is_empty():
-		body += "Shape: %s\n" % shape_name
-	var desc: String = PolyominoRelicDatabase.get_relic_kinetic_description(relic_id) if relic_id != &"" else ""
-	if not desc.is_empty():
-		body += "\n[u]Machinery & Effect[/u]\n%s" % desc
+	var goal_desc: String = PolyominoRelicDatabase.get_relic_goal_description(relic_id) if relic_id != &"" else ""
+	var reward_desc: String = PolyominoRelicDatabase.get_relic_reward_description(relic_id) if relic_id != &"" else ""
+
+	if not goal_desc.is_empty():
+		body += "[u]Activation Requirement[/u]\n%s" % goal_desc
+	if not reward_desc.is_empty():
+		if not body.is_empty():
+			body += "\n\n"
+		body += "[u]Relic Effect[/u]\n%s" % reward_desc
+	if body.is_empty():
+		var desc: String = PolyominoRelicDatabase.get_relic_kinetic_description(relic_id) if relic_id != &"" else ""
+		if not desc.is_empty():
+			body += "[u]Machinery & Effect[/u]\n%s" % desc
 	return body
 
 ## Converts a global/board world position into integer board grid coordinates (col, row).

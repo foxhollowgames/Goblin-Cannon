@@ -1,6 +1,6 @@
 # TASK-053: Relic Machinery Audit and Widget Distribution
 
-- **Status:** BACKLOG
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay / Balance
 - **Target Branch:** `feature/relic-widget-distribution`
@@ -54,8 +54,8 @@ Verify that bash toys appear only in Tier 3 or high-reward relics.
 
 ## Acceptance Criteria
 
-- [ ] All 60+ relics in `polyomino_relic_database.gd` undergo a machinery component audit.
-- [ ] The 15 mechanical widgets have an even distribution across the relic roster.
-- [ ] Bash toys appear only on Tier 3 or high-reward relics.
-- [ ] No Tier 1 common relics contain bash toys.
-- [ ] Unit tests pass cleanly in headless mode.
+- [x] All 60+ relics in `polyomino_relic_database.gd` undergo a machinery component audit.
+- [x] The 15 mechanical widgets have an even distribution across the relic roster.
+- [x] Bash toys appear only on Tier 3 or high-reward relics.
+- [x] No Tier 1 common relics contain bash toys.
+- [x] Unit tests pass cleanly in headless mode.
