@@ -284,10 +284,8 @@ static func create_inventory_ui(coordinator: Node, reward_handler: Node, board: 
 	if takeover_script:
 		takeover_overlay = takeover_script.new() as CanvasLayer
 		if takeover_overlay:
+			takeover_overlay.name = "FullscreenComicTakeover"
 			main.add_child(takeover_overlay)
-			var cm: Node = main.get_node_or_null("CombatManager")
-			if cm and cm.has_signal("wall_destroyed") and takeover_overlay.has_method("play_takeover"):
-				cm.wall_destroyed.connect(func(): takeover_overlay.play_takeover("WALL DESTROYED!"))
 
 	return {
 		"inventory_panel": inv_panel,

@@ -16,7 +16,15 @@ static func handle_wall_destroyed(c: Node) -> void:
 		c._battlefield.play_wall_destroyed_transition()
 	if c._center_panel_ui and c._center_panel_ui.has_method("animate_wall_cleared"):
 		c._center_panel_ui.animate_wall_cleared()
-	c.get_tree().create_timer(2.2).timeout.connect(c._on_wall_break_transition_finished)
+
+	var main: Node = c.get_parent() if c else null
+	var takeover: Node = main.get_node_or_null("FullscreenComicTakeover") if main else null
+	if takeover and takeover.has_signal("takeover_completed") and takeover.has_method("play_takeover"):
+		if not takeover.takeover_completed.is_connected(c._on_wall_break_transition_finished):
+			takeover.takeover_completed.connect(c._on_wall_break_transition_finished, CONNECT_ONE_SHOT)
+		takeover.play_takeover("WALL DESTROYED!")
+	else:
+		c.get_tree().create_timer(2.2).timeout.connect(c._on_wall_break_transition_finished)
 
 ## Dispatches next reward or boss transition when wall destroyed animation ends.
 static func handle_wall_break_transition_finished(c: Node) -> void:
