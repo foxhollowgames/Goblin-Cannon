@@ -8,6 +8,9 @@ const JunkBoxData = preload("res://resources/inventory/junk_box_data.gd")
 const JunkBoxGridView = preload("res://scenes/ui/junk_box/junk_box_grid_view.gd")
 const JunkBoxDragController = preload("res://scenes/ui/junk_box/junk_box_drag_controller.gd")
 
+const MARGIN_RIGHT_OVERFLOW: int = 2
+const MARGIN_RIGHT_DEFAULT: int = 6
+
 signal closed
 
 var _game_coordinator: Node
@@ -44,10 +47,16 @@ func _ready() -> void:
 			grid_view.item_hovered.connect(_on_item_hovered)
 		if not grid_view.item_unhovered.is_connected(_on_item_unhovered):
 			grid_view.item_unhovered.connect(_on_item_unhovered)
+		if not grid_view.grid_size_changed.is_connected(update_scroll_bar_visibility):
+			grid_view.grid_size_changed.connect(update_scroll_bar_visibility)
 	if drawer_panel:
 		drag_controller.junk_box_panel = drawer_panel
 	if scroll_container:
 		drag_controller.scroll_container = scroll_container
+		if not scroll_container.resized.is_connected(_on_scroll_container_resized):
+			scroll_container.resized.connect(_on_scroll_container_resized)
+
+
 
 	if close_btn and not close_btn.pressed.is_connected(_close):
 		close_btn.pressed.connect(_close)
@@ -232,3 +241,53 @@ func is_integrated_in_sidebar() -> bool:
 
 func get_pegboard_preview_scale() -> float:
 	return 1.0
+
+func update_scroll_bar_visibility() -> void:
+	var s_cont: ScrollContainer = scroll_container if scroll_container else get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/ScrollContainer") as ScrollContainer
+	var g_view: JunkBoxGridView = grid_view if grid_view else get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/ScrollContainer/JunkBoxGridView") as JunkBoxGridView
+	if s_cont == null or g_view == null:
+		return
+
+	var v_bar: VScrollBar = s_cont.get_v_scroll_bar()
+	var content_height: float = g_view.custom_minimum_size.y
+	var container_height: float = s_cont.size.y if s_cont.size.y > 0.0 else s_cont.custom_minimum_size.y
+
+	if container_height > 0.0 and content_height <= container_height:
+		s_cont.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		if v_bar:
+			v_bar.visible = false
+	else:
+		s_cont.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+		if v_bar:
+			v_bar.visible = true
+
+	_adjust_container_margins()
+
+func _adjust_container_margins() -> void:
+	var s_cont: ScrollContainer = scroll_container if scroll_container else get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/ScrollContainer") as ScrollContainer
+	var g_view: JunkBoxGridView = grid_view if grid_view else get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/ScrollContainer/JunkBoxGridView") as JunkBoxGridView
+	if s_cont == null:
+		return
+	var margin_cont: MarginContainer = get_node_or_null("DrawerPanel/MarginContainer") as MarginContainer
+	if margin_cont == null:
+		return
+
+	var v_bar: VScrollBar = s_cont.get_v_scroll_bar()
+	var container_height: float = s_cont.size.y if s_cont.size.y > 0.0 else s_cont.custom_minimum_size.y
+	var is_overflowing: bool = false
+	if g_view != null and container_height > 0.0:
+		is_overflowing = g_view.custom_minimum_size.y > container_height
+	if v_bar != null and v_bar.visible:
+		is_overflowing = true
+
+	if is_overflowing:
+		margin_cont.add_theme_constant_override("margin_right", MARGIN_RIGHT_OVERFLOW)
+	else:
+		margin_cont.add_theme_constant_override("margin_right", MARGIN_RIGHT_DEFAULT)
+
+
+func _on_scroll_container_resized() -> void:
+	if grid_view:
+		grid_view.update_grid_size()
+
+
