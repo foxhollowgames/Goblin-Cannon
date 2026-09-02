@@ -79,6 +79,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-068`](#lrn-068) | TASK-043 | `ui_visuals` | Flying Energy Particle VFX Destination Targeting | 2026-09-02 |
 | [`LRN-069`](#lrn-069) | TASK-043 | `ui_visuals` | Gain Text Centering Underneath Charge Bar & 2-Stage Catch-Up Bar Animation | 2026-09-02 |
 | [`LRN-070`](#lrn-070) | TASK-043 | `ui_visuals` | Pure White Target Bar Accessibility & Non-Overlapping Segment Drawing | 2026-09-02 |
+| [`LRN-071`](#lrn-071) | TASK-043 | `ui_visuals` | High-Contrast Visual Accessibility for Lead Target Jump Bar | 2026-09-02 |
 
 ---
 
@@ -1201,5 +1202,21 @@ Drawing the lead target bar segment from liquid_ratio to _target_ratio separatel
 
 #### Actionable Guideline for Future Agents
 Render lead target bar segments using solid pure white Color(1.0, 1.0, 1.0, 1.0) starting at liquid_ratio to prevent color blending and guarantee high-contrast accessibility.
+
+---
+
+### <a id="lrn-071"></a> LRN-071: High-Contrast Visual Accessibility for Lead Target Jump Bar
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T11:13:40.576121`
+
+#### Context & Problem
+Adjacent white and yellow bars lacked stark visual contrast for users with visual impairments
+
+#### Key Insight & Learning
+Rendering the lead target segment as a protruding 12px tall box with solid pure white Color(1.0, 1.0, 1.0, 1.0) fill, solid black outline Color(0.0, 0.0, 0.0, 1.0), and 2px vertical black separator line creates extreme shape and color contrast for visual accessibility.
+
+#### Actionable Guideline for Future Agents
+Combine shape protrusion, black outline borders, and black separator lines around pure white target segments to guarantee extreme visual contrast for accessibility.
 
 ---
