@@ -1,4 +1,4 @@
-# TASK-037: Tooltip Text and Language Refinement
+# TASK-038: Tooltip Text and Language Refinement
 
 - **Status:** READY
 - **Priority:** P1
