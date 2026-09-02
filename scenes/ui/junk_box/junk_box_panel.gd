@@ -218,8 +218,8 @@ func _apply_sidebar_layout() -> void:
 	if c_btn:
 		c_btn.visible = false
 
-	if hbox:
-		hbox.vertical = true
+	if hbox and hbox is HBoxContainer:
+		(hbox as HBoxContainer).vertical = true
 
 	if s_cont:
 		s_cont.custom_minimum_size = Vector2(290, 360)

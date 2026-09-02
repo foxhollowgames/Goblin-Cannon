@@ -67,6 +67,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-056`](#lrn-056) | TASK-039 | `ui` | Godot Scene Instantiation and Onready Initialization Order | 2026-09-02 |
 | [`LRN-057`](#lrn-057) | TASK-039 | `ui` | CenterPanel Scene Anchors in main.tscn | 2026-09-02 |
 | [`LRN-058`](#lrn-058) | TASK-039 | `ui` | JunkBoxPanel Grid Cell Scaling for 320px Sidebar Width | 2026-09-02 |
+| [`LRN-059`](#lrn-059) | TASK-039 | `ui` | JunkBoxPanel Header Title Sizing | 2026-09-02 |
 
 ---
 
@@ -997,5 +998,21 @@ A 6-column grid with 52px cells produces a 312px grid, which plus 16px margins e
 
 #### Actionable Guideline for Future Agents
 Calculate grid column counts and cell padding so total sub-container width is less than 304px inside 320px sidebars.
+
+---
+
+### <a id="lrn-059"></a> LRN-059: JunkBoxPanel Header Title Sizing
+- **Task:** `TASK-039`
+- **Category:** `ui`
+- **Created:** `2026-09-02T09:53:31.102710`
+
+#### Context & Problem
+Adjusted Title font size and set custom_minimum_size on SortBtn in junk_box_panel.tscn.
+
+#### Key Insight & Learning
+Label with SIZE_EXPAND_FILL inside a 304px MarginContainer squished the Auto-Pack button to 88px, truncating it as Auto-Pa... Setting SortBtn custom_minimum_size to Vector2(84, 24) and font_size to 12 prevents button truncation.
+
+#### Actionable Guideline for Future Agents
+Explicitly set custom_minimum_size on header action buttons inside narrow sidebar containers.
 
 ---

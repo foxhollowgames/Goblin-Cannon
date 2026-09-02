@@ -70,6 +70,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-038](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-038-tooltip-text-and-language-refinement.md) | Tooltip Text and Language Refinement | UI/Polish | P1 | DONE | `feature/tooltip-text-refinement` |
 | [TASK-039](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-039-junk-box-sidebar-integration-and-pegboard-display.md) | Junk Box Sidebar Integration and Pegboard Display Equivalence | UI/Controls/Gameplay | P1 | DONE | `feature/junk-box-sidebar-and-pegboard-display` |
 | [TASK-040](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-040-asset-pack-sprite-audit-and-replacement.md) | Asset Pack Sprite Audit and Replacement | Art Production | P2 | BACKLOG | `feature/asset-pack-sprite-replacement` |
+| [TASK-041](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-041-remove-hopper-mouse-control.md) | Remove Hopper Mouse Control | Controls | P1 | BACKLOG | `feature/remove-hopper-mouse-control` |
 
 ---
 
