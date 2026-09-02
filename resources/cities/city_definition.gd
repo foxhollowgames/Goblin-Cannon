@@ -32,10 +32,16 @@ func get_effective_wall_names() -> Array:
 		return wall_names
 	return [gate_name]
 
-## Max HP for a given wall index (0 = first wall). Follows exponential curve: 200, 250, 450, …
-## Formula: base - 25*w + 75*w^2 (fits Wall 1=200, 2=250, 3=450 at base 200).
+## Max HP for a given wall index (0 = first wall). Follows exponential scaling: Health(n) = BaseHP * (Multiplier)^n.
 func get_wall_hp_max_for_index(wall_index: int) -> int:
-	if wall_index < 0:
+	if wall_index <= 0:
 		return wall_hp_max
-	var w: int = wall_index
-	return int(wall_hp_max - 25 * w + 75 * w * w)
+	return int(roundf(float(wall_hp_max) * pow(Constants.WALL_HP_EXPONENTIAL_MULTIPLIER, float(wall_index))))
+
+## Gold payout for breaching a wall index (0 = first wall). Follows exponential scaling.
+func get_wall_breach_gold_reward(wall_index: int) -> int:
+	var base_gold: int = Constants.BASE_WALL_BREACH_GOLD
+	if wall_index <= 0:
+		return base_gold
+	return int(roundf(float(base_gold) * pow(Constants.GOLD_REWARD_EXPONENTIAL_MULTIPLIER, float(wall_index))))
+

@@ -55,6 +55,7 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/test_tooltip_text_refinement.gd",
 	"res://tests/test_relic_enclosures.gd",
 	"res://tests/test_wall_siege.gd",
+	"res://tests/test_wall_health_scaling.gd",
 	"res://tests/test_file_lengths.gd",
 ]
 

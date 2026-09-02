@@ -87,6 +87,7 @@
 | `test_tooltip_text_refinement.gd` | `TooltipTextRefinement` | [tests/test_tooltip_text_refinement.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_tooltip_text_refinement.gd) |
 | `test_ui_buttons_audit.gd` | `UIButtonAudit` | [tests/test_ui_buttons_audit.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_ui_buttons_audit.gd) |
 | `test_volatile_gas.gd` | `VolatileGas` | [tests/test_volatile_gas.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_volatile_gas.gd) |
+| `test_wall_health_scaling.gd` | `WallHealthScaling` | [tests/test_wall_health_scaling.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_wall_health_scaling.gd) |
 | `test_wall_siege.gd` | `WallSiege` | [tests/test_wall_siege.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_wall_siege.gd) |
 
 ## 5. Quick Reference: Where Do I Find...?

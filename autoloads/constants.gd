@@ -155,6 +155,11 @@ const STASH_GOLD_CHANCE_FIVE: float = 0.04
 const STASH_GOLD_CHANCE_ONE: float = 0.10
 ## Lucky Gold peg: always 1 or 5 stash gold; five-gold rate is higher than normal stash rolls.
 const STASH_GOLD_LUCKY_PEG_FIVE_CHANCE: float = 0.12
+## Campaign Pacing & Exponential Scaling Constants (TASK-022)
+const WALL_HP_EXPONENTIAL_MULTIPLIER: float = 1.35
+const BASE_WALL_BREACH_GOLD: int = 15
+const GOLD_REWARD_EXPONENTIAL_MULTIPLIER: float = 1.25
+
 ## Milestone shop: pay gold to take a card or refresh offers.
 const SHOP_REFRESH_COST: int = 5
 ## Price by ball/stat rarity index (0=common … 5=epic).
