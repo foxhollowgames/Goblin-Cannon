@@ -132,13 +132,6 @@ func _draw() -> void:
 		# Background Box
 		draw_rect(bg_rect, Color("#121722"), true)
 		
-		# White Lead Flash Bar (instantly jumps to new target level)
-		if _target_ratio > 0.0:
-			var target_w: float = (bar_w - 2.0) * _target_ratio
-			if target_w > 0.0:
-				var target_rect := Rect2(bar_x + 1.0, bar_y + 1.0, target_w, bar_h - 2.0)
-				draw_rect(target_rect, Color(1.0, 1.0, 1.0, 0.9), true)
-
 		# Primary Yellow Catch-Up Fill Bar (smoothly lerps/catches up to target_ratio)
 		if liquid_ratio > 0.0:
 			var fill_w: float = (bar_w - 2.0) * liquid_ratio
@@ -146,6 +139,14 @@ func _draw() -> void:
 				var fill_rect := Rect2(bar_x + 1.0, bar_y + 1.0, fill_w, bar_h - 2.0)
 				var fill_col := Color("#d97706").lerp(Color("#ffec99"), liquid_ratio)
 				draw_rect(fill_rect, fill_col, true)
+
+		# Pure White Lead Target Bar (pure solid #FFFFFF for accessibility)
+		if _target_ratio > liquid_ratio:
+			var start_x: float = bar_x + 1.0 + (bar_w - 2.0) * liquid_ratio
+			var lead_w: float = (bar_w - 2.0) * (_target_ratio - liquid_ratio)
+			if lead_w > 0.0:
+				var lead_rect := Rect2(start_x, bar_y + 1.0, lead_w, bar_h - 2.0)
+				draw_rect(lead_rect, Color(1.0, 1.0, 1.0, 1.0), true)
 
 		# Outer Border
 		draw_rect(bg_rect, Color("#5d7545"), false, 1.0)

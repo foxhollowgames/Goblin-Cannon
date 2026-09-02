@@ -77,6 +77,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-066`](#lrn-066) | TASK-043 | `ui_visuals` | Center-Left Cannon UI Positioning & Right-Aligned Fire VFX | 2026-09-02 |
 | [`LRN-067`](#lrn-067) | TASK-043 | `ui_visuals` | Cannon Charge Overlay & UI Charge State Forwarding | 2026-09-02 |
 | [`LRN-068`](#lrn-068) | TASK-043 | `ui_visuals` | Flying Energy Particle VFX Destination Targeting | 2026-09-02 |
+| [`LRN-069`](#lrn-069) | TASK-043 | `ui_visuals` | Gain Text Centering Underneath Charge Bar & 2-Stage Catch-Up Bar Animation | 2026-09-02 |
 
 ---
 
@@ -1167,5 +1168,21 @@ Querying CannonVisual.global_position + Vector2(0.0, 18.0) in center_panel_ui.gd
 
 #### Actionable Guideline for Future Agents
 Calculate energy flow particle destination coordinates using the target visual node position (CannonVisual.global_position + Vector2(0.0, 18.0)) to align flying particles with the charge progress bar.
+
+---
+
+### <a id="lrn-069"></a> LRN-069: Gain Text Centering Underneath Charge Bar & 2-Stage Catch-Up Bar Animation
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T11:05:54.879289`
+
+#### Context & Problem
+Gain text label overlapped the charge bar and charge energy gains lacked clear visual feedback for jump amounts
+
+#### Key Insight & Learning
+Setting label_w = 80.0, horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER, and position = end_pos + Vector2(-label_w * 0.5, 8.0) centers gain labels directly underneath the charge bar. Adding _target_ratio white lead bar with 0.35s TRANS_QUAD smooth yellow catch-up tweening gives clear energy jump visual feedback.
+
+#### Actionable Guideline for Future Agents
+Center gain text labels horizontally underneath target UI bars and use a 2-stage white lead bar with smooth yellow catch-up fill animation for energy jumps.
 
 ---
