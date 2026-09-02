@@ -66,7 +66,6 @@ func _initialize() -> void:
 	call_deferred("_run_all_tests")
 
 func _run_all_tests() -> void:
-	# Dynamic pre-registration of class names to isolate parse failures
 	var _mp = load("res://autoloads/monster_palette.gd")
 	var _mc = load("res://scenes/board/machinery/polyomino_machinery_component.gd")
 
@@ -74,52 +73,54 @@ func _run_all_tests() -> void:
 	var total_failed: int = 0
 	var all_errors: Array[String] = []
 
-	print("")
-	print("========================================")
-	print("  GOBLIN CANNON — TEST SUITE")
-	print("========================================")
-	print("")
+	print("\n========================================\n  GOBLIN CANNON — TEST SUITE\n========================================\n")
 
 	for path in TEST_SCRIPTS:
-		var script: GDScript = load(path) as GDScript
-		if not script or not script.can_instantiate():
-			print("  [FAIL] Could not load or parse: %s" % path)
-			total_failed += 1
-			all_errors.append("%s > Failed to parse or instantiate" % path.get_file())
-			continue
+		var result: Dictionary = _execute_test_file(path)
+		total_passed += int(result.get("passed", 0))
+		total_failed += int(result.get("failed", 0))
+		var errs: Array = result.get("errors", [])
+		for e in errs:
+			all_errors.append(str(e))
 
-		var test_instance = script.new()
-		if not test_instance or not test_instance.has_method("run"):
-			print("  [SKIP] No run() method: %s" % path)
-			continue
-
-		test_instance.run()
-		if test_instance.has_method("cleanup"):
-			test_instance.cleanup()
-
-		var passed: int = test_instance.passed
-		var failed: int = test_instance.failed
-		var suite: String = test_instance.suite_name if "suite_name" in test_instance else path.get_file()
-		var errors: Array = test_instance.errors if "errors" in test_instance else []
-
-		total_passed += passed
-		total_failed += failed
-
-		var status: String = "PASS" if failed == 0 else "FAIL"
-		print("  [%s] %s  (%d passed, %d failed)" % [status, suite, passed, failed])
-		for e in errors:
-			all_errors.append("%s > %s" % [suite, e])
-
-	print("")
-	print("----------------------------------------")
-	print("  Total: %d passed, %d failed" % [total_passed, total_failed])
-	print("----------------------------------------")
-
+	print("\n----------------------------------------\n  Total: %d passed, %d failed\n----------------------------------------" % [total_passed, total_failed])
 	if total_failed > 0:
-		print("")
-		print("Failures:")
+		print("\nFailures:")
 		for e in all_errors:
 			print("  • %s" % e)
 		print("")
 
 	quit(0 if total_failed == 0 else 1)
+
+func _execute_test_file(path: String) -> Dictionary:
+	var res := {"passed": 0, "failed": 0, "errors": []}
+	var script: GDScript = load(path) as GDScript
+	if not script or not script.can_instantiate():
+		print("  [FAIL] Could not load or parse: %s" % path)
+		res["failed"] = 1
+		res["errors"].append("%s > Failed to parse or instantiate" % path.get_file())
+		return res
+
+	var test_instance = script.new()
+	if not test_instance or not test_instance.has_method("run"):
+		print("  [SKIP] No run() method: %s" % path)
+		return res
+
+	test_instance.run()
+	if test_instance.has_method("cleanup"):
+		test_instance.cleanup()
+
+	var passed: int = test_instance.passed
+	var failed: int = test_instance.failed
+	var suite: String = test_instance.suite_name if "suite_name" in test_instance else path.get_file()
+	var errors: Array = test_instance.errors if "errors" in test_instance else []
+
+	res["passed"] = passed
+	res["failed"] = failed
+	var status: String = "PASS" if failed == 0 else "FAIL"
+	print("  [%s] %s  (%d passed, %d failed)" % [status, suite, passed, failed])
+	for e in errors:
+		res["errors"].append("%s > %s" % [suite, e])
+
+	return res
+
