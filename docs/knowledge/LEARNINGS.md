@@ -57,6 +57,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-046`](#lrn-046) | TASK-002 | `campaign` | Six-Playthrough Story Campaign Architecture | 2026-09-01 |
 | [`LRN-047`](#lrn-047) | TASK-003 | `characters` | Character Bespoke Progression Mechanics | 2026-09-01 |
 | [`LRN-048`](#lrn-048) | TASK-018 | `polyomino` | Tetromino Module Combining and Fusion System | 2026-09-01 |
+| [`LRN-049`](#lrn-049) | TASK-008 | `synergies` | Build Archetypes and Synergy Linkages | 2026-09-01 |
 
 ---
 
@@ -827,5 +828,21 @@ PolyominoFusionSystem checks tier equivalence and RECIPE_BLUEPRINTS to combine l
 
 #### Actionable Guideline for Future Agents
 Use PolyominoFusionSystem.can_fuse and PolyominoFusionSystem.fuse_modules for module combining and crafting operations.
+
+---
+
+### <a id="lrn-049"></a> LRN-049: Build Archetypes and Synergy Linkages
+- **Task:** `TASK-008`
+- **Category:** `synergies`
+- **Created:** `2026-09-01T22:34:05.295100`
+
+#### Context & Problem
+BuildSynergyDatabase calculates synergy multipliers for 4 core build archetypes (pyro, cryo, voltage, swarm).
+
+#### Key Insight & Learning
+BuildSynergyDatabase.get_synergy_multiplier evaluates ball and peg combinations to boost weapon energy routing and damage based on archetype focus.
+
+#### Actionable Guideline for Future Agents
+Use BuildSynergyDatabase.get_synergy_multiplier to scale damage and energy routing during combat calculations.
 
 ---

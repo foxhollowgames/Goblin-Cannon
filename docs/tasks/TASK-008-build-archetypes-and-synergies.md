@@ -1,6 +1,6 @@
 # TASK-008: Build Archetypes and Synergy Design (Parent Task)
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Design / Systems
 - **Target Branch:** `feature/build-synergies-design`
@@ -35,7 +35,7 @@ This parent design task determines the specific ball mechanics and relic items t
 
 ## Acceptance Criteria
 
-- [ ] Core build archetypes documented with clear identity, strengths, and weaknesses.
-- [ ] Cross-system synergy matrix defined for balls, pegs, sidearms, and relics.
-- [ ] Child tasks ([TASK-009 Ball List](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-009-final-ball-list-campaign-1.md) and [TASK-010 Relic List](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-010-final-relic-list-campaign-1.md)) map directly to these archetypes.
+- [x] Core build archetypes documented with clear identity, strengths, and weaknesses.
+- [x] Cross-system synergy matrix defined for balls, pegs, sidearms, and relics.
+- [x] Child tasks ([TASK-009 Ball List](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-009-final-ball-list-campaign-1.md) and [TASK-010 Relic List](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-010-final-relic-list-campaign-1.md)) map directly to these archetypes.
 
