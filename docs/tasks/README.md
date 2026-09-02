@@ -71,7 +71,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-039](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-039-junk-box-sidebar-integration-and-pegboard-display.md) | Junk Box Sidebar Integration and Pegboard Display Equivalence | UI/Controls/Gameplay | P1 | DONE | `feature/junk-box-sidebar-and-pegboard-display` |
 | [TASK-040](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-040-asset-pack-sprite-audit-and-replacement.md) | Asset Pack Sprite Audit and Replacement | Art Production | P2 | BACKLOG | `feature/asset-pack-sprite-replacement` |
 | [TASK-041](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-041-remove-hopper-mouse-control.md) | Remove Hopper Mouse Control | Controls | P1 | DONE | `feature/remove-hopper-mouse-control` |
-| [TASK-042](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-042-hopper-positioning-top-ui-bar-and-debug-menu.md) | Hopper Repositioning, Top UI Bar & Debug Menu Integration | UI/Layout | P1 | READY | `feature/hopper-top-bar-debug-menu` |
+| [TASK-042](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-042-hopper-positioning-top-ui-bar-and-debug-menu.md) | Hopper Repositioning, Top UI Bar & Debug Menu Integration | UI/Layout | P1 | DONE | `feature/hopper-top-bar-debug-menu` |
 | [TASK-043](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-043-replace-drawn-cannons-with-sprite-assets.md) | Replace Drawn Cannons with Library Sprite Assets | UI/Visuals | P1 | DONE | `feature/replace-drawn-cannons-with-assets` |
 | [TASK-044](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-044-pause-game-for-comic-overlay-scenes.md) | Pause Game State for Full Comic Overlay Cinematics | Gameplay/Systems/UI | P1 | BACKLOG | `feature/pause-game-comic-overlays` |
 | [TASK-045](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-045-remove-minion-system.md) | Remove Minion System and Mechanics | Refactoring/Cleanup | P2 | BACKLOG | `feature/remove-minion-system` |
@@ -82,7 +82,9 @@ python scripts/generate_task_dashboard.py
 | [TASK-050](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-050-boss-intervention-popup-trolls.md) | Boss Intervention Pop-Up Targets | Systems/Gameplay | P1 | BACKLOG | `feature/boss-intervention-popup-trolls` |
 | [TASK-051](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-051-componentized-pinball-machinery-roster.md) | Componentized Pinball Machinery Roster | Systems/Gameplay/Physics | P1 | DONE | `feature/pinball-machinery-componentization` |
 | [TASK-052](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-052-junk-box-dynamic-scroll-bar.md) | Junk Box Dynamic Scroll Bar Visibility | UI/Polish | P1 | DONE | `feature/junk-box-dynamic-scroll-bar` |
-| [TASK-053](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-053-relic-machinery-audit-and-widget-distribution.md) | Relic Machinery Audit and Widget Distribution | Systems/Gameplay/Balance | P1 | BACKLOG | `feature/relic-widget-distribution` |
+| [TASK-053](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-053-relic-machinery-audit-and-widget-distribution.md) | Relic Machinery Audit and Widget Distribution | Systems/Gameplay/Balance | P1 | DONE | `feature/relic-widget-distribution` |
+| [TASK-054](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-054-relic-junk-box-return.md) | Relic Junk Box Return Inventory System | UI/Gameplay/Systems | P1 | BACKLOG | `feature/relic-junk-box-return` |
+| [TASK-055](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-055-relic-directional-machinery-rotation.md) | Relic Directional Machinery Rotation Compliance | Systems/Gameplay/Physics | P1 | BACKLOG | `feature/relic-directional-machinery-rotation` |
 
 
 
