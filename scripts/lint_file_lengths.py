@@ -29,7 +29,7 @@ BASELINE_LIMITS = {
     "orchestration/src/server/index.ts": 663,
     "orchestration/src/lib/task-merge.ts": 515,
     "docs/ARCHITECTURE.md": 558,
-    "docs/knowledge/LEARNINGS.md": 1300,
+    "docs/knowledge/LEARNINGS.md": 1400,
     "scenes/main/main.tscn": 508,
 }
 

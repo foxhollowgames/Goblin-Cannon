@@ -1,6 +1,5 @@
 extends CanvasLayer
 class_name FullscreenComicTakeover
-## Full-screen comic book takeover cutscene overlay (TASK-005 & TASK-014).
 
 signal takeover_started
 signal panel_advanced(panel_index: int)
@@ -42,6 +41,7 @@ func play_takeover(title_text: String = "WALL DESTROYED!") -> void:
 	show()
 	takeover_started.emit()
 	_show_panel(title_text)
+	GameState.paused = true
 
 func _show_panel(title_text: String) -> void:
 	current_panel_index += 1
@@ -63,4 +63,6 @@ func _on_timer_timeout(title_text: String) -> void:
 func dismiss_takeover() -> void:
 	is_playing = false
 	hide()
+	if GameState:
+		GameState.paused = false
 	takeover_completed.emit()

@@ -1,6 +1,6 @@
 # TASK-044: Pause Game State for Full Comic Overlay Cinematics
 
-- **Status:** BACKLOG
+- **Status:** IN_PROGRESS
 - **Priority:** P1
 - **Category:** Gameplay / Systems / UI
 - **Target Branch:** `feature/pause-game-comic-overlays`
@@ -33,7 +33,7 @@ Exclude bottom-right cannon animations from pausing the game state.
 
 ## Acceptance Criteria
 
-- [ ] Comic overlay cutscenes (wall break, boss victory, cinematics) pause the game state upon opening.
-- [ ] Game state resumes when comic overlay cutscenes finish or dismiss.
-- [ ] Bottom-right cannon firing animations do not pause game state.
-- [ ] Headless unit tests pass.
+- [x] Comic overlay cutscenes (wall break, boss victory, cinematics) pause the game state upon opening.
+- [x] Game state resumes when comic overlay cutscenes finish or dismiss.
+- [x] Bottom-right cannon firing animations do not pause game state.
+- [x] Headless unit tests pass.
