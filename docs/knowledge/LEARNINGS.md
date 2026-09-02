@@ -78,6 +78,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-067`](#lrn-067) | TASK-043 | `ui_visuals` | Cannon Charge Overlay & UI Charge State Forwarding | 2026-09-02 |
 | [`LRN-068`](#lrn-068) | TASK-043 | `ui_visuals` | Flying Energy Particle VFX Destination Targeting | 2026-09-02 |
 | [`LRN-069`](#lrn-069) | TASK-043 | `ui_visuals` | Gain Text Centering Underneath Charge Bar & 2-Stage Catch-Up Bar Animation | 2026-09-02 |
+| [`LRN-070`](#lrn-070) | TASK-043 | `ui_visuals` | Pure White Target Bar Accessibility & Non-Overlapping Segment Drawing | 2026-09-02 |
 
 ---
 
@@ -1184,5 +1185,21 @@ Setting label_w = 80.0, horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER, and 
 
 #### Actionable Guideline for Future Agents
 Center gain text labels horizontally underneath target UI bars and use a 2-stage white lead bar with smooth yellow catch-up fill animation for energy jumps.
+
+---
+
+### <a id="lrn-070"></a> LRN-070: Pure White Target Bar Accessibility & Non-Overlapping Segment Drawing
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T11:09:11.334042`
+
+#### Context & Problem
+Semi-transparent white drawn beneath or over yellow bars tint-blended into light yellow
+
+#### Key Insight & Learning
+Drawing the lead target bar segment from liquid_ratio to _target_ratio separately using solid pure white Color(1.0, 1.0, 1.0, 1.0) with zero overlap over the yellow fill bar ensures pure #FFFFFF contrast for accessibility.
+
+#### Actionable Guideline for Future Agents
+Render lead target bar segments using solid pure white Color(1.0, 1.0, 1.0, 1.0) starting at liquid_ratio to prevent color blending and guarantee high-contrast accessibility.
 
 ---

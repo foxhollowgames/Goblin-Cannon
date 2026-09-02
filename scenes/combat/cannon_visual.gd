@@ -121,35 +121,39 @@ func _draw() -> void:
 		var sprite_rect := Rect2(center_x - sprite_w * 0.5, center_y - sprite_h * 0.5, sprite_w, sprite_h)
 		draw_texture_rect(CANNON_TEXTURE, sprite_rect, false)
 
-	# 2. Render Sleek Cannon Energy Charge Bar Overlay with White Lead Flash & Yellow Catch-Up
+	# 2. Render High-Contrast Accessibility Energy Charge Bar Overlay
 	if _target_ratio > 0.0 or liquid_ratio > 0.0:
-		var bar_w: float = 54.0
-		var bar_h: float = 6.0
+		var bar_w: float = 60.0
+		var bar_h: float = 8.0
 		var bar_x: float = center_x - bar_w * 0.5
 		var bar_y: float = center_y + 18.0
 		var bg_rect := Rect2(bar_x, bar_y, bar_w, bar_h)
 		
-		# Background Box
-		draw_rect(bg_rect, Color("#121722"), true)
-		
+		# Background Box (Dark slate container)
+		draw_rect(bg_rect, Color("#090d14"), true)
+		draw_rect(bg_rect, Color("#334155"), false, 1.5)
+
 		# Primary Yellow Catch-Up Fill Bar (smoothly lerps/catches up to target_ratio)
 		if liquid_ratio > 0.0:
 			var fill_w: float = (bar_w - 2.0) * liquid_ratio
 			if fill_w > 0.0:
 				var fill_rect := Rect2(bar_x + 1.0, bar_y + 1.0, fill_w, bar_h - 2.0)
-				var fill_col := Color("#d97706").lerp(Color("#ffec99"), liquid_ratio)
+				var fill_col := Color("#d97706").lerp(Color("#f59e0b"), liquid_ratio)
 				draw_rect(fill_rect, fill_col, true)
 
-		# Pure White Lead Target Bar (pure solid #FFFFFF for accessibility)
+		# Stark High-Contrast Pure White Lead Target Box (Pure #FFFFFF Fill with Black Outline & Height Protrusion)
 		if _target_ratio > liquid_ratio:
 			var start_x: float = bar_x + 1.0 + (bar_w - 2.0) * liquid_ratio
 			var lead_w: float = (bar_w - 2.0) * (_target_ratio - liquid_ratio)
 			if lead_w > 0.0:
-				var lead_rect := Rect2(start_x, bar_y + 1.0, lead_w, bar_h - 2.0)
-				draw_rect(lead_rect, Color(1.0, 1.0, 1.0, 1.0), true)
-
-		# Outer Border
-		draw_rect(bg_rect, Color("#5d7545"), false, 1.0)
+				# Black Separator Line between yellow bar and white box
+				draw_line(Vector2(start_x, bar_y - 2.0), Vector2(start_x, bar_y + bar_h + 2.0), Color(0.0, 0.0, 0.0, 1.0), 2.0)
+				# Protruding Outer Black Outline Box
+				var outline_rect := Rect2(start_x, bar_y - 2.0, lead_w, bar_h + 4.0)
+				draw_rect(outline_rect, Color(0.0, 0.0, 0.0, 1.0), true)
+				# Solid Pure White Inner Fill (#FFFFFF)
+				var inner_rect := Rect2(start_x + 1.0, bar_y - 1.0, maxf(1.0, lead_w - 2.0), bar_h + 2.0)
+				draw_rect(inner_rect, Color(1.0, 1.0, 1.0, 1.0), true)
 
 	# 3. Cartoon Coffee Fire VFX Muzzle Blast (Lined up against the right side of the sprite)
 	if _show_muzzle_flash and FIRE_VFX_TEXTURE:
