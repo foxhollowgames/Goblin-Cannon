@@ -69,6 +69,8 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-058`](#lrn-058) | TASK-039 | `ui` | JunkBoxPanel Grid Cell Scaling for 320px Sidebar Width | 2026-09-02 |
 | [`LRN-059`](#lrn-059) | TASK-039 | `ui` | JunkBoxPanel Header Title Sizing | 2026-09-02 |
 | [`LRN-060`](#lrn-060) | TASK-039 | `ui` | Godot VBoxContainer Orientation Exception Prevention | 2026-09-02 |
+| [`LRN-061`](#lrn-061) | TASK-039 | `verification` | Playwright Chromium UI Verification | 2026-09-02 |
+| [`LRN-062`](#lrn-062) | TASK-042 | `ui` | UI Layout and Centering | 2026-09-02 |
 
 ---
 
@@ -1031,5 +1033,37 @@ Calling .vertical = true on a Node typed as BoxContainer when the actual instanc
 
 #### Actionable Guideline for Future Agents
 Check node type using 'is HBoxContainer' before mutating .vertical on BoxContainer nodes.
+
+---
+
+### <a id="lrn-061"></a> LRN-061: Playwright Chromium UI Verification
+- **Task:** `TASK-039`
+- **Category:** `verification`
+- **Created:** `2026-09-02T10:00:26.342326`
+
+#### Context & Problem
+Added Python Playwright Chromium capture script to verify HTML dashboard and visual task matrix.
+
+#### Key Insight & Learning
+Python Playwright Chromium (sync_api) can launch headless browser instances to capture pixel-perfect 1280x720 full-page screenshots of local HTML visual dashboards.
+
+#### Actionable Guideline for Future Agents
+Use python -m playwright to capture automated visual dashboard snapshots during automated UI verification.
+
+---
+
+### <a id="lrn-062"></a> LRN-062: UI Layout and Centering
+- **Task:** `TASK-042`
+- **Category:** `ui`
+- **Created:** `2026-09-02T10:10:19.572956`
+
+#### Context & Problem
+UI overlapping, right sidebar overflow, board uncentered
+
+#### Key Insight & Learning
+RunGold label repositioning, 6-col Junk Box grid width, 15-col 116px start offset board centering
+
+#### Actionable Guideline for Future Agents
+Keep sidebar panel minimum width <= 304px for 320px containers and use 15 cols with 116px start X for 960px board centering.
 
 ---

@@ -71,6 +71,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-039](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-039-junk-box-sidebar-integration-and-pegboard-display.md) | Junk Box Sidebar Integration and Pegboard Display Equivalence | UI/Controls/Gameplay | P1 | DONE | `feature/junk-box-sidebar-and-pegboard-display` |
 | [TASK-040](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-040-asset-pack-sprite-audit-and-replacement.md) | Asset Pack Sprite Audit and Replacement | Art Production | P2 | BACKLOG | `feature/asset-pack-sprite-replacement` |
 | [TASK-041](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-041-remove-hopper-mouse-control.md) | Remove Hopper Mouse Control | Controls | P1 | BACKLOG | `feature/remove-hopper-mouse-control` |
+| [TASK-042](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-042-hopper-positioning-top-ui-bar-and-debug-menu.md) | Hopper Repositioning, Top UI Bar & Debug Menu Integration | UI/Layout | P1 | BACKLOG | `feature/hopper-top-bar-debug-menu` |
 
 ---
 
