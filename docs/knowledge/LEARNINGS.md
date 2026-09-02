@@ -87,6 +87,9 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-076`](#lrn-076) | TASK-042 | `ui` | Hopper Repositioning and Top Bar Debug Menu | 2026-09-02 |
 | [`LRN-077`](#lrn-077) | TASK-044 | `ui` | Full-Screen Comic Overlay Game Pause Behavior | 2026-09-02 |
 | [`LRN-078`](#lrn-078) | TASK-042 | `ui` | Top Header UI Bar Background and Ball Spawn Masking | 2026-09-02 |
+| [`LRN-079`](#lrn-079) | TASK-004 | `ui` | gold_counter_repositioning | 2026-09-02 |
+| [`LRN-080`](#lrn-080) | TASK-042 | `ui` | hopper_top_bar_clearance | 2026-09-02 |
+| [`LRN-081`](#lrn-081) | TASK-042 | `ui` | High-Layer CanvasLayer for Top UI Header Bar and Non-Overlapping Control Layout | 2026-09-02 |
 
 ---
 
@@ -1337,5 +1340,53 @@ Adding a solid top UI header bar background and setting SPAWN_Y_OFFSET behind th
 
 #### Actionable Guideline for Future Agents
 Mask ball spawn origins behind solid header bar panels (SPAWN_Y_OFFSET <= header_bar_bottom) to keep ball emergence visually clean.
+
+---
+
+### <a id="lrn-079"></a> LRN-079: gold_counter_repositioning
+- **Task:** `TASK-004`
+- **Category:** `ui`
+- **Created:** `2026-09-02T13:42:43.749710`
+
+#### Context & Problem
+Top UI header layout and gold counter visual presentation
+
+#### Key Insight & Learning
+Padding out TopWallContainer vertically allows hosting both WallHealthBar and GoldContainer with a gold coin icon texture.
+
+#### Actionable Guideline for Future Agents
+Position the gold counter inside TopWallContainer directly underneath WallHealthBar, replacing the text label prefix with a coin_gold.png HUD icon texture asset.
+
+---
+
+### <a id="lrn-080"></a> LRN-080: hopper_top_bar_clearance
+- **Task:** `TASK-042`
+- **Category:** `ui`
+- **Created:** `2026-09-02T13:53:51.776246`
+
+#### Context & Problem
+Top UI header bar padding vs Hopper node position
+
+#### Key Insight & Learning
+Setting Hopper position Y to 135 ensures its top rim (local offset Y = -80, global Y = 55) clears the 54px top header UI bar without overlap.
+
+#### Actionable Guideline for Future Agents
+Position the Hopper node at Y = 135 in main.tscn so that its bin top rim (Y = 55) sits cleanly below the 54px top header UI bar.
+
+---
+
+### <a id="lrn-081"></a> LRN-081: High-Layer CanvasLayer for Top UI Header Bar and Non-Overlapping Control Layout
+- **Task:** `TASK-042`
+- **Category:** `ui`
+- **Created:** `2026-09-02T13:59:39.409238`
+
+#### Context & Problem
+Hopper 2D world nodes bled through transparent top UI header, and timer text overlapped debug buttons.
+
+#### Key Insight & Learning
+Placing top UI header background panels in a high CanvasLayer (layer=10) with 100% solid opacity blocks all 2D world nodes behind Y <= 54, while separating utility buttons, stats, and health containers across dedicated X zones eliminates UI control overlaps.
+
+#### Actionable Guideline for Future Agents
+Place top UI header bars in high CanvasLayer layers (layer >= 10) with 100% opacity to mask world nodes, and enforce strict non-overlapping X coordinate zones for utility buttons, timer, gold, and health bars.
 
 ---
