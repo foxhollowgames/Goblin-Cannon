@@ -17,7 +17,6 @@ var drag_controller: Node = null
 @onready var drawer_panel: PanelContainer = $DrawerPanel
 @onready var grid_view: JunkBoxGridView = $DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/ScrollContainer/JunkBoxGridView
 @onready var scroll_container: ScrollContainer = $DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/ScrollContainer
-@onready var tooltip_lbl: RichTextLabel = $DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/VBoxInfo/InfoPanel/TooltipLabel
 @onready var close_btn: Button = $DrawerPanel/MarginContainer/VBoxContainer/HBoxTitle/CloseBtn
 @onready var sort_btn: Button = $DrawerPanel/MarginContainer/VBoxContainer/HBoxTitle/SortBtn
 
@@ -126,10 +125,7 @@ func _on_item_unhovered() -> void:
 	_update_tooltip(null)
 
 func _get_tooltip_lbl() -> RichTextLabel:
-	if tooltip_lbl:
-		return tooltip_lbl
-	tooltip_lbl = get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/VBoxInfo/InfoPanel/TooltipLabel") as RichTextLabel
-	return tooltip_lbl
+	return null
 
 func _update_tooltip(item: JunkBoxItem) -> void:
 	var lbl: RichTextLabel = _get_tooltip_lbl()

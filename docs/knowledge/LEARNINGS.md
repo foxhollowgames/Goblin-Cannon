@@ -64,6 +64,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-053`](#lrn-053) | TASK-004 | `ui` | Right Sidebar Junk Box and Circular Cannon Orb Layout | 2026-09-02 |
 | [`LRN-054`](#lrn-054) | TASK-005 | `flow` | Takeover Cutscene Reward Sequencing | 2026-09-02 |
 | [`LRN-055`](#lrn-055) | TASK-039 | `ui` | JunkBoxPanel Sidebar Width Containment | 2026-09-02 |
+| [`LRN-056`](#lrn-056) | TASK-039 | `ui` | Godot Scene Instantiation and Onready Initialization Order | 2026-09-02 |
 
 ---
 
@@ -946,5 +947,21 @@ HBoxContainer with size_flags_horizontal SIZE_EXPAND_FILL inside JunkBoxPanel fo
 
 #### Actionable Guideline for Future Agents
 Use vertical VBoxContainer stacking for sub-panels inside 320px wide sidebars to prevent horizontal expansion over the main playfield.
+
+---
+
+### <a id="lrn-056"></a> LRN-056: Godot Scene Instantiation and Onready Initialization Order
+- **Task:** `TASK-039`
+- **Category:** `ui`
+- **Created:** `2026-09-02T09:37:08.684977`
+
+#### Context & Problem
+Resolved JunkBoxPanel layout failure caused by pre-SceneTree node reference evaluation.
+
+#### Key Insight & Learning
+Calling custom layout functions on an instantiated scene before adding it to the SceneTree evaluates @onready variables as null. Re-applying layout configurations inside _ready ensures node references are populated.
+
+#### Actionable Guideline for Future Agents
+Always invoke layout configuration methods in _ready() or re-evaluate @onready nodes using get_node_or_null() if called before add_child().
 
 ---
