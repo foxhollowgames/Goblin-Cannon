@@ -58,6 +58,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-047`](#lrn-047) | TASK-003 | `characters` | Character Bespoke Progression Mechanics | 2026-09-01 |
 | [`LRN-048`](#lrn-048) | TASK-018 | `polyomino` | Tetromino Module Combining and Fusion System | 2026-09-01 |
 | [`LRN-049`](#lrn-049) | TASK-008 | `synergies` | Build Archetypes and Synergy Linkages | 2026-09-01 |
+| [`LRN-050`](#lrn-050) | TASK-004 | `ui` | Right Panel UI and Comic Cutout Vignettes | 2026-09-01 |
 
 ---
 
@@ -844,5 +845,21 @@ BuildSynergyDatabase.get_synergy_multiplier evaluates ball and peg combinations 
 
 #### Actionable Guideline for Future Agents
 Use BuildSynergyDatabase.get_synergy_multiplier to scale damage and energy routing during combat calculations.
+
+---
+
+### <a id="lrn-050"></a> LRN-050: Right Panel UI and Comic Cutout Vignettes
+- **Task:** `TASK-004`
+- **Category:** `ui`
+- **Created:** `2026-09-01T22:34:43.998475`
+
+#### Context & Problem
+ComicVignettePanel displays comic cutout bubbles when the main cannon fires.
+
+#### Key Insight & Learning
+ComicVignettePanel.trigger_firing_vignette calculates wall degradation ratio and goblin reaction mood states, auto-dismissing after animation without blocking board mouse events.
+
+#### Actionable Guideline for Future Agents
+Use ComicVignettePanel with mouse_filter MOUSE_FILTER_IGNORE to render live combat cutout vignettes over UI panels.
 
 ---

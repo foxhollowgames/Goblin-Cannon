@@ -1,6 +1,6 @@
 # TASK-004: Right Panel UI and Comic Cutout Vignettes
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI/VFX
 - **Target Branch:** `feature/comic-panel-ui`
@@ -34,7 +34,7 @@ Implement a cutout bubble that triggers when the cannon fires, showing a mini cu
 
 ## Acceptance Criteria
 
-- [ ] Right side panel is redesigned into a communicative interface.
-- [ ] Cannon firing triggers the cutout bubble mini-cutscene.
-- [ ] Goblin, cannon, and wall visual assets reflect real-time health values.
-- [ ] Cutout bubble dismisses cleanly and does not block board interaction.
+- [x] Right side panel is redesigned into a communicative interface.
+- [x] Cannon firing triggers the cutout bubble mini-cutscene.
+- [x] Goblin, cannon, and wall visual assets reflect real-time health values.
+- [x] Cutout bubble dismisses cleanly and does not block board interaction.
