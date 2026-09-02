@@ -46,6 +46,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-035`](#lrn-035) | TASK-COORD-UI-01 | `godot_engine` | GameCoordinator UI Sub-Manager Extraction | 2026-09-01 |
 | [`LRN-036`](#lrn-036) | TASK-COORD-DECOMP-02 | `godot_engine` | GameCoordinator Full Sub-Manager Refactoring | 2026-09-01 |
 | [`LRN-037`](#lrn-037) | Decompose large source files | `Architecture` | game_coordinator_decomposition | 2026-09-01 |
+| [`LRN-038`](#lrn-038) | FIX-SHOP-ICONS | `godot_engine` | Shop card VBox attachment and marker script path | 2026-09-01 |
 
 ---
 
@@ -640,5 +641,21 @@ Decomposed GameCoordinator, RewardHandler, and RewardDraftPanel into modular sta
 
 #### Actionable Guideline for Future Agents
 Keep source files under 500 lines by delegating specialized sub-tasks to dedicated helper classes
+
+---
+
+### <a id="lrn-038"></a> LRN-038: Shop card VBox attachment and marker script path
+- **Task:** `FIX-SHOP-ICONS`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-01T18:45:19.156318`
+
+#### Context & Problem
+Shop cards displayed empty frames without title, icon, or description rendering
+
+#### Key Insight & Learning
+RewardCardBuilder.make_shop_card_layer omitted layer.add_child(card_vbox), leaving card_vbox un-parented in the scene tree
+
+#### Actionable Guideline for Future Agents
+Always ensure container layout builder functions attach created child VBoxContainer nodes to their parent layer before returning.
 
 ---

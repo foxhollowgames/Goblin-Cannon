@@ -195,16 +195,16 @@ static func make_shop_card_layer(panel: PanelContainer, rarity: int, border_colo
 		marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		marker.z_index = 1
 		layer.add_child(marker)
-	var half_sz: float = marker_size / 2.0
-	var border_center_y: float = -float(border_width) / 2.0
-	marker.anchor_left = 0.5
-	marker.anchor_right = 0.5
-	marker.anchor_top = 0.0
-	marker.anchor_bottom = 0.0
-	marker.offset_left = -half_sz
-	marker.offset_right = half_sz
-	marker.offset_top = border_center_y - half_sz
-	marker.offset_bottom = border_center_y + half_sz
+		var half_sz: float = marker_size / 2.0
+		var border_center_y: float = -float(border_width) / 2.0
+		marker.anchor_left = 0.5
+		marker.anchor_right = 0.5
+		marker.anchor_top = 0.0
+		marker.anchor_bottom = 0.0
+		marker.offset_left = -half_sz
+		marker.offset_right = half_sz
+		marker.offset_top = border_center_y - half_sz
+		marker.offset_bottom = border_center_y + half_sz
 	layer.add_child(card_vbox) # Ensure card_vbox is added as a child of layer
 	return card_vbox
 
