@@ -68,6 +68,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-057`](#lrn-057) | TASK-039 | `ui` | CenterPanel Scene Anchors in main.tscn | 2026-09-02 |
 | [`LRN-058`](#lrn-058) | TASK-039 | `ui` | JunkBoxPanel Grid Cell Scaling for 320px Sidebar Width | 2026-09-02 |
 | [`LRN-059`](#lrn-059) | TASK-039 | `ui` | JunkBoxPanel Header Title Sizing | 2026-09-02 |
+| [`LRN-060`](#lrn-060) | TASK-039 | `ui` | Godot VBoxContainer Orientation Exception Prevention | 2026-09-02 |
 
 ---
 
@@ -1014,5 +1015,21 @@ Label with SIZE_EXPAND_FILL inside a 304px MarginContainer squished the Auto-Pac
 
 #### Actionable Guideline for Future Agents
 Explicitly set custom_minimum_size on header action buttons inside narrow sidebar containers.
+
+---
+
+### <a id="lrn-060"></a> LRN-060: Godot VBoxContainer Orientation Exception Prevention
+- **Task:** `TASK-039`
+- **Category:** `ui`
+- **Created:** `2026-09-02T09:54:53.391188`
+
+#### Context & Problem
+Resolved runtime C++ exception when attempting set_vertical on a VBoxContainer node.
+
+#### Key Insight & Learning
+Calling .vertical = true on a Node typed as BoxContainer when the actual instance is already a VBoxContainer throws a C++ runtime exception ('Can\'t change orientation of VBoxContainer') and aborts script execution. Explicitly checking 'hbox is HBoxContainer' avoids the exception.
+
+#### Actionable Guideline for Future Agents
+Check node type using 'is HBoxContainer' before mutating .vertical on BoxContainer nodes.
 
 ---
