@@ -52,6 +52,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-041`](#lrn-041) | TASK-TEST-FRAMEWORK-PARSE-ISOLATION | `testing` | Godot Test Runner Parse Failure Isolation | 2026-09-01 |
 | [`LRN-042`](#lrn-042) | TASK-021 | `gameplay` | Wall Siege Timer and Defender Pushback Logic | 2026-09-01 |
 | [`LRN-043`](#lrn-043) | TASK-022 | `balance` | Exponential Wall HP and Gold Scaling Model | 2026-09-01 |
+| [`LRN-044`](#lrn-044) | TASK-036 | `machinery` | Pinball Kinetic Machinery and Rollover Bank Completion | 2026-09-01 |
 
 ---
 
@@ -742,5 +743,21 @@ Exponential formulas Health(n) = BaseHP * (1.35)^n and Gold(n) = BaseGold * (1.2
 
 #### Actionable Guideline for Future Agents
 Use CityDefinition.get_wall_hp_max_for_index and get_wall_breach_gold_reward for all wall health and resource payout calculations.
+
+---
+
+### <a id="lrn-044"></a> LRN-044: Pinball Kinetic Machinery and Rollover Bank Completion
+- **Task:** `TASK-036`
+- **Category:** `machinery`
+- **Created:** `2026-09-01T22:30:16.136168`
+
+#### Context & Problem
+Kinetic pinball devices (rollovers, pop bumpers, drop targets, wire gates, slingshots) require distinct component scripts and rollover bank triggers.
+
+#### Key Insight & Learning
+RolloverSwitch devices emit bank_completed signals on full bank illumination when set_lit is updated prior to trigger_activation signal emissions.
+
+#### Actionable Guideline for Future Agents
+Use PolyominoModuleData.CellType for pinball component types and verify rollover bank state via cell_type matching in PolyominoModuleNode.
 
 ---
