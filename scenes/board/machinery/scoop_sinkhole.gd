@@ -15,6 +15,7 @@ func _ready() -> void:
 	component_radius = 20.0
 	base_energy = 10
 	impulse_strength = 350.0
+	_update_direction()
 	
 	_hold_timer = Timer.new()
 	_hold_timer.wait_time = hold_duration_sec
@@ -25,6 +26,10 @@ func _ready() -> void:
 	_setup_collision()
 	_setup_audio()
 	set_process(true)
+
+func _update_direction() -> void:
+	if direction != Vector2.ZERO:
+		eject_direction = direction.normalized()
 
 func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else ball.get_instance_id()

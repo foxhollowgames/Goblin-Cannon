@@ -75,6 +75,10 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/test_pinball_components.gd",
 	"res://tests/test_relic_widget_distribution.gd",
 	"res://tests/test_on_board_relic_tooltips.gd",
+<<<<<<< HEAD
+=======
+	"res://tests/test_relic_junk_box_return.gd",
+>>>>>>> feature/relic-junk-box-return
 	"res://tests/test_file_lengths.gd",
 ]
 

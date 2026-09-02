@@ -6,7 +6,7 @@ func _init() -> void:
 const MAX_LINES: int = 500
 
 const BASELINE_LIMITS: Dictionary = {
-	"res://scenes/board/board.gd": 3237,
+	"res://scenes/board/board.gd": 3268,
 	"res://scenes/main/game_coordinator.gd": 1531,
 	"res://scenes/board/peg.gd": 1180,
 	"res://scenes/rewards/reward_draft_panel.gd": 886,

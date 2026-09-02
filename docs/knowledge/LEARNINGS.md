@@ -94,6 +94,9 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-083`](#lrn-083) | TASK-042 | `ui` | Cannon Overlay Layering Order and Sidebar Widget Texture Rendering | 2026-09-02 |
 | [`LRN-084`](#lrn-084) | TASK-042 | `ui` | Single Canonical Node Rendering vs Duplicate Static Texture Drawing | 2026-09-02 |
 | [`LRN-085`](#lrn-085) | TASK-052 | `ui` | Junk Box Dynamic Scroll Bar Visibility | 2026-09-02 |
+| [`LRN-086`](#lrn-086) | TASK-053 | `game_balance` | relic_machinery | 2026-09-02 |
+| [`LRN-087`](#lrn-087) | TASK-042 | `godot_engine` | hopper_ball_cascade_physics | 2026-09-02 |
+| [`LRN-088`](#lrn-088) | TASK-049 | `godot_engine` | On-Board Relic Tooltip Simplification | 2026-09-02 |
 
 ---
 
@@ -1456,5 +1459,53 @@ ScrollContainer calculates scrollbar visibility by comparing child custom_minimu
 
 #### Actionable Guideline for Future Agents
 Use JunkBoxGridView.update_grid_size to dynamically calculate minimum row height and JunkBoxPanel.update_scroll_bar_visibility to toggle scrollbar mode and container margin padding.
+
+---
+
+### <a id="lrn-086"></a> LRN-086: relic_machinery
+- **Task:** `TASK-053`
+- **Category:** `game_balance`
+- **Created:** `2026-09-02T16:05:33.087999`
+
+#### Context & Problem
+Audited relic machinery distribution across Tier 1, Tier 2, and Tier 3 relics.
+
+#### Key Insight & Learning
+Bash toys are high-reward elements that should be reserved for top tier relics.
+
+#### Actionable Guideline for Future Agents
+Assign high-rarity bash toys exclusively to Tier 3 relics while maintaining an even distribution of all 15 pinball widgets across lower tier relics.
+
+---
+
+### <a id="lrn-087"></a> LRN-087: hopper_ball_cascade_physics
+- **Task:** `TASK-042`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-02T16:09:12.243290`
+
+#### Context & Problem
+Balls dropped vertically at exact center with 0 velocity stacked in a rigid 1D column inside the hopper.
+
+#### Key Insight & Learning
+Symmetrical 2D circle physics with zero X velocity and high linear damp freezes balls in a vertical stack without rolling.
+
+#### Actionable Guideline for Future Agents
+Randomize ball spawn X offsets, apply small horizontal velocity nudges, and use low linear damp inside the hopper bin to ensure 2D cascading.
+
+---
+
+### <a id="lrn-088"></a> LRN-088: On-Board Relic Tooltip Simplification
+- **Task:** `TASK-049`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-02T16:17:19.150466`
+
+#### Context & Problem
+Reworking hover tooltips for polyomino relics on active pegboard layout
+
+#### Key Insight & Learning
+On-board hover tooltips should omit detailed specs like tier, size, and shape properties to avoid visual clutter
+
+#### Actionable Guideline for Future Agents
+Format on-board relic hover tooltips to show only activation requirements and relic effects while preserving full specs in shop and inventory cards.
 
 ---

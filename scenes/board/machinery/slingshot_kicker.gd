@@ -13,5 +13,5 @@ func _compute_impulse(ball: Node) -> Vector2:
 	var my_pos: Vector2 = global_position if is_inside_tree() else position
 	var dir: Vector2 = (ball_pos - my_pos).normalized()
 	if dir == Vector2.ZERO:
-		dir = Vector2.UP
+		dir = direction.normalized() if direction != Vector2.ZERO else Vector2.UP
 	return dir * impulse_strength
