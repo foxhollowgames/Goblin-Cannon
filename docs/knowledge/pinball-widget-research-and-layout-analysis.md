@@ -1,74 +1,53 @@
-# Pinball Layout Research & Digital Relic Adaptation
+# Physical Pinball Playfield Component Analysis
 
-This document analyzes pinball playfield components and adapts them for Goblin Cannon.
-It includes an exhaustive table of every onboard mechanic in the codebase with plain-text explanations.
+This document provides a strict representation of physical pinball machines and playfield components.
+It documents physical mechanics on real pinball tables without game project adaptations.
 
 ---
 
-## 1. Complete Table of Onboard Mechanics in Goblin Cannon
+## 1. Strict Physical Pinball Component Taxonomy
 
-Below is the complete list of all 15 onboard kinetic mechanics and cell types in Goblin Cannon, alongside plain-text explanations:
+Below is the strict representation of physical pinball board components and their mechanical operation on real machines:
 
-| Mechanic Name | Type Identifier | Plain-Text Explanation |
+| Physical Component | Mechanical Target Type | Plain-English Physical Operation |
 | :--- | :--- | :--- |
-| **Open Corridor** | `EMPTY` | An open cell inside a relic footprint that lets cannonballs travel through freely. |
-| **Guide Rail** | `GUIDE_RAIL` | A metallic rail that guides cannonballs along a fixed track without losing speed. |
-| **Catch Funnel** | `FUNNEL` | A wide chute that collects incoming cannonballs and channels them down a specific lane. |
-| **Kinetic Bumper** | `BUMPER` | A reactive bumper that repels cannonballs on contact, bouncing them away with extra speed. |
-| **Speed Accelerator** | `ACCELERATOR` | A motorized roller pad that launches cannonballs forward with an immediate directional speed boost. |
-| **Rotary Booster** | `ROTARY_BOOSTER` | A spinning hub that accelerates cannonballs radially and triggers energy pulses when struck. |
-| **Mana Siphon** | `MANA_SIPHON` | A siphon cell that absorbs kinetic energy from passing cannonballs to generate mana for casting spells. |
-| **Directional Deflector**| `DIRECTIONAL_DEFLECTOR`| An angled deflector plate that ricochets cannonballs at a specific output direction (Up, Down, Left, Right). |
-| **Rollover Switch** | `ROLLOVER_SWITCH` | A floor sensor triggered when a cannonball rolls over it. Completing switch sets lights up element bonuses. |
-| **Pop Bumper** | `POP_BUMPER` | A solenoid-powered bumper that violently blasts cannonballs away with high impulse force and bonus energy. |
-| **Drop Target Bank** | `DROP_TARGET` | A target plate that drops flat after 3 hits. Clearing a bank unlocks board energy multipliers upon reset. |
-| **Wire Gate** | `WIRE_GATE` | A hinged wire gate that lets cannonballs pass through in one direction but blocks backward movement. |
-| **Slingshot Rebounder** | `SLINGSHOT` | An active triangular rubber band mechanism that launches cannonballs sideways across the board on impact. |
-| **Digital Scoop Reservoir**| `MULTIBALL_RESERVOIR` | A relic module that captures cannonballs, stores copies of their stats, and launches a massive multiball blast. |
-| **Interactive Bash Toy** | `TARGET_BANK` | A heavy central target that absorbs direct cannonball hits and triggers explosive area-of-effect shockwaves. |
+| **Pop Bumpers (Jet Bumpers)** | Active Solenoid Ring | Cylindrical bumpers with a floating ring. When touched, an under-board solenoid fires downward, violently repelling the steel ball. |
+| **Drop Target Banks** | Falling Plastic Plates | Vertical plastic plates over solenoid slots. Hits knock plates flat below the wooden board. Solenoids reset targets upward. |
+| **Standup Target Banks** | Stationary Leaf Switches | Rigid plastic or metal plates mounted to playfield wood. They stay upright on contact and bounce the ball backwards. |
+| **Spinners (Spinning Targets)** | Hinged Axle Plate | Metal plates hinged above a lane. Passing balls push under the plate, spinning it rapidly to trigger repeated switch contacts. |
+| **Scoops / Sinkholes** | Playfield Surface Cutouts | Holes cut into playfield wood. Balls roll in, fall into under-board troughs to pause play, and eject via solenoid kickers. |
+| **Physical Ball Locks** | Under-Board Troughs | Subterranean channels or mechanical traps holding 1 to 3 steel balls. Releasing all balls simultaneously starts Multi-Ball. |
+| **Ramps & Habitrails** | Elevated Wire Tracks | Molded inclines and stainless steel wireform tracks. They carry balls over obstacles and deliver gravity returns to flipper lanes. |
+| **Orbits & Loops** | Outer Perimeter Lanes | Smooth curved outer channels along playfield edges. Fast shots travel around the top loop and return down the opposite lane. |
+| **Slingshots** | Active Kicker Rubbers | Triangular rubber bands above flippers. Solenoid kicker arms behind the rubber bands launch the ball sideways across the board. |
+| **Rollover Lanes** | Floor Wire Switches | Narrow channels with wire switch arms protruding through playfield wood. Balls roll over switch arms to register lane lighting. |
+| **Captive Balls / Newton Balls** | Trapped Steel Ball Track | A steel ball trapped inside a short channel in front of a target switch. Ball impacts transfer energy through the trapped ball. |
+| **Under-Board Magnets** | Electromagnet Coils | Coils under playfield wood. When energized, magnets capture, spin, hold, or throw steel balls in wild trajectories. |
+| **Mechanical Diverters** | Solenoid Gate Flappers | Solenoid gates inside ramps or orbits that swing open or closed to redirect balls into different playfield channels. |
+| **Vertical Up Kickers (VUKs)** | Under-Board Plunger Pots | Subterranean solenoid cups. When balls enter the pot under the table, vertical solenoids shoot balls up through board holes to upper rails. |
+| **Physical Bash Toys** | Motorized Sculptures | Heavy interactive targets (Castle Gates, Flying Saucers). Direct ball hits trigger mechanical shaking, doors opening, or toy damage. |
+| **Outlane Kickbacks** | Solenoid Plunger Pins | Solenoid pins hidden inside bottom outlanes. Active kickbacks launch balls entering outlanes back onto the main playfield. |
 
 ---
 
-## 2. High-Value Digital Relic Concepts for Goblin Cannon
+## 2. Iconic Physical Pinball Table Case Studies
 
-### 2.1 The Digital Scoop Reservoir (Ball Cloner & Multiball Launcher)
-*   **Concept:** A relic grid module that captures cannonballs during play.
-*   **Digital Mechanics:** When a cannonball rolls into the Scoop Relic, the relic absorbs the ball and stores a copy of its stats.
-*   **Massive Blast Activation:** When charged or triggered by player input, the Scoop Relic releases a massive blast of all stored cannonballs simultaneously across the playfield!
-*   **Polyomino Shape:** L-Shape (3 cells) or 2x2 Block.
+### 2.1 Twilight Zone (Bally, 1993 - Pat Lawlor)
+*   **Physical Features:** Gumball Machine toy, Powerfield magnet board, Ceramic Powerball, Slot Machine scoop.
+*   **Mechanical Analysis:** Dense physical features interrupt ball travel to offer clear target choices. Electromagnets alter ball paths.
 
-### 2.2 Interactive Bash Toys (Central High-Impact Relics)
-*   **Concept:** Heavy central targets inspired by pinball bash toys (Castle Gates, Flying Saucers).
-*   **Digital Mechanics:** Placed in central grid zones. They absorb direct cannonball impacts, display visual damage stages, and trigger explosive shockwaves when destroyed.
-*   **Polyomino Shape:** 2x2 Block or T-Shape (4 cells).
+### 2.2 Attack from Mars (Bally, 1995 - Brian Eddy)
+*   **Physical Features:** Central Flying Saucer bash toy, dual stroke ramps, outer orbits, 3-bank drop targets.
+*   **Mechanical Analysis:** Ramps and outer orbits arrange in a wide fan arc. Smooth wireform habitrails return balls directly to flippers.
 
----
-
-## 3. Iconic Table Case Studies & Community Sentiment
-
-### 3.1 Attack from Mars (Bally, 1995)
-*   **Core Feature:** Central Flying Saucer Bash Toy.
-*   **Player Sentiment:** Rated #3 on Pinside. Players love bashing the central flying saucer target until it wobbles and explodes.
-*   **Community Quote:** *"Bashing the flying saucer in the center until it explodes is one of the most satisfying feelings in arcades."*
-
-### 3.2 Medieval Madness (Williams, 1997)
-*   **Core Feature:** Exploding Castle Gate & Drawbridge Bash Toy.
-*   **Player Sentiment:** Rated #1 on Pinside. Players praise the destructive feedback of breaking down physical barriers.
-*   **Community Quote:** *"Lowering the drawbridge and smashing open the castle gate provides peak physical reward."*
-
-### 3.3 Twilight Zone (Bally, 1993)
-*   **Core Feature:** Gumball Machine & Ceramic Powerball.
-*   **Player Sentiment:** Rated #4 on Pinside. Players love complex ball-storing toys and high-speed ball variations.
+### 2.3 Medieval Madness (Williams, 1997 - Brian Eddy)
+*   **Physical Features:** Exploding Castle drawbridge and gate, Catapult VUK, Troll pop-up targets.
+*   **Mechanical Analysis:** High-stakes physical bash targets occupy the center. Ramps and orbits reward precise flipper timing.
 
 ---
 
-## 4. Mechanical Pinball Hardware Glossary (Background Reference)
+## 3. Playfield Layout Archetypes
 
-Physical pinball machines use under-board solenoids and switches.
-This mechanical jargon is included below for background reference:
-
-*   **Scoop (Physical):** A hole cut into wooden playfield boards where balls fall into subterranean channels.
-*   **Ball Lock (Physical):** A trough or trough switch holding physical steel balls under the table.
-*   **VUK (Vertical Up Kicker):** An under-board solenoid piston that kicks balls vertically up through holes.
-*   **Drop Target Bank:** Vertical plastic plates that fall below the playfield wood when struck.
-*   **Habitrail Wireform:** Stainless steel wire tracks elevated above the playfield to return balls to flippers.
+*   **Fan Layout:** Targets arrange in a semicircular arc (Attack from Mars, Medieval Madness).
+*   **Tactile Stop-and-Go:** Dense scoops, drop target banks, and upper playfields pause action for targeted shots (Twilight Zone).
+*   **Horseshoe / Dual Loop:** Wide inner and outer loops allow continuous high-speed shooting (Star Trek: TNG).

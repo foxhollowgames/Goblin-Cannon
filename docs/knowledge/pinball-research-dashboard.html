@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pinball Research & Complete Onboard Mechanics List</title>
+  <title>Physical Pinball Machine Component Research</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <style>
     body {
@@ -20,10 +20,6 @@
       border-color: #38bdf8;
       box-shadow: 0 4px 20px -2px rgba(56, 189, 248, 0.15);
     }
-    .feature-highlight {
-      background: linear-gradient(135deg, rgba(15, 23, 42, 0.9), rgba(30, 41, 59, 0.9));
-      border: 1px solid #38bdf8;
-    }
   </style>
 </head>
 <body class="bg-[#090d16] text-slate-100 antialiased p-6 min-h-screen">
@@ -34,178 +30,133 @@
     <header class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2 border border-cyan-500/20">
-          TASK-047 Complete Mechanics Table
+          TASK-047 Strict Physical Pinball Research
         </div>
-        <h1 class="text-3xl font-extrabold tracking-tight text-white">Goblin Cannon Onboard Mechanics List</h1>
+        <h1 class="text-3xl font-extrabold tracking-tight text-white">Physical Pinball Playfield Component Analysis</h1>
         <p class="text-slate-400 text-sm mt-1">
-          An exhaustive list of all 15 onboard mechanics with plain-text explanations and digital relic concepts.
+          A strict representation of real physical pinball board components, solenoids, switches, and layout mechanics.
         </p>
       </div>
       <div class="flex gap-2">
-        <a href="#all-mechanics" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold rounded-lg shadow-lg transition">
-          View All 15 Mechanics 📋
+        <a href="#physical-table" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold rounded-lg shadow-lg transition">
+          Physical Component Table 📋
         </a>
       </div>
     </header>
 
     <!-- Navigation Tabs -->
     <div class="flex border-b border-slate-800 gap-6 overflow-x-auto text-sm font-medium">
-      <a href="#all-mechanics" class="pb-3 border-b-2 border-cyan-400 text-cyan-400 font-semibold">All 15 Mechanics</a>
-      <a href="#digital-relics" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Featured Digital Relics</a>
+      <a href="#physical-table" class="pb-3 border-b-2 border-cyan-400 text-cyan-400 font-semibold">Physical Component Table</a>
       <a href="#machines" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Real Board Photos</a>
       <a href="#quotes" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Player Sentiment</a>
-      <a href="#hardware-jargon" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Mechanical Jargon (Bottom)</a>
+      <a href="#sources" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Sources & Videos</a>
     </div>
 
-    <!-- Section 1: EXHAUSTIVE TABLE OF ALL 15 ONBOARD MECHANICS -->
-    <section id="all-mechanics" class="space-y-4">
+    <!-- Section 1: STRICT PHYSICAL PINBALL COMPONENT TAXONOMY TABLE -->
+    <section id="physical-table" class="space-y-4">
       <h2 class="text-2xl font-bold flex items-center gap-2 text-white">
-        <span>📋</span> Complete List of Onboard Mechanics (15 Total)
+        <span>📋</span> Strict Physical Pinball Component Taxonomy (16 Mechanics)
       </h2>
       <p class="text-slate-300 text-sm">
-        Every onboard kinetic mechanic and cell type implemented in Goblin Cannon, paired with plain-text explanations:
+        Comprehensive documentation of real physical pinball board components, solenoids, and mechanical hardware:
       </p>
 
       <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg overflow-x-auto">
         <table class="w-full text-left border-collapse text-sm">
           <thead>
             <tr class="border-b border-slate-800 text-slate-400">
-              <th class="pb-3 font-semibold">Mechanic Name</th>
-              <th class="pb-3 font-semibold">Cell Type Code</th>
-              <th class="pb-3 font-semibold">Plain-Text Explanation</th>
+              <th class="pb-3 font-semibold">Physical Component</th>
+              <th class="pb-3 font-semibold">Mechanical Target Type</th>
+              <th class="pb-3 font-semibold">Plain-English Physical Operation</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-800/60 text-xs">
-            <tr class="bg-cyan-950/20">
-              <td class="py-3 font-bold text-cyan-300">Digital Scoop Reservoir</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-mono">MULTIBALL_RESERVOIR</span></td>
-              <td class="py-3 text-slate-200">Captures cannonballs, stores copies of their stats, and launches a massive multiball blast when activated.</td>
-            </tr>
-            <tr class="bg-amber-950/20">
-              <td class="py-3 font-bold text-amber-300">Interactive Bash Toy</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-mono">TARGET_BANK</span></td>
-              <td class="py-3 text-slate-200">Heavy central target that absorbs direct cannonball hits and triggers explosive shockwaves.</td>
+            <tr>
+              <td class="py-3 font-bold text-cyan-300">Pop Bumpers (Jet Bumpers)</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-mono">Active Solenoid Ring</span></td>
+              <td class="py-3 text-slate-200">Cylindrical bumpers with a floating ring. When touched, an under-board solenoid fires downward, violently repelling the steel ball.</td>
             </tr>
             <tr>
-              <td class="py-3 font-bold text-white">Pop Bumper</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">POP_BUMPER</span></td>
-              <td class="py-3 text-slate-300">Solenoid-powered bumper that violently repels cannonballs on contact with high impulse force and bonus energy.</td>
+              <td class="py-3 font-bold text-emerald-300">Drop Target Banks</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono">Falling Plastic Plates</span></td>
+              <td class="py-3 text-slate-200">Vertical plastic plates over solenoid slots. Hits knock plates flat below the wooden board. Solenoids reset targets upward.</td>
             </tr>
             <tr>
-              <td class="py-3 font-bold text-white">Drop Target Bank</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">DROP_TARGET</span></td>
-              <td class="py-3 text-slate-300">Target plate that drops flat after receiving 3 hits. Clearing a target bank unlocks energy multipliers upon reset.</td>
+              <td class="py-3 font-bold text-white">Standup Target Banks</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Stationary Leaf Switches</span></td>
+              <td class="py-3 text-slate-300">Rigid plastic or metal plates mounted to playfield wood. They stay upright on contact and bounce the ball backwards.</td>
             </tr>
             <tr>
-              <td class="py-3 font-bold text-white">Spinning Target</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">MANA_SIPHON / ROTARY</span></td>
-              <td class="py-3 text-slate-300">Hinged target plate that spins rapidly on pass-through, converting ball momentum into rapid ticks of mana.</td>
+              <td class="py-3 font-bold text-amber-300">Spinners (Spinning Targets)</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-mono">Hinged Axle Plate</span></td>
+              <td class="py-3 text-slate-200">Metal plates hinged above a lane. Passing balls push under the plate, spinning it rapidly to trigger repeated switch contacts.</td>
             </tr>
             <tr>
-              <td class="py-3 font-bold text-white">Kinetic Bumper</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">BUMPER</span></td>
-              <td class="py-3 text-slate-300">Reactive bumper post that repels cannonballs on contact, bouncing them away with extra speed.</td>
+              <td class="py-3 font-bold text-purple-300">Scoops / Sinkholes</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/30 font-mono">Playfield Surface Cutouts</span></td>
+              <td class="py-3 text-slate-200">Holes cut into playfield wood. Balls roll in, fall into under-board troughs to pause play, and eject via solenoid kickers.</td>
             </tr>
             <tr>
-              <td class="py-3 font-bold text-white">Speed Accelerator</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">ACCELERATOR</span></td>
-              <td class="py-3 text-slate-300">Motorized roller pad that launches cannonballs forward with an immediate directional speed boost.</td>
+              <td class="py-3 font-bold text-rose-300">Physical Ball Locks</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/30 font-mono">Under-Board Troughs</span></td>
+              <td class="py-3 text-slate-200">Subterranean channels or mechanical traps holding 1 to 3 steel balls. Releasing all balls simultaneously starts Multi-Ball.</td>
             </tr>
             <tr>
-              <td class="py-3 font-bold text-white">Rotary Booster</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">ROTARY_BOOSTER</span></td>
-              <td class="py-3 text-slate-300">Spinning central hub that accelerates cannonballs radially and triggers energy pulses when struck.</td>
+              <td class="py-3 font-bold text-white">Ramps & Habitrails</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Elevated Wire Tracks</span></td>
+              <td class="py-3 text-slate-300">Molded inclines and stainless steel wireform tracks. They carry balls over obstacles and deliver gravity returns to flipper lanes.</td>
             </tr>
             <tr>
-              <td class="py-3 font-bold text-white">Mana Siphon</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">MANA_SIPHON</span></td>
-              <td class="py-3 text-slate-300">Magical siphon cell that absorbs kinetic energy from passing cannonballs to generate mana for spell casting.</td>
+              <td class="py-3 font-bold text-white">Orbits & Loops</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Outer Perimeter Lanes</span></td>
+              <td class="py-3 text-slate-300">Smooth curved outer channels along playfield edges. Fast shots travel around the top loop and return down the opposite lane.</td>
             </tr>
             <tr>
-              <td class="py-3 font-bold text-white">Directional Deflector</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">DIRECTIONAL_DEFLECTOR</span></td>
-              <td class="py-3 text-slate-300">Angled deflector plate that ricochets cannonballs at a specific output direction (Up, Down, Left, Right).</td>
+              <td class="py-3 font-bold text-white">Slingshots</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Active Kicker Rubbers</span></td>
+              <td class="py-3 text-slate-300">Triangular rubber bands above flippers. Solenoid kicker arms behind the rubber bands launch the ball sideways across the board.</td>
             </tr>
             <tr>
-              <td class="py-3 font-bold text-white">Rollover Switch</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">ROLLOVER_SWITCH</span></td>
-              <td class="py-3 text-slate-300">Floor sensor triggered when a cannonball rolls over it. Completing switch sets lights up element bonuses.</td>
+              <td class="py-3 font-bold text-white">Rollover Lanes</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Floor Wire Switches</span></td>
+              <td class="py-3 text-slate-300">Narrow channels with wire switch arms protruding through playfield wood. Balls roll over switch arms to register lane lighting.</td>
             </tr>
             <tr>
-              <td class="py-3 font-bold text-white">Guide Rail</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">GUIDE_RAIL</span></td>
-              <td class="py-3 text-slate-300">Metallic rail that guides cannonballs along a fixed track without losing momentum.</td>
+              <td class="py-3 font-bold text-white">Captive Balls / Newton Balls</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Trapped Steel Ball Track</span></td>
+              <td class="py-3 text-slate-300">A steel ball trapped inside a short channel in front of a target switch. Ball impacts transfer energy through the trapped ball.</td>
             </tr>
             <tr>
-              <td class="py-3 font-bold text-white">Catch Funnel</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">FUNNEL</span></td>
-              <td class="py-3 text-slate-300">Wide chute that collects incoming cannonballs and channels them down a specific lane.</td>
+              <td class="py-3 font-bold text-white">Under-Board Magnets</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Electromagnet Coils</span></td>
+              <td class="py-3 text-slate-300">Coils under playfield wood. When energized, magnets capture, spin, hold, or throw steel balls in wild trajectories.</td>
             </tr>
             <tr>
-              <td class="py-3 font-bold text-white">Wire Gate</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">WIRE_GATE</span></td>
-              <td class="py-3 text-slate-300">Hinged wire gate that lets cannonballs pass through in one direction but blocks backward movement.</td>
+              <td class="py-3 font-bold text-white">Mechanical Diverters</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Solenoid Gate Flappers</span></td>
+              <td class="py-3 text-slate-300">Solenoid gates inside ramps or orbits that swing open or closed to redirect balls into different playfield channels.</td>
             </tr>
             <tr>
-              <td class="py-3 font-bold text-white">Slingshot Rebounder</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">SLINGSHOT</span></td>
-              <td class="py-3 text-slate-300">Active triangular rubber band mechanism that launches cannonballs sideways across the board on impact.</td>
+              <td class="py-3 font-bold text-white">Vertical Up Kickers (VUKs)</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Under-Board Plunger Pots</span></td>
+              <td class="py-3 text-slate-300">Subterranean solenoid cups. When balls enter the pot under the table, vertical solenoids shoot balls up through board holes to upper rails.</td>
+            </tr>
+            <tr>
+              <td class="py-3 font-bold text-amber-300">Physical Bash Toys</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-mono">Motorized Sculptures</span></td>
+              <td class="py-3 text-slate-200">Heavy interactive targets (Castle Gates, Flying Saucers). Direct ball hits trigger mechanical shaking, doors opening, or toy damage.</td>
+            </tr>
+            <tr>
+              <td class="py-3 font-bold text-white">Outlane Kickbacks</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Solenoid Plunger Pins</span></td>
+              <td class="py-3 text-slate-300">Solenoid pins hidden inside bottom outlanes. Active kickbacks launch balls entering outlanes back onto the main playfield.</td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
 
-    <!-- Section 2: TOP DIGITAL RELIC CONCEPTS -->
-    <section id="digital-relics" class="space-y-4">
-      <h2 class="text-2xl font-bold flex items-center gap-2 text-cyan-400">
-        <span>🚀</span> Featured Digital Relic Concepts
-      </h2>
-
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-        <!-- Concept 1: Digital Scoop Reservoir -->
-        <div class="feature-highlight rounded-2xl p-6 shadow-xl space-y-3">
-          <div class="flex justify-between items-start">
-            <span class="text-xs font-mono bg-cyan-500/20 text-cyan-300 px-2.5 py-1 rounded border border-cyan-500/30">
-              FEATURED MECHANIC
-            </span>
-            <span class="text-xs font-mono text-slate-400">L-Shape / 2x2 Footprint</span>
-          </div>
-          <h3 class="text-xl font-extrabold text-white flex items-center gap-2">
-            <span>🌀</span> The Digital Scoop Reservoir
-          </h3>
-          <p class="text-xs text-slate-300 leading-relaxed">
-            <strong>How it Works:</strong> A specialized relic grid module that acts as an energy and ball accumulator. When a cannonball rolls into the Scoop Relic, it absorbs the ball and stores a copy of its current damage and elemental stats.
-          </p>
-          <div class="bg-slate-950/70 p-3 rounded-lg border border-slate-800 text-xs text-cyan-300">
-            <strong>Massive Multiball Blast:</strong> When charged or triggered by player input, the Scoop Reservoir releases a massive burst of all stored cannonball copies at once across the playfield!
-          </div>
-        </div>
-
-        <!-- Concept 2: Central Bash Toys -->
-        <div class="feature-highlight rounded-2xl p-6 shadow-xl space-y-3">
-          <div class="flex justify-between items-start">
-            <span class="text-xs font-mono bg-amber-500/20 text-amber-300 px-2.5 py-1 rounded border border-amber-500/30">
-              HIGH-IMPACT TARGET
-            </span>
-            <span class="text-xs font-mono text-slate-400">2x2 Block / T-Shape</span>
-          </div>
-          <h3 class="text-xl font-extrabold text-white flex items-center gap-2">
-            <span>💥</span> Interactive Bash Toys
-          </h3>
-          <p class="text-xs text-slate-300 leading-relaxed">
-            <strong>How it Works:</strong> Heavy central targets placed on the board (inspired by Castle Gates and Flying Saucers). They absorb direct impacts, display visual damage stages, and trigger massive area-of-effect explosions.
-          </p>
-          <div class="bg-slate-950/70 p-3 rounded-lg border border-slate-800 text-xs text-amber-300">
-            <strong>Physical Feedback:</strong> Rewards precise center shots with high kinetic impulse, repelling nearby balls while damaging boss units.
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- Section 3: Real Machine Case Studies -->
+    <!-- Section 2: Real Machine Case Studies -->
     <section id="machines" class="space-y-4">
       <h2 class="text-xl font-bold flex items-center gap-2 text-white">
         <span>🎰</span> Iconic Pinball Machines (Real Physical Board Photos)
@@ -272,7 +223,7 @@
       </div>
     </section>
 
-    <!-- Section 4: Player Sentiment -->
+    <!-- Section 3: Player Sentiment -->
     <section id="quotes" class="space-y-4">
       <h2 class="text-xl font-bold flex items-center gap-2 text-white">
         <span>💬</span> Player Community Quotes & Sentiment
@@ -297,27 +248,54 @@
       </div>
     </section>
 
-    <!-- Section 5: Mechanical Hardware Jargon (Bottom Section) -->
-    <section id="hardware-jargon" class="space-y-4 pt-4 border-t border-slate-800">
-      <div class="bg-slate-950 border border-slate-850 p-6 rounded-xl space-y-3 opacity-85">
-        <h2 class="text-lg font-bold text-slate-400 flex items-center gap-2">
-          <span>⚙️</span> Physical Mechanical Hardware Glossary (Background Reference)
-        </h2>
-        <p class="text-xs text-slate-400 leading-relaxed">
-          Physical pinball machines use under-board solenoids and switches. This physical hardware terminology is included below for background reference:
-        </p>
+    <!-- Section 4: Research Sources & Videos -->
+    <section id="sources" class="space-y-4">
+      <h2 class="text-xl font-bold flex items-center gap-2 text-white">
+        <span>📚</span> Research Sources, Discourse & Video Reviews
+      </h2>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-slate-400">
-          <div class="p-3 bg-slate-900 rounded border border-slate-800">
-            <strong class="text-slate-300 block mb-1">Physical Scoop:</strong> A hole cut into wooden playfield boards where balls drop into under-board channels.
-          </div>
-          <div class="p-3 bg-slate-900 rounded border border-slate-800">
-            <strong class="text-slate-300 block mb-1">Physical Ball Lock:</strong> An under-table trough holding steel balls before releasing them.
-          </div>
-          <div class="p-3 bg-slate-900 rounded border border-slate-800">
-            <strong class="text-slate-300 block mb-1">VUK (Vertical Up Kicker):</strong> An under-board solenoid piston shooting balls up onto overhead rails.
-          </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3 shadow-lg">
+          <h3 class="font-bold text-md flex items-center gap-2 text-white">
+            <span>🌐</span> Community Discourse & Ratings
+          </h3>
+          <ul class="text-xs space-y-2.5">
+            <li class="p-3 rounded-lg bg-slate-950 border border-slate-800 hover:border-cyan-500/40 transition">
+              <a href="https://pinside.com/pinball/top-100" target="_blank" class="font-semibold text-cyan-400 hover:underline flex justify-between items-center text-sm">
+                Pinside Top 100 Pinball Machines ↗
+              </a>
+              <p class="text-slate-400 mt-1">Community ranking database for machine layouts, playfield ratings, and mechanical reviews.</p>
+            </li>
+            <li class="p-3 rounded-lg bg-slate-950 border border-slate-800 hover:border-cyan-500/40 transition">
+              <a href="https://www.reddit.com/r/pinball/" target="_blank" class="font-semibold text-cyan-400 hover:underline flex justify-between items-center text-sm">
+                Reddit (r/pinball) Community ↗
+              </a>
+              <p class="text-slate-400 mt-1">Player discussions on flow vs stop-and-go layouts, shot geometry, and component chaos.</p>
+            </li>
+          </ul>
         </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3 shadow-lg">
+          <h3 class="font-bold text-md flex items-center gap-2 text-white">
+            <span>🎥</span> Video Reviews & Gameplay Guides
+          </h3>
+          <ul class="text-xs space-y-2.5">
+            <li class="p-3 rounded-lg bg-slate-950 border border-slate-800 hover:border-cyan-500/40 transition">
+              <a href="https://www.youtube.com/results?search_query=bowen+kerins+pinball+tutorial" target="_blank" class="font-semibold text-cyan-400 hover:underline flex justify-between items-center text-sm">
+                Bowen Kerins & PAPA Pinball Tutorials ↗
+              </a>
+              <p class="text-slate-400 mt-1">Masterclass video breakdowns of playfield geometry, ramp feeds, and ball control tactics.</p>
+            </li>
+            <li class="p-3 rounded-lg bg-slate-950 border border-slate-800 hover:border-cyan-500/40 transition">
+              <a href="https://www.youtube.com/results?search_query=todd+tuckey+coastline+pinball+review" target="_blank" class="font-semibold text-cyan-400 hover:underline flex justify-between items-center text-sm">
+                Todd Tuckey & Coastline Pinball Teardowns ↗
+              </a>
+              <p class="text-slate-400 mt-1">Mechanical inspections of solenoids, pop bumpers, habitrails, and physical bash toys.</p>
+            </li>
+          </ul>
+        </div>
+
       </div>
     </section>
 
