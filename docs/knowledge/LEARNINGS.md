@@ -92,6 +92,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-081`](#lrn-081) | TASK-042 | `ui` | High-Layer CanvasLayer for Top UI Header Bar and Non-Overlapping Control Layout | 2026-09-02 |
 | [`LRN-082`](#lrn-082) | TASK-042 | `ui` | UI Button Layering Order and Hopper Outline Geometry | 2026-09-02 |
 | [`LRN-083`](#lrn-083) | TASK-042 | `ui` | Cannon Overlay Layering Order and Sidebar Widget Texture Rendering | 2026-09-02 |
+| [`LRN-084`](#lrn-084) | TASK-042 | `ui` | Single Canonical Node Rendering vs Duplicate Static Texture Drawing | 2026-09-02 |
 
 ---
 
@@ -1422,5 +1423,21 @@ Set CannonOverlay layer to 15 (above UILayer layer 10) so main cannon visuals re
 
 #### Actionable Guideline for Future Agents
 Keep CannonOverlay layer higher than UILayer (layer=15 > layer=10), and ensure custom Control widget _draw() methods explicitly draw texture assets.
+
+---
+
+### <a id="lrn-084"></a> LRN-084: Single Canonical Node Rendering vs Duplicate Static Texture Drawing
+- **Task:** `TASK-042`
+- **Category:** `ui`
+- **Created:** `2026-09-02T14:43:58.911654`
+
+#### Context & Problem
+Both CannonVisual and CircularCannonWidget rendered cannon sprite assets simultaneously in the bottom right panel.
+
+#### Key Insight & Learning
+Avoid duplicate asset texture rendering in container controls when a dedicated animated Node2D (CannonVisual) is reparented to an overlay layer for the same UI area.
+
+#### Actionable Guideline for Future Agents
+Rely on single primary animated nodes (e.g. CannonVisual) on overlay layers rather than drawing duplicate static textures inside parent container widgets.
 
 ---
