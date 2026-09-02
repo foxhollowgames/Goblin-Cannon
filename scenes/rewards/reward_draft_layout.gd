@@ -85,7 +85,7 @@ static func shop_kill_hover_tween(root: Control) -> void:
 
 static func create_rarity_marker(rarity: int) -> Control:
 	var shape_control: Control = Control.new()
-	shape_control.set_script(load("res://scenes/ui/rarity_shape_control.gd") as GDScript)
+	shape_control.set_script(load("res://scenes/rewards/rarity_shape_marker.gd") as GDScript)
 	shape_control.set("rarity", rarity)
 	return shape_control
 
