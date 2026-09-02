@@ -53,8 +53,8 @@ func test_debug_tools_column_wireup() -> void:
 
 	var col: Control = gc_debug.build_debug_tools_column()
 	assert_true(col != null, "debug tools column created")
-	var buttons: Array = col.get_children()
-	assert_eq(buttons.size(), 5, "5 debug buttons created")
+	var buttons: Array = col.find_children("*", "Button", true, false)
+	assert_eq(buttons.size(), 6, "6 buttons (toggle + 5 tools) created")
 	for child in buttons:
 		var btn: Button = child as Button
 		assert_true(btn != null, "child is Button: " + str(child.name))

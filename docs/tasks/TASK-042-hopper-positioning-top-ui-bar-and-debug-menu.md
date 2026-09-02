@@ -1,6 +1,6 @@
 # TASK-042: Hopper Repositioning, Top UI Bar & Debug Menu Integration
 
-- **Status:** READY
+- **Status:** COMPLETED
 - **Priority:** P1
 - **Category:** UI / Layout / Controls
 - **Target Branch:** `feature/hopper-top-bar-debug-menu`
@@ -34,8 +34,8 @@ Consolidate all loose debug buttons on screen into a structured debug menu optio
 
 ## Acceptance Criteria
 
-- [ ] The hopper is positioned and moves strictly beneath the gold counter and top header bar.
-- [ ] Top screen bar area is reserved exclusively for header UI panels.
-- [ ] All debug buttons are consolidated inside a collapsible debug menu housed in the top UI bar.
-- [ ] Debug controls remain fully operational from within the top UI debug menu.
-- [ ] Headless unit tests pass.
+- [x] The hopper is positioned and moves strictly beneath the gold counter and top header bar.
+- [x] Top screen bar area is reserved exclusively for header UI panels.
+- [x] All debug buttons are consolidated inside a collapsible debug menu housed in the top UI bar.
+- [x] Debug controls remain fully operational from within the top UI debug menu.
+- [x] Headless unit tests pass.

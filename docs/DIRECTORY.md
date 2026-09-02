@@ -61,6 +61,7 @@
 | `test_game_state.gd` | `GameState` | [tests/test_game_state.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_game_state.gd) |
 | `test_hit_cooldown.gd` | `HitCooldown` | [tests/test_hit_cooldown.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_hit_cooldown.gd) |
 | `test_hopper_steering.gd` | `HopperSteering` | [tests/test_hopper_steering.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_hopper_steering.gd) |
+| `test_hopper_top_bar_debug_menu.gd` | `HopperTopBarDebugMenu` | [tests/test_hopper_top_bar_debug_menu.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_hopper_top_bar_debug_menu.gd) |
 | `test_junk_box_inventory.gd` | `JunkBoxInventory` | [tests/test_junk_box_inventory.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_junk_box_inventory.gd) |
 | `test_junk_box_sidebar_display.gd` | `JunkBoxSidebarDisplay` | [tests/test_junk_box_sidebar_display.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_junk_box_sidebar_display.gd) |
 | `test_junk_box_ui_and_board_transfer.gd` | `JunkBoxUIAndBoardTransfer` | [tests/test_junk_box_ui_and_board_transfer.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_junk_box_ui_and_board_transfer.gd) |

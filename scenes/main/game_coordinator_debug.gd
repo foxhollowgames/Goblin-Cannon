@@ -47,17 +47,65 @@ func apply_test_scenario_overrides() -> void:
 #region Debug Tools UI
 ## Builds the left panel debug tools button column.
 func build_debug_tools_column() -> Control:
-	var col: VBoxContainer = VBoxContainer.new()
-	col.name = "DebugTools"
-	col.position = Vector2(8, 8)
-	col.add_theme_constant_override("separation", 4)
-	col.process_mode = Node.PROCESS_MODE_ALWAYS
-	col.add_child(_build_tool_button("+100 Gold", "Add +100 gold", "_on_add_gold_pressed"))
-	col.add_child(_build_tool_button("Merchant", "Trigger merchant shop", "_on_shop_pressed"))
-	col.add_child(_build_tool_button("Events", "Spawn board event", "open_debug_event_spawn_modal"))
-	col.add_child(_build_tool_button("Full store", "Open item catalog", "open_debug_store_modal"))
-	col.add_child(_build_tool_button("Go to city…", "Jump to city/wall", "open_debug_city_jump_modal"))
-	return col
+	var debug_tools: Control = Control.new()
+	debug_tools.name = "DebugTools"
+	debug_tools.position = Vector2(282, 8)
+	debug_tools.process_mode = Node.PROCESS_MODE_ALWAYS
+
+	# Create DebugMenuPanel
+	var debug_menu_panel: PanelContainer = PanelContainer.new()
+	debug_menu_panel.name = "DebugMenuPanel"
+	debug_menu_panel.position = Vector2(0, 36)
+	debug_menu_panel.visible = false
+	debug_menu_panel.process_mode = Node.PROCESS_MODE_ALWAYS
+
+	# Create DebugToggleBtn
+	var toggle_btn: Button = Button.new()
+	toggle_btn.name = "DebugToggleBtn"
+	toggle_btn.text = "Debug ⚙"
+	toggle_btn.custom_minimum_size = Vector2(76, 32)
+	toggle_btn.process_mode = Node.PROCESS_MODE_ALWAYS
+	var st: StyleBoxFlat = StyleBoxFlat.new()
+	st.bg_color = MonsterPalette.DEBUG_BTN_BG()
+	st.border_width_left = 1
+	st.border_width_right = 1
+	st.border_width_top = 1
+	st.border_width_bottom = 1
+	st.border_color = MonsterPalette.DEBUG_BTN_BORDER()
+	st.set_corner_radius_all(4)
+	toggle_btn.add_theme_stylebox_override("normal", st)
+	var h: StyleBoxFlat = st.duplicate()
+	h.bg_color = MonsterPalette.DEBUG_BTN_HOVER()
+	toggle_btn.add_theme_stylebox_override("hover", h)
+	var p: StyleBoxFlat = st.duplicate()
+	p.bg_color = MonsterPalette.RUST().lerp(MonsterPalette.WARM_BROWN(), 0.25)
+	toggle_btn.add_theme_stylebox_override("pressed", p)
+	toggle_btn.add_theme_font_size_override("font_size", 13)
+	toggle_btn.pressed.connect(func():
+		debug_menu_panel.visible = not debug_menu_panel.visible
+	)
+
+	# Create VBoxContainer inside DebugMenuPanel
+	var v_box: VBoxContainer = VBoxContainer.new()
+	v_box.name = "DebugMenuVBox"
+	v_box.add_theme_constant_override("separation", 4)
+	v_box.process_mode = Node.PROCESS_MODE_ALWAYS
+
+	# Add buttons to VBoxContainer
+	v_box.add_child(_build_tool_button("+100 Gold", "Add +100 gold", "_on_add_gold_pressed"))
+	v_box.add_child(_build_tool_button("Merchant", "Trigger merchant shop", "_on_shop_pressed"))
+	v_box.add_child(_build_tool_button("Events", "Spawn board event", "open_debug_event_spawn_modal"))
+	v_box.add_child(_build_tool_button("Full store", "Open item catalog", "open_debug_store_modal"))
+	v_box.add_child(_build_tool_button("Go to city…", "Jump to city/wall", "open_debug_city_jump_modal"))
+
+	# Add VBoxContainer to DebugMenuPanel
+	debug_menu_panel.add_child(v_box)
+
+	# Add DebugToggleBtn and DebugMenuPanel to DebugTools
+	debug_tools.add_child(toggle_btn)
+	debug_tools.add_child(debug_menu_panel)
+
+	return debug_tools
 
 func _build_tool_button(text: String, tooltip: String, handler_name: String) -> Button:
 	var btn: Button = Button.new()
