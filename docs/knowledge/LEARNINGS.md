@@ -84,6 +84,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-073`](#lrn-073) | TASK-043 | `ui_visuals` | Preserving Catch-Up Tween Delays in Per-Frame Energy Updates | 2026-09-02 |
 | [`LRN-074`](#lrn-074) | TASK-040 | `asset_resources` | Preloaded Asset Pack Tile and VFX Spritesheet Integration | 2026-09-02 |
 | [`LRN-075`](#lrn-075) | TASK-047 | `game_design` | pinball_layout_mapping | 2026-09-02 |
+| [`LRN-076`](#lrn-076) | TASK-042 | `ui` | Hopper Repositioning and Top Bar Debug Menu | 2026-09-02 |
 
 ---
 
@@ -1286,5 +1287,21 @@ Pinball playfield mechanics can be systematically mapped to polyomino relic grid
 
 #### Actionable Guideline for Future Agents
 Map pinball board components to specific polyomino shape footprints to balance kinetic flow and unpredictable chaos in Goblin Cannon.
+
+---
+
+### <a id="lrn-076"></a> LRN-076: Hopper Repositioning and Top Bar Debug Menu
+- **Task:** `TASK-042`
+- **Category:** `ui`
+- **Created:** `2026-09-02T13:18:25.171075`
+
+#### Context & Problem
+Hopper and loose debug buttons overlapped top UI header bar and playfield area.
+
+#### Key Insight & Learning
+Consolidating debug controls into a collapsible top bar panel reserves playfield space while keeping debug tools accessible.
+
+#### Actionable Guideline for Future Agents
+Position the hopper strictly beneath top header UI elements (Y > 50). Consolidate loose debug buttons into a collapsible top bar panel to reserve playfield space.
 
 ---
