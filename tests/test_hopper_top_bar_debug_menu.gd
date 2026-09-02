@@ -7,7 +7,7 @@ func run() -> void:
 	test_hopper_positioning_below_top_bar()
 	test_debug_menu_top_bar_positioning()
 	test_debug_menu_toggle_and_children()
-	test_cannon_overlay_layer_and_widget_texture()
+	test_cannon_overlay_layer_and_single_cannon()
 
 func test_hopper_positioning_below_top_bar() -> void:
 	begin("UILayer exists with layer=10, solid TopHeaderBarBg as child 0, and non-overlapping controls")
@@ -93,8 +93,8 @@ func test_debug_menu_toggle_and_children() -> void:
 
 	main.free()
 
-func test_cannon_overlay_layer_and_widget_texture() -> void:
-	begin("CannonOverlay layer is 15 (above UILayer layer 10) and CircularCannonWidget has texture asset assigned")
+func test_cannon_overlay_layer_and_single_cannon() -> void:
+	begin("CannonOverlay layer is 15 (above UILayer layer 10) for single primary cannon display")
 	var main_scene: PackedScene = load("res://scenes/main/main.tscn") as PackedScene
 	assert_true(main_scene != null, "main scene loaded")
 	var main: Node2D = main_scene.instantiate() as Node2D
@@ -108,7 +108,7 @@ func test_cannon_overlay_layer_and_widget_texture() -> void:
 	assert_true(widget_script != null, "circular_cannon_widget script loaded")
 	var widget: Control = widget_script.new() as Control
 	assert_true(widget != null, "widget instance created")
-	assert_true(widget.get("CANNON_TEXTURE") != null, "CANNON_TEXTURE asset constant is assigned")
+	assert_eq(widget.get("CANNON_TEXTURE"), null, "Extra CANNON_TEXTURE texture is removed from background widget")
 
 	widget.free()
 	main.free()

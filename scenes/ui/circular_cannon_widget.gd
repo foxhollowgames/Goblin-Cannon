@@ -12,8 +12,6 @@ signal firing_anim_completed
 @export var cannon_color: Color = Color("#8c929e")
 @export var cannon_accent: Color = Color("#d97706")
 
-const CANNON_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Pirate Pack/PNG/Retina/Ship parts/cannonMobile.png")
-
 var current_energy: int = 0
 var max_energy: int = 10000
 var liquid_ratio: float = 0.0
@@ -62,13 +60,5 @@ func _draw() -> void:
 		var wave_y: float = box_rect.size.y - fill_h
 		draw_line(Vector2(0.0, wave_y), Vector2(box_rect.size.x, wave_y), energy_color, 2.0)
 
-	# 3. Render Cannon Sprite Asset
-	if CANNON_TEXTURE:
-		var sprite_w: float = 65.0
-		var sprite_h: float = 45.0
-		var center_pos: Vector2 = box_rect.get_center()
-		var sprite_rect := Rect2(center_pos.x - sprite_w * 0.5, center_pos.y - sprite_h * 0.5, sprite_w, sprite_h)
-		draw_texture_rect(CANNON_TEXTURE, sprite_rect, false)
-
-	# 4. Outer Border
+	# 3. Outer Border
 	draw_rect(box_rect, border_color, false, 2.0)
