@@ -10,6 +10,7 @@ signal cell_clicked(cell_pos: Vector2i)
 signal item_clicked(item: JunkBoxItem)
 signal item_hovered(item: JunkBoxItem)
 signal item_unhovered()
+signal grid_size_changed()
 
 const CELL_SIZE: int = 46
 const CELL_WIDTH: int = 46
@@ -35,13 +36,16 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	if GameState.junk_box != null:
 		GameState.junk_box.inventory_changed.connect(_on_inventory_changed)
-	_update_size()
+	update_grid_size()
 
 func _on_inventory_changed() -> void:
-	_update_size()
+	update_grid_size()
 	queue_redraw()
 
 func _update_size() -> void:
+	update_grid_size()
+
+func update_grid_size() -> void:
 	if GameState.junk_box == null:
 		return
 	var max_occ: int = GameState.junk_box.get_max_occupied_row()
@@ -51,7 +55,6 @@ func _update_size() -> void:
 	var container_height: float = 0.0
 	if parent_scroll != null:
 		container_height = parent_scroll.size.y if parent_scroll.size.y > 0.0 else parent_scroll.custom_minimum_size.y
-
 
 	var visible_rows: int = 0
 	if container_height > 0.0:
@@ -65,13 +68,8 @@ func _update_size() -> void:
 	custom_minimum_size = Vector2(cols * CELL_SIZE, rows * CELL_SIZE)
 	size = custom_minimum_size
 
-	if parent_scroll != null:
-		var curr: Node = parent_scroll.get_parent()
-		while curr != null:
-			if curr.has_method("update_scroll_bar_visibility"):
-				curr.update_scroll_bar_visibility()
-				break
-			curr = curr.get_parent()
+	grid_size_changed.emit()
+
 
 func get_cell_at_global_pos(global_pos: Vector2) -> Vector2i:
 	var local_pos: Vector2 = global_pos - global_position

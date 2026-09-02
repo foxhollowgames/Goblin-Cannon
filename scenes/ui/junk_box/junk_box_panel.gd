@@ -8,6 +8,9 @@ const JunkBoxData = preload("res://resources/inventory/junk_box_data.gd")
 const JunkBoxGridView = preload("res://scenes/ui/junk_box/junk_box_grid_view.gd")
 const JunkBoxDragController = preload("res://scenes/ui/junk_box/junk_box_drag_controller.gd")
 
+const MARGIN_RIGHT_OVERFLOW: int = 2
+const MARGIN_RIGHT_DEFAULT: int = 6
+
 signal closed
 
 var _game_coordinator: Node
@@ -44,12 +47,15 @@ func _ready() -> void:
 			grid_view.item_hovered.connect(_on_item_hovered)
 		if not grid_view.item_unhovered.is_connected(_on_item_unhovered):
 			grid_view.item_unhovered.connect(_on_item_unhovered)
+		if not grid_view.grid_size_changed.is_connected(update_scroll_bar_visibility):
+			grid_view.grid_size_changed.connect(update_scroll_bar_visibility)
 	if drawer_panel:
 		drag_controller.junk_box_panel = drawer_panel
 	if scroll_container:
 		drag_controller.scroll_container = scroll_container
 		if not scroll_container.resized.is_connected(_on_scroll_container_resized):
 			scroll_container.resized.connect(_on_scroll_container_resized)
+
 
 
 	if close_btn and not close_btn.pressed.is_connected(_close):
@@ -275,13 +281,13 @@ func _adjust_container_margins() -> void:
 		is_overflowing = true
 
 	if is_overflowing:
-		margin_cont.add_theme_constant_override("margin_right", 2)
+		margin_cont.add_theme_constant_override("margin_right", MARGIN_RIGHT_OVERFLOW)
 	else:
-		margin_cont.add_theme_constant_override("margin_right", 6)
+		margin_cont.add_theme_constant_override("margin_right", MARGIN_RIGHT_DEFAULT)
 
 
 func _on_scroll_container_resized() -> void:
 	if grid_view:
-		grid_view._update_size()
-	update_scroll_bar_visibility()
+		grid_view.update_grid_size()
+
 

@@ -1,6 +1,7 @@
 # TASK-052: Junk Box Dynamic Scroll Bar Visibility
 
-- **Status:** IN_REVIEW
+- **Status:** DONE
+
 - **Priority:** P1
 - **Category:** UI / Polish
 - **Target Branch:** `feature/junk-box-dynamic-scroll-bar`
