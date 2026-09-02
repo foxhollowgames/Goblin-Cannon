@@ -73,6 +73,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-062`](#lrn-062) | TASK-042 | `ui` | UI Layout and Centering | 2026-09-02 |
 | [`LRN-063`](#lrn-063) | TASK-004 | `ui` | Square Cannon UI Panel Layout | 2026-09-02 |
 | [`LRN-064`](#lrn-064) | TASK-043 | `ui_visuals` | Replace Code-Drawn Cannons with Sprite Assets | 2026-09-02 |
+| [`LRN-065`](#lrn-065) | TASK-043 | `ui_visuals` | Single Cannon Rendering, Crisp Native Sprite Scale & Cartoon Coffee Fire VFX | 2026-09-02 |
 
 ---
 
@@ -1099,5 +1100,21 @@ Using texture assets (cannonMobile.png) combined with parallel Tweens for recoil
 
 #### Actionable Guideline for Future Agents
 Preload sprite texture assets for game objects and UI widgets, combining recoil shake Tweens and muzzle flash sprite overlays on firing events.
+
+---
+
+### <a id="lrn-065"></a> LRN-065: Single Cannon Rendering, Crisp Native Sprite Scale & Cartoon Coffee Fire VFX
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T10:39:00.774827`
+
+#### Context & Problem
+CircularCannonWidget and CannonVisual both drew cannon textures causing duplicate cannon rendering and blurry upscaling
+
+#### Key Insight & Learning
+Removing texture drawing from widget container and rendering cannonMobile.png at native 43.5x30px in CannonVisual eliminates duplication and retains crisp sprite definition. Animating Impact_Fire_Lv1_spritesheet.png 4x4 region frames on firing signal provides rich fire VFX.
+
+#### Actionable Guideline for Future Agents
+Keep UI widget containers dedicated to panel backgrounds and energy overlays while delegating cannon sprite rendering and fire VFX to CannonVisual at crisp unscaled dimensions.
 
 ---

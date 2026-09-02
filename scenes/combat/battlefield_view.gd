@@ -4,7 +4,7 @@ extends Node2D
 const BATTLEFIELD_WIDTH: float = 320.0
 const BATTLEFIELD_HEIGHT: float = 720.0
 const WALL_HEIGHT: float = 72.0
-const CANNON_OVERLAY_OFFSET_Y: float = -180.0
+const CANNON_OVERLAY_OFFSET_Y: float = 0.0
 const CANNON_ZONE_TOP: float = 600.0 + CANNON_OVERLAY_OFFSET_Y
 const CANNON_MUZZLE_POS: Vector2 = Vector2(160.0, 616.0 + CANNON_OVERLAY_OFFSET_Y)
 const WALL_IMPACT_POS: Vector2 = Vector2(160.0, 36.0)

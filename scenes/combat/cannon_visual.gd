@@ -1,7 +1,7 @@
 extends Node2D
-## Graphical goblin cannon at the bottom of the battlefield.
+## Graphical goblin cannon positioned at the center-left of the bottom UI.
 ## Renders a single crisp native cannonMobile.png sprite texture asset
-## with recoil shake tween animation and Cartoon Coffee Fire VFX.
+## with horizontal recoil shake tween animation and Cartoon Coffee Fire VFX.
 
 const CANNON_ZONE_HEIGHT: float = 120.0
 const CANNON_WIDTH: float = 80.0
@@ -20,23 +20,23 @@ var _shield_display: int = 0
 var _status_stacks: Dictionary = {}
 var _status_decay_counter: int = 0
 
-var _recoil_offset_y: float = 0.0
+var _recoil_offset_x: float = 0.0
 var _show_muzzle_flash: bool = false
 var _flash_frame: int = 0
 
 func trigger_firing_anim() -> void:
-	_recoil_offset_y = 12.0
+	_recoil_offset_x = -12.0
 	_show_muzzle_flash = true
 	_flash_frame = 0
 	
 	var tw: Tween = create_tween()
 	tw.set_parallel(true)
-	# Recoil shake tween: kick backward down, then return smoothly
-	tw.tween_property(self, "_recoil_offset_y", 0.0, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	# Recoil shake tween: kick backward left, then return smoothly
+	tw.tween_property(self, "_recoil_offset_x", 0.0, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tw.tween_property(self, "_flash_frame", 3, 0.22).set_trans(Tween.TRANS_LINEAR)
 	tw.chain().tween_callback(func():
 		_show_muzzle_flash = false
-		_recoil_offset_y = 0.0
+		_recoil_offset_x = 0.0
 		queue_redraw()
 	)
 	queue_redraw()
@@ -79,20 +79,21 @@ func set_sidearm_cooldowns(_slots: Array) -> void:
 	pass
 
 func _process(_delta: float) -> void:
-	if _status_stacks.size() > 0 or _recoil_offset_y > 0.0 or _show_muzzle_flash:
+	if _status_stacks.size() > 0 or absf(_recoil_offset_x) > 0.0 or _show_muzzle_flash:
 		queue_redraw()
 
 func _draw() -> void:
-	var base_y: float = CANNON_ZONE_HEIGHT * 0.5 + _recoil_offset_y
+	var center_x: float = _recoil_offset_x
+	var center_y: float = 0.0
 
 	# 1. Render Cannon Sprite Asset (Crisp native scale: 43.5 x 30.0)
 	if CANNON_TEXTURE:
 		var sprite_w: float = 43.5
 		var sprite_h: float = 30.0
-		var sprite_rect := Rect2(-sprite_w * 0.5, base_y - sprite_h * 0.5 - 2.0, sprite_w, sprite_h)
+		var sprite_rect := Rect2(center_x - sprite_w * 0.5, center_y - sprite_h * 0.5, sprite_w, sprite_h)
 		draw_texture_rect(CANNON_TEXTURE, sprite_rect, false)
 
-	# 2. Cartoon Coffee Fire VFX Muzzle Blast
+	# 2. Cartoon Coffee Fire VFX Muzzle Blast (Lined up against the right side of the sprite)
 	if _show_muzzle_flash and FIRE_VFX_TEXTURE:
 		var frame_idx: int = clampi(_flash_frame, 0, 15)
 		var col: int = frame_idx % 4
@@ -100,16 +101,16 @@ func _draw() -> void:
 		var src_rect := Rect2(col * 1024, row * 1024, 1024, 1024)
 		var flash_w: float = 48.0
 		var flash_h: float = 48.0
-		var muzzle_top_y: float = base_y - 24.0
-		var dest_rect := Rect2(-flash_w * 0.5, muzzle_top_y - flash_h * 0.5, flash_w, flash_h)
-		draw_texture_rect_region(FIRE_VFX_TEXTURE, dest_rect, src_rect, Color(1, 1, 1, 0.9))
+		var muzzle_right_x: float = center_x + 21.75
+		var dest_rect := Rect2(muzzle_right_x, center_y - flash_h * 0.5, flash_w, flash_h)
+		draw_texture_rect_region(FIRE_VFX_TEXTURE, dest_rect, src_rect, Color(1, 1, 1, 0.95))
 
 	# 3. Status effect overlays (flame, ice, lightning)
 	var flame_stacks: int = _status_stacks.get(Constants.STATUS_FIRE, 0)
 	var frozen_stacks: int = _status_stacks.get(Constants.STATUS_FROZEN, 0)
 	var lightning_stacks: int = _status_stacks.get(Constants.STATUS_LIGHTNING, 0)
 	var sz: float = STATUS_OVERLAY_SIZE
-	var center: Vector2 = Vector2(0.0, base_y)
+	var center := Vector2(center_x, center_y)
 	if flame_stacks > 0:
 		var v: Vector2 = _cannon_stack_alpha_sat(flame_stacks)
 		var base_orange := Color(1.0, 0.5, 0.1, v.x)

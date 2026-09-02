@@ -20,7 +20,7 @@ func test_cannon_visual_texture_and_firing() -> void:
 	
 	# Test triggering firing animation
 	visual.trigger_firing_anim()
-	assert_gt(visual._recoil_offset_y, 0.0, "Recoil offset active on fire")
+	assert_lt(visual._recoil_offset_x, 0.0, "Recoil offset x active on fire")
 	assert_true(visual._show_muzzle_flash, "Muzzle flash active on fire")
 
 func test_circular_cannon_widget_single_rendering() -> void:
