@@ -55,6 +55,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-044`](#lrn-044) | TASK-036 | `machinery` | Pinball Kinetic Machinery and Rollover Bank Completion | 2026-09-01 |
 | [`LRN-045`](#lrn-045) | TASK-039 | `ui` | Junk Box Sidebar Integration and Pegboard Display Equivalence | 2026-09-01 |
 | [`LRN-046`](#lrn-046) | TASK-002 | `campaign` | Six-Playthrough Story Campaign Architecture | 2026-09-01 |
+| [`LRN-047`](#lrn-047) | TASK-003 | `characters` | Character Bespoke Progression Mechanics | 2026-09-01 |
 
 ---
 
@@ -793,5 +794,21 @@ start_campaign_run and complete_campaign_run handle sequential unlock gating acr
 
 #### Actionable Guideline for Future Agents
 Use GameState.start_campaign_run, complete_campaign_run, and save_campaign_progress/load_campaign_progress for multi-run campaign state management.
+
+---
+
+### <a id="lrn-047"></a> LRN-047: Character Bespoke Progression Mechanics
+- **Task:** `TASK-003`
+- **Category:** `characters`
+- **Created:** `2026-09-01T22:32:38.351538`
+
+#### Context & Problem
+CharacterProgressionManager provides character-specific passive perks and multiplier calculations for all 6 playthrough archetypes.
+
+#### Key Insight & Learning
+CharacterProgressionManager computes wall damage, peg energy bonuses, revive chances, and booster speed multipliers based on character_archetype, with goblin_convergence combining peak values from all archetypes.
+
+#### Actionable Guideline for Future Agents
+Use CharacterProgressionManager.get_perks_for_archetype and compute_* helper functions to query character-specific perks during run execution.
 
 ---
