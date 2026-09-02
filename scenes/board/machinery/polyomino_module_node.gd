@@ -18,6 +18,17 @@ const PopBumperScript = preload("res://scenes/board/machinery/pop_bumper.gd")
 const DropTargetScript = preload("res://scenes/board/machinery/drop_target.gd")
 const WireGateScript = preload("res://scenes/board/machinery/wire_gate.gd")
 const SlingshotKickerScript = preload("res://scenes/board/machinery/slingshot_kicker.gd")
+const StandupTargetScript = preload("res://scenes/board/machinery/standup_target.gd")
+const SpinnerScript = preload("res://scenes/board/machinery/spinner.gd")
+const ScoopSinkholeScript = preload("res://scenes/board/machinery/scoop_sinkhole.gd")
+const BallLockScript = preload("res://scenes/board/machinery/ball_lock.gd")
+const GuideTrackScript = preload("res://scenes/board/machinery/guide_track.gd")
+const OrbitLoopScript = preload("res://scenes/board/machinery/orbit_loop.gd")
+const CaptiveBallScript = preload("res://scenes/board/machinery/captive_ball.gd")
+const MechanicalDiverterScript = preload("res://scenes/board/machinery/mechanical_diverter.gd")
+const VerticalUpKickerScript = preload("res://scenes/board/machinery/vertical_up_kicker.gd")
+const BashToyScript = preload("res://scenes/board/machinery/bash_toy.gd")
+const OutlaneKickbackScript = preload("res://scenes/board/machinery/outlane_kickback.gd")
 
 const GoalArchetype = PolyominoModuleData.GoalArchetype
 const RewardType = PolyominoModuleData.RewardType
@@ -137,6 +148,28 @@ func _create_component_for_type(c_type: int) -> PolyominoMachineryComponent:
 			return WireGateScript.new()
 		PolyominoModuleData.CellType.SLINGSHOT:
 			return SlingshotKickerScript.new()
+		PolyominoModuleData.CellType.STANDUP_TARGET:
+			return StandupTargetScript.new()
+		PolyominoModuleData.CellType.SPINNER:
+			return SpinnerScript.new()
+		PolyominoModuleData.CellType.SCOOP_SINKHOLE:
+			return ScoopSinkholeScript.new()
+		PolyominoModuleData.CellType.BALL_LOCK:
+			return BallLockScript.new()
+		PolyominoModuleData.CellType.GUIDE_TRACK:
+			return GuideTrackScript.new()
+		PolyominoModuleData.CellType.ORBIT_LOOP:
+			return OrbitLoopScript.new()
+		PolyominoModuleData.CellType.CAPTIVE_BALL:
+			return CaptiveBallScript.new()
+		PolyominoModuleData.CellType.MECHANICAL_DIVERTER:
+			return MechanicalDiverterScript.new()
+		PolyominoModuleData.CellType.VERTICAL_UP_KICKER:
+			return VerticalUpKickerScript.new()
+		PolyominoModuleData.CellType.BASH_TOY:
+			return BashToyScript.new()
+		PolyominoModuleData.CellType.OUTLANE_KICKBACK:
+			return OutlaneKickbackScript.new()
 		_:
 			return PinballBumperScript.new()
 

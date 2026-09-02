@@ -80,8 +80,9 @@ python scripts/generate_task_dashboard.py
 | [TASK-048](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-048-relic-activation-requirements-pinball-widget-rework.md) | Relic Activation Requirements Pinball Widget Rework | Systems/Gameplay | P1 | BACKLOG | `feature/relic-pinball-activation-rework` |
 | [TASK-049](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-049-on-board-relic-tooltip-rework.md) | On-Board Relic Tooltip Information Rework | UI/Polish | P1 | BACKLOG | `feature/on-board-relic-tooltip-rework` |
 | [TASK-050](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-050-boss-intervention-popup-trolls.md) | Boss Intervention Pop-Up Targets | Systems/Gameplay | P1 | BACKLOG | `feature/boss-intervention-popup-trolls` |
-| [TASK-051](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-051-componentized-pinball-machinery-roster.md) | Componentized Pinball Machinery Roster | Systems/Gameplay/Physics | P1 | IN_PROGRESS | `feature/pinball-machinery-componentization` |
+| [TASK-051](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-051-componentized-pinball-machinery-roster.md) | Componentized Pinball Machinery Roster | Systems/Gameplay/Physics | P1 | DONE | `feature/pinball-machinery-componentization` |
 | [TASK-052](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-052-junk-box-dynamic-scroll-bar.md) | Junk Box Dynamic Scroll Bar Visibility | UI/Polish | P1 | DONE | `feature/junk-box-dynamic-scroll-bar` |
+| [TASK-053](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-053-relic-machinery-audit-and-widget-distribution.md) | Relic Machinery Audit and Widget Distribution | Systems/Gameplay/Balance | P1 | BACKLOG | `feature/relic-widget-distribution` |
 
 
 

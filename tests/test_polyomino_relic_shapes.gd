@@ -126,7 +126,7 @@ func test_relic_cell_types_and_machinery() -> void:
 
 		for cell in mod.cells:
 			var t: int = mod.get_cell_type_at(cell)
-			_assert(t >= 0 and t <= 7, "Cell type (%d) at (%d,%d) in '%s' must be valid CellType enum" % [t, cell.x, cell.y, str(id)])
+			_assert(t >= 0 and t <= 23, "Cell type (%d) at (%d,%d) in '%s' must be valid CellType enum" % [t, cell.x, cell.y, str(id)])
 			var energy: int = mod.get_cell_energy_value(cell)
 			_assert(energy >= 0, "Energy value at (%d,%d) in '%s' must be >= 0" % [cell.x, cell.y, str(id)])
 

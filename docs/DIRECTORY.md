@@ -79,6 +79,7 @@
 | `test_pause_game_comic_overlays.gd` | `PauseGameComicOverlays` | [tests/test_pause_game_comic_overlays.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_pause_game_comic_overlays.gd) |
 | `test_peg_grid_alignment.gd` | `PegGridAlignment` | [tests/test_peg_grid_alignment.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_peg_grid_alignment.gd) |
 | `test_phantom_trail.gd` | `PhantomTrail` | [tests/test_phantom_trail.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_phantom_trail.gd) |
+| `test_pinball_components.gd` | `PinballComponents` | [tests/test_pinball_components.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_pinball_components.gd) |
 | `test_pinball_machinery.gd` | `PinballMachinery` | [tests/test_pinball_machinery.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_pinball_machinery.gd) |
 | `test_polyomino_drag_drop.gd` | `PolyominoDragDrop` | [tests/test_polyomino_drag_drop.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_polyomino_drag_drop.gd) |
 | `test_polyomino_machinery.gd` | `PolyominoMachinery` | [tests/test_polyomino_machinery.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_polyomino_machinery.gd) |
@@ -88,6 +89,7 @@
 | `test_relic_enclosures.gd` | `Relic Enclosures` | [tests/test_relic_enclosures.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_enclosures.gd) |
 | `test_relic_pinball_goals.gd` | `RelicPinballGoals` | [tests/test_relic_pinball_goals.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_pinball_goals.gd) |
 | `test_relic_selection_preview.gd` | `RelicSelectionPreview` | [tests/test_relic_selection_preview.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_selection_preview.gd) |
+| `test_relic_widget_distribution.gd` | `RelicWidgetDistribution` | [tests/test_relic_widget_distribution.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_widget_distribution.gd) |
 | `test_reward_generation.gd` | `RewardGeneration` | [tests/test_reward_generation.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_reward_generation.gd) |
 | `test_reward_handler.gd` | `RewardHandler` | [tests/test_reward_handler.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_reward_handler.gd) |
 | `test_script_parse_smoke.gd` | `ScriptParseSmoke` | [tests/test_script_parse_smoke.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_script_parse_smoke.gd) |
