@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pinball Research & Digital Relic Adaptation</title>
+  <title>Pinball Research & Complete Onboard Mechanics List</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <style>
     body {
@@ -34,37 +34,133 @@
     <header class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2 border border-cyan-500/20">
-          TASK-047 Digital Relic Concepts
+          TASK-047 Complete Mechanics Table
         </div>
-        <h1 class="text-3xl font-extrabold tracking-tight text-white">Digital Pinball Relics & Gameplay Mechanics</h1>
+        <h1 class="text-3xl font-extrabold tracking-tight text-white">Goblin Cannon Onboard Mechanics List</h1>
         <p class="text-slate-400 text-sm mt-1">
-          Adapting pinball layout ideas (Bash Toys & Ball-Cloning Scoop Reservoirs) for Goblin Cannon's polyomino grid.
+          An exhaustive list of all 15 onboard mechanics with plain-text explanations and digital relic concepts.
         </p>
       </div>
       <div class="flex gap-2">
-        <a href="#digital-relics" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold rounded-lg shadow-lg transition">
-          Top Digital Mechanics ⚡
+        <a href="#all-mechanics" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold rounded-lg shadow-lg transition">
+          View All 15 Mechanics 📋
         </a>
       </div>
     </header>
 
     <!-- Navigation Tabs -->
     <div class="flex border-b border-slate-800 gap-6 overflow-x-auto text-sm font-medium">
-      <a href="#digital-relics" class="pb-3 border-b-2 border-cyan-400 text-cyan-400 font-semibold">Digital Relic Concepts</a>
+      <a href="#all-mechanics" class="pb-3 border-b-2 border-cyan-400 text-cyan-400 font-semibold">All 15 Mechanics</a>
+      <a href="#digital-relics" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Featured Digital Relics</a>
       <a href="#machines" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Real Board Photos</a>
       <a href="#quotes" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Player Sentiment</a>
-      <a href="#adaptation" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Relic Grid Mapping</a>
       <a href="#hardware-jargon" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Mechanical Jargon (Bottom)</a>
     </div>
 
-    <!-- Section 1: TOP DIGITAL RELIC CONCEPTS (Front and Center!) -->
-    <section id="digital-relics" class="space-y-4">
-      <h2 class="text-2xl font-bold flex items-center gap-2 text-cyan-400">
-        <span>🚀</span> Top Digital Relic Concepts for Goblin Cannon
+    <!-- Section 1: EXHAUSTIVE TABLE OF ALL 15 ONBOARD MECHANICS -->
+    <section id="all-mechanics" class="space-y-4">
+      <h2 class="text-2xl font-bold flex items-center gap-2 text-white">
+        <span>📋</span> Complete List of Onboard Mechanics (15 Total)
       </h2>
       <p class="text-slate-300 text-sm">
-        These digital adaptations translate physical pinball principles into active grid mechanics for Goblin Cannon:
+        Every onboard kinetic mechanic and cell type implemented in Goblin Cannon, paired with plain-text explanations:
       </p>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="border-b border-slate-800 text-slate-400">
+              <th class="pb-3 font-semibold">Mechanic Name</th>
+              <th class="pb-3 font-semibold">Cell Type Code</th>
+              <th class="pb-3 font-semibold">Plain-Text Explanation</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60 text-xs">
+            <tr class="bg-cyan-950/20">
+              <td class="py-3 font-bold text-cyan-300">Digital Scoop Reservoir</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-mono">MULTIBALL_RESERVOIR</span></td>
+              <td class="py-3 text-slate-200">Captures cannonballs, stores copies of their stats, and launches a massive multiball blast when activated.</td>
+            </tr>
+            <tr class="bg-amber-950/20">
+              <td class="py-3 font-bold text-amber-300">Interactive Bash Toy</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-mono">TARGET_BANK</span></td>
+              <td class="py-3 text-slate-200">Heavy central target that absorbs direct cannonball hits and triggers explosive shockwaves.</td>
+            </tr>
+            <tr>
+              <td class="py-3 font-bold text-white">Pop Bumper</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">POP_BUMPER</span></td>
+              <td class="py-3 text-slate-300">Solenoid-powered bumper that violently repels cannonballs on contact with high impulse force and bonus energy.</td>
+            </tr>
+            <tr>
+              <td class="py-3 font-bold text-white">Drop Target Bank</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">DROP_TARGET</span></td>
+              <td class="py-3 text-slate-300">Target plate that drops flat after receiving 3 hits. Clearing a target bank unlocks energy multipliers upon reset.</td>
+            </tr>
+            <tr>
+              <td class="py-3 font-bold text-white">Spinning Target</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">MANA_SIPHON / ROTARY</span></td>
+              <td class="py-3 text-slate-300">Hinged target plate that spins rapidly on pass-through, converting ball momentum into rapid ticks of mana.</td>
+            </tr>
+            <tr>
+              <td class="py-3 font-bold text-white">Kinetic Bumper</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">BUMPER</span></td>
+              <td class="py-3 text-slate-300">Reactive bumper post that repels cannonballs on contact, bouncing them away with extra speed.</td>
+            </tr>
+            <tr>
+              <td class="py-3 font-bold text-white">Speed Accelerator</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">ACCELERATOR</span></td>
+              <td class="py-3 text-slate-300">Motorized roller pad that launches cannonballs forward with an immediate directional speed boost.</td>
+            </tr>
+            <tr>
+              <td class="py-3 font-bold text-white">Rotary Booster</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">ROTARY_BOOSTER</span></td>
+              <td class="py-3 text-slate-300">Spinning central hub that accelerates cannonballs radially and triggers energy pulses when struck.</td>
+            </tr>
+            <tr>
+              <td class="py-3 font-bold text-white">Mana Siphon</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">MANA_SIPHON</span></td>
+              <td class="py-3 text-slate-300">Magical siphon cell that absorbs kinetic energy from passing cannonballs to generate mana for spell casting.</td>
+            </tr>
+            <tr>
+              <td class="py-3 font-bold text-white">Directional Deflector</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">DIRECTIONAL_DEFLECTOR</span></td>
+              <td class="py-3 text-slate-300">Angled deflector plate that ricochets cannonballs at a specific output direction (Up, Down, Left, Right).</td>
+            </tr>
+            <tr>
+              <td class="py-3 font-bold text-white">Rollover Switch</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">ROLLOVER_SWITCH</span></td>
+              <td class="py-3 text-slate-300">Floor sensor triggered when a cannonball rolls over it. Completing switch sets lights up element bonuses.</td>
+            </tr>
+            <tr>
+              <td class="py-3 font-bold text-white">Guide Rail</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">GUIDE_RAIL</span></td>
+              <td class="py-3 text-slate-300">Metallic rail that guides cannonballs along a fixed track without losing momentum.</td>
+            </tr>
+            <tr>
+              <td class="py-3 font-bold text-white">Catch Funnel</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">FUNNEL</span></td>
+              <td class="py-3 text-slate-300">Wide chute that collects incoming cannonballs and channels them down a specific lane.</td>
+            </tr>
+            <tr>
+              <td class="py-3 font-bold text-white">Wire Gate</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">WIRE_GATE</span></td>
+              <td class="py-3 text-slate-300">Hinged wire gate that lets cannonballs pass through in one direction but blocks backward movement.</td>
+            </tr>
+            <tr>
+              <td class="py-3 font-bold text-white">Slingshot Rebounder</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">SLINGSHOT</span></td>
+              <td class="py-3 text-slate-300">Active triangular rubber band mechanism that launches cannonballs sideways across the board on impact.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 2: TOP DIGITAL RELIC CONCEPTS -->
+    <section id="digital-relics" class="space-y-4">
+      <h2 class="text-2xl font-bold flex items-center gap-2 text-cyan-400">
+        <span>🚀</span> Featured Digital Relic Concepts
+      </h2>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
@@ -109,7 +205,7 @@
       </div>
     </section>
 
-    <!-- Section 2: Real Machine Case Studies -->
+    <!-- Section 3: Real Machine Case Studies -->
     <section id="machines" class="space-y-4">
       <h2 class="text-xl font-bold flex items-center gap-2 text-white">
         <span>🎰</span> Iconic Pinball Machines (Real Physical Board Photos)
@@ -176,7 +272,7 @@
       </div>
     </section>
 
-    <!-- Section 3: Player Sentiment -->
+    <!-- Section 4: Player Sentiment -->
     <section id="quotes" class="space-y-4">
       <h2 class="text-xl font-bold flex items-center gap-2 text-white">
         <span>💬</span> Player Community Quotes & Sentiment
@@ -201,53 +297,7 @@
       </div>
     </section>
 
-    <!-- Section 4: Polyomino Relic Mapping Table -->
-    <section id="adaptation" class="space-y-4">
-      <h2 class="text-xl font-bold flex items-center gap-2 text-white">
-        <span>🧩</span> Polyomino Relic Grid Adaptation (Goblin Cannon)
-      </h2>
-
-      <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg overflow-x-auto">
-        <table class="w-full text-left border-collapse text-sm">
-          <thead>
-            <tr class="border-b border-slate-800 text-slate-400">
-              <th class="pb-3 font-semibold">Relic Component</th>
-              <th class="pb-3 font-semibold">Polyomino Shape</th>
-              <th class="pb-3 font-semibold">Footprint</th>
-              <th class="pb-3 font-semibold">Goblin Cannon Digital Mechanics</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-slate-800/60">
-            <tr class="bg-cyan-950/20">
-              <td class="py-3.5 font-bold text-cyan-300">Digital Scoop Reservoir</td>
-              <td class="py-3.5"><span class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-mono text-xs">L-Shape (3 cell)</span></td>
-              <td class="py-3.5 text-slate-400">3 Cells</td>
-              <td class="py-3.5 text-slate-200 font-medium">Stores copies of captured cannonballs. Releases a massive multiball blast when activated.</td>
-            </tr>
-            <tr class="bg-amber-950/20">
-              <td class="py-3.5 font-bold text-amber-300">Central Bash Toy</td>
-              <td class="py-3.5"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-mono text-xs">2x2 Block</span></td>
-              <td class="py-3.5 text-slate-400">4 Cells</td>
-              <td class="py-3.5 text-slate-200 font-medium">Heavy central target. Absorbs impacts and triggers area-of-effect shockwaves.</td>
-            </tr>
-            <tr>
-              <td class="py-3.5 font-bold text-white">Pop Bumper Bank</td>
-              <td class="py-3.5"><span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/30 font-mono text-xs">2x2 Square</span></td>
-              <td class="py-3.5 text-slate-400">4 Cells</td>
-              <td class="py-3.5 text-slate-300">Repels cannonballs with high impulse velocity. Grants bonus energy on collision.</td>
-            </tr>
-            <tr>
-              <td class="py-3.5 font-bold text-white">Spinning Target</td>
-              <td class="py-3.5"><span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/30 font-mono text-xs">1x1 Single</span></td>
-              <td class="py-3.5 text-slate-400">1 Cell</td>
-              <td class="py-3.5 text-slate-300">Spins on pass-through, converting ball kinetic energy into rapid ticks of mana.</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Section 5: Mechanical Hardware Jargon (Moved down to the bottom!) -->
+    <!-- Section 5: Mechanical Hardware Jargon (Bottom Section) -->
     <section id="hardware-jargon" class="space-y-4 pt-4 border-t border-slate-800">
       <div class="bg-slate-950 border border-slate-850 p-6 rounded-xl space-y-3 opacity-85">
         <h2 class="text-lg font-bold text-slate-400 flex items-center gap-2">
