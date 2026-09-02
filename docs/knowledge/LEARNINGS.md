@@ -63,6 +63,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-052`](#lrn-052) | TASK-040 | `asset_resources` | External Asset Pools and VFX Spritesheet Storage | 2026-09-02 |
 | [`LRN-053`](#lrn-053) | TASK-004 | `ui` | Right Sidebar Junk Box and Circular Cannon Orb Layout | 2026-09-02 |
 | [`LRN-054`](#lrn-054) | TASK-005 | `flow` | Takeover Cutscene Reward Sequencing | 2026-09-02 |
+| [`LRN-055`](#lrn-055) | TASK-039 | `ui` | JunkBoxPanel Sidebar Width Containment | 2026-09-02 |
 
 ---
 
@@ -929,5 +930,21 @@ GameCoordinatorFlow.handle_wall_destroyed plays FullscreenComicTakeover first, c
 
 #### Actionable Guideline for Future Agents
 Chain cutscene takeover completion signals before dispatching reward modal popups.
+
+---
+
+### <a id="lrn-055"></a> LRN-055: JunkBoxPanel Sidebar Width Containment
+- **Task:** `TASK-039`
+- **Category:** `ui`
+- **Created:** `2026-09-02T09:35:29.545122`
+
+#### Context & Problem
+Restructured JunkBoxPanel scene node layout from HBoxContainer to VBoxContainer.
+
+#### Key Insight & Learning
+HBoxContainer with size_flags_horizontal SIZE_EXPAND_FILL inside JunkBoxPanel forced the panel to expand across the full screen. Stacking controls vertically in VBoxContainer confines the scene strictly within 320px sidebar width.
+
+#### Actionable Guideline for Future Agents
+Use vertical VBoxContainer stacking for sub-panels inside 320px wide sidebars to prevent horizontal expansion over the main playfield.
 
 ---

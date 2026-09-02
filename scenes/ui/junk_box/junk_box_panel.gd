@@ -32,7 +32,11 @@ func _ensure_drag_controller_exists() -> void:
 			add_child(drag_controller)
 
 func _ready() -> void:
-	hide()
+	if _sidebar_mode:
+		show()
+		_apply_sidebar_layout()
+	else:
+		hide()
 	_ensure_drag_controller_exists()
 	if grid_view:
 		drag_controller.junk_box_grid_view = grid_view
@@ -80,6 +84,9 @@ func set_board(p_board: Node) -> void:
 		p_board.set_drag_controller(drag_controller)
 
 func toggle() -> void:
+	if _sidebar_mode:
+		show()
+		return
 	if visible:
 		_close()
 	else:
@@ -88,8 +95,13 @@ func toggle() -> void:
 func _open() -> void:
 	_update_tooltip(null)
 	show()
+	if _sidebar_mode:
+		_apply_sidebar_layout()
 
 func _close() -> void:
+	if _sidebar_mode:
+		show()
+		return
 	hide()
 	closed.emit()
 
@@ -99,8 +111,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey:
 		var key: InputEventKey = event as InputEventKey
 		if key.pressed and not key.echo and key.keycode == KEY_ESCAPE:
-			_close()
-			get_viewport().set_input_as_handled()
+			if not _sidebar_mode:
+				_close()
+				get_viewport().set_input_as_handled()
 
 func _on_sort_pressed() -> void:
 	if GameState.junk_box != null:
@@ -175,6 +188,15 @@ func integrate_into_sidebar(parent_container: Control) -> void:
 	if get_parent() != parent_container:
 		parent_container.add_child(self)
 
+	_apply_sidebar_layout()
+
+func _apply_sidebar_layout() -> void:
+	_sidebar_mode = true
+	var p: PanelContainer = drawer_panel if drawer_panel else get_node_or_null("DrawerPanel") as PanelContainer
+	var c_btn: Button = close_btn if close_btn else get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxTitle/CloseBtn") as Button
+	var s_cont: ScrollContainer = scroll_container if scroll_container else get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/ScrollContainer") as ScrollContainer
+	var hbox: BoxContainer = get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent") as BoxContainer
+
 	anchors_preset = Control.PRESET_FULL_RECT
 	anchor_left = 0.0
 	anchor_top = 0.0
@@ -185,26 +207,26 @@ func integrate_into_sidebar(parent_container: Control) -> void:
 	offset_right = 0
 	offset_bottom = 0
 
-	if drawer_panel:
-		drawer_panel.anchors_preset = Control.PRESET_FULL_RECT
-		drawer_panel.anchor_left = 0.0
-		drawer_panel.anchor_top = 0.0
-		drawer_panel.anchor_right = 1.0
-		drawer_panel.anchor_bottom = 1.0
-		drawer_panel.offset_left = 0
-		drawer_panel.offset_top = 0
-		drawer_panel.offset_right = 0
-		drawer_panel.offset_bottom = 0
-		drawer_panel.custom_minimum_size = Vector2(0, 0)
+	if p:
+		p.anchors_preset = Control.PRESET_FULL_RECT
+		p.anchor_left = 0.0
+		p.anchor_top = 0.0
+		p.anchor_right = 1.0
+		p.anchor_bottom = 1.0
+		p.offset_left = 0
+		p.offset_top = 0
+		p.offset_right = 0
+		p.offset_bottom = 0
+		p.custom_minimum_size = Vector2(320, 720)
 
-	if close_btn:
-		close_btn.visible = false
+	if c_btn:
+		c_btn.visible = false
 
-	var hbox: BoxContainer = get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent") as BoxContainer
 	if hbox:
 		hbox.vertical = true
-		if scroll_container:
-			scroll_container.custom_minimum_size = Vector2(290, 400)
+
+	if s_cont:
+		s_cont.custom_minimum_size = Vector2(290, 360)
 
 	show()
 
