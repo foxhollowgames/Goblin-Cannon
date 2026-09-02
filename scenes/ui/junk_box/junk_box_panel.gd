@@ -136,14 +136,9 @@ func _on_item_unhovered() -> void:
 func _get_tooltip_lbl() -> RichTextLabel:
 	return null
 
-func _update_tooltip(item: JunkBoxItem) -> void:
-	var lbl: RichTextLabel = _get_tooltip_lbl()
-	if lbl == null:
-		return
+func _format_item_tooltip(item: JunkBoxItem) -> String:
 	if item == null:
-		lbl.text = "[color=#cfbba8]Hover an item in the box to inspect details.[/color]"
-		return
-	
+		return "[color=#cfbba8]Hover an item in the box to inspect details.[/color]"
 	var text: String = "[b][color=#f4d06f]%s[/color][/b]\n" % item.display_name
 	var relic_id: StringName = &""
 	if "custom_payload" in item and item.custom_payload is Dictionary:
@@ -179,7 +174,13 @@ func _update_tooltip(item: JunkBoxItem) -> void:
 			if a > 0: text += "• Accelerators: %d\n" % a
 			if f > 0: text += "• Funnels: %d\n" % f
 			if r > 0: text += "• Boosters: %d\n" % r
-	lbl.text = text
+	return text
+
+func _update_tooltip(item: JunkBoxItem) -> void:
+	var lbl: RichTextLabel = _get_tooltip_lbl()
+	if lbl == null:
+		return
+	lbl.text = _format_item_tooltip(item)
 
 var _sidebar_mode: bool = false
 

@@ -3015,6 +3015,33 @@ func unslot_module(instance_id: StringName) -> Resource:
 	module_unslotted_from_board.emit(item)
 	return item
 
+## Unslots a module from the board and returns it to the Junk Box inventory.
+## If target_cell is specified (x >= 0, y >= 0), attempts to place it at target_cell.
+## Otherwise, automatically finds the first available slot in the junk box.
+## Returns true if successfully returned to the junk box, false if transfer failed.
+func return_module_to_junk_box(instance_id: StringName, junk_box: JunkBoxData = null, target_cell: Vector2i = Vector2i(-1, -1)) -> bool:
+	if not _placed_modules.has(instance_id):
+		return false
+	var jb: JunkBoxData = junk_box if junk_box != null else (GameState.junk_box if GameState and GameState.junk_box != null else null)
+	if jb == null:
+		return false
+	var item: Resource = _placed_modules[instance_id]
+	var orig_grid_pos: Vector2i = item.grid_position if "grid_position" in item else Vector2i.ZERO
+	var orig_rot: int = item.rotation_step if "rotation_step" in item else 0
+
+	unslot_module(instance_id)
+
+	var success: bool = false
+	if target_cell.x >= 0 and target_cell.y >= 0:
+		success = jb.place_item(item, target_cell, orig_rot)
+	if not success:
+		success = jb.add_item_auto(item)
+
+	if not success:
+		place_module(item, orig_grid_pos, orig_rot)
+		return false
+	return true
+
 ## Returns the placed module occupying grid_pos, or null.
 func get_module_at_cell(grid_pos: Vector2i) -> Resource:
 	if _occupied_board_cells.has(grid_pos):

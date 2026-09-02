@@ -77,6 +77,7 @@
 | `test_milestone_shop_data.gd` | `MilestoneShopData` | [tests/test_milestone_shop_data.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_milestone_shop_data.gd) |
 | `test_milestone_tracker_events.gd` | `MilestoneTrackerEvents` | [tests/test_milestone_tracker_events.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_milestone_tracker_events.gd) |
 | `test_monsters_also_die_palette.gd` | `MonstersAlsoDiePalette` | [tests/test_monsters_also_die_palette.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_monsters_also_die_palette.gd) |
+| `test_on_board_relic_tooltips.gd` | `OnBoardRelicTooltips` | [tests/test_on_board_relic_tooltips.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_on_board_relic_tooltips.gd) |
 | `test_pause_game_comic_overlays.gd` | `PauseGameComicOverlays` | [tests/test_pause_game_comic_overlays.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_pause_game_comic_overlays.gd) |
 | `test_peg_grid_alignment.gd` | `PegGridAlignment` | [tests/test_peg_grid_alignment.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_peg_grid_alignment.gd) |
 | `test_phantom_trail.gd` | `PhantomTrail` | [tests/test_phantom_trail.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_phantom_trail.gd) |
