@@ -1,6 +1,6 @@
 # TASK-041: Remove Hopper Mouse Control
 
-- **Status:** BACKLOG
+- **Status:** COMPLETED
 - **Priority:** P1
 - **Category:** Controls
 - **Target Branch:** `feature/remove-hopper-mouse-control`
@@ -27,7 +27,7 @@ The hopper must move with keyboard input or explicit API functions only.
 
 ## Acceptance Criteria
 
-- [ ] Mouse movement does not move the hopper.
-- [ ] Keyboard keys (`A`, `D`, `Left Arrow`, `Right Arrow`) move the hopper.
-- [ ] Functions `steer` and `set_steer_input` work without mouse input.
-- [ ] Headless unit tests pass.
+- [x] Mouse movement does not move the hopper.
+- [x] Keyboard keys (`A`, `D`, `Left Arrow`, `Right Arrow`) move the hopper.
+- [x] Functions `steer` and `set_steer_input` work without mouse input.
+- [x] Headless unit tests pass.

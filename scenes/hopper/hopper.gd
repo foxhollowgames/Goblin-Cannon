@@ -34,7 +34,6 @@ var _prev_catchment_bodies: Array = []
 var _falling_carry_until: Dictionary = {}
 ## ball -> consecutive frames outside strict bin (gate closed only)
 var _outside_bin_frames: Dictionary = {}
-var _mouse_control_active: bool = false
 var _manual_steer_dir: float = 0.0
 
 const ARM_OPEN_ANGLE: float = PI / 2.0  # 90° each way when open
@@ -58,10 +57,6 @@ func _ready() -> void:
 	_catchment_area = get_node_or_null("HopperCatchment") as Area2D
 	scale.x = GameState.hopper_width_scale
 
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventMouseMotion:
-		_mouse_control_active = true
-
 func _physics_process(delta: float) -> void:
 	if GameState and GameState.paused:
 		return
@@ -78,10 +73,7 @@ func _physics_process(delta: float) -> void:
 			steer_dir += 1.0
 	
 	if not is_zero_approx(steer_dir):
-		_mouse_control_active = false
 		global_position.x = clampf(global_position.x + steer_dir * MOVE_SPEED * delta, TRACK_X_MIN, TRACK_X_MAX)
-	elif _mouse_control_active:
-		global_position.x = clampf(get_global_mouse_position().x, TRACK_X_MIN, TRACK_X_MAX)
 	
 	var dx: float = global_position.x - prev_x
 	_apply_horizontal_carry(dx)
@@ -90,7 +82,6 @@ func _physics_process(delta: float) -> void:
 
 ## Steer the hopper horizontally by a direction (-1.0 to 1.0) and time delta.
 func steer(direction: float, delta: float) -> void:
-	_mouse_control_active = false
 	var prev_x: float = global_position.x
 	global_position.x = clampf(global_position.x + direction * MOVE_SPEED * delta, TRACK_X_MIN, TRACK_X_MAX)
 	var dx: float = global_position.x - prev_x
@@ -99,8 +90,6 @@ func steer(direction: float, delta: float) -> void:
 ## Sets the manual steer direction override (-1.0 to 1.0). Set to 0.0 to restore keyboard input.
 func set_steer_input(dir: float) -> void:
 	_manual_steer_dir = clampf(dir, -1.0, 1.0)
-	if not is_zero_approx(_manual_steer_dir):
-		_mouse_control_active = false
 
 func _is_carryable_ball(body: Node) -> bool:
 	if not body is RigidBody2D:

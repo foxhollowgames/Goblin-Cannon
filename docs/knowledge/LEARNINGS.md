@@ -81,6 +81,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-070`](#lrn-070) | TASK-043 | `ui_visuals` | Pure White Target Bar Accessibility & Non-Overlapping Segment Drawing | 2026-09-02 |
 | [`LRN-071`](#lrn-071) | TASK-043 | `ui_visuals` | High-Contrast Visual Accessibility for Lead Target Jump Bar | 2026-09-02 |
 | [`LRN-072`](#lrn-072) | TASK-043 | `ui_visuals` | 0.5-Second Delay for Energy Charge Catch-Up Bar Animation | 2026-09-02 |
+| [`LRN-073`](#lrn-073) | TASK-043 | `ui_visuals` | Preserving Catch-Up Tween Delays in Per-Frame Energy Updates | 2026-09-02 |
 
 ---
 
@@ -1235,5 +1236,21 @@ Adding .set_delay(0.5) to the _catchup_tween in set_energy() holds the high-cont
 
 #### Actionable Guideline for Future Agents
 Use .set_delay(0.5) on catch-up bar fill tweens to pause long enough for viewers to register energy jump amounts before animating.
+
+---
+
+### <a id="lrn-073"></a> LRN-073: Preserving Catch-Up Tween Delays in Per-Frame Energy Updates
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T11:17:52.110498`
+
+#### Context & Problem
+Calling set_energy every frame with unchanged energy values snapped liquid_ratio = new_ratio and killed active catch-up tweens
+
+#### Key Insight & Learning
+Only mutating liquid_ratio when new_ratio < _target_ratio (energy reset) and launching tweens when new_ratio > _target_ratio allows tick-by-tick set_energy calls without interrupting running catch-up tween delays.
+
+#### Actionable Guideline for Future Agents
+In per-frame progress bar setters, do not snap the animated fill ratio on same-ratio ticks; allow active delay tweens to run to completion.
 
 ---

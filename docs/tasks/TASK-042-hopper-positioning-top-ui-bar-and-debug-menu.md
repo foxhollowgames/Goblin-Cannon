@@ -1,6 +1,6 @@
 # TASK-042: Hopper Repositioning, Top UI Bar & Debug Menu Integration
 
-- **Status:** BACKLOG
+- **Status:** READY
 - **Priority:** P1
 - **Category:** UI / Layout / Controls
 - **Target Branch:** `feature/hopper-top-bar-debug-menu`
