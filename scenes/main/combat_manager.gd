@@ -5,6 +5,7 @@ extends Node
 signal wall_destroyed
 signal time_expired
 signal pushback_occurred(from_wall_index: int, to_wall_index: int)
+signal cannon_fired_at_wall(damage: int, remaining_hp: int, max_hp: int)
 
 const TICKS_PER_SECOND: int = 60
 ## Endless mode: ramp difficulty (testing). HP rises; timer tightens toward a floor.
@@ -86,6 +87,7 @@ func _on_main_fired(damage: int) -> void:
 	_wall_hp -= damage
 	if _wall_hp < 0:
 		_wall_hp = 0
+	cannon_fired_at_wall.emit(damage, _wall_hp, _wall_hp_max)
 	_emit_wall_destroyed_once()
 
 func _emit_wall_destroyed_once() -> void:

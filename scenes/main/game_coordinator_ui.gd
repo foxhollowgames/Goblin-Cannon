@@ -235,7 +235,11 @@ static func create_inventory_ui(coordinator: Node, reward_handler: Node, board: 
 	if junk_box_scene:
 		jb_panel = junk_box_scene.instantiate() as Control
 		if jb_panel:
-			overlay.add_child(jb_panel)
+			var right_panel: Control = main.get_node_or_null("UILayer/CenterPanel") as Control
+			if right_panel and jb_panel.has_method("integrate_into_sidebar"):
+				jb_panel.integrate_into_sidebar(right_panel)
+			else:
+				overlay.add_child(jb_panel)
 			if jb_panel.has_method("setup"):
 				jb_panel.setup(coordinator, reward_handler)
 			if board and jb_panel.has_method("set_board"):
@@ -250,10 +254,21 @@ static func create_inventory_ui(coordinator: Node, reward_handler: Node, board: 
 			if alm_panel.has_method("setup"):
 				alm_panel.setup(coordinator, reward_handler)
 
+	var cv_script: Script = load("res://scenes/ui/comic_vignette_panel.gd") as Script
+	var cv_panel: Control = null
+	if cv_script:
+		cv_panel = cv_script.new() as Control
+		if cv_panel:
+			overlay.add_child(cv_panel)
+			var cm: Node = main.get_node_or_null("CombatManager")
+			if cm and cm.has_signal("cannon_fired_at_wall") and cv_panel.has_method("trigger_firing_vignette"):
+				cm.cannon_fired_at_wall.connect(cv_panel.trigger_firing_vignette)
+
 	return {
 		"inventory_panel": inv_panel,
 		"junk_box_panel": jb_panel,
-		"almanac_panel": alm_panel
+		"almanac_panel": alm_panel,
+		"comic_vignette_panel": cv_panel
 	}
 #endregion
 

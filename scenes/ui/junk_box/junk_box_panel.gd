@@ -181,4 +181,3 @@ func is_integrated_in_sidebar() -> bool:
 
 func get_pegboard_preview_scale() -> float:
 	return 1.0
-
