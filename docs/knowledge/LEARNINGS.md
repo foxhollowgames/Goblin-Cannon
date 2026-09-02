@@ -49,6 +49,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-038`](#lrn-038) | FIX-SHOP-ICONS | `godot_engine` | Shop card VBox attachment and marker script path | 2026-09-01 |
 | [`LRN-039`](#lrn-039) | TASK-033 | `physics` | polyomino relic enclosures | 2026-09-01 |
 | [`LRN-040`](#lrn-040) | FIX-POLYOMINO-PARSER | `godot_engine` | GDScript Void Return Parse Errors | 2026-09-01 |
+| [`LRN-041`](#lrn-041) | TASK-TEST-FRAMEWORK-PARSE-ISOLATION | `testing` | Godot Test Runner Parse Failure Isolation | 2026-09-01 |
 
 ---
 
@@ -691,5 +692,21 @@ Functions returning void must return cleanly without returning values.
 
 #### Actionable Guideline for Future Agents
 Check that functions returning void do not return expressions, especially when modifying array parameters by reference.
+
+---
+
+### <a id="lrn-041"></a> LRN-041: Godot Test Runner Parse Failure Isolation
+- **Task:** `TASK-TEST-FRAMEWORK-PARSE-ISOLATION`
+- **Category:** `testing`
+- **Created:** `2026-09-01T22:23:52.871539`
+
+#### Context & Problem
+Top-level static preloads in test runner files cause full test suite compilation failures when preloaded scripts have syntax errors.
+
+#### Key Insight & Learning
+Dynamic script loading via load() inside test runner methods isolates script parse failures and prevents whole suite blockages.
+
+#### Actionable Guideline for Future Agents
+Always load test dependencies dynamically inside test methods and include a headless script parse smoke pass in linter tooling.
 
 ---
