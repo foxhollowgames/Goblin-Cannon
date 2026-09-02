@@ -54,6 +54,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-043`](#lrn-043) | TASK-022 | `balance` | Exponential Wall HP and Gold Scaling Model | 2026-09-01 |
 | [`LRN-044`](#lrn-044) | TASK-036 | `machinery` | Pinball Kinetic Machinery and Rollover Bank Completion | 2026-09-01 |
 | [`LRN-045`](#lrn-045) | TASK-039 | `ui` | Junk Box Sidebar Integration and Pegboard Display Equivalence | 2026-09-01 |
+| [`LRN-046`](#lrn-046) | TASK-002 | `campaign` | Six-Playthrough Story Campaign Architecture | 2026-09-01 |
 
 ---
 
@@ -776,5 +777,21 @@ Setting JunkBoxGridView CELL_WIDTH=52 and CELL_HEIGHT=56 aligns preview grid cel
 
 #### Actionable Guideline for Future Agents
 Use JunkBoxPanel.integrate_into_sidebar and JunkBoxGridView.get_peg_preview_parameters for sidebar placement and pegboard UI preview scaling.
+
+---
+
+### <a id="lrn-046"></a> LRN-046: Six-Playthrough Story Campaign Architecture
+- **Task:** `TASK-002`
+- **Category:** `campaign`
+- **Created:** `2026-09-01T22:32:06.197821`
+
+#### Context & Problem
+GameState tracks 6 distinct campaign runs, character archetypes, unlocked McGuffins, and convergence triggers.
+
+#### Key Insight & Learning
+start_campaign_run and complete_campaign_run handle sequential unlock gating across all 6 playthroughs, automatically setting convergence_active on run 6.
+
+#### Actionable Guideline for Future Agents
+Use GameState.start_campaign_run, complete_campaign_run, and save_campaign_progress/load_campaign_progress for multi-run campaign state management.
 
 ---

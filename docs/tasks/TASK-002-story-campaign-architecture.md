@@ -1,6 +1,6 @@
 # TASK-002: Six-Playthrough Story Campaign Architecture
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Narrative
 - **Target Branch:** `feature/story-campaign-arch`
@@ -25,7 +25,7 @@ The narrative reveals the backstory of the world and the main character goblin a
      - **The Necromancer**
      - **The Beastmancer:** Focuses on animals or monsters as the primary mechanic.
      - **The Mechanic**
-     - **Character 4 (Undecided)**
+     - **Character 4 (Undecided / Astromancer)**
    - Each run awards an Infinity Gem style McGuffin.
 
 3. **Run 6 — The Final Campaign (The Convergence):**
@@ -48,8 +48,8 @@ The narrative reveals the backstory of the world and the main character goblin a
 
 ## Acceptance Criteria
 
-- [ ] `GameState` stores campaign run index (1 to 6) and unlocked McGuffins.
-- [ ] Completing a run saves progress to user profile data.
-- [ ] Starting a new run initializes the corresponding character archetype and narrative context.
-- [ ] Run 6 triggers the prologue and the convergence event sequence.
-- [ ] Automated tests verify campaign save and load functionality.
+- [x] `GameState` stores campaign run index (1 to 6) and unlocked McGuffins.
+- [x] Completing a run saves progress to user profile data.
+- [x] Starting a new run initializes the corresponding character archetype and narrative context.
+- [x] Run 6 triggers the prologue and the convergence event sequence.
+- [x] Automated tests verify campaign save and load functionality.
