@@ -147,83 +147,13 @@ static func create_item_for_relic(relic_id: StringName) -> JunkBoxItem:
 	}
 	return item
 
-## Applies passive/active modifiers to GameState when a relic module is slotted onto the board.
+## Applies board slotting registry to GameState when a relic module is slotted onto the board.
 static func apply_relic_effects_to_game_state(relic_id: StringName) -> void:
 	if not Engine.has_singleton("GameState") and not ClassDB.class_exists("GameState"):
 		pass
 	var uid: StringName = _resolve_id(relic_id)
 	if not has_relic_definition(uid):
 		return
-	match uid:
-		&"plain_surge":
-			GameState.plain_surge_stacks = mini(5, GameState.plain_surge_stacks + 1)
-			return
-		&"plain_horde":
-			GameState.plain_horde_stacks = mini(3, GameState.plain_horde_stacks + 1)
-			return
-		&"plain_momentum":
-			GameState.plain_momentum_stacks = mini(3, GameState.plain_momentum_stacks + 1)
-			return
-		&"devastating_barrage":
-			GameState.cannon_base_damage_bonus += 10
-			GameState.chest_devastating_barrage_taken = true
-			return
-		&"compressed_charge":
-			GameState.cannon_charge_reduction += Constants.legacy_internal_energy_to_current(2000)
-			GameState.chest_compressed_charge_taken = true
-			return
-		&"explosion_radius":
-			GameState.explosion_radius_bonus += 1
-			return
-		&"explosion_peg_hit_count":
-			GameState.explosion_peg_hit_count_bonus += 1
-			return
-		&"explosion_impulse":
-			GameState.explosion_impulse_bonus += 0.25
-			return
-		&"chain_arc":
-			GameState.chain_arc_bonus += 1
-			return
-		&"chain_range":
-			GameState.chain_range_bonus += 1
-			return
-		&"max_energize_stacks":
-			GameState.max_energize_stacks_per_peg += 1
-			return
-		&"energize_decays_slower":
-			GameState.energize_decay_scale *= 0.85
-			return
-		&"energized_pegs_repair_faster":
-			GameState.energized_peg_repair_scale += 0.2
-			return
-		&"global_peg_durability":
-			GameState.global_peg_durability_bonus += 1
-			return
-		&"peg_recovery_speed":
-			GameState.peg_recovery_speed_scale += 0.15
-			return
-		&"chest_leech_drain":
-			GameState.chest_leech_drain_stacks = mini(Constants.CHEST_PASSIVE_MAX_STACKS, GameState.chest_leech_drain_stacks + 1)
-			return
-		&"chest_leech_duration":
-			GameState.chest_leech_duration_stacks = mini(Constants.CHEST_PASSIVE_MAX_STACKS, GameState.chest_leech_duration_stacks + 1)
-			return
-		&"chest_phantom_energy":
-			GameState.chest_phantom_energy_stacks = mini(Constants.CHEST_PASSIVE_MAX_STACKS, GameState.chest_phantom_energy_stacks + 1)
-			return
-		&"chest_rubbery_energy":
-			GameState.chest_rubbery_energy_stacks = mini(Constants.CHEST_PASSIVE_MAX_STACKS, GameState.chest_rubbery_energy_stacks + 1)
-			return
-		&"chest_bounce_energy":
-			GameState.chest_bounce_energy_stacks = mini(Constants.CHEST_PASSIVE_MAX_STACKS, GameState.chest_bounce_energy_stacks + 1)
-			return
-		&"chest_split_energy":
-			GameState.chest_split_energy_stacks = mini(Constants.CHEST_PASSIVE_MAX_STACKS, GameState.chest_split_energy_stacks + 1)
-			return
-		&"renewal_pact":
-			GameState.peg_recovery_speed_scale += 0.12
-			GameState.add_boss_upgrade(uid, 1)
-			return
 
 	var tier: int = get_relic_tier(uid)
 	if tier == 3:
@@ -231,83 +161,13 @@ static func apply_relic_effects_to_game_state(relic_id: StringName) -> void:
 	else:
 		GameState.add_wall_break_upgrade(uid, 1)
 
-## Reverts passive/active modifiers from GameState when a relic module is unslotted from the board.
+## Reverts board slotting registry from GameState when a relic module is unslotted from the board.
 static func remove_relic_effects_from_game_state(relic_id: StringName) -> void:
 	if not Engine.has_singleton("GameState") and not ClassDB.class_exists("GameState"):
 		pass
 	var uid: StringName = _resolve_id(relic_id)
 	if not has_relic_definition(uid):
 		return
-	match uid:
-		&"plain_surge":
-			GameState.plain_surge_stacks = maxi(0, GameState.plain_surge_stacks - 1)
-			return
-		&"plain_horde":
-			GameState.plain_horde_stacks = maxi(0, GameState.plain_horde_stacks - 1)
-			return
-		&"plain_momentum":
-			GameState.plain_momentum_stacks = maxi(0, GameState.plain_momentum_stacks - 1)
-			return
-		&"devastating_barrage":
-			GameState.cannon_base_damage_bonus = maxi(0, GameState.cannon_base_damage_bonus - 10)
-			GameState.chest_devastating_barrage_taken = false
-			return
-		&"compressed_charge":
-			GameState.cannon_charge_reduction = maxi(0, GameState.cannon_charge_reduction - Constants.legacy_internal_energy_to_current(2000))
-			GameState.chest_compressed_charge_taken = false
-			return
-		&"explosion_radius":
-			GameState.explosion_radius_bonus = maxi(0, GameState.explosion_radius_bonus - 1)
-			return
-		&"explosion_peg_hit_count":
-			GameState.explosion_peg_hit_count_bonus = maxi(0, GameState.explosion_peg_hit_count_bonus - 1)
-			return
-		&"explosion_impulse":
-			GameState.explosion_impulse_bonus = maxf(0.0, GameState.explosion_impulse_bonus - 0.25)
-			return
-		&"chain_arc":
-			GameState.chain_arc_bonus = maxi(0, GameState.chain_arc_bonus - 1)
-			return
-		&"chain_range":
-			GameState.chain_range_bonus = maxi(0, GameState.chain_range_bonus - 1)
-			return
-		&"max_energize_stacks":
-			GameState.max_energize_stacks_per_peg = maxi(3, GameState.max_energize_stacks_per_peg - 1)
-			return
-		&"energize_decays_slower":
-			GameState.energize_decay_scale = minf(1.0, GameState.energize_decay_scale / 0.85)
-			return
-		&"energized_pegs_repair_faster":
-			GameState.energized_peg_repair_scale = maxf(1.0, GameState.energized_peg_repair_scale - 0.2)
-			return
-		&"global_peg_durability":
-			GameState.global_peg_durability_bonus = maxi(0, GameState.global_peg_durability_bonus - 1)
-			return
-		&"peg_recovery_speed":
-			GameState.peg_recovery_speed_scale = maxf(1.0, GameState.peg_recovery_speed_scale - 0.15)
-			return
-		&"chest_leech_drain":
-			GameState.chest_leech_drain_stacks = maxi(0, GameState.chest_leech_drain_stacks - 1)
-			return
-		&"chest_leech_duration":
-			GameState.chest_leech_duration_stacks = maxi(0, GameState.chest_leech_duration_stacks - 1)
-			return
-		&"chest_phantom_energy":
-			GameState.chest_phantom_energy_stacks = maxi(0, GameState.chest_phantom_energy_stacks - 1)
-			return
-		&"chest_rubbery_energy":
-			GameState.chest_rubbery_energy_stacks = maxi(0, GameState.chest_rubbery_energy_stacks - 1)
-			return
-		&"chest_bounce_energy":
-			GameState.chest_bounce_energy_stacks = maxi(0, GameState.chest_bounce_energy_stacks - 1)
-			return
-		&"chest_split_energy":
-			GameState.chest_split_energy_stacks = maxi(0, GameState.chest_split_energy_stacks - 1)
-			return
-		&"renewal_pact":
-			GameState.peg_recovery_speed_scale = maxf(1.0, GameState.peg_recovery_speed_scale - 0.12)
-			GameState.remove_boss_upgrade_entry(uid)
-			return
 
 	var tier: int = get_relic_tier(uid)
 	if tier == 3:

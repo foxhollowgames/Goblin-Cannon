@@ -47,6 +47,7 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/test_junk_box_ui_and_board_transfer.gd",
 	"res://tests/test_polyomino_relic_shapes.gd",
 	"res://tests/test_slotted_relic_effects.gd",
+	"res://tests/test_relic_board_triggers.gd",
 	"res://tests/test_peg_grid_alignment.gd",
 	"res://tests/test_relic_audio_levels.gd",
 	"res://tests/test_audio_pitch_randomizer.gd",

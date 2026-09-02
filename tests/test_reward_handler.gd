@@ -200,7 +200,8 @@ func test_apply_major_upgrade_explosion_radius() -> void:
 	rh.apply_major_upgrade(def)
 	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
 	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"explosion_radius")
-	assert_eq(GameState.explosion_radius_bonus, 1, "+1 explosion radius when slotted")
+	assert_true(GameState.has_wall_break_upgrade(&"explosion_radius"), "upgrade registered when slotted")
+	assert_eq(GameState.explosion_radius_bonus, 0, "passive stat bonus remains 0")
 
 func test_apply_major_upgrade_chain_arc() -> void:
 	begin("apply_major_upgrade chain_arc adds relic to junk box")
@@ -212,7 +213,8 @@ func test_apply_major_upgrade_chain_arc() -> void:
 	rh.apply_major_upgrade(def)
 	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
 	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"chain_arc")
-	assert_eq(GameState.chain_arc_bonus, 1, "+1 chain arc when slotted")
+	assert_true(GameState.has_wall_break_upgrade(&"chain_arc"), "upgrade registered when slotted")
+	assert_eq(GameState.chain_arc_bonus, 0, "passive stat bonus remains 0")
 
 func test_apply_major_upgrade_chest_leech_drain() -> void:
 	begin("apply_major_upgrade chest_leech_drain adds relic to junk box")
@@ -224,7 +226,8 @@ func test_apply_major_upgrade_chest_leech_drain() -> void:
 	rh.apply_major_upgrade(def)
 	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
 	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"chest_leech_drain")
-	assert_eq(GameState.chest_leech_drain_stacks, 1, "+1 chest leech drain stack when slotted")
+	assert_true(GameState.has_wall_break_upgrade(&"chest_leech_drain"), "upgrade registered when slotted")
+	assert_eq(GameState.chest_leech_drain_stacks, 0, "passive stat stack remains 0")
 
 func test_apply_major_upgrade_devastating_barrage_once() -> void:
 	begin("apply_major_upgrade devastating_barrage adds relic to junk box")
@@ -236,8 +239,8 @@ func test_apply_major_upgrade_devastating_barrage_once() -> void:
 	rh.apply_major_upgrade(def)
 	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
 	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"devastating_barrage")
-	assert_eq(GameState.cannon_base_damage_bonus, 10, "+10 cannon damage when slotted")
-	assert_true(GameState.chest_devastating_barrage_taken, "flag set")
+	assert_true(GameState.has_wall_break_upgrade(&"devastating_barrage"), "upgrade registered when slotted")
+	assert_eq(GameState.cannon_base_damage_bonus, 0, "passive stat bonus remains 0")
 
 func test_apply_major_upgrade_compressed_charge_once() -> void:
 	begin("apply_major_upgrade compressed_charge adds relic to junk box")
@@ -246,12 +249,11 @@ func test_apply_major_upgrade_compressed_charge_once() -> void:
 	var def := MajorUpgradeDefinition.new()
 	def.upgrade_id = &"compressed_charge"
 	def.category = MajorUpgradeDefinition.Category.ONBOARD_PASSIVE
-	var step: int = Constants.legacy_internal_energy_to_current(2000)
 	rh.apply_major_upgrade(def)
 	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
 	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"compressed_charge")
-	assert_eq(GameState.cannon_charge_reduction, step, "+1 cannon energy tier when slotted")
-	assert_true(GameState.chest_compressed_charge_taken, "flag set")
+	assert_true(GameState.has_wall_break_upgrade(&"compressed_charge"), "upgrade registered when slotted")
+	assert_eq(GameState.cannon_charge_reduction, 0, "passive stat reduction remains 0")
 
 func test_onboard_effect_picks_exclude_devastating_barrage_when_taken() -> void:
 	begin("get_onboard_effect_picks omits devastating_barrage after taken")
@@ -283,7 +285,8 @@ func test_apply_major_upgrade_plain_horde_delegates() -> void:
 	rh.apply_major_upgrade(def)
 	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
 	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"plain_horde")
-	assert_eq(GameState.plain_horde_stacks, 1, "+1 plain horde stack when slotted")
+	assert_true(GameState.has_wall_break_upgrade(&"plain_horde"), "upgrade registered when slotted")
+	assert_eq(GameState.plain_horde_stacks, 0, "passive stat stack remains 0")
 
 func test_major_upgrade_picks_exclude_plain_swarm_at_cap() -> void:
 	begin("get_major_upgrade_picks omits plain swarm upgrades at stack cap")

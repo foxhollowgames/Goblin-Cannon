@@ -73,6 +73,7 @@
 | `test_polyomino_machinery.gd` | `PolyominoMachinery` | [tests/test_polyomino_machinery.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_polyomino_machinery.gd) |
 | `test_polyomino_relic_shapes.gd` | `PolyominoRelicShapes` | [tests/test_polyomino_relic_shapes.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_polyomino_relic_shapes.gd) |
 | `test_relic_audio_levels.gd` | `RelicAudioLevels` | [tests/test_relic_audio_levels.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_audio_levels.gd) |
+| `test_relic_board_triggers.gd` | `RelicBoardTriggers` | [tests/test_relic_board_triggers.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_board_triggers.gd) |
 | `test_relic_pinball_goals.gd` | `RelicPinballGoals` | [tests/test_relic_pinball_goals.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_pinball_goals.gd) |
 | `test_relic_selection_preview.gd` | `RelicSelectionPreview` | [tests/test_relic_selection_preview.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_selection_preview.gd) |
 | `test_reward_generation.gd` | `RewardGeneration` | [tests/test_reward_generation.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_reward_generation.gd) |
