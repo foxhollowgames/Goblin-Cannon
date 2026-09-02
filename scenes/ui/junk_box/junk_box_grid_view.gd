@@ -42,10 +42,36 @@ func _on_inventory_changed() -> void:
 	queue_redraw()
 
 func _update_size() -> void:
-	var rows: int = maxi(GameState.junk_box.get_max_row() + 4, GameState.junk_box.DEFAULT_MIN_ROWS)
+	if GameState.junk_box == null:
+		return
+	var max_occ: int = GameState.junk_box.get_max_occupied_row()
+	var needed_rows: int = max_occ + 4 if max_occ >= 0 else 4
+
+	var parent_scroll: ScrollContainer = get_parent() as ScrollContainer
+	var container_height: float = 0.0
+	if parent_scroll != null:
+		container_height = parent_scroll.size.y if parent_scroll.size.y > 0.0 else parent_scroll.custom_minimum_size.y
+
+
+	var visible_rows: int = 0
+	if container_height > 0.0:
+		visible_rows = int(floor(container_height / CELL_SIZE))
+
+	var rows: int = needed_rows
+	if visible_rows > 0 and needed_rows <= visible_rows:
+		rows = max(needed_rows, visible_rows)
+
 	var cols: int = GameState.junk_box.grid_columns
 	custom_minimum_size = Vector2(cols * CELL_SIZE, rows * CELL_SIZE)
 	size = custom_minimum_size
+
+	if parent_scroll != null:
+		var curr: Node = parent_scroll.get_parent()
+		while curr != null:
+			if curr.has_method("update_scroll_bar_visibility"):
+				curr.update_scroll_bar_visibility()
+				break
+			curr = curr.get_parent()
 
 func get_cell_at_global_pos(global_pos: Vector2) -> Vector2i:
 	var local_pos: Vector2 = global_pos - global_position
@@ -84,8 +110,11 @@ func _pos_to_cell(pos: Vector2) -> Vector2i:
 	return Vector2i(int(floor(pos.x / CELL_SIZE)), int(floor(pos.y / CELL_SIZE)))
 
 func _draw() -> void:
+	if GameState.junk_box == null:
+		return
 	var cols: int = GameState.junk_box.grid_columns
-	var rows: int = maxi(GameState.junk_box.get_max_row() + 4, GameState.junk_box.DEFAULT_MIN_ROWS)
+	var rows: int = maxi(int(size.y / CELL_SIZE), 1)
+
 	
 	var bg_color: Color = Constants.ui_buckets_panel_bg()
 	var border_color: Color = Constants.ui_buckets_panel_border()
