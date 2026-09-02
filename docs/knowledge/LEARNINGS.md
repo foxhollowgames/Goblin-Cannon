@@ -66,6 +66,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-055`](#lrn-055) | TASK-039 | `ui` | JunkBoxPanel Sidebar Width Containment | 2026-09-02 |
 | [`LRN-056`](#lrn-056) | TASK-039 | `ui` | Godot Scene Instantiation and Onready Initialization Order | 2026-09-02 |
 | [`LRN-057`](#lrn-057) | TASK-039 | `ui` | CenterPanel Scene Anchors in main.tscn | 2026-09-02 |
+| [`LRN-058`](#lrn-058) | TASK-039 | `ui` | JunkBoxPanel Grid Cell Scaling for 320px Sidebar Width | 2026-09-02 |
 
 ---
 
@@ -980,5 +981,21 @@ Overriding CenterPanel with anchors_preset = 15 inside main.tscn caused the enti
 
 #### Actionable Guideline for Future Agents
 Verify main.tscn container nodes do not contain duplicate anchors_preset overrides that expand sidebar panels across the entire playfield.
+
+---
+
+### <a id="lrn-058"></a> LRN-058: JunkBoxPanel Grid Cell Scaling for 320px Sidebar Width
+- **Task:** `TASK-039`
+- **Category:** `ui`
+- **Created:** `2026-09-02T09:52:01.003694`
+
+#### Context & Problem
+Adjusted JunkBoxGridView CELL_WIDTH/HEIGHT to 46px to keep panel total width at 292px.
+
+#### Key Insight & Learning
+A 6-column grid with 52px cells produces a 312px grid, which plus 16px margins equals 328px and overflows a 320px sidebar by 8px. Reducing cell size to 46px produces a 276px grid, leaving 16px padding on both sides with zero cutoff.
+
+#### Actionable Guideline for Future Agents
+Calculate grid column counts and cell padding so total sub-container width is less than 304px inside 320px sidebars.
 
 ---

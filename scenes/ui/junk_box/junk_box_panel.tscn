@@ -83,22 +83,25 @@ theme_override_constants/separation = 6
 
 [node name="HBoxTitle" type="HBoxContainer" parent="DrawerPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
+theme_override_constants/separation = 4
 
 [node name="Title" type="Label" parent="DrawerPanel/MarginContainer/VBoxContainer/HBoxTitle"]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 0.92549, 0.6, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "JUNK BOX"
 
 [node name="SortBtn" type="Button" parent="DrawerPanel/MarginContainer/VBoxContainer/HBoxTitle"]
+custom_minimum_size = Vector2(84, 24)
 layout_mode = 2
+theme_override_font_sizes/font_size = 12
 text = "Auto-Pack"
 
 [node name="CloseBtn" type="Button" parent="DrawerPanel/MarginContainer/VBoxContainer/HBoxTitle"]
 visible = false
 layout_mode = 2
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "✕"
 
 [node name="ColorRect" type="ColorRect" parent="DrawerPanel/MarginContainer/VBoxContainer"]
