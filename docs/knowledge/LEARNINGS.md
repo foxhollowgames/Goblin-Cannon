@@ -86,6 +86,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-075`](#lrn-075) | TASK-047 | `game_design` | pinball_layout_mapping | 2026-09-02 |
 | [`LRN-076`](#lrn-076) | TASK-042 | `ui` | Hopper Repositioning and Top Bar Debug Menu | 2026-09-02 |
 | [`LRN-077`](#lrn-077) | TASK-044 | `ui` | Full-Screen Comic Overlay Game Pause Behavior | 2026-09-02 |
+| [`LRN-078`](#lrn-078) | TASK-042 | `ui` | Top Header UI Bar Background and Ball Spawn Masking | 2026-09-02 |
 
 ---
 
@@ -1320,5 +1321,21 @@ Setting GameState.paused = true in FullscreenComicTakeover play_takeover() and G
 
 #### Actionable Guideline for Future Agents
 In FullscreenComicTakeover, manage GameState.paused on play_takeover and dismiss_takeover, and leave bottom-right cannon widgets (ComicVignettePanel, CircularCannonWidget) unpaused.
+
+---
+
+### <a id="lrn-078"></a> LRN-078: Top Header UI Bar Background and Ball Spawn Masking
+- **Task:** `TASK-042`
+- **Category:** `ui`
+- **Created:** `2026-09-02T13:31:59.051144`
+
+#### Context & Problem
+Balls spawned above the hopper transparently in open space behind top UI labels.
+
+#### Key Insight & Learning
+Adding a solid top UI header bar background and setting SPAWN_Y_OFFSET behind the header bar masks the spawn origin so balls emerge cleanly from beneath the header bar.
+
+#### Actionable Guideline for Future Agents
+Mask ball spawn origins behind solid header bar panels (SPAWN_Y_OFFSET <= header_bar_bottom) to keep ball emergence visually clean.
 
 ---
