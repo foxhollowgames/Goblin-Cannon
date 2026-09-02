@@ -2,9 +2,13 @@
 extends Control
 class_name CircularCannonWidget
 ## Bottom square cannon visual widget with liquid energy fill overlay.
+## Uses cannonMobile.png sprite texture asset with recoil shake tween and muzzle flash VFX.
 
 signal cannon_ready_to_fire
 signal firing_anim_completed
+
+const CANNON_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Pirate Pack/PNG/Retina/Ship parts/cannonMobile.png")
+const MUZZLE_FLASH_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Pirate Pack/PNG/Retina/Effects/explosion1.png")
 
 @export var energy_color: Color = Color("#ffec99")
 @export var background_color: Color = Color("#121722")
@@ -44,6 +48,7 @@ func trigger_firing_anim() -> void:
 		queue_redraw()
 		firing_anim_completed.emit()
 	)
+	queue_redraw()
 
 func _draw() -> void:
 	var box_rect := Rect2(Vector2.ZERO, size)
@@ -63,38 +68,22 @@ func _draw() -> void:
 		var wave_y: float = box_rect.size.y - fill_h
 		draw_line(Vector2(0.0, wave_y), Vector2(box_rect.size.x, wave_y), energy_color, 2.0)
 
-	# 3. Cannon Barrel & Base Illustration in center
+	# 3. Cannon Sprite Illustration in center
 	var center: Vector2 = box_rect.get_center()
-	var base_w: float = 64.0 * _recoil_scale.x
-	var base_h: float = 24.0 * _recoil_scale.y
-	var barrel_w: float = 28.0 * _recoil_scale.x
-	var barrel_h: float = 56.0 * _recoil_scale.y
+	if CANNON_TEXTURE:
+		var sprite_w: float = 110.0 * _recoil_scale.x
+		var sprite_h: float = 110.0 * (CANNON_TEXTURE.get_height() / float(CANNON_TEXTURE.get_width())) * _recoil_scale.y
+		var sprite_rect := Rect2(center.x - sprite_w * 0.5, center.y - sprite_h * 0.5 + 4.0, sprite_w, sprite_h)
+		draw_texture_rect(CANNON_TEXTURE, sprite_rect, false)
 
-	# Cannon Carriage / Base
-	var carriage_rect := Rect2(center.x - base_w * 0.5, center.y + 10.0, base_w, base_h)
-	draw_rect(carriage_rect, Color("#3a2518"), true)
-	draw_rect(carriage_rect, border_color, false, 1.5)
+	# 4. Firing animation flash & Muzzle Blast Overlay
+	if _is_firing and MUZZLE_FLASH_TEXTURE:
+		var flash_w: float = 64.0
+		var flash_h: float = 64.0
+		var muzzle_y: float = center.y - 46.0
+		var flash_rect := Rect2(center.x - flash_w * 0.5, muzzle_y - flash_h * 0.5, flash_w, flash_h)
+		draw_texture_rect(MUZZLE_FLASH_TEXTURE, flash_rect, false, Color(1, 1, 1, 0.85))
+		draw_rect(box_rect, Color(1, 1, 1, 0.25), true)
 
-	# Cannon Wheels
-	var wheel_r: float = 14.0 * _recoil_scale.x
-	draw_circle(Vector2(center.x - base_w * 0.4, center.y + 24.0), wheel_r, Color("#26170e"))
-	draw_circle(Vector2(center.x + base_w * 0.4, center.y + 24.0), wheel_r, Color("#26170e"))
-	draw_arc(Vector2(center.x - base_w * 0.4, center.y + 24.0), wheel_r, 0, TAU, 24, cannon_accent, 1.5)
-	draw_arc(Vector2(center.x + base_w * 0.4, center.y + 24.0), wheel_r, 0, TAU, 24, cannon_accent, 1.5)
-
-	# Cannon Barrel
-	var barrel_rect := Rect2(center.x - barrel_w * 0.5, center.y - barrel_h * 0.5 - 6.0, barrel_w, barrel_h)
-	draw_rect(barrel_rect, cannon_color, true)
-	draw_rect(barrel_rect, cannon_accent, false, 2.0)
-
-	# Muzzle Ring at top of barrel
-	var muzzle_rect := Rect2(center.x - (barrel_w + 6.0) * 0.5, center.y - barrel_h * 0.5 - 10.0, barrel_w + 6.0, 8.0)
-	draw_rect(muzzle_rect, cannon_accent, true)
-
-	# 4. Outer Border
+	# 5. Outer Border
 	draw_rect(box_rect, border_color, false, 2.0)
-
-	# 5. Firing animation flash overlay
-	if _is_firing:
-		draw_rect(box_rect, Color(1, 1, 1, 0.4), true)
-

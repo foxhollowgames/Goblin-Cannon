@@ -46,6 +46,7 @@
 | `test_bloom_ball.gd` | `BloomBall` | [tests/test_bloom_ball.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_bloom_ball.gd) |
 | `test_board_relic_repositioning.gd` | `BoardRelicRepositioning` | [tests/test_board_relic_repositioning.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_board_relic_repositioning.gd) |
 | `test_build_archetypes_and_synergies.gd` | `BuildArchetypesAndSynergies` | [tests/test_build_archetypes_and_synergies.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_build_archetypes_and_synergies.gd) |
+| `test_cannon_sprite_visuals.gd` | `CannonSpriteVisuals` | [tests/test_cannon_sprite_visuals.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_cannon_sprite_visuals.gd) |
 | `test_character_progression_mechanics.gd` | `CharacterProgressionMechanics` | [tests/test_character_progression_mechanics.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_character_progression_mechanics.gd) |
 | `test_circular_cannon_widget.gd` | `CircularCannonWidgetAndTakeover` | [tests/test_circular_cannon_widget.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_circular_cannon_widget.gd) |
 | `test_city_progression.gd` | `CityProgression` | [tests/test_city_progression.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_city_progression.gd) |

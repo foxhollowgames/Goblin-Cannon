@@ -71,6 +71,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-060`](#lrn-060) | TASK-039 | `ui` | Godot VBoxContainer Orientation Exception Prevention | 2026-09-02 |
 | [`LRN-061`](#lrn-061) | TASK-039 | `verification` | Playwright Chromium UI Verification | 2026-09-02 |
 | [`LRN-062`](#lrn-062) | TASK-042 | `ui` | UI Layout and Centering | 2026-09-02 |
+| [`LRN-063`](#lrn-063) | TASK-004 | `ui` | Square Cannon UI Panel Layout | 2026-09-02 |
 
 ---
 
@@ -1065,5 +1066,21 @@ RunGold label repositioning, 6-col Junk Box grid width, 15-col 116px start offse
 
 #### Actionable Guideline for Future Agents
 Keep sidebar panel minimum width <= 304px for 320px containers and use 15 cols with 116px start X for 960px board centering.
+
+---
+
+### <a id="lrn-063"></a> LRN-063: Square Cannon UI Panel Layout
+- **Task:** `TASK-004`
+- **Category:** `ui`
+- **Created:** `2026-09-02T10:20:34.284271`
+
+#### Context & Problem
+Cannon UI floating circle over junk box grid
+
+#### Key Insight & Learning
+Embedding CircularCannonWidget inside junk_box_panel.tscn at bottom of sidebar provides clean non-overlapping layout
+
+#### Actionable Guideline for Future Agents
+Place sidebar widgets as embedded children within sidebar containers rather than hardcoding global screen coordinates
 
 ---

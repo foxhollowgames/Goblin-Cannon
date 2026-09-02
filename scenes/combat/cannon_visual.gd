@@ -1,6 +1,6 @@
 extends Node2D
 ## Graphical goblin cannon at the bottom of the battlefield.
-## Supports status effect overlays (fire, frozen, lightning) like minions; apply via apply_status().
+## Uses cannonMobile.png sprite texture asset with recoil shake tween and muzzle flash VFX.
 
 const CANNON_ZONE_HEIGHT: float = 120.0
 const CANNON_WIDTH: float = 80.0
@@ -10,11 +10,32 @@ const SHIELD_RADIUS: float = 52.0
 const SHIELD_CENTER_OFFSET: Vector2 = Vector2(0.0, 6.0)
 const STATUS_MAX_STACKS: int = 5
 const STATUS_DECAY_TICKS: int = 120
-const STATUS_OVERLAY_SIZE: float = 50.0  # scale for flame/ice/lightning overlays
+const STATUS_OVERLAY_SIZE: float = 50.0
+
+const CANNON_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Pirate Pack/PNG/Retina/Ship parts/cannonMobile.png")
+const MUZZLE_FLASH_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Pirate Pack/PNG/Retina/Effects/explosion1.png")
 
 var _shield_display: int = 0
 var _status_stacks: Dictionary = {}
 var _status_decay_counter: int = 0
+
+var _recoil_offset_y: float = 0.0
+var _show_muzzle_flash: bool = false
+var _flash_alpha: float = 0.0
+
+func trigger_firing_anim() -> void:
+	_recoil_offset_y = 14.0
+	_show_muzzle_flash = true
+	_flash_alpha = 1.0
+	var tw: Tween = create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(self, "_recoil_offset_y", 0.0, 0.28).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tw.tween_property(self, "_flash_alpha", 0.0, 0.18).set_trans(Tween.TRANS_LINEAR)
+	tw.chain().tween_callback(func():
+		_show_muzzle_flash = false
+		queue_redraw()
+	)
+	queue_redraw()
 
 func apply_status(status_id: StringName, stacks: int) -> void:
 	if stacks <= 0:
@@ -54,45 +75,29 @@ func set_sidearm_cooldowns(_slots: Array) -> void:
 	pass
 
 func _process(_delta: float) -> void:
-	if _status_stacks.size() > 0:
+	if _status_stacks.size() > 0 or _recoil_offset_y > 0.0 or _show_muzzle_flash:
 		queue_redraw()
 
 func _draw() -> void:
-	var center_x: float = 0.0
-	var base_y: float = CANNON_ZONE_HEIGHT * 0.5
-	var metal_dark: Color = Constants.gameplay_cannon_metal_dark()
-	var metal_mid: Color = Constants.gameplay_cannon_metal_mid()
-	var band: Color = Constants.gameplay_cannon_barrel_accent()
-	var muzzle: Color = Constants.gameplay_cannon_muzzle_glow()
-	# Base / wheels (dark metal)
-	draw_circle(Vector2(-18, base_y + 20), 16, metal_dark)
-	draw_arc(Vector2(-18, base_y + 20), 16, 0, TAU, 24, metal_mid, 2.0)
-	draw_circle(Vector2(18, base_y + 20), 16, metal_dark)
-	draw_arc(Vector2(18, base_y + 20), 16, 0, TAU, 24, metal_mid, 2.0)
-	# Chassis
-	var chassis := Rect2(-40, base_y - 8, 80, 28)
-	draw_rect(chassis, metal_mid)
-	draw_rect(
-		chassis,
-		band,
-		false,
-		2.0
-	)
-	# Barrel (pointing up slightly)
-	var barrel_start := Vector2(0, base_y - 18)
-	var barrel_end := Vector2(0, base_y - 18 - BARREL_LENGTH)
-	draw_line(barrel_start, barrel_end, metal_dark)
-	for i in range(3):
-		var r: float = BARREL_RADIUS - i * 2.0
-		var shade: Color = metal_dark.lerp(metal_mid, float(i) * 0.12)
-		draw_arc(barrel_start, r, -PI * 0.5 - 0.2, -PI * 0.5 + 0.2, 8, shade)
-		draw_arc(barrel_end, r, PI * 0.5 - 0.2, PI * 0.5 + 0.2, 8, shade)
-	# Barrel band (copper/goblin accent)
-	draw_rect(Rect2(-16, base_y - 22, 32, 8), band)
-	draw_rect(Rect2(-16, base_y - 22, 32, 8), band.lightened(0.12), false, 1.0)
-	# Muzzle glow (subtle)
-	draw_circle(barrel_end, 6, Color(muzzle.r, muzzle.g, muzzle.b, 0.6))
-	# --- Status effect overlays (flame, ice, lightning; same style as minions) ---
+	var base_y: float = CANNON_ZONE_HEIGHT * 0.5 + _recoil_offset_y
+
+	# 1. Render Cannon Sprite Asset
+	if CANNON_TEXTURE:
+		var sprite_w: float = 76.0
+		var sprite_h: float = 76.0 * (CANNON_TEXTURE.get_height() / float(CANNON_TEXTURE.get_width()))
+		var sprite_rect := Rect2(-sprite_w * 0.5, base_y - sprite_h * 0.5 - 6.0, sprite_w, sprite_h)
+		draw_texture_rect(CANNON_TEXTURE, sprite_rect, false)
+
+	# 2. Muzzle Flash Particle Blast
+	if _show_muzzle_flash and MUZZLE_FLASH_TEXTURE and _flash_alpha > 0.0:
+		var flash_w: float = 54.0
+		var flash_h: float = 54.0
+		var muzzle_top_y: float = base_y - 48.0
+		var flash_rect := Rect2(-flash_w * 0.5, muzzle_top_y - flash_h * 0.5, flash_w, flash_h)
+		var flash_color := Color(1.0, 1.0, 1.0, _flash_alpha)
+		draw_texture_rect(MUZZLE_FLASH_TEXTURE, flash_rect, false, flash_color)
+
+	# 3. Status effect overlays (flame, ice, lightning)
 	var flame_stacks: int = _status_stacks.get(Constants.STATUS_FIRE, 0)
 	var frozen_stacks: int = _status_stacks.get(Constants.STATUS_FROZEN, 0)
 	var lightning_stacks: int = _status_stacks.get(Constants.STATUS_LIGHTNING, 0)
