@@ -70,6 +70,8 @@ func _exit_tree() -> void:
 		_main_cannon.main_fired.disconnect(_on_main_fired)
 
 func _on_main_fired(_damage: int) -> void:
+	if _cannon_visual and _cannon_visual.has_method("trigger_firing_anim"):
+		_cannon_visual.trigger_firing_anim()
 	# Muzzle blast VFX
 	if _muzzle_blast_scene and _vfx_container:
 		var blast: Node2D = _muzzle_blast_scene.instantiate() as Node2D

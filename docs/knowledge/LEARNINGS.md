@@ -72,6 +72,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-061`](#lrn-061) | TASK-039 | `verification` | Playwright Chromium UI Verification | 2026-09-02 |
 | [`LRN-062`](#lrn-062) | TASK-042 | `ui` | UI Layout and Centering | 2026-09-02 |
 | [`LRN-063`](#lrn-063) | TASK-004 | `ui` | Square Cannon UI Panel Layout | 2026-09-02 |
+| [`LRN-064`](#lrn-064) | TASK-043 | `ui_visuals` | Replace Code-Drawn Cannons with Sprite Assets | 2026-09-02 |
 
 ---
 
@@ -1082,5 +1083,21 @@ Embedding CircularCannonWidget inside junk_box_panel.tscn at bottom of sidebar p
 
 #### Actionable Guideline for Future Agents
 Place sidebar widgets as embedded children within sidebar containers rather than hardcoding global screen coordinates
+
+---
+
+### <a id="lrn-064"></a> LRN-064: Replace Code-Drawn Cannons with Sprite Assets
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T10:34:00.994995`
+
+#### Context & Problem
+Procedural rect/circle drawing for battlefield cannon and UI cannon widget lacked visual quality and firing indicators
+
+#### Key Insight & Learning
+Using texture assets (cannonMobile.png) combined with parallel Tweens for recoil displacement and explosion1.png for muzzle flash provides clean visual polish
+
+#### Actionable Guideline for Future Agents
+Preload sprite texture assets for game objects and UI widgets, combining recoil shake Tweens and muzzle flash sprite overlays on firing events.
 
 ---
