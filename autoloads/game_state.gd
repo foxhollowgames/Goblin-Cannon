@@ -11,6 +11,17 @@ enum RunFlowState {
 	WALL_BREAK_TRANSITION
 }
 
+signal campaign_run_started(run_index: int, character_archetype: StringName)
+signal campaign_run_completed(run_index: int, mcguffin_id: StringName)
+signal convergence_event_triggered()
+
+## Campaign progression (TASK-002: 6 distinct playthroughs)
+var campaign_run_index: int = 1
+var highest_unlocked_campaign_run: int = 1
+var unlocked_mcguffins: Array = []
+var character_archetype: StringName = &"goblin"
+var convergence_active: bool = false
+
 var run_seed: int = 0
 var sim_speed: float = 1.0
 var paused: bool = false
@@ -101,6 +112,11 @@ func start_run(new_seed: int = 0) -> void:
 	paused = false
 	run_flow_state = RunFlowState.FIGHTING
 	Engine.time_scale = 1.0
+	campaign_run_index = 1
+	highest_unlocked_campaign_run = 1
+	unlocked_mcguffins.clear()
+	character_archetype = &"goblin"
+	convergence_active = false
 	hopper_width_scale = 1.0
 	conduit_open_duration_scale = 1.0
 	cannon_charge_reduction = 0
@@ -223,3 +239,59 @@ func set_run_flow_state(state: RunFlowState) -> void:
 		RunFlowState.WALL_BREAK_TRANSITION:
 			paused = true
 			Engine.time_scale = 1.0
+
+func get_character_archetype_for_run(run_idx: int) -> StringName:
+	match run_idx:
+		1: return &"goblin"
+		2: return &"necromancer"
+		3: return &"beastmancer"
+		4: return &"mechanic"
+		5: return &"astromancer"
+		6: return &"goblin_convergence"
+		_: return &"goblin"
+
+func is_run_unlocked(run_idx: int) -> bool:
+	return run_idx >= 1 and run_idx <= 6 and run_idx <= highest_unlocked_campaign_run
+
+func has_mcguffin(mcguffin_id: StringName) -> bool:
+	return mcguffin_id in unlocked_mcguffins
+
+func start_campaign_run(run_idx: int) -> void:
+	campaign_run_index = clampi(run_idx, 1, 6)
+	character_archetype = get_character_archetype_for_run(campaign_run_index)
+	convergence_active = (campaign_run_index == 6)
+	if convergence_active:
+		convergence_event_triggered.emit()
+	campaign_run_started.emit(campaign_run_index, character_archetype)
+
+func complete_campaign_run() -> void:
+	var mcg_id: StringName = &"mcguffin_run_%d" % campaign_run_index
+	if mcg_id not in unlocked_mcguffins:
+		unlocked_mcguffins.append(mcg_id)
+	if campaign_run_index < 6:
+		highest_unlocked_campaign_run = maxi(highest_unlocked_campaign_run, campaign_run_index + 1)
+	campaign_run_completed.emit(campaign_run_index, mcg_id)
+
+func save_campaign_progress() -> Dictionary:
+	var mcg_strs: Array = []
+	for m in unlocked_mcguffins:
+		mcg_strs.append(str(m))
+	return {
+		"campaign_run_index": campaign_run_index,
+		"highest_unlocked_campaign_run": highest_unlocked_campaign_run,
+		"unlocked_mcguffins": mcg_strs,
+		"character_archetype": str(character_archetype),
+		"convergence_active": convergence_active
+	}
+
+func load_campaign_progress(data: Dictionary) -> void:
+	campaign_run_index = int(data.get("campaign_run_index", 1))
+	highest_unlocked_campaign_run = int(data.get("highest_unlocked_campaign_run", 1))
+	character_archetype = StringName(data.get("character_archetype", "goblin"))
+	convergence_active = bool(data.get("convergence_active", false))
+	unlocked_mcguffins.clear()
+	var raw_mcg = data.get("unlocked_mcguffins", [])
+	if raw_mcg is Array:
+		for item in raw_mcg:
+			unlocked_mcguffins.append(StringName(str(item)))
+
