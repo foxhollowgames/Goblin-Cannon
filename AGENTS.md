@@ -22,6 +22,7 @@ Do not duplicate long exploration: follow that order before opening unrelated pa
 5. **Mandatory Local Ollama Code Generation**: For all code generation, editing, and test authoring, use `python scripts/ollama_coder.py [generate|edit|test]` with local Qwen 2.5 Coder.
 6. **Maximum File Length (500 lines)**: Source files must not exceed 500 lines. Run `python scripts/lint_file_lengths.py` to audit file lengths across the repository.
 7. **Directory Maintenance & Coding Standards**: Follow `docs/CODING_STANDARDS.md`. Maintain `docs/DIRECTORY.md` via `python scripts/generate_directory.py`.
+8. **Automatic Task Dashboard Maintenance**: Any time a task is created, updated, status-changed, or deleted (CRUD operations), you MUST run `python scripts/generate_task_dashboard.py` to regenerate the visual task board (`docs/tasks/dashboard.html`).
 
 
 

@@ -9,6 +9,7 @@ Use this file as the **single entry point**. Do not explore the repo at random u
 - **Mandatory Local Ollama Code Generation**: For all code generation, editing, and test authoring, use `python scripts/ollama_coder.py [generate|edit|test]` with local Qwen 2.5 Coder.
 - **Maximum File Length (500 lines)**: Source files must not exceed 500 lines. Run `python scripts/lint_file_lengths.py` to audit file lengths.
 - **GDScript Quality & Directory Maintenance**: All code must follow `docs/CODING_STANDARDS.md`. Run `python scripts/generate_directory.py` and `python scripts/lint_gdscript.py` before submitting a PR.
+- **Task Dashboard Maintenance**: Any task packet CRUD operation (create, update, status change, delete) MUST be followed by running `python scripts/generate_task_dashboard.py` to refresh `docs/tasks/dashboard.html`.
 
 
 ## Reading order (by task)
