@@ -186,6 +186,11 @@ func set_charge(current: int, threshold: int) -> void:
 		_charge_progress.queue_redraw()
 	if _circular_cannon_widget:
 		_circular_cannon_widget.set_energy(current, threshold)
+	var main: Node = get_tree().current_scene if get_tree() else null
+	if main:
+		var cannon_visual: Node2D = main.find_child("CannonVisual", true, false) as Node2D
+		if cannon_visual and cannon_visual.has_method("set_charge"):
+			cannon_visual.set_charge(current, threshold)
 
 func set_timer(seconds_remaining: float) -> void:
 	if not _timer_label:

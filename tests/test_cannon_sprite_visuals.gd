@@ -18,6 +18,10 @@ func test_cannon_visual_texture_and_firing() -> void:
 	assert_not_null_val(CannonVisualScript.CANNON_TEXTURE, "Cannon texture loaded")
 	assert_not_null_val(CannonVisualScript.FIRE_VFX_TEXTURE, "Cartoon Coffee fire VFX texture loaded")
 	
+	# Test charge energy overlay
+	visual.set_charge(5000, 10000)
+	assert_approx(visual.liquid_ratio, 0.5, 0.01, "CannonVisual charge ratio is 0.5")
+
 	# Test triggering firing animation
 	visual.trigger_firing_anim()
 	assert_lt(visual._recoil_offset_x, 0.0, "Recoil offset x active on fire")

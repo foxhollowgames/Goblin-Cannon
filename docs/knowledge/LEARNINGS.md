@@ -74,6 +74,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-063`](#lrn-063) | TASK-004 | `ui` | Square Cannon UI Panel Layout | 2026-09-02 |
 | [`LRN-064`](#lrn-064) | TASK-043 | `ui_visuals` | Replace Code-Drawn Cannons with Sprite Assets | 2026-09-02 |
 | [`LRN-065`](#lrn-065) | TASK-043 | `ui_visuals` | Single Cannon Rendering, Crisp Native Sprite Scale & Cartoon Coffee Fire VFX | 2026-09-02 |
+| [`LRN-066`](#lrn-066) | TASK-043 | `ui_visuals` | Center-Left Cannon UI Positioning & Right-Aligned Fire VFX | 2026-09-02 |
 
 ---
 
@@ -1116,5 +1117,21 @@ Removing texture drawing from widget container and rendering cannonMobile.png at
 
 #### Actionable Guideline for Future Agents
 Keep UI widget containers dedicated to panel backgrounds and energy overlays while delegating cannon sprite rendering and fire VFX to CannonVisual at crisp unscaled dimensions.
+
+---
+
+### <a id="lrn-066"></a> LRN-066: Center-Left Cannon UI Positioning & Right-Aligned Fire VFX
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T10:41:43.920256`
+
+#### Context & Problem
+Cannon position needed to be centered on the left side of the bottom UI container with fire VFX lined up against the right side of the sprite
+
+#### Key Insight & Learning
+Setting CannonVisual position to Vector2(50, 628) in battlefield_view.tscn and drawing Impact_Fire_Lv1_spritesheet.png at muzzle_right_x = center_x + 21.75 with horizontal recoil (_recoil_offset_x = -12.0) places the sprite cleanly in the center-left UI box and aligns fire VFX against the right edge.
+
+#### Actionable Guideline for Future Agents
+Align rightward-firing cannon sprites at center-left UI container bounds and line up muzzle blast VFX regions directly against the right edge of the sprite.
 
 ---
