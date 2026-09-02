@@ -9,7 +9,7 @@ signal ball_entered_board(ball: Node)
 
 const MAX_DISPLAY_BALLS: int = 100
 ## Global Y offset from hopper origin for spawn (above the frame). Balls fall into bin with physics.
-const SPAWN_Y_OFFSET: float = -180.0
+const SPAWN_Y_OFFSET: float = -35.0
 ## Require this many consecutive physics frames outside the strict bin before dropping (gate closed only).
 ## Stops Area2D boundary flicker from ejecting balls from the stored list.
 const BIN_EXIT_HYSTERESIS_FRAMES: int = 4

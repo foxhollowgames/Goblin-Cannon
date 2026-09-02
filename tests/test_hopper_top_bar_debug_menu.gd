@@ -9,19 +9,26 @@ func run() -> void:
 	test_debug_menu_toggle_and_children()
 
 func test_hopper_positioning_below_top_bar() -> void:
-	begin("Hopper position Y and spawn position sit strictly below top UI header bar")
+	begin("TopHeaderBarBg exists, Hopper position Y sits strictly below header bar, and spawn position is masked")
 	var main_scene: PackedScene = load("res://scenes/main/main.tscn") as PackedScene
 	assert_true(main_scene != null, "main scene loaded")
 	var main: Node2D = main_scene.instantiate() as Node2D
 	assert_true(main != null, "main instance created")
 	
+	var top_bar_bg: ColorRect = main.get_node_or_null("UILayer/LeftPanel/TopHeaderBarBg") as ColorRect
+	assert_true(top_bar_bg != null, "TopHeaderBarBg node exists in UILayer/LeftPanel")
+	assert_eq(top_bar_bg.offset_bottom, 54.0, "TopHeaderBarBg height is 54px")
+	
 	var hopper: Node2D = main.get_node_or_null("Hopper") as Node2D
 	assert_true(hopper != null, "hopper node exists in main scene")
 	
-	# Top UI bar is reserved in the Y space 0..50
-	const TOP_BAR_RESERVED_HEIGHT: float = 50.0
-	assert_gt(hopper.position.y, TOP_BAR_RESERVED_HEIGHT, "Hopper position Y sits strictly below top UI bar reserved height")
-	assert_gt(hopper.global_position.y, TOP_BAR_RESERVED_HEIGHT, "Hopper global position Y sits strictly below top UI bar reserved height")
+	const TOP_BAR_RESERVED_HEIGHT: float = 54.0
+	assert_gt(hopper.position.y, TOP_BAR_RESERVED_HEIGHT, "Hopper position Y (85.0) sits strictly below top UI header bar height (54.0)")
+	assert_gt(hopper.global_position.y, TOP_BAR_RESERVED_HEIGHT, "Hopper global position Y sits strictly below top UI header bar height")
+	
+	# Verify spawn Y position sits behind the 54.0px top bar background
+	var spawn_y: float = hopper.global_position.y + hopper.SPAWN_Y_OFFSET
+	assert_lte(spawn_y, TOP_BAR_RESERVED_HEIGHT, "Ball spawn Y position is masked behind the top header bar panel")
 	
 	main.free()
 
