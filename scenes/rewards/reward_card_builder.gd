@@ -76,6 +76,7 @@ static func make_peg_shop_sprite_preview(peg_kind: String) -> Control:
 			peg.position = Vector2(18, 18)
 			holder.add_child(peg)
 	return holder
+
 static func make_stat_upgrade_icon(stat_id: String, tint: Color, stat_icons: Dictionary) -> Control:
 	var row: HBoxContainer = HBoxContainer.new()
 	row.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -163,6 +164,7 @@ static func _shop_ignore_mouse_recursive(node: Node) -> void:
 		(node as Control).mouse_filter = Control.MOUSE_FILTER_PASS
 	elif node is Control:
 		(node as Control).mouse_filter = Control.MOUSE_FILTER_IGNORE
+
 ## Builds a standard shop card StyleBoxFlat.
 static func make_card_stylebox(border_color: Color, border_width: int) -> StyleBoxFlat:
 	var style: StyleBoxFlat = StyleBoxFlat.new()
@@ -203,6 +205,7 @@ static func make_shop_card_layer(panel: PanelContainer, rarity: int, border_colo
 	marker.offset_right = half_sz
 	marker.offset_top = border_center_y - half_sz
 	marker.offset_bottom = border_center_y + half_sz
+	layer.add_child(card_vbox) # Ensure card_vbox is added as a child of layer
 	return card_vbox
 
 ## Creates a ball preview icon control.
@@ -224,6 +227,7 @@ static func make_basic_batch_ball_row(batch_size: int) -> Control:
 	for _i in range(batch_size):
 		row.add_child(make_ball_preview_icon(Constants.ALIGNMENT_MAIN, -1, px, "Plain"))
 	return row
+
 ## Constructs card panel container with stylebox and fixed size settings.
 static func make_card_panel(border_color: Color, border_width: int, card_width: int, card_height: int) -> PanelContainer:
 	var panel: PanelContainer = PanelContainer.new()

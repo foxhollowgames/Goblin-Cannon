@@ -13,6 +13,7 @@ func run() -> void:
 	test_almanac_panel_buttons()
 	test_junk_box_panel_buttons()
 	test_debug_modals_buttons()
+	test_reward_draft_panel_shop_card_content()
 
 func test_almanac_button_wireup() -> void:
 	begin("Almanac button has pressed signal connected and triggers callback")
@@ -175,6 +176,39 @@ func test_debug_modals_buttons() -> void:
 		var close_btn: Button = _find_button_by_name(modal, "Close")
 		assert_true(close_btn != null and close_btn.pressed.get_connections().size() > 0, "city jump modal close button connected")
 		modal.free()
+
+func test_reward_draft_panel_shop_card_content() -> void:
+	begin("RewardDraftPanel shop card content is generated correctly with card_vbox attached")
+	var panel_scene: PackedScene = load("res://scenes/rewards/reward_draft_panel.tscn") as PackedScene
+	assert_true(panel_scene != null, "panel scene loaded")
+	var panel: Control = panel_scene.instantiate() as Control
+	panel._ready()
+
+	var opt: MilestoneOption = MilestoneOption.new()
+	opt.option_type = MilestoneOption.Type.BASIC_BATCH
+	panel.show_draft([opt])
+
+	var top_row: HBoxContainer = panel.get("_top_row_container")
+	assert_true(top_row != null, "top row container exists")
+	assert_eq(top_row.get_child_count(), 1, "top row has 1 card column")
+
+	var col: Control = top_row.get_child(0) as Control
+	assert_true(col != null, "card column exists")
+	var card_panel: PanelContainer = col.get_child(0) as PanelContainer
+	assert_true(card_panel != null, "card panel exists")
+
+	var layer_control: Control = card_panel.get_child(0) as Control
+	assert_true(layer_control != null and layer_control is Control, "layer control exists")
+
+	var card_vbox: VBoxContainer = null
+	for child in layer_control.get_children():
+		if child is VBoxContainer:
+			card_vbox = child as VBoxContainer
+			break
+	assert_true(card_vbox != null, "card vbox container attached to layer control")
+	assert_gt(card_vbox.get_child_count(), 0, "card vbox has children (title, icon, etc.)")
+
+	panel.free()
 
 func _find_button_by_name(node: Node, key: String) -> Button:
 	if node is Button and (node.name == key or node.text == key):
