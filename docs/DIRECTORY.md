@@ -49,6 +49,7 @@
 | `test_character_progression_mechanics.gd` | `CharacterProgressionMechanics` | [tests/test_character_progression_mechanics.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_character_progression_mechanics.gd) |
 | `test_city_progression.gd` | `CityProgression` | [tests/test_city_progression.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_city_progression.gd) |
 | `test_combat_manager.gd` | `CombatManager` | [tests/test_combat_manager.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_combat_manager.gd) |
+| `test_comic_vignette_panel.gd` | `ComicVignettePanel` | [tests/test_comic_vignette_panel.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_comic_vignette_panel.gd) |
 | `test_constellation_laser.gd` | `ConstellationLaser` | [tests/test_constellation_laser.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_constellation_laser.gd) |
 | `test_energize_event_pegs.gd` | `EnergizeEventPegs` | [tests/test_energize_event_pegs.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_energize_event_pegs.gd) |
 | `test_energy_router.gd` | `EnergyRouter` | [tests/test_energy_router.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_energy_router.gd) |
