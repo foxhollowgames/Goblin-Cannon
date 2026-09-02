@@ -58,7 +58,7 @@ func _ready() -> void:
 		_run_gold_label = ui.get_node_or_null("LeftPanel/RunGold") as Label
 		if _run_gold_label:
 			_run_gold_label.add_theme_color_override("font_color", Color(0.94, 0.58, 0.20, 1.0))
-		_circular_cannon_widget = ui.get_node_or_null("CircularCannonWidget") as Control
+		_circular_cannon_widget = ui.find_child("CircularCannonWidget", true, false) as Control
 
 	_create_timer_label()
 
@@ -205,7 +205,7 @@ func set_timer(seconds_remaining: float) -> void:
 func show_energy_gain(main_internal: int, _sidearm_internal: int, _shield_internal: int, exit_position: Vector2, _alignment: int = 0) -> void:
 	var end_bar: Control = _circular_cannon_widget if _circular_cannon_widget else _charge_bar
 	if not end_bar and get_parent():
-		end_bar = get_parent().get_node_or_null("CircularCannonWidget") as Control
+		end_bar = get_parent().find_child("CircularCannonWidget", true, false) as Control
 	var amount_display: int = main_internal / 100
 	if not end_bar:
 		return

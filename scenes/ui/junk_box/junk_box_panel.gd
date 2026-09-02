@@ -222,7 +222,8 @@ func _apply_sidebar_layout() -> void:
 		(hbox as HBoxContainer).vertical = true
 
 	if s_cont:
-		s_cont.custom_minimum_size = Vector2(290, 360)
+		s_cont.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		s_cont.custom_minimum_size = Vector2(290, 200)
 
 	show()
 

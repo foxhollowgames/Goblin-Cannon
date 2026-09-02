@@ -1,7 +1,8 @@
-[gd_scene load_steps=6 format=3 uid="uid://cx6r1t4j5b8q2"]
+[gd_scene load_steps=7 format=3 uid="uid://cx6r1t4j5b8q2"]
 
 [ext_resource type="Script" path="res://scenes/ui/junk_box/junk_box_panel.gd" id="1_4n2t8"]
 [ext_resource type="Script" path="res://scenes/ui/junk_box/junk_box_grid_view.gd" id="2_a8b9c"]
+[ext_resource type="Script" path="res://scenes/ui/circular_cannon_widget.gd" id="3_widget"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_1"]
 bg_color = Color(0.121569, 0.141176, 0.227451, 0.96)
@@ -122,3 +123,14 @@ horizontal_scroll_mode = 0
 [node name="JunkBoxGridView" type="Control" parent="DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/ScrollContainer"]
 layout_mode = 2
 script = ExtResource("2_a8b9c")
+
+[node name="ColorRect2" type="ColorRect" parent="DrawerPanel/MarginContainer/VBoxContainer/HBoxContent"]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+color = Color(0.364706, 0.458824, 0.270588, 0.9)
+
+[node name="CircularCannonWidget" type="Control" parent="DrawerPanel/MarginContainer/VBoxContainer/HBoxContent"]
+custom_minimum_size = Vector2(290, 184)
+layout_mode = 2
+script = ExtResource("3_widget")
+
