@@ -36,12 +36,13 @@ func _create_ui_nodes() -> void:
 	add_child(_label)
 
 func play_takeover(title_text: String = "WALL DESTROYED!") -> void:
+	if GameState:
+		GameState.paused = true
 	is_playing = true
 	current_panel_index = 0
 	show()
 	takeover_started.emit()
 	_show_panel(title_text)
-	GameState.paused = true
 
 func _show_panel(title_text: String) -> void:
 	current_panel_index += 1
@@ -55,6 +56,8 @@ func _show_panel(title_text: String) -> void:
 		_timer.timeout.connect(_on_timer_timeout.bind(title_text))
 
 func _on_timer_timeout(title_text: String) -> void:
+	if not is_playing:
+		return
 	if current_panel_index < total_panels:
 		_show_panel(title_text)
 	else:

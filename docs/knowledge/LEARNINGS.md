@@ -85,6 +85,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-074`](#lrn-074) | TASK-040 | `asset_resources` | Preloaded Asset Pack Tile and VFX Spritesheet Integration | 2026-09-02 |
 | [`LRN-075`](#lrn-075) | TASK-047 | `game_design` | pinball_layout_mapping | 2026-09-02 |
 | [`LRN-076`](#lrn-076) | TASK-042 | `ui` | Hopper Repositioning and Top Bar Debug Menu | 2026-09-02 |
+| [`LRN-077`](#lrn-077) | TASK-044 | `ui` | Full-Screen Comic Overlay Game Pause Behavior | 2026-09-02 |
 
 ---
 
@@ -1303,5 +1304,21 @@ Consolidating debug controls into a collapsible top bar panel reserves playfield
 
 #### Actionable Guideline for Future Agents
 Position the hopper strictly beneath top header UI elements (Y > 50). Consolidate loose debug buttons into a collapsible top bar panel to reserve playfield space.
+
+---
+
+### <a id="lrn-077"></a> LRN-077: Full-Screen Comic Overlay Game Pause Behavior
+- **Task:** `TASK-044`
+- **Category:** `ui`
+- **Created:** `2026-09-02T13:19:59.192879`
+
+#### Context & Problem
+Full-screen comic overlay cutscenes (wall breaks, boss victories, cinematics) needed to pause game state without pausing bottom-right cannon animations.
+
+#### Key Insight & Learning
+Setting GameState.paused = true in FullscreenComicTakeover play_takeover() and GameState.paused = false in dismiss_takeover() pauses board physics and timers while keeping process_mode = PROCESS_MODE_ALWAYS active.
+
+#### Actionable Guideline for Future Agents
+In FullscreenComicTakeover, manage GameState.paused on play_takeover and dismiss_takeover, and leave bottom-right cannon widgets (ComicVignettePanel, CircularCannonWidget) unpaused.
 
 ---

@@ -33,6 +33,8 @@ func trigger_firing_vignette(p_damage: int, p_wall_hp: int, p_wall_hp_max: int =
 			_timer.timeout.connect(dismiss_vignette)
 
 func dismiss_vignette() -> void:
+	if not is_active:
+		return
 	is_active = false
 	hide()
 	vignette_dismissed.emit()

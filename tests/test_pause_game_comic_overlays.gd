@@ -16,6 +16,14 @@ func test_fullscreen_comic_takeover_pauses_and_unpauses_game_state() -> void:
 	begin("Fullscreen comic takeover pauses and unpauses game state")
 	var takeover: CanvasLayer = FullscreenComicTakeoverScript.new()
 	autofree(takeover)
+	takeover._ready()
+
+	assert_eq(takeover.process_mode, Node.PROCESS_MODE_ALWAYS, "Takeover runs process_mode ALWAYS while game is paused")
+
+	var started_emitted: Array = [false]
+	var completed_emitted: Array = [false]
+	takeover.takeover_started.connect(func(): started_emitted[0] = true)
+	takeover.takeover_completed.connect(func(): completed_emitted[0] = true)
 
 	GameState.paused = false
 	assert_false(GameState.paused, "Game should not be paused initially")
@@ -23,10 +31,12 @@ func test_fullscreen_comic_takeover_pauses_and_unpauses_game_state() -> void:
 	takeover.play_takeover("TEST TAKEOVER")
 	assert_true(takeover.is_playing, "Takeover active")
 	assert_true(GameState.paused, "Game state enters paused state on comic overlay trigger")
+	assert_true(started_emitted[0], "takeover_started signal emitted")
 
 	takeover.dismiss_takeover()
 	assert_false(takeover.is_playing, "Takeover dismissed")
 	assert_false(GameState.paused, "Game state unpauses after comic overlay dismissal")
+	assert_true(completed_emitted[0], "takeover_completed signal emitted")
 
 func test_bottom_right_cannon_animation_does_not_pause_game_state() -> void:
 	begin("Bottom-right comic vignette panel animation does not pause game state")
