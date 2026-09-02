@@ -162,3 +162,23 @@ func _update_tooltip(item: JunkBoxItem) -> void:
 			if f > 0: text += "• Funnels: %d\n" % f
 			if r > 0: text += "• Boosters: %d\n" % r
 	lbl.text = text
+
+var _sidebar_mode: bool = false
+
+func integrate_into_sidebar(parent_container: Control) -> void:
+	if parent_container == null:
+		return
+	_sidebar_mode = true
+	var p: Node = get_parent()
+	if p:
+		p.remove_child(self)
+	parent_container.add_child(self)
+	anchors_preset = Control.PRESET_FULL_RECT
+	show()
+
+func is_integrated_in_sidebar() -> bool:
+	return _sidebar_mode
+
+func get_pegboard_preview_scale() -> float:
+	return 1.0
+

@@ -11,16 +11,30 @@ signal item_clicked(item: JunkBoxItem)
 signal item_hovered(item: JunkBoxItem)
 signal item_unhovered()
 
-const CELL_SIZE: int = 48
+const CELL_SIZE: int = 52
+const CELL_WIDTH: int = 52
+const CELL_HEIGHT: int = 56
 const CELL_PAD: int = 2
 
 var hovered_cell: Vector2i = Vector2i(-1, -1)
 var hovered_item: JunkBoxItem = null
 var drag_controller: Node = null
 
+func get_cell_size() -> int:
+	return CELL_SIZE
+
+func get_peg_preview_parameters() -> Dictionary:
+	return {
+		"cell_width": float(CELL_WIDTH),
+		"cell_height": float(CELL_HEIGHT),
+		"cell_pad": CELL_PAD,
+		"grid_columns": GameState.junk_box.grid_columns if GameState.junk_box != null else 6
+	}
+
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS
-	GameState.junk_box.inventory_changed.connect(_on_inventory_changed)
+	if GameState.junk_box != null:
+		GameState.junk_box.inventory_changed.connect(_on_inventory_changed)
 	_update_size()
 
 func _on_inventory_changed() -> void:
