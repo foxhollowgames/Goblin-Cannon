@@ -213,7 +213,7 @@ func _apply_sidebar_layout() -> void:
 		p.offset_top = 0
 		p.offset_right = 0
 		p.offset_bottom = 0
-		p.custom_minimum_size = Vector2(310, 720)
+		p.custom_minimum_size = Vector2(304, 720)
 
 	if c_btn:
 		c_btn.visible = false

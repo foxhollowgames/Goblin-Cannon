@@ -122,14 +122,14 @@ vertical_alignment = 1
 
 [node name="RunGold" type="Label" parent="UILayer/LeftPanel" unique_id=1535948081]
 layout_mode = 1
-offset_left = 400.0
-offset_top = 36.0
-offset_right = 560.0
-offset_bottom = 60.0
+offset_left = 32.0
+offset_top = 12.0
+offset_right = 192.0
+offset_bottom = 36.0
 theme_override_colors/font_color = Color(0.94, 0.58, 0.2, 1)
 theme_override_font_sizes/font_size = 16
 text = "Gold: 0"
-horizontal_alignment = 1
+horizontal_alignment = 0
 
 [node name="CenterPanel" type="Control" parent="UILayer" unique_id=1605974261]
 layout_mode = 3

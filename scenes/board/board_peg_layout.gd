@@ -2,9 +2,9 @@ extends Node2D
 ## Peg grid spawning, staggered lattice coordinate math, and peg spatial queries for the Board scene.
 
 #region State and Constants
-const BOARD_GRID_COLS: int = 16
+const BOARD_GRID_COLS: int = 15
 const BOARD_GRID_ROWS: int = 8
-const BOARD_GRID_START_X: float = 90.0
+const BOARD_GRID_START_X: float = 116.0
 const BOARD_GRID_START_Y: float = 200.0
 const BOARD_GRID_COL_SPACING: float = 52.0
 const BOARD_GRID_ROW_SPACING: float = 56.0

@@ -12,7 +12,7 @@ signal item_added(item: JunkBoxItem)
 signal item_removed(item: JunkBoxItem)
 signal item_moved(item: JunkBoxItem)
 
-const DEFAULT_COLUMNS: int = 8
+const DEFAULT_COLUMNS: int = 6
 const DEFAULT_MIN_ROWS: int = 12
 
 @export var grid_columns: int = DEFAULT_COLUMNS
