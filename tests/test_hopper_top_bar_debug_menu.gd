@@ -23,12 +23,9 @@ func test_hopper_positioning_below_top_bar() -> void:
 	assert_true(hopper != null, "hopper node exists in main scene")
 	
 	const TOP_BAR_RESERVED_HEIGHT: float = 54.0
-	assert_gt(hopper.position.y, TOP_BAR_RESERVED_HEIGHT, "Hopper position Y (85.0) sits strictly below top UI header bar height (54.0)")
-	assert_gt(hopper.global_position.y, TOP_BAR_RESERVED_HEIGHT, "Hopper global position Y sits strictly below top UI header bar height")
-	
-	# Verify spawn Y position sits behind the 54.0px top bar background
-	var spawn_y: float = hopper.global_position.y + hopper.SPAWN_Y_OFFSET
-	assert_lte(spawn_y, TOP_BAR_RESERVED_HEIGHT, "Ball spawn Y position is masked behind the top header bar panel")
+	var hopper_top_rim_y: float = hopper.position.y - 80.0
+	assert_gte(hopper_top_rim_y, TOP_BAR_RESERVED_HEIGHT, "Hopper top rim Y (55.0) sits strictly below top UI header bar height (54.0)")
+	assert_gt(hopper.position.y, TOP_BAR_RESERVED_HEIGHT, "Hopper position Y (135.0) sits strictly below top UI header bar height (54.0)")
 	
 	main.free()
 

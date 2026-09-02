@@ -188,7 +188,7 @@ script = ExtResource("4_cm")
 script = ExtResource("5_rm")
 
 [node name="Hopper" parent="." unique_id=210049821 instance=ExtResource("17_hopper")]
-position = Vector2(480, 85)
+position = Vector2(480, 135)
 
 [node name="Conduit" type="Node2D" parent="." unique_id=1827569296]
 script = ExtResource("7_con")
