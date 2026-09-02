@@ -74,6 +74,11 @@ python scripts/generate_task_dashboard.py
 | [TASK-042](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-042-hopper-positioning-top-ui-bar-and-debug-menu.md) | Hopper Repositioning, Top UI Bar & Debug Menu Integration | UI/Layout | P1 | READY | `feature/hopper-top-bar-debug-menu` |
 | [TASK-043](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-043-replace-drawn-cannons-with-sprite-assets.md) | Replace Drawn Cannons with Library Sprite Assets | UI/Visuals | P1 | DONE | `feature/replace-drawn-cannons-with-assets` |
 | [TASK-044](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-044-pause-game-for-comic-overlay-scenes.md) | Pause Game State for Full Comic Overlay Cinematics | Gameplay/Systems/UI | P1 | BACKLOG | `feature/pause-game-comic-overlays` |
+| [TASK-045](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-045-remove-minion-system.md) | Remove Minion System and Mechanics | Refactoring/Cleanup | P2 | BACKLOG | `feature/remove-minion-system` |
+| [TASK-046](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-046-cannon-scrolling-terrain-animation.md) | Cannon Scrolling Terrain Animation & Right-Widget Wall Transition | UI/Visuals | P1 | BACKLOG | `feature/cannon-scrolling-terrain-animation` |
+| [TASK-047](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-047-pinball-widget-research-and-machine-layout-analysis.md) | Pinball Widget Research & Machine Layout Analysis | Research/Design | P1 | BACKLOG | `feature/pinball-widget-research` |
+| [TASK-048](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-048-relic-activation-requirements-pinball-widget-rework.md) | Relic Activation Requirements Pinball Widget Rework | Systems/Gameplay | P1 | BACKLOG | `feature/relic-pinball-activation-rework` |
+| [TASK-049](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-049-on-board-relic-tooltip-rework.md) | On-Board Relic Tooltip Information Rework | UI/Polish | P1 | BACKLOG | `feature/on-board-relic-tooltip-rework` |
 
 ---
 
