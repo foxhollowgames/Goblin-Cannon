@@ -212,10 +212,16 @@ func show_energy_gain(main_internal: int, _sidearm_internal: int, _shield_intern
 	if not end_bar and get_parent():
 		end_bar = get_parent().find_child("CircularCannonWidget", true, false) as Control
 	var amount_display: int = main_internal / 100
-	if not end_bar:
+	var end_pos: Vector2 = Vector2.ZERO
+	var main_scene: Node = get_tree().current_scene if get_tree() else null
+	var cannon_visual: Node2D = main_scene.find_child("CannonVisual", true, false) as Node2D if main_scene else null
+	if cannon_visual:
+		end_pos = cannon_visual.global_position + Vector2(0.0, 18.0)
+	elif end_bar:
+		var end_rect: Rect2 = end_bar.get_global_rect()
+		end_pos = end_rect.get_center()
+	else:
 		return
-	var end_rect: Rect2 = end_bar.get_global_rect()
-	var end_pos: Vector2 = end_rect.get_center()
 
 	# One flying VFX per gain burst; rapid sources (e.g. many leech ticks) reuse the label only.
 	var reuse_label: bool = _energy_gain_label != null and is_instance_valid(_energy_gain_label) and _energy_gain_label.modulate.a > ENERGY_GAIN_ACCUMULATE_THRESHOLD

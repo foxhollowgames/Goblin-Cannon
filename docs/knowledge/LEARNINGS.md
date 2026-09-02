@@ -75,6 +75,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-064`](#lrn-064) | TASK-043 | `ui_visuals` | Replace Code-Drawn Cannons with Sprite Assets | 2026-09-02 |
 | [`LRN-065`](#lrn-065) | TASK-043 | `ui_visuals` | Single Cannon Rendering, Crisp Native Sprite Scale & Cartoon Coffee Fire VFX | 2026-09-02 |
 | [`LRN-066`](#lrn-066) | TASK-043 | `ui_visuals` | Center-Left Cannon UI Positioning & Right-Aligned Fire VFX | 2026-09-02 |
+| [`LRN-067`](#lrn-067) | TASK-043 | `ui_visuals` | Cannon Charge Overlay & UI Charge State Forwarding | 2026-09-02 |
 
 ---
 
@@ -1133,5 +1134,21 @@ Setting CannonVisual position to Vector2(50, 628) in battlefield_view.tscn and d
 
 #### Actionable Guideline for Future Agents
 Align rightward-firing cannon sprites at center-left UI container bounds and line up muzzle blast VFX regions directly against the right edge of the sprite.
+
+---
+
+### <a id="lrn-067"></a> LRN-067: Cannon Charge Overlay & UI Charge State Forwarding
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T10:45:31.135706`
+
+#### Context & Problem
+CannonVisual was reparented to CannonOverlay canvas layer and lacked an explicit charge overlay progress meter
+
+#### Key Insight & Learning
+Adding set_charge and set_energy methods to CannonVisual and drawing a 54x6px gold/amber progress meter under the cannon sprite in _draw() with set_charge forwarding from center_panel_ui.gd ensures live charge visibility during combat.
+
+#### Actionable Guideline for Future Agents
+Implement explicit set_charge methods on canvas overlay visual nodes and forward charge updates from center_panel_ui to maintain live charge meter overlays.
 
 ---
