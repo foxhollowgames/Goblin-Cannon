@@ -1,7 +1,8 @@
 extends Node2D
 ## Graphical goblin cannon positioned at the center-left of the bottom UI.
 ## Renders a single crisp native cannonMobile.png sprite texture asset
-## with energy charge meter overlay, horizontal recoil shake tween animation, and Cartoon Coffee Fire VFX.
+## with energy charge meter overlay, white flash lead bar with smooth yellow catch-up animation,
+## horizontal recoil shake tween, and Cartoon Coffee Fire VFX.
 
 const CANNON_ZONE_HEIGHT: float = 120.0
 const CANNON_WIDTH: float = 80.0
@@ -19,6 +20,8 @@ const FIRE_VFX_TEXTURE: Texture2D = preload("res://assets/VFX/Essentials VFX Spr
 var current_energy: int = 0
 var max_energy: int = 10000
 var liquid_ratio: float = 0.0
+var _target_ratio: float = 0.0
+var _catchup_tween: Tween
 
 var _shield_display: int = 0
 var _status_stacks: Dictionary = {}
@@ -31,7 +34,17 @@ var _flash_frame: int = 0
 func set_energy(p_current: int, p_max: int = 10000) -> void:
 	current_energy = maxi(0, p_current)
 	max_energy = maxi(1, p_max)
-	liquid_ratio = clampf(float(current_energy) / float(max_energy), 0.0, 1.0)
+	var new_ratio: float = clampf(float(current_energy) / float(max_energy), 0.0, 1.0)
+	
+	if new_ratio > _target_ratio:
+		_target_ratio = new_ratio
+		if _catchup_tween and _catchup_tween.is_valid():
+			_catchup_tween.kill()
+		_catchup_tween = create_tween()
+		_catchup_tween.tween_property(self, "liquid_ratio", _target_ratio, 0.35).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	else:
+		_target_ratio = new_ratio
+		liquid_ratio = new_ratio
 	queue_redraw()
 
 func set_charge(p_current: int, p_max: int = 10000) -> void:
@@ -50,6 +63,7 @@ func trigger_firing_anim() -> void:
 	tw.chain().tween_callback(func():
 		_show_muzzle_flash = false
 		_recoil_offset_x = 0.0
+		_target_ratio = 0.0
 		liquid_ratio = 0.0
 		queue_redraw()
 	)
@@ -93,7 +107,7 @@ func set_sidearm_cooldowns(_slots: Array) -> void:
 	pass
 
 func _process(_delta: float) -> void:
-	if _status_stacks.size() > 0 or absf(_recoil_offset_x) > 0.0 or _show_muzzle_flash or liquid_ratio > 0.0:
+	if _status_stacks.size() > 0 or absf(_recoil_offset_x) > 0.0 or _show_muzzle_flash or _target_ratio > 0.0 or liquid_ratio > 0.0:
 		queue_redraw()
 
 func _draw() -> void:
@@ -107,21 +121,34 @@ func _draw() -> void:
 		var sprite_rect := Rect2(center_x - sprite_w * 0.5, center_y - sprite_h * 0.5, sprite_w, sprite_h)
 		draw_texture_rect(CANNON_TEXTURE, sprite_rect, false)
 
-	# 2. Render Sleek Cannon Energy Charge Overlay (Progress bar beneath cannon sprite)
-	if liquid_ratio > 0.0:
+	# 2. Render Sleek Cannon Energy Charge Bar Overlay with White Lead Flash & Yellow Catch-Up
+	if _target_ratio > 0.0 or liquid_ratio > 0.0:
 		var bar_w: float = 54.0
 		var bar_h: float = 6.0
 		var bar_x: float = center_x - bar_w * 0.5
 		var bar_y: float = center_y + 18.0
 		var bg_rect := Rect2(bar_x, bar_y, bar_w, bar_h)
-		draw_rect(bg_rect, Color("#121722"), true)
-		draw_rect(bg_rect, Color("#5d7545"), false, 1.0)
 		
-		var fill_w: float = (bar_w - 2.0) * liquid_ratio
-		if fill_w > 0.0:
-			var fill_rect := Rect2(bar_x + 1.0, bar_y + 1.0, fill_w, bar_h - 2.0)
-			var fill_col := Color("#d97706").lerp(Color("#ffec99"), liquid_ratio)
-			draw_rect(fill_rect, fill_col, true)
+		# Background Box
+		draw_rect(bg_rect, Color("#121722"), true)
+		
+		# White Lead Flash Bar (instantly jumps to new target level)
+		if _target_ratio > 0.0:
+			var target_w: float = (bar_w - 2.0) * _target_ratio
+			if target_w > 0.0:
+				var target_rect := Rect2(bar_x + 1.0, bar_y + 1.0, target_w, bar_h - 2.0)
+				draw_rect(target_rect, Color(1.0, 1.0, 1.0, 0.9), true)
+
+		# Primary Yellow Catch-Up Fill Bar (smoothly lerps/catches up to target_ratio)
+		if liquid_ratio > 0.0:
+			var fill_w: float = (bar_w - 2.0) * liquid_ratio
+			if fill_w > 0.0:
+				var fill_rect := Rect2(bar_x + 1.0, bar_y + 1.0, fill_w, bar_h - 2.0)
+				var fill_col := Color("#d97706").lerp(Color("#ffec99"), liquid_ratio)
+				draw_rect(fill_rect, fill_col, true)
+
+		# Outer Border
+		draw_rect(bg_rect, Color("#5d7545"), false, 1.0)
 
 	# 3. Cartoon Coffee Fire VFX Muzzle Blast (Lined up against the right side of the sprite)
 	if _show_muzzle_flash and FIRE_VFX_TEXTURE:

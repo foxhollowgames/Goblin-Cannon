@@ -76,6 +76,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-065`](#lrn-065) | TASK-043 | `ui_visuals` | Single Cannon Rendering, Crisp Native Sprite Scale & Cartoon Coffee Fire VFX | 2026-09-02 |
 | [`LRN-066`](#lrn-066) | TASK-043 | `ui_visuals` | Center-Left Cannon UI Positioning & Right-Aligned Fire VFX | 2026-09-02 |
 | [`LRN-067`](#lrn-067) | TASK-043 | `ui_visuals` | Cannon Charge Overlay & UI Charge State Forwarding | 2026-09-02 |
+| [`LRN-068`](#lrn-068) | TASK-043 | `ui_visuals` | Flying Energy Particle VFX Destination Targeting | 2026-09-02 |
 
 ---
 
@@ -1150,5 +1151,21 @@ Adding set_charge and set_energy methods to CannonVisual and drawing a 54x6px go
 
 #### Actionable Guideline for Future Agents
 Implement explicit set_charge methods on canvas overlay visual nodes and forward charge updates from center_panel_ui to maintain live charge meter overlays.
+
+---
+
+### <a id="lrn-068"></a> LRN-068: Flying Energy Particle VFX Destination Targeting
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T10:51:53.950672`
+
+#### Context & Problem
+Energy gain VFX particles flew to the center of the widget container box instead of the charge bar under the cannon
+
+#### Key Insight & Learning
+Querying CannonVisual.global_position + Vector2(0.0, 18.0) in center_panel_ui.gd show_energy_gain ensures flying energy particles stream directly to the charge bar under the cannon sprite.
+
+#### Actionable Guideline for Future Agents
+Calculate energy flow particle destination coordinates using the target visual node position (CannonVisual.global_position + Vector2(0.0, 18.0)) to align flying particles with the charge progress bar.
 
 ---

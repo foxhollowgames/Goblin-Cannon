@@ -248,8 +248,11 @@ func _show_gain_on_main_bar(end_pos: Vector2, amount_display: int) -> void:
 			_energy_gain_label.queue_free()
 		_energy_gain_label = Label.new()
 		_energy_gain_label.text = "+%d" % _energy_gain_total
-		_energy_gain_label.position = end_pos + Vector2(8, -10)
-		_energy_gain_label.add_theme_font_size_override("font_size", 18)
+		var label_w: float = 80.0
+		_energy_gain_label.custom_minimum_size = Vector2(label_w, 20.0)
+		_energy_gain_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_energy_gain_label.position = end_pos + Vector2(-label_w * 0.5, 8.0)
+		_energy_gain_label.add_theme_font_size_override("font_size", 16)
 		_energy_gain_label.add_theme_color_override("font_color", COLOR_MAIN)
 		_energy_gain_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		get_parent().add_child(_energy_gain_label)
