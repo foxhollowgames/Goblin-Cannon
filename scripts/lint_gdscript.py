@@ -145,6 +145,24 @@ def check_custom_rules():
         return 0
 
 
+def check_script_parse_smoke():
+    print("Pass 5: Checking Godot script compilation parse smoke test...")
+    godot_bin = r"C:\Users\josep\Desktop\Games\Godot_v4.6.1-stable_win64.exe"
+    if not os.path.exists(godot_bin):
+        godot_bin = "godot"
+
+    cmd = f'cmd.exe /c "{godot_bin} --headless -s tests/test_script_parse_smoke.gd"'
+    code, stdout, stderr = run_cmd(cmd)
+    if code == 0 and "SCRIPT ERROR" not in stdout and "SCRIPT ERROR" not in stderr:
+        print("  [PASS] Godot script parse smoke test passed")
+        return 0
+    else:
+        print("  [FAIL] Godot script parse smoke test failed:")
+        print(stdout)
+        print(stderr)
+        return 1
+
+
 def main():
     parser = argparse.ArgumentParser(description="Multi-pass GDScript Quality Linter")
     args = parser.parse_args()
@@ -154,6 +172,7 @@ def main():
     results.append(check_file_lengths())
     results.append(check_directory_freshness())
     results.append(check_custom_rules())
+    results.append(check_script_parse_smoke())
 
     if any(r != 0 for r in results):
         print("\nGDScript Linting FAILED.")
@@ -165,3 +184,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

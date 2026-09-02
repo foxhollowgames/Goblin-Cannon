@@ -250,4 +250,3 @@ func _open_modal_by_name(modal_name: String) -> void:
 			modal.show_modal()
 		elif modal.has_method("show"):
 			modal.show()
-

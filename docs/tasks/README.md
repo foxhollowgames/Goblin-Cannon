@@ -68,6 +68,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-036](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-036-pinball-kinetic-machinery-and-lane-switches.md) | Pinball Kinetic Machinery, Rollover Lane Switches, and Device Roster Revision | Systems/Gameplay | P1 | READY | `feature/pinball-kinetic-machinery` |
 | [TASK-037](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-037-relic-passive-removal-and-board-trigger-mechanisms.md) | Relic Passive Removal and Board Trigger Mechanisms | Systems/Gameplay/Design | P1 | DONE | `feature/relic-passive-removal-board-triggers` |
 | [TASK-038](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-038-tooltip-text-and-language-refinement.md) | Tooltip Text and Language Refinement | UI/Polish | P1 | DONE | `feature/tooltip-text-refinement` |
+| [TASK-039](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-039-junk-box-sidebar-integration-and-pegboard-display.md) | Junk Box Sidebar Integration and Pegboard Display Equivalence | UI/Controls/Gameplay | P1 | READY | `feature/junk-box-sidebar-and-pegboard-display` |
 
 ---
 

@@ -48,6 +48,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-037`](#lrn-037) | Decompose large source files | `Architecture` | game_coordinator_decomposition | 2026-09-01 |
 | [`LRN-038`](#lrn-038) | FIX-SHOP-ICONS | `godot_engine` | Shop card VBox attachment and marker script path | 2026-09-01 |
 | [`LRN-039`](#lrn-039) | TASK-033 | `physics` | polyomino relic enclosures | 2026-09-01 |
+| [`LRN-040`](#lrn-040) | FIX-POLYOMINO-PARSER | `godot_engine` | GDScript Void Return Parse Errors | 2026-09-01 |
 
 ---
 
@@ -674,5 +675,21 @@ Polyomino module wall enclosures generate cell boundary edge line segments rotat
 
 #### Actionable Guideline for Future Agents
 Use get_solid_edge_segments to calculate edge colliders for polyomino enclosures.
+
+---
+
+### <a id="lrn-040"></a> LRN-040: GDScript Void Return Parse Errors
+- **Task:** `FIX-POLYOMINO-PARSER`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-01T22:07:23.753398`
+
+#### Context & Problem
+A void return function returning a value in GDScript causes a parse error that breaks preloaded scripts across the engine.
+
+#### Key Insight & Learning
+Functions returning void must return cleanly without returning values.
+
+#### Actionable Guideline for Future Agents
+Check that functions returning void do not return expressions, especially when modifying array parameters by reference.
 
 ---

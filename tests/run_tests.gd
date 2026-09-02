@@ -1,7 +1,4 @@
 extends SceneTree
-## Ensures `class_name MonsterPalette` is registered before any script references it (headless order).
-const _monster_palette_script = preload("res://autoloads/monster_palette.gd")
-const _machinery_component_script = preload("res://scenes/board/machinery/polyomino_machinery_component.gd")
 ## Test runner. Execute from project root:
 ##   godot --headless -s tests/run_tests.gd
 ##
@@ -69,6 +66,10 @@ func _initialize() -> void:
 	call_deferred("_run_all_tests")
 
 func _run_all_tests() -> void:
+	# Dynamic pre-registration of class names to isolate parse failures
+	var _mp = load("res://autoloads/monster_palette.gd")
+	var _mc = load("res://scenes/board/machinery/polyomino_machinery_component.gd")
+
 	var total_passed: int = 0
 	var total_failed: int = 0
 	var all_errors: Array[String] = []
