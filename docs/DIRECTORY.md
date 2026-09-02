@@ -45,6 +45,7 @@
 | `test_black_hole_event.gd` | `BlackHoleEvent` | [tests/test_black_hole_event.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_black_hole_event.gd) |
 | `test_bloom_ball.gd` | `BloomBall` | [tests/test_bloom_ball.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_bloom_ball.gd) |
 | `test_board_relic_repositioning.gd` | `BoardRelicRepositioning` | [tests/test_board_relic_repositioning.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_board_relic_repositioning.gd) |
+| `test_character_progression_mechanics.gd` | `CharacterProgressionMechanics` | [tests/test_character_progression_mechanics.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_character_progression_mechanics.gd) |
 | `test_city_progression.gd` | `CityProgression` | [tests/test_city_progression.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_city_progression.gd) |
 | `test_combat_manager.gd` | `CombatManager` | [tests/test_combat_manager.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_combat_manager.gd) |
 | `test_constellation_laser.gd` | `ConstellationLaser` | [tests/test_constellation_laser.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_constellation_laser.gd) |
