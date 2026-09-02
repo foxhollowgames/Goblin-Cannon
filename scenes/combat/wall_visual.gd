@@ -2,6 +2,7 @@ extends Node2D
 ## Graphical wall at the top of the battlefield. Draws stone/brick style wall using asset pack tile textures.
 ## Supports explosion (debris) and rebuild (slide-in) animations for wall break transitions.
 
+#region Constants
 const WALL_HEIGHT: float = 72.0
 const WALL_WIDTH: float = 320.0
 const BRICK_ROWS: int = 4
@@ -12,14 +13,19 @@ const EXPLOSION_DURATION: float = 1.8
 
 const WALL_TILE_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Platformer Pack Medieval/PNG/medievalTile_015.png")
 const WALL_CAP_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Platformer Assets Tile Extensions/PNG Castle/castleHalfMid.png")
+#endregion
 
+#region Variables
 var _show_wall: bool = true
 var _exploding: bool = false
 var _explosion_timer: float = 0.0
-var _debris: Array = []
+var _debris: Array[Dictionary] = []  # { pos: Vector2, vel: Vector2, rot_speed: float, angle: float, size: Vector2, shade: float, alpha: float }
 var _rebuild_offset_y: float = 0.0
 var _flash_alpha: float = 0.0
+#endregion
 
+#region Public Methods
+## Triggers debris explosion animation sequence upon wall destruction.
 func play_explosion() -> void:
 	_show_wall = false
 	_exploding = true
@@ -43,6 +49,7 @@ func play_explosion() -> void:
 		})
 	queue_redraw()
 
+## Plays slide-in rebuild animation sequence when next wall enters.
 func play_rebuild() -> void:
 	_exploding = false
 	_debris.clear()
@@ -52,7 +59,9 @@ func play_rebuild() -> void:
 	var tween: Tween = create_tween()
 	tween.tween_property(self, "_rebuild_offset_y", 0.0, 0.6).set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_BOUNCE)
 	queue_redraw()
+#endregion
 
+#region Engine Callbacks
 func _process(delta: float) -> void:
 	if _flash_alpha > 0.0:
 		_flash_alpha = maxf(0.0, _flash_alpha - delta * 3.0)
@@ -120,4 +129,6 @@ func _draw() -> void:
 		else:
 			draw_rect(cap, Color(0.3, 0.27, 0.24, 1))
 			draw_rect(cap, Color(0.4, 0.36, 0.32, 1), false, 1.0)
+#endregion
+
 
