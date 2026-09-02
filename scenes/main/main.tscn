@@ -80,14 +80,54 @@ offset_right = 960.0
 offset_bottom = 720.0
 mouse_filter = 2
 
+[node name="TopWallContainer" type="Control" parent="UILayer/LeftPanel" unique_id=596473156]
+custom_minimum_size = Vector2(240, 24)
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -120.0
+offset_top = 6.0
+offset_right = 120.0
+offset_bottom = 30.0
+
+[node name="WallHealthBar" type="ProgressBar" parent="UILayer/LeftPanel/TopWallContainer" unique_id=596473157]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+value = 100.0
+show_percentage = false
+
+[node name="ValueLabel" type="Label" parent="UILayer/LeftPanel/TopWallContainer" unique_id=596473158]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -40.0
+offset_top = -10.0
+offset_right = 40.0
+offset_bottom = 10.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 13
+text = "100/100"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="RunGold" type="Label" parent="UILayer/LeftPanel" unique_id=1535948081]
 layout_mode = 1
 offset_left = 400.0
-offset_top = 8.0
+offset_top = 36.0
 offset_right = 560.0
-offset_bottom = 40.0
+offset_bottom = 60.0
 theme_override_colors/font_color = Color(0.94, 0.58, 0.2, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 16
 text = "Gold: 0"
 horizontal_alignment = 1
 
@@ -98,116 +138,6 @@ offset_left = 960.0
 offset_right = 1280.0
 offset_bottom = 720.0
 script = ExtResource("16_cpu")
-
-[node name="CannonColumn" type="VBoxContainer" parent="UILayer/CenterPanel" unique_id=55995338]
-layout_mode = 1
-offset_left = 8.0
-offset_top = 8.0
-offset_right = 200.0
-offset_bottom = 600.0
-
-[node name="GoblinCannon" type="PanelContainer" parent="UILayer/CenterPanel/CannonColumn" unique_id=1393789589]
-layout_mode = 2
-
-[node name="VBox" type="VBoxContainer" parent="UILayer/CenterPanel/CannonColumn/GoblinCannon" unique_id=241753513]
-layout_mode = 2
-
-[node name="BagPanel" type="PanelContainer" parent="UILayer/CenterPanel" unique_id=1900000001]
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 208.0
-offset_top = -36.0
-offset_right = 312.0
-offset_bottom = -8.0
-grow_vertical = 0
-
-[node name="BagLabel" type="Label" parent="UILayer/CenterPanel/BagPanel" unique_id=1900000002]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.819608, 0.662745, 0.564706, 1)
-theme_override_font_sizes/font_size = 14
-text = "BAG: 0"
-
-[node name="ConquestBar" type="VBoxContainer" parent="UILayer/CenterPanel" unique_id=1611307580]
-layout_mode = 1
-offset_left = 208.0
-offset_top = 8.0
-offset_right = 312.0
-offset_bottom = 720.0
-theme_override_constants/separation = 0
-
-[node name="WallHealthUnder" type="CenterContainer" parent="UILayer/CenterPanel/ConquestBar" unique_id=596473152]
-layout_mode = 2
-
-[node name="BarContainer" type="Control" parent="UILayer/CenterPanel/ConquestBar/WallHealthUnder" unique_id=596473156]
-custom_minimum_size = Vector2(120, 24)
-layout_mode = 2
-
-[node name="WallHealthBar" type="ProgressBar" parent="UILayer/CenterPanel/ConquestBar/WallHealthUnder/BarContainer" unique_id=596473157]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-value = 100.0
-show_percentage = false
-
-[node name="ValueLabel" type="Label" parent="UILayer/CenterPanel/ConquestBar/WallHealthUnder/BarContainer" unique_id=596473158]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -28.0
-offset_top = -8.0
-offset_right = 28.0
-offset_bottom = 8.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0.619608, 0.45098, 0.407843, 1)
-theme_override_font_sizes/font_size = 12
-text = "100/100"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="ConquestContentCenter" type="CenterContainer" parent="UILayer/CenterPanel/ConquestBar" unique_id=1611307578]
-layout_mode = 2
-size_flags_vertical = 3
-
-[node name="ConquestContent" type="VBoxContainer" parent="UILayer/CenterPanel/ConquestBar/ConquestContentCenter" unique_id=1611307579]
-layout_mode = 2
-theme_override_constants/separation = 6
-alignment = 1
-
-[node name="ConquestGoalLabel" type="Label" parent="UILayer/CenterPanel/ConquestBar/ConquestContentCenter/ConquestContent" unique_id=634639352]
-layout_mode = 2
-theme_override_colors/font_color = Color(1, 0.92549, 0.6, 1)
-theme_override_font_sizes/font_size = 12
-text = "Halflings"
-horizontal_alignment = 1
-
-[node name="ConquestPathWrapper" type="CenterContainer" parent="UILayer/CenterPanel/ConquestBar/ConquestContentCenter/ConquestContent" unique_id=1611307582]
-layout_mode = 2
-
-[node name="ConquestPath" type="VBoxContainer" parent="UILayer/CenterPanel/ConquestBar/ConquestContentCenter/ConquestContent/ConquestPathWrapper" unique_id=1611307581]
-layout_mode = 2
-theme_override_constants/separation = 0
-alignment = 1
-
-[node name="BottomEnergyPools" type="Control" parent="UILayer/CenterPanel" unique_id=1611307590]
-custom_minimum_size = Vector2(320, 120)
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -120.0
-offset_right = 320.0
-grow_vertical = 0
-
-[node name="BucketsPanel" type="PanelContainer" parent="UILayer/CenterPanel/BottomEnergyPools" unique_id=1611307584]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0

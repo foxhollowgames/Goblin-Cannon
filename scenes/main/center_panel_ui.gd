@@ -41,44 +41,25 @@ func _apply_progress_bar_theme(bar: ProgressBar, fill_color: Color) -> void:
 	fill.set_corner_radius_all(3)
 	bar.add_theme_stylebox_override("fill", fill)
 
+const CircularCannonWidgetScript = preload("res://scenes/ui/circular_cannon_widget.gd")
+
+var _circular_cannon_widget: Control = null
+
 func _ready() -> void:
 	_energy_flow_vfx_scene = load("res://scenes/ui/energy_flow_vfx.tscn") as PackedScene
-	var wall_under: Control = get_node_or_null("ConquestBar/WallHealthUnder/BarContainer") as Control
-	if wall_under:
-		_wall_health_label = wall_under.get_node_or_null("ValueLabel") as Label
-		_wall_health_bar = wall_under.get_node_or_null("WallHealthBar") as ProgressBar
-		if _wall_health_bar:
-			_apply_progress_bar_theme(_wall_health_bar, MonsterPalette.DUSTY_ROSE())
-	# Hide the health and sidearm buckets (no longer used)
-	var health_bucket: Control = get_node_or_null("BottomEnergyPools/BucketsPanel/HBox/HealthBucket") as Control
-	if health_bucket:
-		health_bucket.visible = false
-	var sidearm_bucket: Control = get_node_or_null("BottomEnergyPools/BucketsPanel/HBox/SidearmBucket") as Control
-	if sidearm_bucket:
-		sidearm_bucket.visible = false
 	var ui: Node = get_parent()
 	if ui:
+		var wall_container: Control = ui.get_node_or_null("LeftPanel/TopWallContainer") as Control
+		if wall_container:
+			_wall_health_label = wall_container.get_node_or_null("ValueLabel") as Label
+			_wall_health_bar = wall_container.get_node_or_null("WallHealthBar") as ProgressBar
+			if _wall_health_bar:
+				_apply_progress_bar_theme(_wall_health_bar, MonsterPalette.DUSTY_ROSE())
 		_run_gold_label = ui.get_node_or_null("LeftPanel/RunGold") as Label
 		if _run_gold_label:
 			_run_gold_label.add_theme_color_override("font_color", Color(0.94, 0.58, 0.20, 1.0))
-		var charge_bucket: Control = ui.get_node_or_null("CenterPanel/BottomEnergyPools/BucketsPanel/HBox/ChargeBucket/BarContainer") as Control
-		if charge_bucket:
-			_charge_bar = charge_bucket
-			_charge_label = charge_bucket.get_node_or_null("ValueLabel") as Label
-			_charge_progress = charge_bucket.get_node_or_null("Bar") as ProgressBar
-			if _charge_progress:
-				_apply_progress_bar_theme(_charge_progress, COLOR_MAIN)
-	var bag_panel: Control = get_node_or_null("BagPanel") as Control
-	if bag_panel:
-		_bag_label = bag_panel.get_node_or_null("BagLabel") as Label
-	var conquest_bar: VBoxContainer = get_node_or_null("ConquestBar") as VBoxContainer
-	if conquest_bar:
-		var content: Node = conquest_bar.get_node_or_null("ConquestContentCenter/ConquestContent")
-		if content:
-			_conquest_path = content.get_node_or_null("ConquestPathWrapper/ConquestPath") as VBoxContainer
-			_conquest_goal_label = content.get_node_or_null("ConquestGoalLabel") as Label
-			_gate_title_label = _conquest_goal_label
-	# Create timer label above the conquest bar
+		_circular_cannon_widget = ui.get_node_or_null("CircularCannonWidget") as Control
+
 	_create_timer_label()
 
 func _create_timer_label() -> void:
@@ -89,14 +70,8 @@ func _create_timer_label() -> void:
 	_timer_label.add_theme_color_override("font_color", MonsterPalette.SWATCH_CREAM())
 	_timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_timer_label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	# Insert at the top of the CenterPanel
-	var cannon_col: VBoxContainer = get_node_or_null("CannonColumn") as VBoxContainer
-	if cannon_col:
-		cannon_col.add_child(_timer_label)
-		cannon_col.move_child(_timer_label, 0)
-	else:
-		add_child(_timer_label)
-		_timer_label.position = Vector2(0, 4)
+	add_child(_timer_label)
+	_timer_label.position = Vector2(10, 4)
 
 func set_gate_name(gate_name: String) -> void:
 	if _gate_title_label:
@@ -200,6 +175,8 @@ func set_charge(current: int, threshold: int) -> void:
 		_charge_progress.max_value = float(threshold)
 		_charge_progress.value = float(current)
 		_charge_progress.queue_redraw()
+	if _circular_cannon_widget:
+		_circular_cannon_widget.set_energy(current, threshold)
 
 func set_timer(seconds_remaining: float) -> void:
 	if not _timer_label:

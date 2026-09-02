@@ -63,6 +63,7 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/test_tetromino_module_fusion.gd",
 	"res://tests/test_build_archetypes_and_synergies.gd",
 	"res://tests/test_comic_vignette_panel.gd",
+	"res://tests/test_circular_cannon_widget.gd",
 	"res://tests/test_file_lengths.gd",
 ]
 

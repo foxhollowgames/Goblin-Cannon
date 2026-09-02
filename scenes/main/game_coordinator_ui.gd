@@ -264,11 +264,37 @@ static func create_inventory_ui(coordinator: Node, reward_handler: Node, board: 
 			if cm and cm.has_signal("cannon_fired_at_wall") and cv_panel.has_method("trigger_firing_vignette"):
 				cm.cannon_fired_at_wall.connect(cv_panel.trigger_firing_vignette)
 
+	var circular_cannon_script: Script = load("res://scenes/ui/circular_cannon_widget.gd") as Script
+	var circular_widget: Control = null
+	if circular_cannon_script:
+		circular_widget = circular_cannon_script.new() as Control
+		if circular_widget:
+			circular_widget.name = "CircularCannonWidget"
+			circular_widget.position = Vector2(1150, 590)
+			var ui_layer: Node = main.get_node_or_null("UILayer")
+			if ui_layer:
+				ui_layer.add_child(circular_widget)
+			var cm: Node = main.get_node_or_null("CombatManager")
+			if cm and cm.has_signal("cannon_fired_at_wall") and circular_widget.has_method("trigger_firing_anim"):
+				cm.cannon_fired_at_wall.connect(func(_dmg, _hp, _max): circular_widget.trigger_firing_anim())
+
+	var takeover_script: Script = load("res://scenes/ui/fullscreen_comic_takeover.gd") as Script
+	var takeover_overlay: CanvasLayer = null
+	if takeover_script:
+		takeover_overlay = takeover_script.new() as CanvasLayer
+		if takeover_overlay:
+			main.add_child(takeover_overlay)
+			var cm: Node = main.get_node_or_null("CombatManager")
+			if cm and cm.has_signal("wall_destroyed") and takeover_overlay.has_method("play_takeover"):
+				cm.wall_destroyed.connect(func(): takeover_overlay.play_takeover("WALL DESTROYED!"))
+
 	return {
 		"inventory_panel": inv_panel,
 		"junk_box_panel": jb_panel,
 		"almanac_panel": alm_panel,
-		"comic_vignette_panel": cv_panel
+		"comic_vignette_panel": cv_panel,
+		"circular_cannon_widget": circular_widget,
+		"fullscreen_takeover": takeover_overlay
 	}
 #endregion
 

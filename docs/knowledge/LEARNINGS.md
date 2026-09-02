@@ -59,6 +59,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-048`](#lrn-048) | TASK-018 | `polyomino` | Tetromino Module Combining and Fusion System | 2026-09-01 |
 | [`LRN-049`](#lrn-049) | TASK-008 | `synergies` | Build Archetypes and Synergy Linkages | 2026-09-01 |
 | [`LRN-050`](#lrn-050) | TASK-004 | `ui` | Right Panel UI and Comic Cutout Vignettes | 2026-09-01 |
+| [`LRN-051`](#lrn-051) | TASK-004 | `ui` | Live Main Scene UI Integration | 2026-09-02 |
 
 ---
 
@@ -861,5 +862,21 @@ ComicVignettePanel.trigger_firing_vignette calculates wall degradation ratio and
 
 #### Actionable Guideline for Future Agents
 Use ComicVignettePanel with mouse_filter MOUSE_FILTER_IGNORE to render live combat cutout vignettes over UI panels.
+
+---
+
+### <a id="lrn-051"></a> LRN-051: Live Main Scene UI Integration
+- **Task:** `TASK-004`
+- **Category:** `ui`
+- **Created:** `2026-09-02T08:36:04.920443`
+
+#### Context & Problem
+Connected ComicVignettePanel and JunkBoxPanel into game_coordinator_ui.gd.
+
+#### Key Insight & Learning
+ComicVignettePanel connects to CombatManager.cannon_fired_at_wall signal while JunkBoxPanel integrates directly into UILayer/CenterPanel.
+
+#### Actionable Guideline for Future Agents
+Wire UI overlay panels inside game_coordinator_ui.gd create_inventory_ui method to attach them to live scene runtime.
 
 ---
