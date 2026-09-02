@@ -91,6 +91,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-080`](#lrn-080) | TASK-042 | `ui` | hopper_top_bar_clearance | 2026-09-02 |
 | [`LRN-081`](#lrn-081) | TASK-042 | `ui` | High-Layer CanvasLayer for Top UI Header Bar and Non-Overlapping Control Layout | 2026-09-02 |
 | [`LRN-082`](#lrn-082) | TASK-042 | `ui` | UI Button Layering Order and Hopper Outline Geometry | 2026-09-02 |
+| [`LRN-083`](#lrn-083) | TASK-042 | `ui` | Cannon Overlay Layering Order and Sidebar Widget Texture Rendering | 2026-09-02 |
 
 ---
 
@@ -1405,5 +1406,21 @@ Keep top bar background panel as child 0 inside UILayer (layer=10) so UI control
 
 #### Actionable Guideline for Future Agents
 Place header background panels as child 0 of the UI CanvasLayer, and omit top closing line segments from hopper Line2D outlines.
+
+---
+
+### <a id="lrn-083"></a> LRN-083: Cannon Overlay Layering Order and Sidebar Widget Texture Rendering
+- **Task:** `TASK-042`
+- **Category:** `ui`
+- **Created:** `2026-09-02T14:40:53.725931`
+
+#### Context & Problem
+CannonOverlay layer was below UILayer layer 10 hiding CannonVisual, and CircularCannonWidget lacked cannon texture rendering.
+
+#### Key Insight & Learning
+Set CannonOverlay layer to 15 (above UILayer layer 10) so main cannon visuals render on top of the UI, and render cannonMobile.png inside CircularCannonWidget._draw() to guarantee crisp cannon rendering in the sidebar.
+
+#### Actionable Guideline for Future Agents
+Keep CannonOverlay layer higher than UILayer (layer=15 > layer=10), and ensure custom Control widget _draw() methods explicitly draw texture assets.
 
 ---
