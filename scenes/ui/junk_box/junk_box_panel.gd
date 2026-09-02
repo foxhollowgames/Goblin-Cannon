@@ -170,10 +170,42 @@ func integrate_into_sidebar(parent_container: Control) -> void:
 		return
 	_sidebar_mode = true
 	var p: Node = get_parent()
-	if p:
+	if p and p != parent_container:
 		p.remove_child(self)
-	parent_container.add_child(self)
+	if get_parent() != parent_container:
+		parent_container.add_child(self)
+
 	anchors_preset = Control.PRESET_FULL_RECT
+	anchor_left = 0.0
+	anchor_top = 0.0
+	anchor_right = 1.0
+	anchor_bottom = 1.0
+	offset_left = 0
+	offset_top = 0
+	offset_right = 0
+	offset_bottom = 0
+
+	if drawer_panel:
+		drawer_panel.anchors_preset = Control.PRESET_FULL_RECT
+		drawer_panel.anchor_left = 0.0
+		drawer_panel.anchor_top = 0.0
+		drawer_panel.anchor_right = 1.0
+		drawer_panel.anchor_bottom = 1.0
+		drawer_panel.offset_left = 0
+		drawer_panel.offset_top = 0
+		drawer_panel.offset_right = 0
+		drawer_panel.offset_bottom = 0
+		drawer_panel.custom_minimum_size = Vector2(0, 0)
+
+	if close_btn:
+		close_btn.visible = false
+
+	var hbox: BoxContainer = get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent") as BoxContainer
+	if hbox:
+		hbox.vertical = true
+		if scroll_container:
+			scroll_container.custom_minimum_size = Vector2(290, 400)
+
 	show()
 
 func is_integrated_in_sidebar() -> bool:

@@ -270,7 +270,8 @@ static func create_inventory_ui(coordinator: Node, reward_handler: Node, board: 
 		circular_widget = circular_cannon_script.new() as Control
 		if circular_widget:
 			circular_widget.name = "CircularCannonWidget"
-			circular_widget.position = Vector2(1150, 590)
+			circular_widget.position = Vector2(1160, 590)
+			circular_widget.z_index = 100
 			var ui_layer: Node = main.get_node_or_null("UILayer")
 			if ui_layer:
 				ui_layer.add_child(circular_widget)

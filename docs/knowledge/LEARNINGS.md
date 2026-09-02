@@ -61,6 +61,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-050`](#lrn-050) | TASK-004 | `ui` | Right Panel UI and Comic Cutout Vignettes | 2026-09-01 |
 | [`LRN-051`](#lrn-051) | TASK-004 | `ui` | Live Main Scene UI Integration | 2026-09-02 |
 | [`LRN-052`](#lrn-052) | TASK-040 | `asset_resources` | External Asset Pools and VFX Spritesheet Storage | 2026-09-02 |
+| [`LRN-053`](#lrn-053) | TASK-004 | `ui` | Right Sidebar Junk Box and Circular Cannon Orb Layout | 2026-09-02 |
 
 ---
 
@@ -895,5 +896,21 @@ External asset pack directory C:\Users\josep\Desktop\Games\Essentials VFX Sprite
 
 #### Actionable Guideline for Future Agents
 When sourcing visual assets and particle effects, inspect both assets/ and C:\Users\josep\Desktop\Games\Essentials VFX Spritesheets.
+
+---
+
+### <a id="lrn-053"></a> LRN-053: Right Sidebar Junk Box and Circular Cannon Orb Layout
+- **Task:** `TASK-004`
+- **Category:** `ui`
+- **Created:** `2026-09-02T09:29:45.523426`
+
+#### Context & Problem
+Restructured right sidebar layout to host JunkBoxPanel permanently.
+
+#### Key Insight & Learning
+CircularCannonWidget renders rising liquid energy fill in the bottom-right corner while TopWallContainer displays wall health above Gold.
+
+#### Actionable Guideline for Future Agents
+Keep right sidebar reserved for JunkBoxPanel and position top status bars cleanly inside LeftPanel.
 
 ---

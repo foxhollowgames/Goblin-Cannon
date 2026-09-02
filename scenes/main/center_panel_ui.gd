@@ -66,10 +66,19 @@ func _create_timer_label() -> void:
 	_timer_label = Label.new()
 	_timer_label.name = "TimerLabel"
 	_timer_label.text = "3:00"
-	_timer_label.add_theme_font_size_override("font_size", 32)
+	_timer_label.add_theme_font_size_override("font_size", 22)
 	_timer_label.add_theme_color_override("font_color", MonsterPalette.SWATCH_CREAM())
 	_timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_timer_label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	_timer_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
+	var ui: Node = get_parent()
+	if ui:
+		var top_wall: Control = ui.get_node_or_null("LeftPanel/TopWallContainer") as Control
+		if top_wall:
+			top_wall.add_child(_timer_label)
+			_timer_label.position = Vector2(-75, 0)
+			_timer_label.size = Vector2(70, 24)
+			return
 	add_child(_timer_label)
 	_timer_label.position = Vector2(10, 4)
 
@@ -194,7 +203,9 @@ func set_timer(seconds_remaining: float) -> void:
 
 ## Energy gain VFX (only main cannon now).
 func show_energy_gain(main_internal: int, _sidearm_internal: int, _shield_internal: int, exit_position: Vector2, _alignment: int = 0) -> void:
-	var end_bar: Control = _charge_bar
+	var end_bar: Control = _circular_cannon_widget if _circular_cannon_widget else _charge_bar
+	if not end_bar and get_parent():
+		end_bar = get_parent().get_node_or_null("CircularCannonWidget") as Control
 	var amount_display: int = main_internal / 100
 	if not end_bar:
 		return
