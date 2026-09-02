@@ -5,6 +5,17 @@ All tasks use structured Markdown with status, priority, and clear acceptance cr
 
 ---
 
+## Interactive Visual Task Dashboard
+
+Open [`docs/tasks/dashboard.html`](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/dashboard.html) in your browser for an interactive visual task dashboard (Kanban Board, Category Matrix, Search, and Status Filters).
+
+To update the HTML dashboard after editing task files, run:
+```bash
+python scripts/generate_task_dashboard.py
+```
+
+---
+
 ## 1. Task Workflow States
 
 - **BACKLOG:** Task is defined and scheduled for future development.

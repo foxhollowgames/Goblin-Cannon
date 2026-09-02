@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goblin Cannon — Visual Task Matrix</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    .kanban-col { min-height: 380px; }
+    .badge-p0 { background-color: #ef4444; color: #fff; } .badge-p1 { background-color: #f59e0b; color: #fff; } .badge-p2 { background-color: #3b82f6; color: #fff; }
+    .badge-done { background-color: #10b981; color: #fff; } .badge-ready { background-color: #6366f1; color: #fff; } .badge-backlog { background-color: #6b7280; color: #fff; } .badge-in_progress { background-color: #ec4899; color: #fff; }
+  </style>
+</head>
+<body class="bg-[var(--background,#0f172a)] text-[var(--foreground,#f8fafc)] p-6 font-sans antialiased min-h-screen">
+  <div class="max-w-7xl mx-auto space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border,#334155)] pb-5">
+      <div>
+        <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-white flex items-center gap-3">🏴‍☠️ Goblin Cannon Task Matrix</h1>
+        <p class="text-sm text-slate-400 mt-1">Interactive visual task board, status breakdown, and category matrix</p>
+      </div>
+      <span class="text-xs font-semibold px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Overall Progress: 39.5% (15/38 Tasks Completed)</span>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-slate-400">Total Tasks</div><div class="text-2xl font-bold mt-1 text-white">38</div><div class="text-[11px] text-slate-500 mt-1">Canonical packets</div></div>
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-emerald-400">Completed (DONE)</div><div class="text-2xl font-bold mt-1 text-emerald-400">15</div><div class="text-[11px] text-emerald-400/80 mt-1">39.5% of total</div></div>
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-indigo-400">Ready for Dev</div><div class="text-2xl font-bold mt-1 text-indigo-400">11</div><div class="text-[11px] text-indigo-400/80 mt-1">28.9% of total</div></div>
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-amber-400">In Backlog</div><div class="text-2xl font-bold mt-1 text-amber-400">12</div><div class="text-[11px] text-amber-400/80 mt-1">31.6% of total</div></div>
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-pink-400">Active (In Progress)</div><div class="text-2xl font-bold mt-1 text-pink-400">0</div><div class="text-[11px] text-pink-400/80 mt-1">Active branch</div></div>
+    </div>
+
+    <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4">
+      <div class="flex justify-between text-xs font-semibold mb-2"><span class="text-white">Completion Breakdown</span><span class="text-slate-400">15 Done · 11 Ready · 12 Backlog</span></div>
+      <div class="w-full h-3 bg-slate-700 rounded-full overflow-hidden flex">
+        <div style="width: 39.5%" class="bg-emerald-500 h-full" title="Done: 39.5%"></div>
+        <div style="width: 28.9%" class="bg-indigo-500 h-full" title="Ready: 28.9%"></div>
+        <div style="width: 31.6%" class="bg-slate-500 h-full" title="Backlog: 31.6%"></div>
+      </div>
+    </div>
+
+    <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 space-y-4">
+      <div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        <div class="flex items-center gap-1 bg-slate-900/60 p-1 rounded-lg border border-[var(--border,#334155)]">
+          <button id="btn-view-kanban" onclick="setViewMode('kanban')" class="px-3 py-1.5 text-xs font-medium rounded-md bg-indigo-600 text-white cursor-pointer">Kanban Board</button>
+          <button id="btn-view-matrix" onclick="setViewMode('matrix')" class="px-3 py-1.5 text-xs font-medium rounded-md text-slate-400 hover:text-white cursor-pointer">Category Matrix</button>
+          <button id="btn-view-list" onclick="setViewMode('list')" class="px-3 py-1.5 text-xs font-medium rounded-md text-slate-400 hover:text-white cursor-pointer">Detailed List</button>
+        </div>
+        <div class="flex flex-wrap items-center gap-3">
+          <input type="text" id="input-search" oninput="render()" placeholder="Search title, ID, branch..." class="bg-slate-900/80 border border-slate-700 text-xs rounded-lg px-3 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-48 md:w-64">
+          <select id="filter-status" onchange="render()" class="bg-slate-900/80 border border-slate-700 text-xs rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="ALL">All Statuses</option><option value="DONE">DONE</option><option value="READY">READY</option><option value="BACKLOG">BACKLOG</option><option value="IN_PROGRESS">IN_PROGRESS</option>
+          </select>
+          <select id="filter-domain" onchange="render()" class="bg-slate-900/80 border border-slate-700 text-xs rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="ALL">All Domains</option><option value="Gameplay & Systems">Gameplay & Systems</option><option value="UI, Art & Narrative">UI, Art & Narrative</option><option value="Controls & Input">Controls & Input</option><option value="Audio & Polish">Audio & Polish</option><option value="DevOps & Tooling">DevOps & Tooling</option>
+          </select>
+          <select id="filter-priority" onchange="render()" class="bg-slate-900/80 border border-slate-700 text-xs rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <option value="ALL">All Priorities</option><option value="P0">P0 (Critical)</option><option value="P1">P1 (High)</option><option value="P2">P2 (Normal)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="container-kanban" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 flex flex-col">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3"><span class="font-semibold text-xs text-amber-400 uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span> Backlog</span><span id="cnt-backlog" class="text-xs font-bold bg-slate-800 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/20">0</span></div>
+        <div id="cards-backlog" class="kanban-col space-y-3 flex-1 overflow-y-auto"></div>
+      </div>
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 flex flex-col">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3"><span class="font-semibold text-xs text-indigo-400 uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-indigo-400"></span> Ready</span><span id="cnt-ready" class="text-xs font-bold bg-slate-800 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/20">0</span></div>
+        <div id="cards-ready" class="kanban-col space-y-3 flex-1 overflow-y-auto"></div>
+      </div>
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 flex flex-col">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3"><span class="font-semibold text-xs text-pink-400 uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-pink-400"></span> In Progress</span><span id="cnt-in_progress" class="text-xs font-bold bg-slate-800 text-pink-400 px-2 py-0.5 rounded-full border border-pink-500/20">0</span></div>
+        <div id="cards-in_progress" class="kanban-col space-y-3 flex-1 overflow-y-auto"></div>
+      </div>
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 flex flex-col">
+        <div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3"><span class="font-semibold text-xs text-emerald-400 uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Done</span><span id="cnt-done" class="text-xs font-bold bg-slate-800 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">0</span></div>
+        <div id="cards-done" class="kanban-col space-y-3 flex-1 overflow-y-auto"></div>
+      </div>
+    </div>
+
+    <div id="container-matrix" class="hidden space-y-6"></div>
+
+    <div id="container-list" class="hidden bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl overflow-hidden shadow-sm">
+      <table class="w-full text-left text-xs text-slate-200">
+        <thead class="bg-slate-900/80 text-slate-400 uppercase text-[10px] tracking-wider border-b border-slate-700">
+          <tr><th class="px-4 py-3">Task ID</th><th class="px-4 py-3">Title</th><th class="px-4 py-3">Domain</th><th class="px-4 py-3">Category</th><th class="px-4 py-3">Priority</th><th class="px-4 py-3">Status</th><th class="px-4 py-3">Branch</th></tr>
+        </thead>
+        <tbody id="list-table-body" class="divide-y divide-slate-800"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const ALL_TASKS = [{"id": "TASK-001", "title": "Gameplay Loop & Incremental Pacing", "category": "Gameplay", "domain": "Gameplay & Systems", "priority": "P1", "status": "READY", "branch": "`feature/gameplay-loop-pacing`", "summary": "Define and implement the continuous active incremental loop."}, {"id": "TASK-002", "title": "Six-Playthrough Story Campaign Architecture", "category": "Narrative", "domain": "UI, Art & Narrative", "priority": "P1", "status": "READY", "branch": "`feature/story-campaign-arch`", "summary": "Design and implement the campaign progression system across six distinct character playthroughs."}, {"id": "TASK-003", "title": "Character Bespoke Progression Mechanics", "category": "Systems", "domain": "Gameplay & Systems", "priority": "P1", "status": "READY", "branch": "`feature/character-mechanics`", "summary": "Implement unique progression systems for each character archetype."}, {"id": "TASK-004", "title": "Right Panel UI & Comic Cutout Vignettes", "category": "UI/VFX", "domain": "UI, Art & Narrative", "priority": "P1", "status": "READY", "branch": "`feature/comic-panel-ui`", "summary": "Transform the right side panel into a communicative UI."}, {"id": "TASK-005", "title": "Full-Screen Wall Break Conquest Cinematics", "category": "UI/Cinematics", "domain": "UI, Art & Narrative", "priority": "P2", "status": "BACKLOG", "branch": "`feature/conquest-cinematics`", "summary": "Implement full-screen takeover cutscenes when the final city wall breaks in each level (Wall 1, Wall 2, and City Boss)."}, {"id": "TASK-006", "title": "Comic Book Feel \u2014 Art Style Not Determined", "category": "Art Direction", "domain": "UI, Art & Narrative", "priority": "P2", "status": "BACKLOG", "branch": "`feature/comic-book-feel`", "summary": "Establish the general comic book presentation for the game."}, {"id": "TASK-007", "title": "Git Branch and Pull Request Protocol", "category": "DevOps", "domain": "DevOps & Tooling", "priority": "P0", "status": "DONE", "branch": "`feature/roadmap-and-task-management`", "summary": "Establish tight version control standards for all repository changes."}, {"id": "TASK-008", "title": "Build Archetypes & Synergy Design", "category": "Design/Systems", "domain": "Gameplay & Systems", "priority": "P1", "status": "READY", "branch": "`feature/build-synergies-design`", "summary": "Define the core build archetypes and synergy pathways for the first campaign."}, {"id": "TASK-009", "title": "Final Ball List & Abilities for Campaign 1", "category": "Systems/Gameplay", "domain": "Gameplay & Systems", "priority": "P1", "status": "BACKLOG", "branch": "`feature/final-ball-list-campaign-1`", "summary": "Define and implement the final roster of ball types for the first campaign."}, {"id": "TASK-010", "title": "Final Relic List & Modifiers for Campaign 1", "category": "Systems/Gameplay", "domain": "Gameplay & Systems", "priority": "P1", "status": "BACKLOG", "branch": "`feature/final-relic-list-campaign-1`", "summary": "Define and implement the final roster of relics and passive modifiers for the first campaign."}, {"id": "TASK-011", "title": "Character Art Asset Production", "category": "Art Production", "domain": "UI, Art & Narrative", "priority": "P2", "status": "BACKLOG", "branch": "`feature/character-art-production`", "summary": "Produce character sprites and portraits for the main goblin and secondary characters."}, {"id": "TASK-012", "title": "Ball Sprite & Visual State Asset Production", "category": "Art Production", "domain": "UI, Art & Narrative", "priority": "P2", "status": "BACKLOG", "branch": "`feature/ball-art-production`", "summary": "Produce visual sprites, particle trails, and active glow states for all ball types in Campaign 1."}, {"id": "TASK-013", "title": "Wall & Fortification Multi-State Art Production", "category": "Art Production", "domain": "UI, Art & Narrative", "priority": "P2", "status": "BACKLOG", "branch": "`feature/wall-art-production`", "summary": "Produce multi-state art assets for city fortifications, gates, and walls."}, {"id": "TASK-014", "title": "Comic Cutout & Takeover Cutscene Art", "category": "Art Production", "domain": "UI, Art & Narrative", "priority": "P2", "status": "BACKLOG", "branch": "`feature/cutscene-art-production`", "summary": "Produce illustrated comic panels for in-game action cutouts and full-screen conquest cinematics."}, {"id": "TASK-015", "title": "Relic Icon & Item Visual Asset Production", "category": "Art Production", "domain": "UI, Art & Narrative", "priority": "P2", "status": "BACKLOG", "branch": "`feature/relic-art-production`", "summary": "Produce visual icons and UI tokens for all passive relics and artifacts in Campaign 1."}, {"id": "TASK-016", "title": "Typography & Comic Text Effect Specifications", "category": "Art/UI", "domain": "UI, Art & Narrative", "priority": "P2", "status": "BACKLOG", "branch": "`feature/comic-typography`", "summary": "Define and implement the typography palette, comic sound effect lettering, and combat floating text."}, {"id": "TASK-017", "title": "UI Art, Frames, and Telemetry Terminal Production", "category": "UI/Art", "domain": "UI, Art & Narrative", "priority": "P2", "status": "BACKLOG", "branch": "`feature/ui-art-production`", "summary": "Produce comic-styled UI frames, panel borders, progress bars, and gauges for the game interface."}, {"id": "TASK-018", "title": "Tetromino Module Combining and Fusion Design", "category": "Systems/Gameplay", "domain": "Gameplay & Systems", "priority": "P1", "status": "READY", "branch": "`feature/tetromino-module-fusion`", "summary": "Design the upgrade, combination, and crafting systems for spatial Tetromino Relic Modules."}, {"id": "TASK-019", "title": "Hopper Steering and Active Aiming Controls", "category": "Controls", "domain": "Controls & Input", "priority": "P1", "status": "DONE", "branch": "`feature/hopper-steering-controls`", "summary": "Implement horizontal player movement for the hopper."}, {"id": "TASK-020", "title": "Live Board Ghost State and Placement Physics", "category": "Physics/Systems", "domain": "Gameplay & Systems", "priority": "P1", "status": "DONE", "branch": "`feature/live-board-ghost-placement`", "summary": "Implement the safe live-placement system for pegs and tetromino modules."}, {"id": "TASK-021", "title": "Wall Siege Timer, Auto-Progression, and Defender Pushback", "category": "Gameplay/Logic", "domain": "Gameplay & Systems", "priority": "P1", "status": "READY", "branch": "`feature/wall-siege-timer-and-pushback`", "summary": "Implement the wall siege timer, automatic victory progression, and defender pushback failure loop."}, {"id": "TASK-022", "title": "Wall Health Exponential Scaling and Campaign Pacing Model", "category": "Math/Balance", "domain": "Gameplay & Systems", "priority": "P1", "status": "READY", "branch": "`feature/exponential-scaling-pacing-model`", "summary": "Design and implement the mathematical scaling curve for wall health and reward payouts."}, {"id": "TASK-023", "title": "Emergency Tinkering and Machine Breakdown Minigames Design", "category": "Design/Systems", "domain": "Gameplay & Systems", "priority": "P2", "status": "BACKLOG", "branch": "`feature/emergency-tinkering-minigames`", "summary": "Design the machine breakdown triggers and emergency repair minigames."}, {"id": "TASK-024", "title": "Polyomino Relic Shapes, Sizes, and Data Definitions", "category": "Systems/Data", "domain": "Gameplay & Systems", "priority": "P1", "status": "DONE", "branch": "`feature/polyomino-relic-shapes`", "summary": "Define the spatial polyomino and irregular module shapes for all relic items in Campaign 1."}, {"id": "TASK-025", "title": "Polyomino Drag-and-Drop, Rotation, and Grid Snapping", "category": "UI/Controls", "domain": "UI, Art & Narrative", "priority": "P1", "status": "DONE", "branch": "`feature/polyomino-drag-and-drop`", "summary": "Implement mouse drag-and-drop, 90-degree rotation, and grid snapping for polyomino relic modules."}, {"id": "TASK-026", "title": "Polyomino Internal Kinetic Machinery and Bumper Mechanics", "category": "Gameplay/Physics", "domain": "Gameplay & Systems", "priority": "P1", "status": "DONE", "branch": "`feature/polyomino-internal-machinery`", "summary": "Implement the kinetic contraptions and interactive mechanisms embedded inside polyomino relic modules."}, {"id": "TASK-027", "title": "Junk Box Backpack Inventory System", "category": "UI/Systems", "domain": "UI, Art & Narrative", "priority": "P1", "status": "DONE", "branch": "`feature/junk-box-backpack-inventory`", "summary": "Design and implement the **Junk Box** (backpack inventory system) \u2014 a scrollable, endless-capacity spatial storage container where players stash, organize, rotate, and manage unplaced polyomino modules, spare kinetic components, ball reserves, and scrap materials during a run."}, {"id": "TASK-028", "title": "Junk Box UI Opening, Representation, and Board Item Transfer", "category": "UI/Gameplay", "domain": "UI, Art & Narrative", "priority": "P1", "status": "DONE", "branch": "`feature/junk-box-ui-and-board-transfer`", "summary": "Design and implement the complete UI representation and interaction workflow for the Junk Box."}, {"id": "TASK-029", "title": "Peg and Relic Unified Grid Alignment", "category": "Systems/Board Physics", "domain": "Gameplay & Systems", "priority": "P1", "status": "DONE", "branch": "`feature/peg-and-relic-unified-grid-alignment`", "summary": "Align the default pegboard layout to the shared rectangular board grid."}, {"id": "TASK-030", "title": "Relic Placement Peg Replacement and Mutual Exclusivity", "category": "Systems/Gameplay", "domain": "Gameplay & Systems", "priority": "P1", "status": "DONE", "branch": "`feature/relic-placement-peg-replacement`", "summary": "Replace existing pegs when a polyomino relic drops onto occupied grid cells."}, {"id": "TASK-031", "title": "Board Relic Repositioning and In-Place Dragging", "category": "UI/Controls", "domain": "UI, Art & Narrative", "priority": "P1", "status": "DONE", "branch": "`feature/board-relic-repositioning`", "summary": "Allow the player to click and drag placed relics directly on the active board."}, {"id": "TASK-032", "title": "Relic Audio Level Balancing and Volume Attenuation", "category": "Audio/Balance", "domain": "Audio & Polish", "priority": "P1", "status": "DONE", "branch": "`feature/relic-audio-balancing`", "summary": "Reduce audio playback volume levels on all polyomino relic machinery components."}, {"id": "TASK-033", "title": "Relic Bounding Enclosures, Perimeter Walls, and Dividing Lanes", "category": "Systems/Physics", "domain": "Gameplay & Systems", "priority": "P1", "status": "READY", "branch": "`feature/relic-bounding-enclosures`", "summary": "Define perimeter wall enclosures, guide funnels, and internal dividing lanes for polyomino relics."}, {"id": "TASK-034", "title": "Repetitive Sound Effect Pitch Randomization", "category": "Audio/Polish", "domain": "Audio & Polish", "priority": "P1", "status": "DONE", "branch": "`feature/repetitive-sfx-pitch-randomization`", "summary": "Apply random pitch modulation on a narrow band to all repetitive sound effects."}, {"id": "TASK-035", "title": "Relic Selection Screen Layout and Machine Composition Preview", "category": "UI/Visuals", "domain": "UI, Art & Narrative", "priority": "P1", "status": "DONE", "branch": "`feature/relic-selection-preview`", "summary": "Add a visual layout and machine composition preview to each card on the relic selection screen."}, {"id": "TASK-036", "title": "Pinball Kinetic Machinery, Rollover Lane Switches, and Device Roster Revision", "category": "Systems/Gameplay", "domain": "Gameplay & Systems", "priority": "P1", "status": "READY", "branch": "`feature/pinball-kinetic-machinery`", "summary": "Revise and finalize the complete roster of internal kinetic machinery devices for polyomino relics."}, {"id": "TASK-037", "title": "Relic Passive Removal and Board Trigger Mechanisms", "category": "Systems/Gameplay/Design", "domain": "Gameplay & Systems", "priority": "P1", "status": "READY", "branch": "`feature/relic-passive-removal-board-triggers`", "summary": "Remove all passive relic stat modifiers from the game."}, {"id": "TASK-038", "title": "Tooltip Text and Language Refinement", "category": "UI/Polish", "domain": "UI, Art & Narrative", "priority": "P1", "status": "DONE", "branch": "`feature/tooltip-text-refinement`", "summary": "Audit and refine all in-game hover tooltips, keyword definitions, item descriptions, and milestone shop text."}];
+let viewMode = 'kanban';
+
+function setViewMode(mode) {
+  viewMode = mode;
+  ['kanban','matrix','list'].forEach(m => {
+    const btn = document.getElementById('btn-view-' + m);
+    if (btn) btn.className = m === mode ? 'px-3 py-1.5 text-xs font-medium rounded-md bg-indigo-600 text-white cursor-pointer' : 'px-3 py-1.5 text-xs font-medium rounded-md text-slate-400 hover:text-white cursor-pointer';
+    const c = document.getElementById('container-' + m);
+    if (c) c.classList.toggle('hidden', m !== mode);
+  });
+  render();
+}
+
+function getFilteredTasks() {
+  const query = (document.getElementById('input-search').value || '').trim().toLowerCase();
+  const st = document.getElementById('filter-status').value;
+  const dom = document.getElementById('filter-domain').value;
+  const prio = document.getElementById('filter-priority').value;
+
+  return ALL_TASKS.filter(t => {
+    if (st !== 'ALL' && t.status !== st) return false;
+    if (dom !== 'ALL' && t.domain !== dom) return false;
+    if (prio !== 'ALL' && t.priority !== prio) return false;
+    if (query && !(t.id + ' ' + t.title + ' ' + t.category + ' ' + t.branch + ' ' + t.summary).toLowerCase().includes(query)) return false;
+    return true;
+  });
+}
+
+function renderCard(t) {
+  const prioClass = t.priority === 'P0' ? 'badge-p0' : t.priority === 'P1' ? 'badge-p1' : 'badge-p2';
+  return `<div class="bg-slate-900/90 border border-slate-700/80 rounded-lg p-3 space-y-2 hover:border-slate-500 transition shadow-sm">
+    <div class="flex items-center justify-between"><span class="font-mono text-[11px] text-indigo-300 font-bold">${t.id}</span><span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${prioClass}">${t.priority}</span></div>
+    <h4 class="text-xs font-semibold text-white leading-snug">${t.title}</h4>
+    ${t.summary ? `<p class="text-[11px] text-slate-400 line-clamp-2">${t.summary}</p>` : ''}
+    <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400"><span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">${t.category}</span><span class="font-mono text-[9px] text-slate-500 truncate max-w-[110px]">${t.branch}</span></div>
+  </div>`;
+}
+
+function renderKanban(tasks) {
+  const cols = {'BACKLOG': document.getElementById('cards-backlog'), 'READY': document.getElementById('cards-ready'), 'IN_PROGRESS': document.getElementById('cards-in_progress'), 'DONE': document.getElementById('cards-done')};
+  const cnts = {'BACKLOG': document.getElementById('cnt-backlog'), 'READY': document.getElementById('cnt-ready'), 'IN_PROGRESS': document.getElementById('cnt-in_progress'), 'DONE': document.getElementById('cnt-done')};
+  Object.values(cols).forEach(c => c.innerHTML = '');
+  const counts = {'BACKLOG': 0, 'READY': 0, 'IN_PROGRESS': 0, 'DONE': 0};
+  tasks.forEach(t => { const st = cols[t.status] ? t.status : 'BACKLOG'; cols[st].innerHTML += renderCard(t); counts[st]++; });
+  Object.keys(counts).forEach(k => cnts[k].innerText = counts[k]);
+}
+
+function renderMatrix(tasks) {
+  const c = document.getElementById('container-matrix');
+  c.innerHTML = '';
+  ['Gameplay & Systems', 'UI, Art & Narrative', 'Controls & Input', 'Audio & Polish', 'DevOps & Tooling'].forEach(dom => {
+    const domTasks = tasks.filter(t => t.domain === dom);
+    if (!domTasks.length) return;
+    const done = domTasks.filter(t => t.status === 'DONE').length, ready = domTasks.filter(t => t.status === 'READY').length, backlog = domTasks.filter(t => t.status === 'BACKLOG').length;
+    const pct = Math.round((done / domTasks.length) * 100);
+    c.innerHTML += `<div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-5 space-y-4 shadow-sm">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-[var(--border,#334155)] pb-3">
+        <h3 class="text-base font-bold text-white flex items-center gap-2"><span>📂 ${dom}</span><span class="text-xs font-normal text-slate-400">(${domTasks.length} tasks)</span></h3>
+        <div class="flex items-center gap-3 text-xs"><span class="text-emerald-400 font-semibold">${pct}% Done (${done}/${domTasks.length})</span><span class="text-indigo-400 font-medium">${ready} Ready</span><span class="text-amber-400 font-medium">${backlog} Backlog</span></div>
+      </div>
+      <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden flex"><div style="width:${pct}%" class="bg-emerald-500 h-full"></div><div style="width:${Math.round(ready/domTasks.length*100)}%" class="bg-indigo-500 h-full"></div><div style="width:${Math.round(backlog/domTasks.length*100)}%" class="bg-slate-600 h-full"></div></div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">${domTasks.map(t => renderCard(t)).join('')}</div>
+    </div>`;
+  });
+}
+
+function renderList(tasks) {
+  const tbody = document.getElementById('list-table-body');
+  tbody.innerHTML = tasks.map(t => `<tr class="hover:bg-slate-800/50 transition border-b border-slate-800"><td class="px-4 py-3 font-mono font-bold text-indigo-300">${t.id}</td><td class="px-4 py-3 font-semibold text-white">${t.title}</td><td class="px-4 py-3 text-slate-300">${t.domain}</td><td class="px-4 py-3 text-slate-400">${t.category}</td><td class="px-4 py-3"><span class="text-[10px] font-bold px-2 py-0.5 rounded badge-${t.priority.toLowerCase()}">${t.priority}</span></td><td class="px-4 py-3"><span class="text-[10px] font-bold px-2 py-0.5 rounded badge-${t.status.toLowerCase()}">${t.status}</span></td><td class="px-4 py-3 font-mono text-[10px] text-slate-400">${t.branch}</td></tr>`).join('');
+}
+
+function render() {
+  const filtered = getFilteredTasks();
+  if (viewMode === 'kanban') renderKanban(filtered);
+  else if (viewMode === 'matrix') renderMatrix(filtered);
+  else if (viewMode === 'list') renderList(filtered);
+}
+render();
+
+  </script>
+</body>
+</html>
