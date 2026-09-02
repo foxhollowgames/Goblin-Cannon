@@ -1,118 +1,126 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pinball Widget Research & Machine Layout Analysis</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <style>
+    body {
+      background-color: #090d16;
+      color: #f1f5f9;
+    }
+    .component-card {
+      background-color: #0f172a;
+      border: 1px solid #1e293b;
+      transition: all 0.2s ease-in-out;
+    }
     .component-card:hover {
       transform: translateY(-2px);
-      transition: all 0.2s ease-in-out;
+      border-color: #38bdf8;
+      box-shadow: 0 4px 20px -2px rgba(56, 189, 248, 0.15);
     }
   </style>
 </head>
-<body class="bg-[var(--background)] text-[var(--foreground)] antialiased p-6 min-h-screen">
+<body class="bg-[#090d16] text-slate-100 antialiased p-6 min-h-screen">
 
   <div class="max-w-6xl mx-auto space-y-8">
     
     <!-- Header Banner -->
-    <header class="bg-[var(--card)] border border-[var(--border)] rounded-2xl p-6 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <header class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--accent)] text-xs font-semibold uppercase tracking-wider mb-2">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2 border border-cyan-500/20">
           TASK-047 Research Deliverable
         </div>
-        <h1 class="text-3xl font-extrabold tracking-tight">Pinball Layout Architecture & Widget Analysis</h1>
-        <p class="text-[var(--muted-foreground)] text-sm mt-1">
+        <h1 class="text-3xl font-extrabold tracking-tight text-white">Pinball Layout Architecture & Widget Analysis</h1>
+        <p class="text-slate-400 text-sm mt-1">
           A comprehensive breakdown of iconic pinball playfield components, kinetic flow, and relic grid adaptations.
         </p>
       </div>
       <div class="flex gap-2">
-        <a href="#sources" class="px-4 py-2 bg-[var(--primary)] text-[var(--primary-foreground)] text-sm font-medium rounded-lg shadow hover:opacity-90 transition">
-          Research Links & Videos
+        <a href="#sources" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold rounded-lg shadow-lg transition">
+          Research Links & Videos ↗
         </a>
       </div>
     </header>
 
     <!-- Navigation Tabs -->
-    <div class="flex border-b border-[var(--border)] gap-6 overflow-x-auto text-sm font-medium">
-      <a href="#machines" class="pb-3 border-b-2 border-transparent hover:border-[var(--primary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]">Iconic Tables</a>
-      <a href="#components" class="pb-3 border-b-2 border-transparent hover:border-[var(--primary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]">Component Taxonomy</a>
-      <a href="#archetypes" class="pb-3 border-b-2 border-transparent hover:border-[var(--primary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]">Layout Archetypes</a>
-      <a href="#adaptation" class="pb-3 border-b-2 border-transparent hover:border-[var(--primary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]">Relic Grid Adaptation</a>
-      <a href="#sources" class="pb-3 border-b-2 border-transparent hover:border-[var(--primary)] text-[var(--muted-foreground)] hover:text-[var(--foreground)]">Sources & Media</a>
+    <div class="flex border-b border-slate-800 gap-6 overflow-x-auto text-sm font-medium">
+      <a href="#machines" class="pb-3 border-b-2 border-cyan-400 text-cyan-400 font-semibold">Iconic Real Tables</a>
+      <a href="#components" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Component Taxonomy</a>
+      <a href="#archetypes" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Layout Archetypes</a>
+      <a href="#adaptation" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Relic Grid Adaptation</a>
+      <a href="#sources" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Sources & Media</a>
     </div>
 
     <!-- Section 1: Iconic Tables Case Studies -->
     <section id="machines" class="space-y-4">
-      <h2 class="text-xl font-bold flex items-center gap-2">
-        <span>🎰</span> Iconic Machine Case Studies
+      <h2 class="text-xl font-bold flex items-center gap-2 text-white">
+        <span>🎰</span> Iconic Machine Case Studies (Real Physical Board Photos)
       </h2>
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
         <!-- Twilight Zone -->
-        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 shadow-sm space-y-3 component-card">
-          <div class="flex justify-between items-start">
-            <h3 class="font-bold text-lg">Twilight Zone</h3>
-            <span class="text-xs bg-[var(--accent)] px-2 py-0.5 rounded font-mono">Bally 1993</span>
+        <div class="component-card rounded-xl overflow-hidden p-0 shadow-lg flex flex-col justify-between">
+          <div class="relative h-60 overflow-hidden bg-slate-950">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Twilight_Zone_pinball.jpg" alt="Real Twilight Zone Pinball Machine" class="w-full h-full object-cover">
+            <div class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded text-xs font-mono text-cyan-300 border border-cyan-500/30">
+              Bally 1993
+            </div>
           </div>
-          <p class="text-xs text-[var(--muted-foreground)]">Designer: Pat Lawlor | Style: Stop-and-Go Tactical</p>
-          <div class="h-28 bg-[var(--background)] rounded-lg flex items-center justify-center border border-[var(--border)] p-2">
-            <svg class="w-20 h-20 text-[var(--foreground)] opacity-80" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="50" cy="50" r="35" stroke-dasharray="4 2"/>
-              <circle cx="50" cy="50" r="15" fill="currentColor" fill-opacity="0.2"/>
-              <path d="M 30 70 L 50 30 L 70 70 Z" fill="none"/>
-            </svg>
+          <div class="p-5 space-y-3 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="font-bold text-lg text-white">Twilight Zone</h3>
+              <p class="text-xs text-slate-400">Designer: Pat Lawlor | Style: Stop-and-Go Tactical</p>
+            </div>
+            <ul class="text-xs space-y-1 text-slate-300 list-disc pl-4">
+              <li>Gumball Machine VUK & Ceramic Powerball</li>
+              <li>Powerfield magnetic mini-playfield</li>
+              <li>Slot Machine scoop ball lock</li>
+            </ul>
           </div>
-          <ul class="text-xs space-y-1 text-[var(--muted-foreground)] list-disc pl-4">
-            <li>Gumball Machine VUK & Ceramic Powerball</li>
-            <li>Powerfield magnetic mini-playfield</li>
-            <li>Slot Machine scoop ball lock</li>
-          </ul>
         </div>
 
-        <!-- Attack from Mars -->
-        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 shadow-sm space-y-3 component-card">
-          <div class="flex justify-between items-start">
-            <h3 class="font-bold text-lg">Attack from Mars</h3>
-            <span class="text-xs bg-[var(--accent)] px-2 py-0.5 rounded font-mono">Bally 1995</span>
+        <!-- The Addams Family -->
+        <div class="component-card rounded-xl overflow-hidden p-0 shadow-lg flex flex-col justify-between">
+          <div class="relative h-60 overflow-hidden bg-slate-950">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Addams-Family-Pinball.jpeg" alt="Real Addams Family Pinball Machine" class="w-full h-full object-cover">
+            <div class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded text-xs font-mono text-emerald-300 border border-emerald-500/30">
+              Bally 1992
+            </div>
           </div>
-          <p class="text-xs text-[var(--muted-foreground)]">Designer: Brian Eddy | Style: Classic Fan Layout</p>
-          <div class="h-28 bg-[var(--background)] rounded-lg flex items-center justify-center border border-[var(--border)] p-2">
-            <svg class="w-20 h-20 text-[var(--foreground)] opacity-80" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2">
-              <ellipse cx="50" cy="40" rx="30" ry="12" fill="currentColor" fill-opacity="0.1"/>
-              <path d="M 20 50 Q 50 10 80 50" fill="none"/>
-              <line x1="20" y1="80" x2="35" y2="45"/>
-              <line x1="50" y1="80" x2="50" y2="35"/>
-              <line x1="80" y1="80" x2="65" y2="45"/>
-            </svg>
+          <div class="p-5 space-y-3 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="font-bold text-lg text-white">The Addams Family</h3>
+              <p class="text-xs text-slate-400">Designer: Pat Lawlor | Style: Multi-Level Tactical</p>
+            </div>
+            <ul class="text-xs space-y-1 text-slate-300 list-disc pl-4">
+              <li>Thing Hand magnetic ball scoop</li>
+              <li>Electric Chair central target</li>
+              <li>Vault 3-bank drop targets & Swamp kicker</li>
+            </ul>
           </div>
-          <ul class="text-xs space-y-1 text-[var(--muted-foreground)] list-disc pl-4">
-            <li>Central Flying Saucer interactive bash toy</li>
-            <li>Dual stroke ramps returning to flippers</li>
-            <li>3-bank drop target center barrier</li>
-          </ul>
         </div>
 
-        <!-- Godzilla -->
-        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 shadow-sm space-y-3 component-card">
-          <div class="flex justify-between items-start">
-            <h3 class="font-bold text-lg">Godzilla</h3>
-            <span class="text-xs bg-[var(--accent)] px-2 py-0.5 rounded font-mono">Stern 2021</span>
+        <!-- Real Pinball Playfield Components -->
+        <div class="component-card rounded-xl overflow-hidden p-0 shadow-lg flex flex-col justify-between">
+          <div class="relative h-60 overflow-hidden bg-slate-950">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/0/07/Pinball_machine_Lower_Playfield.jpg" alt="Real Pinball Machine Playfield Components" class="w-full h-full object-cover">
+            <div class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded text-xs font-mono text-amber-300 border border-amber-500/30">
+              Mechanical Layout
+            </div>
           </div>
-          <p class="text-xs text-[var(--muted-foreground)]">Designer: Keith Elwin | Style: Dynamic Flow</p>
-          <div class="h-28 bg-[var(--background)] rounded-lg flex items-center justify-center border border-[var(--border)] p-2">
-            <svg class="w-20 h-20 text-[var(--foreground)] opacity-80" viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="35" y="20" width="30" height="50" rx="4" fill="currentColor" fill-opacity="0.15"/>
-              <path d="M 15 75 C 30 40 70 40 85 75" fill="none"/>
-              <circle cx="50" cy="45" r="8"/>
-            </svg>
+          <div class="p-5 space-y-3 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="font-bold text-lg text-white">Playfield Mechanical Hardware</h3>
+              <p class="text-xs text-slate-400">Physical Solenoids & Switch Geometry</p>
+            </div>
+            <ul class="text-xs space-y-1 text-slate-300 list-disc pl-4">
+              <li>Pop bumper solenoid coils & rubber bumpers</li>
+              <li>Inlane / Outlane microswitches & lane guides</li>
+              <li>Slingshot rubbers & rebound kickers</li>
+            </ul>
           </div>
-          <ul class="text-xs space-y-1 text-[var(--muted-foreground)] list-disc pl-4">
-            <li>Mechagodzilla 3-stage rotating assembly</li>
-            <li>Collapsing building & bridge ramp feeds</li>
-            <li>Upper loop crossover fast-orbit routing</li>
-          </ul>
         </div>
 
       </div>
@@ -120,82 +128,82 @@
 
     <!-- Section 2: Component Taxonomy -->
     <section id="components" class="space-y-4">
-      <h2 class="text-xl font-bold flex items-center gap-2">
+      <h2 class="text-xl font-bold flex items-center gap-2 text-white">
         <span>⚡</span> Playfield Component Taxonomy (In-Flight Mechanics)
       </h2>
       
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
 
         <!-- Pop Bumpers -->
-        <div class="bg-[var(--card)] border border-[var(--border)] p-4 rounded-xl space-y-2">
-          <div class="flex items-center gap-2 text-primary font-bold">
+        <div class="component-card p-4 rounded-xl space-y-2">
+          <div class="flex items-center gap-2 text-cyan-400 font-bold text-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
             Pop Bumpers
           </div>
-          <p class="text-xs text-[var(--muted-foreground)]">Active solenoids repelling the ball violently on contact. Injects high chaos.</p>
+          <p class="text-xs text-slate-400">Active solenoids repelling the ball violently on contact. Injects high chaos.</p>
         </div>
 
         <!-- Drop Targets -->
-        <div class="bg-[var(--card)] border border-[var(--border)] p-4 rounded-xl space-y-2">
-          <div class="flex items-center gap-2 text-primary font-bold">
+        <div class="component-card p-4 rounded-xl space-y-2">
+          <div class="flex items-center gap-2 text-emerald-400 font-bold text-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="2" stroke-width="2"/><line x1="9" y1="6" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="18"/></svg>
             Drop Target Banks
           </div>
-          <p class="text-xs text-[var(--muted-foreground)]">Plates that drop on hit. Completing target sets resets banks and lights rewards.</p>
+          <p class="text-xs text-slate-400">Plates that drop on hit. Completing target sets resets banks and lights rewards.</p>
         </div>
 
         <!-- Ramps & Habitrails -->
-        <div class="bg-[var(--card)] border border-[var(--border)] p-4 rounded-xl space-y-2">
-          <div class="flex items-center gap-2 text-primary font-bold">
+        <div class="component-card p-4 rounded-xl space-y-2">
+          <div class="flex items-center gap-2 text-purple-400 font-bold text-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 17 Q 12 5 21 17" stroke-width="2"/></svg>
             Ramps & Habitrails
           </div>
-          <p class="text-xs text-[var(--muted-foreground)]">Elevated wireform tracks for continuous speed and gravity-guided flipper returns.</p>
+          <p class="text-xs text-slate-400">Elevated wireform tracks for continuous speed and gravity-guided flipper returns.</p>
         </div>
 
         <!-- Spinners -->
-        <div class="bg-[var(--card)] border border-[var(--border)] p-4 rounded-xl space-y-2">
-          <div class="flex items-center gap-2 text-primary font-bold">
+        <div class="component-card p-4 rounded-xl space-y-2">
+          <div class="flex items-center gap-2 text-amber-400 font-bold text-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m-8-8h16" stroke-width="2"/></svg>
             Spinning Targets
           </div>
-          <p class="text-xs text-[var(--muted-foreground)]">Hinged plates spinning rapidly on ball passage. Triggers rapid switch ticks.</p>
+          <p class="text-xs text-slate-400">Hinged plates spinning rapidly on ball passage. Triggers rapid switch ticks.</p>
         </div>
 
         <!-- Scoops & VUKs -->
-        <div class="bg-[var(--card)] border border-[var(--border)] p-4 rounded-xl space-y-2">
-          <div class="flex items-center gap-2 text-primary font-bold">
+        <div class="component-card p-4 rounded-xl space-y-2">
+          <div class="flex items-center gap-2 text-rose-400 font-bold text-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" stroke-width="2"/><path d="M12 6 v-4"/></svg>
             Scoops & VUKs
           </div>
-          <p class="text-xs text-[var(--muted-foreground)]">Subterranean holes that catch the ball, pause action, and launch balls to targets.</p>
+          <p class="text-xs text-slate-400">Subterranean holes that catch the ball, pause action, and launch balls to targets.</p>
         </div>
 
         <!-- Under-board Magnets -->
-        <div class="bg-[var(--card)] border border-[var(--border)] p-4 rounded-xl space-y-2">
-          <div class="flex items-center gap-2 text-primary font-bold">
+        <div class="component-card p-4 rounded-xl space-y-2">
+          <div class="flex items-center gap-2 text-indigo-400 font-bold text-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 19v-7a6 6 0 0 1 12 0v7" stroke-width="2"/></svg>
             Electromagnets
           </div>
-          <p class="text-xs text-[var(--muted-foreground)]">Coils under playfield wood that capture, spin, or hurl balls in wild trajectories.</p>
+          <p class="text-xs text-slate-400">Coils under playfield wood that capture, spin, or hurl balls in wild trajectories.</p>
         </div>
 
         <!-- Captive Balls -->
-        <div class="bg-[var(--card)] border border-[var(--border)] p-4 rounded-xl space-y-2">
-          <div class="flex items-center gap-2 text-primary font-bold">
+        <div class="component-card p-4 rounded-xl space-y-2">
+          <div class="flex items-center gap-2 text-teal-400 font-bold text-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="8" cy="12" r="4"/><circle cx="16" cy="12" r="4" stroke-dasharray="2 2"/></svg>
             Captive Balls
           </div>
-          <p class="text-xs text-[var(--muted-foreground)]">Trapped steel balls in channels transferring impact kinetic energy to rear switches.</p>
+          <p class="text-xs text-slate-400">Trapped steel balls in channels transferring impact kinetic energy to rear switches.</p>
         </div>
 
         <!-- Diverters -->
-        <div class="bg-[var(--card)] border border-[var(--border)] p-4 rounded-xl space-y-2">
-          <div class="flex items-center gap-2 text-primary font-bold">
+        <div class="component-card p-4 rounded-xl space-y-2">
+          <div class="flex items-center gap-2 text-sky-400 font-bold text-sm">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 8l8 8 8-8" stroke-width="2"/></svg>
             Mechanical Diverters
           </div>
-          <p class="text-xs text-[var(--muted-foreground)]">Code-controlled gate flappers redirecting balls inside ramps and orbits dynamically.</p>
+          <p class="text-xs text-slate-400">Code-controlled gate flappers redirecting balls inside ramps and orbits dynamically.</p>
         </div>
 
       </div>
@@ -203,50 +211,50 @@
 
     <!-- Section 3: Relic Grid Adaptation -->
     <section id="adaptation" class="space-y-4">
-      <h2 class="text-xl font-bold flex items-center gap-2">
+      <h2 class="text-xl font-bold flex items-center gap-2 text-white">
         <span>🧩</span> Polyomino Relic Grid Adaptation (Goblin Cannon)
       </h2>
 
-      <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6 shadow-sm overflow-x-auto">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg overflow-x-auto">
         <table class="w-full text-left border-collapse text-sm">
           <thead>
-            <tr class="border-b border-[var(--border)] text-[var(--muted-foreground)]">
+            <tr class="border-b border-slate-800 text-slate-400">
               <th class="pb-3 font-semibold">Pinball Component</th>
               <th class="pb-3 font-semibold">Polyomino Shape</th>
               <th class="pb-3 font-semibold">Footprint</th>
               <th class="pb-3 font-semibold">Goblin Cannon Mechanics</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-[var(--border)]">
+          <tbody class="divide-y divide-slate-800/60">
             <tr>
-              <td class="py-3 font-bold">Pop Bumper Bank</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 font-mono text-xs">2x2 Square</span></td>
-              <td class="py-3 text-[var(--muted-foreground)]">4 Cells</td>
-              <td class="py-3">Repels cannonballs with high impulse velocity. Grants bonus energy on collision.</td>
+              <td class="py-3.5 font-bold text-white">Pop Bumper Bank</td>
+              <td class="py-3.5"><span class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-mono text-xs">2x2 Square</span></td>
+              <td class="py-3.5 text-slate-400">4 Cells</td>
+              <td class="py-3.5 text-slate-300">Repels cannonballs with high impulse velocity. Grants bonus energy on collision.</td>
             </tr>
             <tr>
-              <td class="py-3 font-bold">Drop Target Bank</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500 font-mono text-xs">1x3 Straight</span></td>
-              <td class="py-3 text-[var(--muted-foreground)]">3 Cells</td>
-              <td class="py-3">Absorbs 3 hits before collapsing. Unlocks board energy multipliers upon reset.</td>
+              <td class="py-3.5 font-bold text-white">Drop Target Bank</td>
+              <td class="py-3.5"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono text-xs">1x3 Straight</span></td>
+              <td class="py-3.5 text-slate-400">3 Cells</td>
+              <td class="py-3.5 text-slate-300">Absorbs 3 hits before collapsing. Unlocks board energy multipliers upon reset.</td>
             </tr>
             <tr>
-              <td class="py-3 font-bold">Spinning Target</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-500 font-mono text-xs">1x1 Single</span></td>
-              <td class="py-3 text-[var(--muted-foreground)]">1 Cell</td>
-              <td class="py-3">Spins on pass-through, converting ball kinetic energy into rapid ticks of mana.</td>
+              <td class="py-3.5 font-bold text-white">Spinning Target</td>
+              <td class="py-3.5"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-mono text-xs">1x1 Single</span></td>
+              <td class="py-3.5 text-slate-400">1 Cell</td>
+              <td class="py-3.5 text-slate-300">Spins on pass-through, converting ball kinetic energy into rapid ticks of mana.</td>
             </tr>
             <tr>
-              <td class="py-3 font-bold">Scoop & VUK</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-500 font-mono text-xs">L-Shape (3 cell)</span></td>
-              <td class="py-3 text-[var(--muted-foreground)]">3 Cells</td>
-              <td class="py-3">Traps cannonball for 1 second before ejecting toward high-value target tiles.</td>
+              <td class="py-3.5 font-bold text-white">Scoop & VUK</td>
+              <td class="py-3.5"><span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/30 font-mono text-xs">L-Shape (3 cell)</span></td>
+              <td class="py-3.5 text-slate-400">3 Cells</td>
+              <td class="py-3.5 text-slate-300">Traps cannonball for 1 second before ejecting toward high-value target tiles.</td>
             </tr>
             <tr>
-              <td class="py-3 font-bold">Electromagnet Core</td>
-              <td class="py-3"><span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-500 font-mono text-xs">2x2 Block</span></td>
-              <td class="py-3 text-[var(--muted-foreground)]">4 Cells</td>
-              <td class="py-3">Traps ball in a magnetic field, then releases it along a curved trajectory.</td>
+              <td class="py-3.5 font-bold text-white">Electromagnet Core</td>
+              <td class="py-3.5"><span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/30 font-mono text-xs">2x2 Block</span></td>
+              <td class="py-3.5 text-slate-400">4 Cells</td>
+              <td class="py-3.5 text-slate-300">Traps ball in a magnetic field, then releases it along a curved trajectory.</td>
             </tr>
           </tbody>
         </table>
@@ -255,50 +263,50 @@
 
     <!-- Section 4: Sources & Media -->
     <section id="sources" class="space-y-4">
-      <h2 class="text-xl font-bold flex items-center gap-2">
+      <h2 class="text-xl font-bold flex items-center gap-2 text-white">
         <span>📚</span> Research Sources, Discourse & Video Reviews
       </h2>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
         <!-- Pinside & Discussion Boards -->
-        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 space-y-3">
-          <h3 class="font-bold text-md flex items-center gap-2">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3 shadow-lg">
+          <h3 class="font-bold text-md flex items-center gap-2 text-white">
             <span>🌐</span> Community Discourse & Ratings
           </h3>
-          <ul class="text-xs space-y-2">
-            <li class="p-2 rounded bg-[var(--background)] border border-[var(--border)]">
-              <a href="https://pinside.com/pinball/top-100" target="_blank" class="font-semibold hover:underline text-blue-400 flex justify-between">
+          <ul class="text-xs space-y-2.5">
+            <li class="p-3 rounded-lg bg-slate-950 border border-slate-800 hover:border-cyan-500/40 transition">
+              <a href="https://pinside.com/pinball/top-100" target="_blank" class="font-semibold text-cyan-400 hover:underline flex justify-between items-center text-sm">
                 Pinside Top 100 Pinball Machines ↗
               </a>
-              <p class="text-[var(--muted-foreground)] mt-1">Community ranking database for machine layouts, playfield ratings, and mechanical reviews.</p>
+              <p class="text-slate-400 mt-1">Community ranking database for machine layouts, playfield ratings, and mechanical reviews.</p>
             </li>
-            <li class="p-2 rounded bg-[var(--background)] border border-[var(--border)]">
-              <a href="https://www.reddit.com/r/pinball/" target="_blank" class="font-semibold hover:underline text-blue-400 flex justify-between">
+            <li class="p-3 rounded-lg bg-slate-950 border border-slate-800 hover:border-cyan-500/40 transition">
+              <a href="https://www.reddit.com/r/pinball/" target="_blank" class="font-semibold text-cyan-400 hover:underline flex justify-between items-center text-sm">
                 Reddit (r/pinball) Community ↗
               </a>
-              <p class="text-[var(--muted-foreground)] mt-1">Player discussions on flow vs stop-and-go layouts, shot geometry, and component chaos.</p>
+              <p class="text-slate-400 mt-1">Player discussions on flow vs stop-and-go layouts, shot geometry, and component chaos.</p>
             </li>
           </ul>
         </div>
 
         <!-- Video Reviews & Tutorials -->
-        <div class="bg-[var(--card)] border border-[var(--border)] rounded-xl p-5 space-y-3">
-          <h3 class="font-bold text-md flex items-center gap-2">
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3 shadow-lg">
+          <h3 class="font-bold text-md flex items-center gap-2 text-white">
             <span>🎥</span> Video Reviews & Gameplay Guides
           </h3>
-          <ul class="text-xs space-y-2">
-            <li class="p-2 rounded bg-[var(--background)] border border-[var(--border)]">
-              <a href="https://www.youtube.com/results?search_query=bowen+kerins+pinball+tutorial" target="_blank" class="font-semibold hover:underline text-blue-400 flex justify-between">
+          <ul class="text-xs space-y-2.5">
+            <li class="p-3 rounded-lg bg-slate-950 border border-slate-800 hover:border-cyan-500/40 transition">
+              <a href="https://www.youtube.com/results?search_query=bowen+kerins+pinball+tutorial" target="_blank" class="font-semibold text-cyan-400 hover:underline flex justify-between items-center text-sm">
                 Bowen Kerins & PAPA Pinball Tutorials ↗
               </a>
-              <p class="text-[var(--muted-foreground)] mt-1">Masterclass video breakdowns of playfield geometry, ramp feeds, and ball control tactics.</p>
+              <p class="text-slate-400 mt-1">Masterclass video breakdowns of playfield geometry, ramp feeds, and ball control tactics.</p>
             </li>
-            <li class="p-2 rounded bg-[var(--background)] border border-[var(--border)]">
-              <a href="https://www.youtube.com/results?search_query=todd+tuckey+coastline+pinball+review" target="_blank" class="font-semibold hover:underline text-blue-400 flex justify-between">
+            <li class="p-3 rounded-lg bg-slate-950 border border-slate-800 hover:border-cyan-500/40 transition">
+              <a href="https://www.youtube.com/results?search_query=todd+tuckey+coastline+pinball+review" target="_blank" class="font-semibold text-cyan-400 hover:underline flex justify-between items-center text-sm">
                 Todd Tuckey & Coastline Pinball Teardowns ↗
               </a>
-              <p class="text-[var(--muted-foreground)] mt-1">Mechanical inspections of solenoids, pop bumpers, habitrails, and physical bash toys.</p>
+              <p class="text-slate-400 mt-1">Mechanical inspections of solenoids, pop bumpers, habitrails, and physical bash toys.</p>
             </li>
           </ul>
         </div>
