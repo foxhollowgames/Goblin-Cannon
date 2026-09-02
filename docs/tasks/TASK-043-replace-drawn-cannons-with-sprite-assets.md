@@ -1,6 +1,6 @@
 # TASK-043: Replace Drawn Cannons with Library Sprite Assets
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Visuals / Art Production
 - **Target Branch:** `feature/replace-drawn-cannons-with-assets`
@@ -36,8 +36,8 @@ Replace procedural code-drawn cannon visuals in `CannonVisual` and `CircularCann
 
 ## Acceptance Criteria
 
-- [ ] `CannonVisual` renders the library cannon sprite asset instead of procedural shapes.
-- [ ] `CircularCannonWidget` renders the library cannon sprite asset inside the liquid energy panel.
-- [ ] Cannon sprite triggers recoil shake tween and muzzle particle blast upon firing.
-- [ ] Muzzle firing positions and status effect overlays align with the sprite texture.
-- [ ] Headless unit tests pass.
+- [x] `CannonVisual` renders the library cannon sprite asset instead of procedural shapes.
+- [x] `CircularCannonWidget` renders the library cannon sprite asset inside the liquid energy panel.
+- [x] Cannon sprite triggers recoil shake tween and muzzle particle blast upon firing.
+- [x] Muzzle firing positions and status effect overlays align with the sprite texture.
+- [x] Headless unit tests pass.
