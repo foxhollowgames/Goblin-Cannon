@@ -55,7 +55,7 @@ func _ready() -> void:
 			_wall_health_bar = wall_container.get_node_or_null("WallHealthBar") as ProgressBar
 			if _wall_health_bar:
 				_apply_progress_bar_theme(_wall_health_bar, MonsterPalette.DUSTY_ROSE())
-		_run_gold_label = ui.get_node_or_null("LeftPanel/RunGold") as Label
+		_run_gold_label = ui.find_child("RunGold", true, false) as Label
 		if _run_gold_label:
 			_run_gold_label.add_theme_color_override("font_color", Color(0.94, 0.58, 0.20, 1.0))
 		_circular_cannon_widget = ui.find_child("CircularCannonWidget", true, false) as Control
@@ -170,7 +170,7 @@ func set_fortification(current: int, maximum: int) -> void:
 
 func set_run_gold(amount: int) -> void:
 	if _run_gold_label:
-		_run_gold_label.text = "Gold: %d" % amount
+		_run_gold_label.text = "%d" % amount
 
 func set_bag(count: int) -> void:
 	if _bag_label:
@@ -281,7 +281,7 @@ func show_gold_gain(amount: int, origin_position: Vector2) -> void:
 	if not end_target:
 		var ui: Node = get_parent()
 		if ui:
-			_run_gold_label = ui.get_node_or_null("LeftPanel/RunGold") as Label
+			_run_gold_label = ui.find_child("RunGold", true, false) as Label
 			end_target = _run_gold_label
 	if not end_target:
 		if GameState:
@@ -356,9 +356,10 @@ func _on_gold_gain_faded() -> void:
 func _pulse_gold_label() -> void:
 	if not _run_gold_label or not is_instance_valid(_run_gold_label):
 		return
-	_run_gold_label.pivot_offset = _run_gold_label.size * 0.5
+	var target: Control = _run_gold_label.get_parent() as Control if _run_gold_label.get_parent() is BoxContainer else _run_gold_label
+	target.pivot_offset = target.size * 0.5
 	if _gold_pulse_tween and _gold_pulse_tween.is_valid():
 		_gold_pulse_tween.kill()
 	_gold_pulse_tween = create_tween()
-	_gold_pulse_tween.tween_property(_run_gold_label, "scale", Vector2(1.15, 1.15), 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_gold_pulse_tween.tween_property(_run_gold_label, "scale", Vector2(1.0, 1.0), 0.12).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_gold_pulse_tween.tween_property(target, "scale", Vector2(1.15, 1.15), 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_gold_pulse_tween.tween_property(target, "scale", Vector2(1.0, 1.0), 0.12).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
