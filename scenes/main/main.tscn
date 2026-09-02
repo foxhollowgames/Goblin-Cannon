@@ -72,25 +72,8 @@ offset_bottom = 720.0
 mouse_filter = 2
 color = Color(0.133333, 0.14902, 0.25098, 1)
 
-[node name="TopHeaderLayer" type="CanvasLayer" parent="." unique_id=1561640444]
-layer = 10
-
-[node name="TopHeaderBarBg" type="ColorRect" parent="TopHeaderLayer" unique_id=596473155]
-layout_mode = 0
-offset_right = 960.0
-offset_bottom = 54.0
-mouse_filter = 2
-color = Color(0.12, 0.08, 0.06, 1)
-
-[node name="TopHeaderBarBorder" type="ColorRect" parent="TopHeaderLayer/TopHeaderBarBg" unique_id=596473154]
-layout_mode = 0
-offset_top = 52.0
-offset_right = 960.0
-offset_bottom = 54.0
-mouse_filter = 2
-color = Color(0.38, 0.24, 0.12, 1)
-
 [node name="UILayer" type="CanvasLayer" parent="." unique_id=1561640443]
+layer = 10
 
 [node name="LeftPanel" type="Control" parent="UILayer" unique_id=1998517521]
 layout_mode = 3
@@ -98,6 +81,21 @@ anchors_preset = 0
 offset_right = 960.0
 offset_bottom = 720.0
 mouse_filter = 2
+
+[node name="TopHeaderBarBg" type="ColorRect" parent="UILayer/LeftPanel" unique_id=596473155]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 54.0
+mouse_filter = 2
+color = Color(0.12, 0.08, 0.06, 1)
+
+[node name="TopHeaderBarBorder" type="ColorRect" parent="UILayer/LeftPanel/TopHeaderBarBg" unique_id=596473154]
+layout_mode = 0
+offset_top = 52.0
+offset_right = 960.0
+offset_bottom = 54.0
+mouse_filter = 2
+color = Color(0.38, 0.24, 0.12, 1)
 
 [node name="TopWallContainer" type="Control" parent="UILayer/LeftPanel" unique_id=596473156]
 custom_minimum_size = Vector2(280, 34)

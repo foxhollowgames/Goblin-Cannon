@@ -9,18 +9,18 @@ func run() -> void:
 	test_debug_menu_toggle_and_children()
 
 func test_hopper_positioning_below_top_bar() -> void:
-	begin("TopHeaderLayer exists with layer=10, solid TopHeaderBarBg, and non-overlapping controls")
+	begin("UILayer exists with layer=10, solid TopHeaderBarBg as child 0, and non-overlapping controls")
 	var main_scene: PackedScene = load("res://scenes/main/main.tscn") as PackedScene
 	assert_true(main_scene != null, "main scene loaded")
 	var main: Node2D = main_scene.instantiate() as Node2D
 	assert_true(main != null, "main instance created")
 	
-	var top_header_layer: CanvasLayer = main.get_node_or_null("TopHeaderLayer") as CanvasLayer
-	assert_true(top_header_layer != null, "TopHeaderLayer exists in main scene")
-	assert_eq(top_header_layer.layer, 10, "TopHeaderLayer layer is 10 (above 2D physics world)")
+	var ui_layer: CanvasLayer = main.get_node_or_null("UILayer") as CanvasLayer
+	assert_true(ui_layer != null, "UILayer exists in main scene")
+	assert_eq(ui_layer.layer, 10, "UILayer layer is 10 (above 2D physics world)")
 	
-	var top_bar_bg: ColorRect = top_header_layer.get_node_or_null("TopHeaderBarBg") as ColorRect
-	assert_true(top_bar_bg != null, "TopHeaderBarBg node exists in TopHeaderLayer")
+	var top_bar_bg: ColorRect = ui_layer.get_node_or_null("LeftPanel/TopHeaderBarBg") as ColorRect
+	assert_true(top_bar_bg != null, "TopHeaderBarBg node exists in UILayer/LeftPanel")
 	assert_eq(top_bar_bg.offset_bottom, 54.0, "TopHeaderBarBg height is 54px")
 	assert_eq(top_bar_bg.color.a, 1.0, "TopHeaderBarBg color alpha is 1.0 (100% solid opaque)")
 	
@@ -29,6 +29,11 @@ func test_hopper_positioning_below_top_bar() -> void:
 	
 	const TOP_BAR_RESERVED_HEIGHT: float = 54.0
 	assert_gt(hopper.position.y, TOP_BAR_RESERVED_HEIGHT, "Hopper position Y (88.0) sits strictly below top UI header bar height (54.0)")
+	
+	# Verify hopper line outline points do not draw top white bar across bin opening
+	var bin_outline: Line2D = hopper.get_node_or_null("BinOutline") as Line2D
+	assert_true(bin_outline != null, "BinOutline exists in Hopper")
+	assert_eq(bin_outline.points.size(), 4, "BinOutline has 4 points (sides + bottom only, top white line removed)")
 	
 	main.free()
 
