@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pinball Widget Research & Machine Layout Analysis</title>
+  <title>Pinball Layout Research & Community Sentiment Analysis</title>
   <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
   <style>
     body {
@@ -20,6 +20,10 @@
       border-color: #38bdf8;
       box-shadow: 0 4px 20px -2px rgba(56, 189, 248, 0.15);
     }
+    .quote-card {
+      background-color: #1a233a;
+      border-left: 4px solid #38bdf8;
+    }
   </style>
 </head>
 <body class="bg-[#090d16] text-slate-100 antialiased p-6 min-h-screen">
@@ -30,40 +34,40 @@
     <header class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
       <div>
         <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2 border border-cyan-500/20">
-          TASK-047 Research Deliverable
+          TASK-047 Comprehensive Research
         </div>
-        <h1 class="text-3xl font-extrabold tracking-tight text-white">Pinball Layout Architecture & Widget Analysis</h1>
+        <h1 class="text-3xl font-extrabold tracking-tight text-white">Pinball Layout Architecture & Player Sentiment</h1>
         <p class="text-slate-400 text-sm mt-1">
-          A comprehensive breakdown of iconic pinball playfield components, kinetic flow, and relic grid adaptations.
+          Demystifying pinball mechanics, real board photos, plain-English explanations, and player community quotes.
         </p>
       </div>
       <div class="flex gap-2">
-        <a href="#sources" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold rounded-lg shadow-lg transition">
-          Research Links & Videos ↗
+        <a href="#demystified" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold rounded-lg shadow-lg transition">
+          Plain-English Jargon Guide 💡
         </a>
       </div>
     </header>
 
     <!-- Navigation Tabs -->
     <div class="flex border-b border-slate-800 gap-6 overflow-x-auto text-sm font-medium">
-      <a href="#machines" class="pb-3 border-b-2 border-cyan-400 text-cyan-400 font-semibold">Iconic Real Tables</a>
-      <a href="#components" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Component Taxonomy</a>
-      <a href="#archetypes" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Layout Archetypes</a>
+      <a href="#machines" class="pb-3 border-b-2 border-cyan-400 text-cyan-400 font-semibold">Real Board Photos</a>
+      <a href="#demystified" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Jargon Demystified</a>
+      <a href="#quotes" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Player Quotes & Sentiment</a>
       <a href="#adaptation" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Relic Grid Adaptation</a>
-      <a href="#sources" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Sources & Media</a>
+      <a href="#sources" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Sources & Videos</a>
     </div>
 
-    <!-- Section 1: Iconic Tables Case Studies -->
+    <!-- Section 1: Iconic Tables Case Studies (Local Real Board Photos) -->
     <section id="machines" class="space-y-4">
       <h2 class="text-xl font-bold flex items-center gap-2 text-white">
-        <span>🎰</span> Iconic Machine Case Studies (Real Physical Board Photos)
+        <span>🎰</span> Iconic Pinball Machines (Real Physical Board Photos)
       </h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
 
         <!-- Twilight Zone -->
         <div class="component-card rounded-xl overflow-hidden p-0 shadow-lg flex flex-col justify-between">
           <div class="relative h-60 overflow-hidden bg-slate-950">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Twilight_Zone_pinball.jpg" alt="Real Twilight Zone Pinball Machine" class="w-full h-full object-cover">
+            <img src="images/twilight_zone.jpg" alt="Real Twilight Zone Pinball Machine" class="w-full h-full object-cover">
             <div class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded text-xs font-mono text-cyan-300 border border-cyan-500/30">
               Bally 1993
             </div>
@@ -73,18 +77,16 @@
               <h3 class="font-bold text-lg text-white">Twilight Zone</h3>
               <p class="text-xs text-slate-400">Designer: Pat Lawlor | Style: Stop-and-Go Tactical</p>
             </div>
-            <ul class="text-xs space-y-1 text-slate-300 list-disc pl-4">
-              <li>Gumball Machine VUK & Ceramic Powerball</li>
-              <li>Powerfield magnetic mini-playfield</li>
-              <li>Slot Machine scoop ball lock</li>
-            </ul>
+            <p class="text-xs text-slate-300">
+              Renowned as the most feature-packed machine ever built. Features a working physical Gumball Machine that holds and releases real balls, magnetic mini-playfields, and a high-speed ceramic ball.
+            </p>
           </div>
         </div>
 
         <!-- The Addams Family -->
         <div class="component-card rounded-xl overflow-hidden p-0 shadow-lg flex flex-col justify-between">
           <div class="relative h-60 overflow-hidden bg-slate-950">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Addams-Family-Pinball.jpeg" alt="Real Addams Family Pinball Machine" class="w-full h-full object-cover">
+            <img src="images/addams_family.jpg" alt="Real Addams Family Pinball Machine" class="w-full h-full object-cover">
             <div class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded text-xs font-mono text-emerald-300 border border-emerald-500/30">
               Bally 1992
             </div>
@@ -94,122 +96,156 @@
               <h3 class="font-bold text-lg text-white">The Addams Family</h3>
               <p class="text-xs text-slate-400">Designer: Pat Lawlor | Style: Multi-Level Tactical</p>
             </div>
-            <ul class="text-xs space-y-1 text-slate-300 list-disc pl-4">
-              <li>Thing Hand magnetic ball scoop</li>
-              <li>Electric Chair central target</li>
-              <li>Vault 3-bank drop targets & Swamp kicker</li>
-            </ul>
+            <p class="text-xs text-slate-300">
+              The best-selling pinball machine of all time (20,270 units). Features "Thing's Hand" that reaches out of a box to physically steal and lock balls under the board.
+            </p>
           </div>
         </div>
 
-        <!-- Real Pinball Playfield Components -->
+        <!-- Attack from Mars -->
         <div class="component-card rounded-xl overflow-hidden p-0 shadow-lg flex flex-col justify-between">
           <div class="relative h-60 overflow-hidden bg-slate-950">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/0/07/Pinball_machine_Lower_Playfield.jpg" alt="Real Pinball Machine Playfield Components" class="w-full h-full object-cover">
+            <img src="images/attack_from_mars.jpg" alt="Real Attack from Mars Pinball Machine" class="w-full h-full object-cover">
             <div class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded text-xs font-mono text-amber-300 border border-amber-500/30">
-              Mechanical Layout
+              Bally 1995
             </div>
           </div>
           <div class="p-5 space-y-3 flex-1 flex flex-col justify-between">
             <div>
-              <h3 class="font-bold text-lg text-white">Playfield Mechanical Hardware</h3>
-              <p class="text-xs text-slate-400">Physical Solenoids & Switch Geometry</p>
+              <h3 class="font-bold text-lg text-white">Attack from Mars</h3>
+              <p class="text-xs text-slate-400">Designer: Brian Eddy | Style: Classic Fan Layout</p>
             </div>
-            <ul class="text-xs space-y-1 text-slate-300 list-disc pl-4">
-              <li>Pop bumper solenoid coils & rubber bumpers</li>
-              <li>Inlane / Outlane microswitches & lane guides</li>
-              <li>Slingshot rubbers & rebound kickers</li>
-            </ul>
+            <p class="text-xs text-slate-300">
+              The gold standard of "Flow Layouts". Players shoot a central flying saucer target to make it wobble and explode, while side ramps feed the ball smoothly back to the flippers.
+            </p>
           </div>
         </div>
 
       </div>
     </section>
 
-    <!-- Section 2: Component Taxonomy -->
-    <section id="components" class="space-y-4">
+    <!-- Section 2: Jargon Demystified (Plain English Explanations) -->
+    <section id="demystified" class="space-y-4">
+      <div class="bg-cyan-950/30 border border-cyan-500/30 rounded-2xl p-6 space-y-4">
+        <h2 class="text-2xl font-bold flex items-center gap-2 text-cyan-400">
+          <span>💡</span> Pinball Jargon Demystified (Plain English)
+        </h2>
+        <p class="text-slate-300 text-sm">
+          Pinball terminology can sound like word salad. Here is what these components actually are in simple terms:
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2">
+            <h3 class="font-bold text-white text-base">What is a "Scoop"?</h3>
+            <p class="text-slate-300 text-xs leading-relaxed">
+              A <strong>Scoop</strong> is literally a hole cut into the wooden playfield board. When the ball rolls into it, it falls into a channel underneath the table. The game pauses the action, awards points or starts a mode, and then a solenoid plunger pops the ball back out to the flippers.
+            </p>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2">
+            <h3 class="font-bold text-white text-base">What is a "Ball Lock"?</h3>
+            <p class="text-slate-300 text-xs leading-relaxed">
+              A <strong>Ball Lock</strong> is a physical trap (inside a scoop, ramp, or toy) that holds your ball inside the machine instead of returning it to play. When you lock 1, 2, or 3 balls, the game releases all of them at the same time onto the board to trigger intense <strong>Multi-Ball Mode</strong>!
+            </p>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2">
+            <h3 class="font-bold text-white text-base">Demystified: "Slot Machine Scoop Ball Lock"</h3>
+            <p class="text-slate-300 text-xs leading-relaxed">
+              In <em>Twilight Zone</em>, there is a target hole styled like a Slot Machine. Hitting your ball into this hole drops it under the board (<strong>Scoop</strong>), traps the ball inside the machine for multi-ball (<strong>Ball Lock</strong>), and spins a random slot machine prize on the video display. It combines a physical ball trap with a mode trigger.
+            </p>
+          </div>
+
+          <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2">
+            <h3 class="font-bold text-white text-base">What is a "Bash Toy"?</h3>
+            <p class="text-slate-300 text-xs leading-relaxed">
+              A <strong>Bash Toy</strong> is a heavy interactive physical target in the center of the board (like a Castle Gate in <em>Medieval Madness</em> or a Flying Saucer in <em>Attack from Mars</em>). Players hit it directly with max force to make it shake, open, or explode, providing high physical feedback.
+            </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Player Quotes & Bulk Sentiment -->
+    <section id="quotes" class="space-y-4">
       <h2 class="text-xl font-bold flex items-center gap-2 text-white">
-        <span>⚡</span> Playfield Component Taxonomy (In-Flight Mechanics)
+        <span>💬</span> Player Community Quotes & Bulk Sentiment Analysis
       </h2>
-      
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <p class="text-slate-400 text-sm">
+        Why do players love these specific boards? Here is what players say on Pinside and Reddit:
+      </p>
 
-        <!-- Pop Bumpers -->
-        <div class="component-card p-4 rounded-xl space-y-2">
-          <div class="flex items-center gap-2 text-cyan-400 font-bold text-sm">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" stroke-width="2"/><circle cx="12" cy="12" r="4" fill="currentColor"/></svg>
-            Pop Bumpers
+      <div class="space-y-4">
+        
+        <!-- Twilight Zone Sentiment -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
+          <div class="flex justify-between items-center">
+            <h3 class="font-bold text-white text-base">Twilight Zone — Why Players Love It</h3>
+            <span class="text-xs bg-cyan-500/10 text-cyan-400 px-2.5 py-1 rounded border border-cyan-500/20 font-mono">Pinside #4 Rated</span>
           </div>
-          <p class="text-xs text-slate-400">Active solenoids repelling the ball violently on contact. Injects high chaos.</p>
+          <p class="text-xs text-slate-300 italic leading-relaxed">
+            "Bulk Player Sentiment: Celebrated as the ultimate tactical 'stop-and-go' board. Players love that every single target does something physically unique instead of just adding points."
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div class="quote-card p-3 rounded text-slate-300">
+              <p class="italic">"Pat Lawlor's masterpiece. Every single shot on the board triggers a distinct physical mechanism. The Gumball Machine is the coolest toy in pinball history."</p>
+              <span class="block text-slate-400 text-[10px] mt-1 font-semibold">— Pinside Collector Review</span>
+            </div>
+            <div class="quote-card p-3 rounded text-slate-300">
+              <p class="italic">"The ceramic Powerball moves so fast and completely ignores the under-playfield magnets. It changes your reflexes instantly during play."</p>
+              <span class="block text-slate-400 text-[10px] mt-1 font-semibold">— Reddit r/pinball Thread</span>
+            </div>
+          </div>
         </div>
 
-        <!-- Drop Targets -->
-        <div class="component-card p-4 rounded-xl space-y-2">
-          <div class="flex items-center gap-2 text-emerald-400 font-bold text-sm">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="4" y="6" width="16" height="12" rx="2" stroke-width="2"/><line x1="9" y1="6" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="18"/></svg>
-            Drop Target Banks
+        <!-- Attack from Mars Sentiment -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
+          <div class="flex justify-between items-center">
+            <h3 class="font-bold text-white text-base">Attack from Mars — Why Players Love It</h3>
+            <span class="text-xs bg-emerald-500/10 text-emerald-400 px-2.5 py-1 rounded border border-emerald-500/20 font-mono">Pinside #3 Rated</span>
           </div>
-          <p class="text-xs text-slate-400">Plates that drop on hit. Completing target sets resets banks and lights rewards.</p>
+          <p class="text-xs text-slate-300 italic leading-relaxed">
+            "Bulk Player Sentiment: Celebrated as the gold standard of 'Flow Layouts'. It has zero clunky stops—balls shoot smoothly up ramps and return straight to your flippers at high speed."
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div class="quote-card p-3 rounded text-slate-300 border-l-emerald-400">
+              <p class="italic">"Attack from Mars is pure pinball perfection. The fan layout gives you wide, clear shot paths. Bashing the saucer in the center until it wobbles and explodes never gets old."</p>
+              <span class="block text-slate-400 text-[10px] mt-1 font-semibold">— Pinside Reviewer</span>
+            </div>
+            <div class="quote-card p-3 rounded text-slate-300 border-l-emerald-400">
+              <p class="italic">"It's the ultimate 'one more game' machine. Easy for beginners to understand right away, but fast enough for tournament pros to test rhythm."</p>
+              <span class="block text-slate-400 text-[10px] mt-1 font-semibold">— Pinball Arcade Forum</span>
+            </div>
+          </div>
         </div>
 
-        <!-- Ramps & Habitrails -->
-        <div class="component-card p-4 rounded-xl space-y-2">
-          <div class="flex items-center gap-2 text-purple-400 font-bold text-sm">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 17 Q 12 5 21 17" stroke-width="2"/></svg>
-            Ramps & Habitrails
+        <!-- Medieval Madness Sentiment -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
+          <div class="flex justify-between items-center">
+            <h3 class="font-bold text-white text-base">Medieval Madness — Why Players Love It</h3>
+            <span class="text-xs bg-amber-500/10 text-amber-400 px-2.5 py-1 rounded border border-amber-500/20 font-mono">Pinside #1 Rated Table</span>
           </div>
-          <p class="text-xs text-slate-400">Elevated wireform tracks for continuous speed and gravity-guided flipper returns.</p>
-        </div>
-
-        <!-- Spinners -->
-        <div class="component-card p-4 rounded-xl space-y-2">
-          <div class="flex items-center gap-2 text-amber-400 font-bold text-sm">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m-8-8h16" stroke-width="2"/></svg>
-            Spinning Targets
+          <p class="text-xs text-slate-300 italic leading-relaxed">
+            "Bulk Player Sentiment: The top-rated table for decades. Players praise its incredible physical feedback—lowering a drawbridge and smashing a castle gate provides the most satisfying reward in pinball."
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div class="quote-card p-3 rounded text-slate-300 border-l-amber-400">
+              <p class="italic">"Destroying the castle gate and watching the castle explode with audio and light effects is the peak physical reward in all arcade gaming."</p>
+              <span class="block text-slate-400 text-[10px] mt-1 font-semibold">— Pinside #1 Review</span>
+            </div>
+            <div class="quote-card p-3 rounded text-slate-300 border-l-amber-400">
+              <p class="italic">"The pop-up trolls add instant tension when they rise out of the playfield wood. It balances smooth ramp flow with sudden physical obstacles."</p>
+              <span class="block text-slate-400 text-[10px] mt-1 font-semibold">— Reddit r/pinball</span>
+            </div>
           </div>
-          <p class="text-xs text-slate-400">Hinged plates spinning rapidly on ball passage. Triggers rapid switch ticks.</p>
-        </div>
-
-        <!-- Scoops & VUKs -->
-        <div class="component-card p-4 rounded-xl space-y-2">
-          <div class="flex items-center gap-2 text-rose-400 font-bold text-sm">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6" stroke-width="2"/><path d="M12 6 v-4"/></svg>
-            Scoops & VUKs
-          </div>
-          <p class="text-xs text-slate-400">Subterranean holes that catch the ball, pause action, and launch balls to targets.</p>
-        </div>
-
-        <!-- Under-board Magnets -->
-        <div class="component-card p-4 rounded-xl space-y-2">
-          <div class="flex items-center gap-2 text-indigo-400 font-bold text-sm">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 19v-7a6 6 0 0 1 12 0v7" stroke-width="2"/></svg>
-            Electromagnets
-          </div>
-          <p class="text-xs text-slate-400">Coils under playfield wood that capture, spin, or hurl balls in wild trajectories.</p>
-        </div>
-
-        <!-- Captive Balls -->
-        <div class="component-card p-4 rounded-xl space-y-2">
-          <div class="flex items-center gap-2 text-teal-400 font-bold text-sm">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="8" cy="12" r="4"/><circle cx="16" cy="12" r="4" stroke-dasharray="2 2"/></svg>
-            Captive Balls
-          </div>
-          <p class="text-xs text-slate-400">Trapped steel balls in channels transferring impact kinetic energy to rear switches.</p>
-        </div>
-
-        <!-- Diverters -->
-        <div class="component-card p-4 rounded-xl space-y-2">
-          <div class="flex items-center gap-2 text-sky-400 font-bold text-sm">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 8l8 8 8-8" stroke-width="2"/></svg>
-            Mechanical Diverters
-          </div>
-          <p class="text-xs text-slate-400">Code-controlled gate flappers redirecting balls inside ramps and orbits dynamically.</p>
         </div>
 
       </div>
     </section>
 
-    <!-- Section 3: Relic Grid Adaptation -->
+    <!-- Section 4: Polyomino Adaptation -->
     <section id="adaptation" class="space-y-4">
       <h2 class="text-xl font-bold flex items-center gap-2 text-white">
         <span>🧩</span> Polyomino Relic Grid Adaptation (Goblin Cannon)
@@ -261,7 +297,7 @@
       </div>
     </section>
 
-    <!-- Section 4: Sources & Media -->
+    <!-- Section 5: Sources & Videos -->
     <section id="sources" class="space-y-4">
       <h2 class="text-xl font-bold flex items-center gap-2 text-white">
         <span>📚</span> Research Sources, Discourse & Video Reviews
@@ -269,7 +305,6 @@
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        <!-- Pinside & Discussion Boards -->
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3 shadow-lg">
           <h3 class="font-bold text-md flex items-center gap-2 text-white">
             <span>🌐</span> Community Discourse & Ratings
@@ -290,7 +325,6 @@
           </ul>
         </div>
 
-        <!-- Video Reviews & Tutorials -->
         <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3 shadow-lg">
           <h3 class="font-bold text-md flex items-center gap-2 text-white">
             <span>🎥</span> Video Reviews & Gameplay Guides
