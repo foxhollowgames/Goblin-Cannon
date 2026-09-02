@@ -205,9 +205,10 @@ func _add_single_ball(ball_def: Resource) -> void:
 		ball.set_definition(ball_def)
 	if "freeze" in ball:
 		ball.freeze = false
-	ball.global_position = global_position + Vector2(0.0, SPAWN_Y_OFFSET)
+	var spawn_offset_x: float = randf_range(-14.0, 14.0)
+	ball.global_position = global_position + Vector2(spawn_offset_x, SPAWN_Y_OFFSET)
 	if "linear_velocity" in ball:
-		ball.linear_velocity = Vector2.ZERO
+		ball.linear_velocity = Vector2(randf_range(-20.0, 20.0), randf_range(0.0, 10.0))
 	_main_balls_container.add_child(ball)
 	_register_falling_carry(ball)
 
@@ -257,9 +258,10 @@ func return_ball(ball: Node) -> void:
 		parent.remove_child(ball)
 	if "freeze" in ball:
 		ball.freeze = false
+	var spawn_offset_x: float = randf_range(-14.0, 14.0)
+	ball.global_position = global_position + Vector2(spawn_offset_x, SPAWN_Y_OFFSET)
 	if "linear_velocity" in ball:
-		ball.linear_velocity = Vector2.ZERO
-	ball.global_position = global_position + Vector2(0.0, SPAWN_Y_OFFSET)
+		ball.linear_velocity = Vector2(randf_range(-20.0, 20.0), randf_range(0.0, 10.0))
 	_main_balls_container.add_child(ball)
 	_register_falling_carry(ball)
 

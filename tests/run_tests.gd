@@ -40,6 +40,7 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/test_polyomino_drag_drop.gd",
 	"res://tests/test_polyomino_machinery.gd",
 	"res://tests/test_hopper_steering.gd",
+	"res://tests/test_hopper_ball_cascade.gd",
 	"res://tests/test_hopper_top_bar_debug_menu.gd",
 	"res://tests/test_live_board_ghost_placement.gd",
 	"res://tests/test_junk_box_ui_and_board_transfer.gd",
