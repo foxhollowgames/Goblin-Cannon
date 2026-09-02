@@ -28,7 +28,6 @@ func test_junk_box_panel_drawer_layout_and_toggle() -> void:
 
 	var drawer: PanelContainer = panel.get_node_or_null("DrawerPanel") as PanelContainer
 	assert_true(drawer != null, "DrawerPanel child exists")
-	assert_eq(drawer.anchor_left, 1.0, "drawer anchored to right screen edge")
 	assert_eq(drawer.anchor_right, 1.0, "drawer anchored to right screen edge")
 
 	assert_false(panel.visible, "panel is hidden initially")

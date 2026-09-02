@@ -62,6 +62,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-051`](#lrn-051) | TASK-004 | `ui` | Live Main Scene UI Integration | 2026-09-02 |
 | [`LRN-052`](#lrn-052) | TASK-040 | `asset_resources` | External Asset Pools and VFX Spritesheet Storage | 2026-09-02 |
 | [`LRN-053`](#lrn-053) | TASK-004 | `ui` | Right Sidebar Junk Box and Circular Cannon Orb Layout | 2026-09-02 |
+| [`LRN-054`](#lrn-054) | TASK-005 | `flow` | Takeover Cutscene Reward Sequencing | 2026-09-02 |
 
 ---
 
@@ -912,5 +913,21 @@ CircularCannonWidget renders rising liquid energy fill in the bottom-right corne
 
 #### Actionable Guideline for Future Agents
 Keep right sidebar reserved for JunkBoxPanel and position top status bars cleanly inside LeftPanel.
+
+---
+
+### <a id="lrn-054"></a> LRN-054: Takeover Cutscene Reward Sequencing
+- **Task:** `TASK-005`
+- **Category:** `flow`
+- **Created:** `2026-09-02T09:34:04.851333`
+
+#### Context & Problem
+Sequenced reward selection modal popups after full-screen comic takeover cutscenes.
+
+#### Key Insight & Learning
+GameCoordinatorFlow.handle_wall_destroyed plays FullscreenComicTakeover first, connecting takeover_completed signal to handle_wall_break_transition_finished.
+
+#### Actionable Guideline for Future Agents
+Chain cutscene takeover completion signals before dispatching reward modal popups.
 
 ---

@@ -61,30 +61,25 @@ mouse_filter = 2
 script = ExtResource("1_4n2t8")
 
 [node name="DrawerPanel" type="PanelContainer" parent="."]
-custom_minimum_size = Vector2(530, 696)
+custom_minimum_size = Vector2(320, 720)
 layout_mode = 1
-anchors_preset = 11
-anchor_left = 1.0
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = -544.0
-offset_top = 12.0
-offset_right = -12.0
-offset_bottom = -12.0
-grow_horizontal = 0
+grow_horizontal = 2
 grow_vertical = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_1")
 
 [node name="MarginContainer" type="MarginContainer" parent="DrawerPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 12
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 12
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
 
 [node name="VBoxContainer" type="VBoxContainer" parent="DrawerPanel/MarginContainer"]
 layout_mode = 2
-theme_override_constants/separation = 10
+theme_override_constants/separation = 6
 
 [node name="HBoxTitle" type="HBoxContainer" parent="DrawerPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
@@ -93,7 +88,7 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_colors/font_color = Color(1, 0.92549, 0.6, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 18
 text = "JUNK BOX"
 
 [node name="SortBtn" type="Button" parent="DrawerPanel/MarginContainer/VBoxContainer/HBoxTitle"]
@@ -101,6 +96,7 @@ layout_mode = 2
 text = "Auto-Pack"
 
 [node name="CloseBtn" type="Button" parent="DrawerPanel/MarginContainer/VBoxContainer/HBoxTitle"]
+visible = false
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "✕"
@@ -110,13 +106,13 @@ custom_minimum_size = Vector2(0, 2)
 layout_mode = 2
 color = Color(0.364706, 0.458824, 0.270588, 0.9)
 
-[node name="HBoxContent" type="HBoxContainer" parent="DrawerPanel/MarginContainer/VBoxContainer"]
+[node name="HBoxContent" type="VBoxContainer" parent="DrawerPanel/MarginContainer/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-theme_override_constants/separation = 12
+theme_override_constants/separation = 6
 
 [node name="ScrollContainer" type="ScrollContainer" parent="DrawerPanel/MarginContainer/VBoxContainer/HBoxContent"]
-custom_minimum_size = Vector2(310, 0)
+custom_minimum_size = Vector2(300, 360)
 layout_mode = 2
 horizontal_scroll_mode = 0
 
@@ -126,10 +122,11 @@ script = ExtResource("2_a8b9c")
 
 [node name="VBoxInfo" type="VBoxContainer" parent="DrawerPanel/MarginContainer/VBoxContainer/HBoxContent"]
 layout_mode = 2
-size_flags_horizontal = 3
-theme_override_constants/separation = 8
+size_flags_vertical = 3
+theme_override_constants/separation = 4
 
 [node name="InfoPanel" type="PanelContainer" parent="DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/VBoxInfo"]
+custom_minimum_size = Vector2(0, 100)
 layout_mode = 2
 size_flags_vertical = 3
 theme_override_styles/panel = SubResource("StyleBoxFlat_2")
@@ -147,4 +144,4 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_help")
 layout_mode = 2
 bbcode_enabled = true
 fit_content = true
-text = "[color=#d1a980][b]Controls:[/b][/color]\n• Drag to Board\n• R / RMB: Rotate\n• Drag from Board to Box"
+text = "[color=#d1a980][b]Controls:[/b][/color]\n• Drag to Board | R/RMB: Rotate"
