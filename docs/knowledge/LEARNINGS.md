@@ -53,6 +53,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-042`](#lrn-042) | TASK-021 | `gameplay` | Wall Siege Timer and Defender Pushback Logic | 2026-09-01 |
 | [`LRN-043`](#lrn-043) | TASK-022 | `balance` | Exponential Wall HP and Gold Scaling Model | 2026-09-01 |
 | [`LRN-044`](#lrn-044) | TASK-036 | `machinery` | Pinball Kinetic Machinery and Rollover Bank Completion | 2026-09-01 |
+| [`LRN-045`](#lrn-045) | TASK-039 | `ui` | Junk Box Sidebar Integration and Pegboard Display Equivalence | 2026-09-01 |
 
 ---
 
@@ -759,5 +760,21 @@ RolloverSwitch devices emit bank_completed signals on full bank illumination whe
 
 #### Actionable Guideline for Future Agents
 Use PolyominoModuleData.CellType for pinball component types and verify rollover bank state via cell_type matching in PolyominoModuleNode.
+
+---
+
+### <a id="lrn-045"></a> LRN-045: Junk Box Sidebar Integration and Pegboard Display Equivalence
+- **Task:** `TASK-039`
+- **Category:** `ui`
+- **Created:** `2026-09-01T22:31:13.044453`
+
+#### Context & Problem
+JunkBoxPanel sidebar layout and pegboard UI previews must match live playfield dimensions without obscuring active combat.
+
+#### Key Insight & Learning
+Setting JunkBoxGridView CELL_WIDTH=52 and CELL_HEIGHT=56 aligns preview grid cells with live PolyominoModuleNode dimensions, and integrate_into_sidebar mounts the panel directly into the right UI container.
+
+#### Actionable Guideline for Future Agents
+Use JunkBoxPanel.integrate_into_sidebar and JunkBoxGridView.get_peg_preview_parameters for sidebar placement and pegboard UI preview scaling.
 
 ---

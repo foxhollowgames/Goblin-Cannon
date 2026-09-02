@@ -1,6 +1,6 @@
 # TASK-039: Junk Box Sidebar Integration and Pegboard Display Equivalence
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Controls / Gameplay
 - **Target Branch:** `feature/junk-box-sidebar-and-pegboard-display`
@@ -42,8 +42,8 @@ Make sure that the pegboard UI preview matches the exact visual display of the a
 
 ## Acceptance Criteria
 
-- [ ] The Junk Box UI panel fits cleanly into the right sidebar space occupied by the Cannon and Wall.
-- [ ] The Cannon and Wall status elements remain visible in the updated right sidebar layout.
-- [ ] Pegboard UI previews display pegs, cells, and relics with identical visuals to the main board.
-- [ ] Players can drag modules from the right sidebar Junk Box onto valid board grid cells.
-- [ ] Headless unit tests verify sidebar layout positioning and pegboard display equivalence.
+- [x] The Junk Box UI panel fits cleanly into the right sidebar space occupied by the Cannon and Wall.
+- [x] The Cannon and Wall status elements remain visible in the updated right sidebar layout.
+- [x] Pegboard UI previews display pegs, cells, and relics with identical visuals to the main board.
+- [x] Players can drag modules from the right sidebar Junk Box onto valid board grid cells.
+- [x] Headless unit tests verify sidebar layout positioning and pegboard display equivalence.
