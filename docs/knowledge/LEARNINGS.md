@@ -51,6 +51,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-040`](#lrn-040) | FIX-POLYOMINO-PARSER | `godot_engine` | GDScript Void Return Parse Errors | 2026-09-01 |
 | [`LRN-041`](#lrn-041) | TASK-TEST-FRAMEWORK-PARSE-ISOLATION | `testing` | Godot Test Runner Parse Failure Isolation | 2026-09-01 |
 | [`LRN-042`](#lrn-042) | TASK-021 | `gameplay` | Wall Siege Timer and Defender Pushback Logic | 2026-09-01 |
+| [`LRN-043`](#lrn-043) | TASK-022 | `balance` | Exponential Wall HP and Gold Scaling Model | 2026-09-01 |
 
 ---
 
@@ -725,5 +726,21 @@ CombatManager owns wall siege timers and defender pushback transitions, emitting
 
 #### Actionable Guideline for Future Agents
 Always handle wall timer expirations via CombatManager.apply_defender_pushback and ensure WALL_PHASE_TIME_SECONDS is set to 120.
+
+---
+
+### <a id="lrn-043"></a> LRN-043: Exponential Wall HP and Gold Scaling Model
+- **Task:** `TASK-022`
+- **Category:** `balance`
+- **Created:** `2026-09-01T22:28:20.208636`
+
+#### Context & Problem
+Wall HP scaling and breach rewards need predictable mathematical curves to maintain pacing across 45-60 minute runs.
+
+#### Key Insight & Learning
+Exponential formulas Health(n) = BaseHP * (1.35)^n and Gold(n) = BaseGold * (1.25)^n keep progression pacing calibrated while preventing arithmetic overflow.
+
+#### Actionable Guideline for Future Agents
+Use CityDefinition.get_wall_hp_max_for_index and get_wall_breach_gold_reward for all wall health and resource payout calculations.
 
 ---

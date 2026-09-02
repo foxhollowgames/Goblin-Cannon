@@ -30,7 +30,7 @@ python scripts/generate_task_dashboard.py
 
 | Task ID | Title | Category | Priority | Status | Branch |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| [TASK-001](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-001-gameplay-loop-and-pacing.md) | Gameplay Loop & Incremental Pacing | Gameplay | P1 | READY | `feature/gameplay-loop-pacing` |
+| [TASK-001](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-001-gameplay-loop-and-pacing.md) | Gameplay Loop & Incremental Pacing | Gameplay | P1 | DONE | `feature/gameplay-loop-pacing` |
 | [TASK-002](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-002-story-campaign-architecture.md) | Six-Playthrough Story Campaign Architecture | Narrative | P1 | READY | `feature/story-campaign-arch` |
 | [TASK-003](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-003-character-bespoke-mechanics.md) | Character Bespoke Progression Mechanics | Systems | P1 | READY | `feature/character-mechanics` |
 | [TASK-004](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-004-right-panel-and-comic-cutouts.md) | Right Panel UI & Comic Cutout Vignettes | UI/VFX | P1 | READY | `feature/comic-panel-ui` |
@@ -51,7 +51,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-019](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-019-hopper-steering-controls.md) | Hopper Steering and Active Aiming Controls | Controls | P1 | DONE | `feature/hopper-steering-controls` |
 | [TASK-020](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-020-live-board-ghost-placement.md) | Live Board Ghost State and Placement Physics | Physics/Systems | P1 | DONE | `feature/live-board-ghost-placement` |
 | [TASK-021](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-021-wall-siege-timer-and-pushback.md) | Wall Siege Timer, Auto-Progression, and Defender Pushback | Gameplay/Logic | P1 | DONE | `feature/wall-siege-timer-and-pushback` |
-| [TASK-022](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-022-exponential-scaling-pacing-model.md) | Wall Health Exponential Scaling and Campaign Pacing Model | Math/Balance | P1 | READY | `feature/exponential-scaling-pacing-model` |
+| [TASK-022](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-022-exponential-scaling-pacing-model.md) | Wall Health Exponential Scaling and Campaign Pacing Model | Math/Balance | P1 | DONE | `feature/exponential-scaling-pacing-model` |
 | [TASK-023](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-023-emergency-tinkering-minigames-design.md) | Emergency Tinkering and Machine Breakdown Minigames Design | Design/Systems | P2 | BACKLOG | `feature/emergency-tinkering-minigames` |
 | [TASK-024](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-024-polyomino-relic-shapes-and-sizes.md) | Polyomino Relic Shapes, Sizes, and Data Definitions | Systems/Data | P1 | DONE | `feature/polyomino-relic-shapes` |
 | [TASK-025](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-025-polyomino-drag-drop-and-grid-snapping.md) | Polyomino Drag-and-Drop, Rotation, and Grid Snapping | UI/Controls | P1 | DONE | `feature/polyomino-drag-and-drop` |
