@@ -90,6 +90,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-079`](#lrn-079) | TASK-004 | `ui` | gold_counter_repositioning | 2026-09-02 |
 | [`LRN-080`](#lrn-080) | TASK-042 | `ui` | hopper_top_bar_clearance | 2026-09-02 |
 | [`LRN-081`](#lrn-081) | TASK-042 | `ui` | High-Layer CanvasLayer for Top UI Header Bar and Non-Overlapping Control Layout | 2026-09-02 |
+| [`LRN-082`](#lrn-082) | TASK-042 | `ui` | UI Button Layering Order and Hopper Outline Geometry | 2026-09-02 |
 
 ---
 
@@ -1388,5 +1389,21 @@ Placing top UI header background panels in a high CanvasLayer (layer=10) with 10
 
 #### Actionable Guideline for Future Agents
 Place top UI header bars in high CanvasLayer layers (layer >= 10) with 100% opacity to mask world nodes, and enforce strict non-overlapping X coordinate zones for utility buttons, timer, gold, and health bars.
+
+---
+
+### <a id="lrn-082"></a> LRN-082: UI Button Layering Order and Hopper Outline Geometry
+- **Task:** `TASK-042`
+- **Category:** `ui`
+- **Created:** `2026-09-02T14:32:20.926698`
+
+#### Context & Problem
+Separate top CanvasLayer overlaid UI controls, and default Line2D white outline drew a bar across the hopper opening.
+
+#### Key Insight & Learning
+Keep top bar background panel as child 0 inside UILayer (layer=10) so UI controls draw on top of it, and omit closing top points in Line2D outline to keep bin openings open.
+
+#### Actionable Guideline for Future Agents
+Place header background panels as child 0 of the UI CanvasLayer, and omit top closing line segments from hopper Line2D outlines.
 
 ---
