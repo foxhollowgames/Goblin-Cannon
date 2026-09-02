@@ -56,7 +56,7 @@ All tasks use structured Markdown with status, priority, and clear acceptance cr
 | [TASK-035](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-035-relic-selection-layout-and-machinery-preview.md) | Relic Selection Screen Layout and Machine Composition Preview | UI/Visuals | P1 | DONE | `feature/relic-selection-preview` |
 | [TASK-036](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-036-pinball-kinetic-machinery-and-lane-switches.md) | Pinball Kinetic Machinery, Rollover Lane Switches, and Device Roster Revision | Systems/Gameplay | P1 | READY | `feature/pinball-kinetic-machinery` |
 | [TASK-037](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-037-relic-passive-removal-and-board-trigger-mechanisms.md) | Relic Passive Removal and Board Trigger Mechanisms | Systems/Gameplay/Design | P1 | READY | `feature/relic-passive-removal-board-triggers` |
-| [TASK-038](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-038-tooltip-text-and-language-refinement.md) | Tooltip Text and Language Refinement | UI/Polish | P1 | READY | `feature/tooltip-text-refinement` |
+| [TASK-038](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-038-tooltip-text-and-language-refinement.md) | Tooltip Text and Language Refinement | UI/Polish | P1 | DONE | `feature/tooltip-text-refinement` |
 
 ---
 

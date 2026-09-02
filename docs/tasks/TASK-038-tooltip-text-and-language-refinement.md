@@ -40,8 +40,8 @@ For example, change the Trampoline Peg description from multi-line text to a sim
 
 ## Acceptance Criteria
 
-- [ ] All tooltip strings across items, pegs, and relics are audited and shortened.
-- [ ] The Trampoline Peg tooltip is simplified to concise text ("Launches balls.").
-- [ ] No tooltip exceeds 2 concise lines of text.
-- [ ] Keyword database and shop data use direct action phrases.
-- [ ] Headless unit tests verify string constraints and database definitions.
+- [x] All tooltip strings across items, pegs, and relics are audited and shortened.
+- [x] The Trampoline Peg tooltip is simplified to concise text ("Launches balls.").
+- [x] No tooltip exceeds 2 concise lines of text.
+- [x] Keyword database and shop data use direct action phrases.
+- [x] Headless unit tests verify string constraints and database definitions.

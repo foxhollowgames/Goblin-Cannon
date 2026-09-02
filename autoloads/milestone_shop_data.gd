@@ -24,7 +24,7 @@ const STAT_DISPLAY: Dictionary = {
 
 const PEG_SHOP_DISPLAY: Dictionary = {
 	"bomb": {"name": "Bomb Peg", "desc": "Explodes on hit, damaging nearby pegs for bonus Energy. Place on any peg."},
-	"trampoline": {"name": "Trampoline Peg", "desc": "Launches balls upward with high force on hit. Place on any peg."},
+	"trampoline": {"name": "Trampoline Peg", "desc": "Launches balls. Place on any peg."},
 	"goblin_reset": {"name": "Goblin Reset", "desc": "Catches balls and returns them to the hopper. Place on any peg."},
 	"gold": {"name": "Gold Peg", "desc": "Grants 3× Energy when hit by a ball. Place on any peg."},
 	"splitter": {"name": "Splitter Peg", "desc": "Splits any ball that hits it into two balls. Place on any peg."},
