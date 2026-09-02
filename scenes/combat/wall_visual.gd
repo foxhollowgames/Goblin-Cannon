@@ -1,5 +1,5 @@
 extends Node2D
-## Graphical wall at the top of the battlefield. Draws stone/brick style wall.
+## Graphical wall at the top of the battlefield. Draws stone/brick style wall using asset pack tile textures.
 ## Supports explosion (debris) and rebuild (slide-in) animations for wall break transitions.
 
 const WALL_HEIGHT: float = 72.0
@@ -9,6 +9,9 @@ const BRICK_COLS: int = 12
 const DEBRIS_COUNT: int = 28
 const DEBRIS_GRAVITY: float = 580.0
 const EXPLOSION_DURATION: float = 1.8
+
+const WALL_TILE_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Platformer Pack Medieval/PNG/medievalTile_015.png")
+const WALL_CAP_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Platformer Assets Tile Extensions/PNG Castle/castleHalfMid.png")
 
 var _show_wall: bool = true
 var _exploding: bool = false
@@ -78,11 +81,14 @@ func _draw() -> void:
 		for piece in _debris:
 			if piece.alpha <= 0.0:
 				continue
-			var color := Color(piece.shade, piece.shade * 0.95, piece.shade * 0.9, piece.alpha)
 			var sz: Vector2 = piece.size
 			var half: Vector2 = sz * 0.5
 			draw_set_transform(piece.pos, piece.angle)
-			draw_rect(Rect2(-half, sz), color)
+			if WALL_TILE_TEXTURE:
+				draw_texture_rect(WALL_TILE_TEXTURE, Rect2(-half, sz), false, Color(1, 1, 1, piece.alpha))
+			else:
+				var color := Color(piece.shade, piece.shade * 0.95, piece.shade * 0.9, piece.alpha)
+				draw_rect(Rect2(-half, sz), color)
 		draw_set_transform(Vector2.ZERO, 0.0)
 		return
 
@@ -101,9 +107,17 @@ func _draw() -> void:
 			var x: float = col * brick_w + offset_x
 			var y: float = row * brick_h
 			var brick := Rect2(x + 2 + offset.x, y + 2 + offset.y, brick_w - 4, brick_h - 4)
-			var shade: float = 0.28 + (row + col) % 3 * 0.025 if (row + col) % 2 == 0 else 0.32 + (row * 2 + col) % 3 * 0.02
-			draw_rect(brick, Color(shade, shade * 0.95, shade * 0.9, 1))
+			if WALL_TILE_TEXTURE:
+				var shade: float = 0.85 + (row + col) % 3 * 0.05
+				draw_texture_rect(WALL_TILE_TEXTURE, brick, false, Color(shade, shade, shade, 1.0))
+			else:
+				var shade: float = 0.28 + (row + col) % 3 * 0.025 if (row + col) % 2 == 0 else 0.32 + (row * 2 + col) % 3 * 0.02
+				draw_rect(brick, Color(shade, shade * 0.95, shade * 0.9, 1))
 	for i in range(0, int(WALL_WIDTH), 24):
 		var cap := Rect2(i + offset.x, offset.y, 20, 8)
-		draw_rect(cap, Color(0.3, 0.27, 0.24, 1))
-		draw_rect(cap, Color(0.4, 0.36, 0.32, 1), false, 1.0)
+		if WALL_CAP_TEXTURE:
+			draw_texture_rect(WALL_CAP_TEXTURE, cap, false)
+		else:
+			draw_rect(cap, Color(0.3, 0.27, 0.24, 1))
+			draw_rect(cap, Color(0.4, 0.36, 0.32, 1), false, 1.0)
+

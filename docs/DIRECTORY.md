@@ -38,6 +38,7 @@
 
 | Test File | Suite Name | Link |
 |:---|:---|:---|
+| `test_asset_pack_sprites.gd` | `AssetPackSprites` | [tests/test_asset_pack_sprites.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_asset_pack_sprites.gd) |
 | `test_audio_pitch_randomizer.gd` | `AudioPitchRandomizer` | [tests/test_audio_pitch_randomizer.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_audio_pitch_randomizer.gd) |
 | `test_ball_visuals.gd` | `BallVisuals` | [tests/test_ball_visuals.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_ball_visuals.gd) |
 | `test_base.gd` | `UnnamedTest` | [tests/test_base.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_base.gd) |
