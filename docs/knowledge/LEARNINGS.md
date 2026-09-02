@@ -56,6 +56,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-045`](#lrn-045) | TASK-039 | `ui` | Junk Box Sidebar Integration and Pegboard Display Equivalence | 2026-09-01 |
 | [`LRN-046`](#lrn-046) | TASK-002 | `campaign` | Six-Playthrough Story Campaign Architecture | 2026-09-01 |
 | [`LRN-047`](#lrn-047) | TASK-003 | `characters` | Character Bespoke Progression Mechanics | 2026-09-01 |
+| [`LRN-048`](#lrn-048) | TASK-018 | `polyomino` | Tetromino Module Combining and Fusion System | 2026-09-01 |
 
 ---
 
@@ -810,5 +811,21 @@ CharacterProgressionManager computes wall damage, peg energy bonuses, revive cha
 
 #### Actionable Guideline for Future Agents
 Use CharacterProgressionManager.get_perks_for_archetype and compute_* helper functions to query character-specific perks during run execution.
+
+---
+
+### <a id="lrn-048"></a> LRN-048: Tetromino Module Combining and Fusion System
+- **Task:** `TASK-018`
+- **Category:** `polyomino`
+- **Created:** `2026-09-01T22:33:27.001827`
+
+#### Context & Problem
+PolyominoFusionSystem provides tier-based module merging and recipe blueprint crafting.
+
+#### Key Insight & Learning
+PolyominoFusionSystem checks tier equivalence and RECIPE_BLUEPRINTS to combine lower-tier or prerequisite items into higher tier or blueprint output modules.
+
+#### Actionable Guideline for Future Agents
+Use PolyominoFusionSystem.can_fuse and PolyominoFusionSystem.fuse_modules for module combining and crafting operations.
 
 ---
