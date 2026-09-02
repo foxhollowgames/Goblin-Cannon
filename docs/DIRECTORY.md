@@ -88,6 +88,7 @@
 | `test_sticky_slime_event.gd` | `StickySlimeEvent` | [tests/test_sticky_slime_event.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_sticky_slime_event.gd) |
 | `test_story_campaign_architecture.gd` | `StoryCampaignArchitecture` | [tests/test_story_campaign_architecture.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_story_campaign_architecture.gd) |
 | `test_test_scenario.gd` | `TestScenario` | [tests/test_test_scenario.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_test_scenario.gd) |
+| `test_tetromino_module_fusion.gd` | `TetrominoModuleFusion` | [tests/test_tetromino_module_fusion.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_tetromino_module_fusion.gd) |
 | `test_tooltip_text_refinement.gd` | `TooltipTextRefinement` | [tests/test_tooltip_text_refinement.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_tooltip_text_refinement.gd) |
 | `test_ui_buttons_audit.gd` | `UIButtonAudit` | [tests/test_ui_buttons_audit.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_ui_buttons_audit.gd) |
 | `test_volatile_gas.gd` | `VolatileGas` | [tests/test_volatile_gas.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_volatile_gas.gd) |
