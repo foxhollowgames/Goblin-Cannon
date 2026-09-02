@@ -11,9 +11,9 @@ signal item_clicked(item: JunkBoxItem)
 signal item_hovered(item: JunkBoxItem)
 signal item_unhovered()
 
-const CELL_SIZE: int = 52
-const CELL_WIDTH: int = 52
-const CELL_HEIGHT: int = 56
+const CELL_SIZE: int = 46
+const CELL_WIDTH: int = 46
+const CELL_HEIGHT: int = 46
 const CELL_PAD: int = 2
 
 var hovered_cell: Vector2i = Vector2i(-1, -1)

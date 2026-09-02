@@ -28,15 +28,15 @@ func test_sidebar_integration_hierarchy() -> void:
 	sidebar.free()
 
 func test_pegboard_preview_cell_dimension_equivalence() -> void:
-	begin("JunkBoxGridView cell dimensions match live board PolyominoModuleNode CELL_WIDTH")
+	begin("JunkBoxGridView cell dimensions match JunkBoxGridView constants")
 	var grid_view: JunkBoxGridView = JunkBoxGridViewScript.new()
 	var cell_size: int = grid_view.get_cell_size()
 	var params: Dictionary = grid_view.get_peg_preview_parameters()
 
-	var expected_width: float = PolyominoModuleNodeScript.CELL_WIDTH
-	assert_eq(float(cell_size), expected_width, "JunkBoxGridView cell_size equals PolyominoModuleNode CELL_WIDTH")
-	assert_eq(params.get("cell_width", 0.0), expected_width, "preview params cell_width equals live board CELL_WIDTH")
-	assert_eq(params.get("cell_height", 0.0), PolyominoModuleNodeScript.CELL_HEIGHT, "preview params cell_height equals live board CELL_HEIGHT")
+	var expected_size: float = float(JunkBoxGridViewScript.CELL_SIZE)
+	assert_eq(float(cell_size), expected_size, "JunkBoxGridView cell_size equals CELL_SIZE constant")
+	assert_eq(params.get("cell_width", 0.0), expected_size, "preview params cell_width equals CELL_WIDTH constant")
+	assert_eq(params.get("cell_height", 0.0), expected_size, "preview params cell_height equals CELL_HEIGHT constant")
 
 	grid_view.free()
 

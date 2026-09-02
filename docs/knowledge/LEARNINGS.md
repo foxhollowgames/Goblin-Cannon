@@ -65,6 +65,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-054`](#lrn-054) | TASK-005 | `flow` | Takeover Cutscene Reward Sequencing | 2026-09-02 |
 | [`LRN-055`](#lrn-055) | TASK-039 | `ui` | JunkBoxPanel Sidebar Width Containment | 2026-09-02 |
 | [`LRN-056`](#lrn-056) | TASK-039 | `ui` | Godot Scene Instantiation and Onready Initialization Order | 2026-09-02 |
+| [`LRN-057`](#lrn-057) | TASK-039 | `ui` | CenterPanel Scene Anchors in main.tscn | 2026-09-02 |
 
 ---
 
@@ -963,5 +964,21 @@ Calling custom layout functions on an instantiated scene before adding it to the
 
 #### Actionable Guideline for Future Agents
 Always invoke layout configuration methods in _ready() or re-evaluate @onready nodes using get_node_or_null() if called before add_child().
+
+---
+
+### <a id="lrn-057"></a> LRN-057: CenterPanel Scene Anchors in main.tscn
+- **Task:** `TASK-039`
+- **Category:** `ui`
+- **Created:** `2026-09-02T09:39:43.041280`
+
+#### Context & Problem
+Removed conflicting anchors_preset = 15 override from CenterPanel node in main.tscn.
+
+#### Key Insight & Learning
+Overriding CenterPanel with anchors_preset = 15 inside main.tscn caused the entire sidebar container to stretch from x=4 to x=1276 across the screen. Preserving anchors_preset = 0 keeps CenterPanel at x=960 to x=1280.
+
+#### Actionable Guideline for Future Agents
+Verify main.tscn container nodes do not contain duplicate anchors_preset overrides that expand sidebar panels across the entire playfield.
 
 ---

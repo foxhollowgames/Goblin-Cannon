@@ -61,7 +61,7 @@ mouse_filter = 2
 script = ExtResource("1_4n2t8")
 
 [node name="DrawerPanel" type="PanelContainer" parent="."]
-custom_minimum_size = Vector2(320, 720)
+custom_minimum_size = Vector2(310, 720)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -72,10 +72,10 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_1")
 
 [node name="MarginContainer" type="MarginContainer" parent="DrawerPanel"]
 layout_mode = 2
-theme_override_constants/margin_left = 8
-theme_override_constants/margin_top = 8
-theme_override_constants/margin_right = 8
-theme_override_constants/margin_bottom = 8
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
 
 [node name="VBoxContainer" type="VBoxContainer" parent="DrawerPanel/MarginContainer"]
 layout_mode = 2
