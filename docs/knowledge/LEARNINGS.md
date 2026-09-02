@@ -60,6 +60,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-049`](#lrn-049) | TASK-008 | `synergies` | Build Archetypes and Synergy Linkages | 2026-09-01 |
 | [`LRN-050`](#lrn-050) | TASK-004 | `ui` | Right Panel UI and Comic Cutout Vignettes | 2026-09-01 |
 | [`LRN-051`](#lrn-051) | TASK-004 | `ui` | Live Main Scene UI Integration | 2026-09-02 |
+| [`LRN-052`](#lrn-052) | TASK-040 | `asset_resources` | External Asset Pools and VFX Spritesheet Storage | 2026-09-02 |
 
 ---
 
@@ -878,5 +879,21 @@ ComicVignettePanel connects to CombatManager.cannon_fired_at_wall signal while J
 
 #### Actionable Guideline for Future Agents
 Wire UI overlay panels inside game_coordinator_ui.gd create_inventory_ui method to attach them to live scene runtime.
+
+---
+
+### <a id="lrn-052"></a> LRN-052: External Asset Pools and VFX Spritesheet Storage
+- **Task:** `TASK-040`
+- **Category:** `asset_resources`
+- **Created:** `2026-09-02T09:29:34.649549`
+
+#### Context & Problem
+Agents require knowledge of external local asset packs for graphics and particle effects.
+
+#### Key Insight & Learning
+External asset pack directory C:\Users\josep\Desktop\Games\Essentials VFX Spritesheets contains VFX spritesheets for particle effects, explosions, and impact animations alongside in-repo Kenney assets.
+
+#### Actionable Guideline for Future Agents
+When sourcing visual assets and particle effects, inspect both assets/ and C:\Users\josep\Desktop\Games\Essentials VFX Spritesheets.
 
 ---
