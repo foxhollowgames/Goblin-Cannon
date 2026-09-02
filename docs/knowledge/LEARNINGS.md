@@ -93,6 +93,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-082`](#lrn-082) | TASK-042 | `ui` | UI Button Layering Order and Hopper Outline Geometry | 2026-09-02 |
 | [`LRN-083`](#lrn-083) | TASK-042 | `ui` | Cannon Overlay Layering Order and Sidebar Widget Texture Rendering | 2026-09-02 |
 | [`LRN-084`](#lrn-084) | TASK-042 | `ui` | Single Canonical Node Rendering vs Duplicate Static Texture Drawing | 2026-09-02 |
+| [`LRN-085`](#lrn-085) | TASK-052 | `ui` | Junk Box Dynamic Scroll Bar Visibility | 2026-09-02 |
 
 ---
 
@@ -1439,5 +1440,21 @@ Avoid duplicate asset texture rendering in container controls when a dedicated a
 
 #### Actionable Guideline for Future Agents
 Rely on single primary animated nodes (e.g. CannonVisual) on overlay layers rather than drawing duplicate static textures inside parent container widgets.
+
+---
+
+### <a id="lrn-085"></a> LRN-085: Junk Box Dynamic Scroll Bar Visibility
+- **Task:** `TASK-052`
+- **Category:** `ui`
+- **Created:** `2026-09-02T14:57:44.115349`
+
+#### Context & Problem
+ScrollContainer showed vertical scrollbar constantly even when inventory items were empty or fit within visible space.
+
+#### Key Insight & Learning
+ScrollContainer calculates scrollbar visibility by comparing child custom_minimum_size against container size. By calculating grid rows dynamically based on occupied cells and container viewport height, scrollbar toggles automatically.
+
+#### Actionable Guideline for Future Agents
+Use JunkBoxGridView.update_grid_size to dynamically calculate minimum row height and JunkBoxPanel.update_scroll_bar_visibility to toggle scrollbar mode and container margin padding.
 
 ---
