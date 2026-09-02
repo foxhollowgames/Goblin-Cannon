@@ -82,6 +82,8 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-071`](#lrn-071) | TASK-043 | `ui_visuals` | High-Contrast Visual Accessibility for Lead Target Jump Bar | 2026-09-02 |
 | [`LRN-072`](#lrn-072) | TASK-043 | `ui_visuals` | 0.5-Second Delay for Energy Charge Catch-Up Bar Animation | 2026-09-02 |
 | [`LRN-073`](#lrn-073) | TASK-043 | `ui_visuals` | Preserving Catch-Up Tween Delays in Per-Frame Energy Updates | 2026-09-02 |
+| [`LRN-074`](#lrn-074) | TASK-040 | `asset_resources` | Preloaded Asset Pack Tile and VFX Spritesheet Integration | 2026-09-02 |
+| [`LRN-075`](#lrn-075) | TASK-047 | `game_design` | pinball_layout_mapping | 2026-09-02 |
 
 ---
 
@@ -1252,5 +1254,37 @@ Only mutating liquid_ratio when new_ratio < _target_ratio (energy reset) and lau
 
 #### Actionable Guideline for Future Agents
 In per-frame progress bar setters, do not snap the animated fill ratio on same-ratio ticks; allow active delay tweens to run to completion.
+
+---
+
+### <a id="lrn-074"></a> LRN-074: Preloaded Asset Pack Tile and VFX Spritesheet Integration
+- **Task:** `TASK-040`
+- **Category:** `asset_resources`
+- **Created:** `2026-09-02T11:56:31.004823`
+
+#### Context & Problem
+Replacing programmer shapes with Kenney stone wall tiles and Essentials VFX explosion sheets across combat scenes
+
+#### Key Insight & Learning
+Preloading Texture2D assets and drawing textured rects inside CanvasItem _draw() ensures crisp asset rendering across battlefields and particle bursts while avoiding runtime allocations
+
+#### Actionable Guideline for Future Agents
+Preload stone wall tiles and VFX spritesheets at file load time and render them inside CanvasItem _draw() using explicit region rects for animation frames
+
+---
+
+### <a id="lrn-075"></a> LRN-075: pinball_layout_mapping
+- **Task:** `TASK-047`
+- **Category:** `game_design`
+- **Created:** `2026-09-02T12:06:06.394443`
+
+#### Context & Problem
+Researching pinball playfield components and adapting them for polyomino grid relics
+
+#### Key Insight & Learning
+Pinball playfield mechanics can be systematically mapped to polyomino relic grid modules by preserving kinetic flow and chaos.
+
+#### Actionable Guideline for Future Agents
+Map pinball board components to specific polyomino shape footprints to balance kinetic flow and unpredictable chaos in Goblin Cannon.
 
 ---
