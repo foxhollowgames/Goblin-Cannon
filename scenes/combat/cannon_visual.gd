@@ -38,11 +38,16 @@ func set_energy(p_current: int, p_max: int = 10000) -> void:
 	
 	if new_ratio > _target_ratio:
 		_target_ratio = new_ratio
+		if _catchup_tween == null or not _catchup_tween.is_valid() or not _catchup_tween.is_running():
+			_catchup_tween = create_tween()
+			_catchup_tween.tween_property(self, "liquid_ratio", _target_ratio, 0.5).set_delay(0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		else:
+			_catchup_tween.kill()
+			_catchup_tween = create_tween()
+			_catchup_tween.tween_property(self, "liquid_ratio", _target_ratio, 0.5).set_delay(0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	elif new_ratio < _target_ratio:
 		if _catchup_tween and _catchup_tween.is_valid():
 			_catchup_tween.kill()
-		_catchup_tween = create_tween()
-		_catchup_tween.tween_property(self, "liquid_ratio", _target_ratio, 0.35).set_delay(0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	else:
 		_target_ratio = new_ratio
 		liquid_ratio = new_ratio
 	queue_redraw()

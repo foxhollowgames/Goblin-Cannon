@@ -80,6 +80,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-069`](#lrn-069) | TASK-043 | `ui_visuals` | Gain Text Centering Underneath Charge Bar & 2-Stage Catch-Up Bar Animation | 2026-09-02 |
 | [`LRN-070`](#lrn-070) | TASK-043 | `ui_visuals` | Pure White Target Bar Accessibility & Non-Overlapping Segment Drawing | 2026-09-02 |
 | [`LRN-071`](#lrn-071) | TASK-043 | `ui_visuals` | High-Contrast Visual Accessibility for Lead Target Jump Bar | 2026-09-02 |
+| [`LRN-072`](#lrn-072) | TASK-043 | `ui_visuals` | 0.5-Second Delay for Energy Charge Catch-Up Bar Animation | 2026-09-02 |
 
 ---
 
@@ -1218,5 +1219,21 @@ Rendering the lead target segment as a protruding 12px tall box with solid pure 
 
 #### Actionable Guideline for Future Agents
 Combine shape protrusion, black outline borders, and black separator lines around pure white target segments to guarantee extreme visual contrast for accessibility.
+
+---
+
+### <a id="lrn-072"></a> LRN-072: 0.5-Second Delay for Energy Charge Catch-Up Bar Animation
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T11:15:26.923267`
+
+#### Context & Problem
+The yellow catch-up bar started animating immediately on energy gain without allowing the viewer to register the target jump
+
+#### Key Insight & Learning
+Adding .set_delay(0.5) to the _catchup_tween in set_energy() holds the high-contrast white lead bar steady for half a second before the yellow bar animates up to meet it.
+
+#### Actionable Guideline for Future Agents
+Use .set_delay(0.5) on catch-up bar fill tweens to pause long enough for viewers to register energy jump amounts before animating.
 
 ---
