@@ -1,6 +1,6 @@
 # TASK-037: Relic Passive Removal and Board Trigger Mechanisms
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay / Design
 - **Target Branch:** `feature/relic-passive-removal-board-triggers`
@@ -43,8 +43,8 @@ All relic effects must trigger from ball interactions with the board layout.
 
 ## Acceptance Criteria
 
-- [ ] All passive relic stat hooks are removed from `GameState` and `PolyominoRelicDatabase`.
-- [ ] Every relic effect functions strictly through kinetic pinball triggers on the pegboard layout.
-- [ ] Relic reward descriptions show interactive trigger mechanisms instead of passive stat bonuses.
-- [ ] Dynamic kinetic board pulses execute on target component completion.
-- [ ] Headless unit tests verify trigger mechanism execution and zero passive stat mutation.
+- [x] All passive relic stat hooks are removed from `GameState` and `PolyominoRelicDatabase`.
+- [x] Every relic effect functions strictly through kinetic pinball triggers on the pegboard layout.
+- [x] Relic reward descriptions show interactive trigger mechanisms instead of passive stat bonuses.
+- [x] Dynamic kinetic board pulses execute on target component completion.
+- [x] Headless unit tests verify trigger mechanism execution and zero passive stat mutation.
