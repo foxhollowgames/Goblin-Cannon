@@ -281,7 +281,7 @@ func _build_edge_dicts(c: Vector2i, n_solid: bool, s_solid: bool, w_solid: bool,
 	if e_solid:
 		segments.append({"p1": Vector2(fx + hw, fy - hh), "p2": Vector2(fx + hw, fy + hh), "normal": Vector2(1, 0), "side": "E", "cell": c, "is_internal": is_internal_e})
 
-	return segments
+	return
 
 func _find_orig_cell_index_for_anchored(anchored_cell: Vector2i, steps: int) -> int:
 	var anchored_list: Array[Vector2i] = get_anchored_rotated_cells(steps)

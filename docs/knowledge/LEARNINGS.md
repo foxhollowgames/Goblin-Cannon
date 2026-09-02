@@ -47,6 +47,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-036`](#lrn-036) | TASK-COORD-DECOMP-02 | `godot_engine` | GameCoordinator Full Sub-Manager Refactoring | 2026-09-01 |
 | [`LRN-037`](#lrn-037) | Decompose large source files | `Architecture` | game_coordinator_decomposition | 2026-09-01 |
 | [`LRN-038`](#lrn-038) | FIX-SHOP-ICONS | `godot_engine` | Shop card VBox attachment and marker script path | 2026-09-01 |
+| [`LRN-039`](#lrn-039) | TASK-033 | `physics` | polyomino relic enclosures | 2026-09-01 |
 
 ---
 
@@ -657,5 +658,21 @@ RewardCardBuilder.make_shop_card_layer omitted layer.add_child(card_vbox), leavi
 
 #### Actionable Guideline for Future Agents
 Always ensure container layout builder functions attach created child VBoxContainer nodes to their parent layer before returning.
+
+---
+
+### <a id="lrn-039"></a> LRN-039: polyomino relic enclosures
+- **Task:** `TASK-033`
+- **Category:** `physics`
+- **Created:** `2026-09-01T22:06:22.817285`
+
+#### Context & Problem
+Implementing wall enclosures and funnel collision
+
+#### Key Insight & Learning
+Polyomino module wall enclosures generate cell boundary edge line segments rotated via posmod steps.
+
+#### Actionable Guideline for Future Agents
+Use get_solid_edge_segments to calculate edge colliders for polyomino enclosures.
 
 ---
