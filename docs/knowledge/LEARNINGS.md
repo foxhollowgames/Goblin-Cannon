@@ -50,6 +50,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-039`](#lrn-039) | TASK-033 | `physics` | polyomino relic enclosures | 2026-09-01 |
 | [`LRN-040`](#lrn-040) | FIX-POLYOMINO-PARSER | `godot_engine` | GDScript Void Return Parse Errors | 2026-09-01 |
 | [`LRN-041`](#lrn-041) | TASK-TEST-FRAMEWORK-PARSE-ISOLATION | `testing` | Godot Test Runner Parse Failure Isolation | 2026-09-01 |
+| [`LRN-042`](#lrn-042) | TASK-021 | `gameplay` | Wall Siege Timer and Defender Pushback Logic | 2026-09-01 |
 
 ---
 
@@ -708,5 +709,21 @@ Dynamic script loading via load() inside test runner methods isolates script par
 
 #### Actionable Guideline for Future Agents
 Always load test dependencies dynamically inside test methods and include a headless script parse smoke pass in linter tooling.
+
+---
+
+### <a id="lrn-042"></a> LRN-042: Wall Siege Timer and Defender Pushback Logic
+- **Task:** `TASK-021`
+- **Category:** `gameplay`
+- **Created:** `2026-09-01T22:27:32.250353`
+
+#### Context & Problem
+Wall siege failures need consistent defender pushback state transitions and 120s timer configuration.
+
+#### Key Insight & Learning
+CombatManager owns wall siege timers and defender pushback transitions, emitting pushback_occurred signals to reset wall HP and decrement wall index.
+
+#### Actionable Guideline for Future Agents
+Always handle wall timer expirations via CombatManager.apply_defender_pushback and ensure WALL_PHASE_TIME_SECONDS is set to 120.
 
 ---

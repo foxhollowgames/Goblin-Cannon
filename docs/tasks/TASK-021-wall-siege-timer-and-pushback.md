@@ -1,6 +1,6 @@
 # TASK-021: Wall Siege Timer, Auto-Progression, and Defender Pushback
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Gameplay / Logic
 - **Parent Task:** [TASK-001](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-001-gameplay-loop-and-pacing.md)
@@ -28,7 +28,7 @@ Implement the wall siege timer, automatic victory progression, and defender push
 
 ## Acceptance Criteria
 
-- [ ] Timer accurately counts down from 120 seconds during combat.
-- [ ] Wall destruction immediately advances the game state to the next fortification.
-- [ ] Timer expiration resets wall health and returns the cannon to the previous wall.
-- [ ] Headless unit tests verify victory, timeout, and pushback state transitions.
+- [x] Timer accurately counts down from 120 seconds during combat.
+- [x] Wall destruction immediately advances the game state to the next fortification.
+- [x] Timer expiration resets wall health and returns the cannon to the previous wall.
+- [x] Headless unit tests verify victory, timeout, and pushback state transitions.
