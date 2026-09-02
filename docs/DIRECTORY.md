@@ -69,6 +69,7 @@
 | `test_monsters_also_die_palette.gd` | `MonstersAlsoDiePalette` | [tests/test_monsters_also_die_palette.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_monsters_also_die_palette.gd) |
 | `test_peg_grid_alignment.gd` | `PegGridAlignment` | [tests/test_peg_grid_alignment.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_peg_grid_alignment.gd) |
 | `test_phantom_trail.gd` | `PhantomTrail` | [tests/test_phantom_trail.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_phantom_trail.gd) |
+| `test_pinball_machinery.gd` | `PinballMachinery` | [tests/test_pinball_machinery.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_pinball_machinery.gd) |
 | `test_polyomino_drag_drop.gd` | `PolyominoDragDrop` | [tests/test_polyomino_drag_drop.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_polyomino_drag_drop.gd) |
 | `test_polyomino_machinery.gd` | `PolyominoMachinery` | [tests/test_polyomino_machinery.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_polyomino_machinery.gd) |
 | `test_polyomino_relic_shapes.gd` | `PolyominoRelicShapes` | [tests/test_polyomino_relic_shapes.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_polyomino_relic_shapes.gd) |

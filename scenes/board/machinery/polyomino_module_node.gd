@@ -5,6 +5,7 @@ class_name PolyominoModuleNode
 
 signal machinery_triggered(component: PolyominoMachineryComponent, ball: Node, energy_granted: int, impulse: Vector2)
 signal goal_completed(module_node: Node, goal_type: int, reward_type: int, triggering_ball: Node, reward_data: Dictionary)
+signal bank_completed(bank_id: StringName, reward_type: int, reward_value: int)
 
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
 const PolyominoMachineryComponentScript = preload("res://scenes/board/machinery/polyomino_machinery_component.gd")
@@ -12,6 +13,11 @@ const PinballBumperScript = preload("res://scenes/board/machinery/pinball_bumper
 const SpeedBoostWheelScript = preload("res://scenes/board/machinery/speed_boost_wheel.gd")
 const ManaSiphonScript = preload("res://scenes/board/machinery/mana_siphon.gd")
 const DirectionalDeflectorScript = preload("res://scenes/board/machinery/directional_deflector.gd")
+const RolloverSwitchScript = preload("res://scenes/board/machinery/rollover_switch.gd")
+const PopBumperScript = preload("res://scenes/board/machinery/pop_bumper.gd")
+const DropTargetScript = preload("res://scenes/board/machinery/drop_target.gd")
+const WireGateScript = preload("res://scenes/board/machinery/wire_gate.gd")
+const SlingshotKickerScript = preload("res://scenes/board/machinery/slingshot_kicker.gd")
 
 const GoalArchetype = PolyominoModuleData.GoalArchetype
 const RewardType = PolyominoModuleData.RewardType
@@ -121,12 +127,43 @@ func _create_component_for_type(c_type: int) -> PolyominoMachineryComponent:
 			return ManaSiphonScript.new()
 		PolyominoModuleData.CellType.DIRECTIONAL_DEFLECTOR, PolyominoModuleData.CellType.FUNNEL, PolyominoModuleData.CellType.GUIDE_RAIL:
 			return DirectionalDeflectorScript.new()
+		PolyominoModuleData.CellType.ROLLOVER_SWITCH:
+			return RolloverSwitchScript.new()
+		PolyominoModuleData.CellType.POP_BUMPER:
+			return PopBumperScript.new()
+		PolyominoModuleData.CellType.DROP_TARGET:
+			return DropTargetScript.new()
+		PolyominoModuleData.CellType.WIRE_GATE:
+			return WireGateScript.new()
+		PolyominoModuleData.CellType.SLINGSHOT:
+			return SlingshotKickerScript.new()
 		_:
 			return PinballBumperScript.new()
 
 func _on_component_activated(comp: PolyominoMachineryComponent, ball: Node, energy: int, impulse: Vector2) -> void:
 	machinery_triggered.emit(comp, ball, energy, impulse)
+	if comp and comp.cell_type == PolyominoModuleData.CellType.ROLLOVER_SWITCH:
+		_check_rollover_bank_completion(comp)
 	_evaluate_goal_progress(comp, ball, energy)
+
+func _check_rollover_bank_completion(sw: Node) -> void:
+	if sw == null:
+		return
+	var b_id: StringName = sw.get("bank_id") if "bank_id" in sw else &"bank_1"
+	var all_lit: bool = true
+	var count: int = 0
+	for comp in _components:
+		if comp and comp.cell_type == PolyominoModuleData.CellType.ROLLOVER_SWITCH:
+			var comp_b_id: StringName = comp.get("bank_id") if "bank_id" in comp else &"bank_1"
+			if comp_b_id == b_id:
+				count += 1
+				var is_sw_lit: bool = comp.get("is_lit") if "is_lit" in comp else false
+				if not is_sw_lit:
+					all_lit = false
+					break
+	if count > 0 and all_lit:
+		bank_completed.emit(b_id, RewardType.ENERGY_SURGE, 15)
+
 
 func _evaluate_goal_progress(comp: PolyominoMachineryComponent, ball: Node, energy: int) -> void:
 	if module_data == null or is_ghost:
