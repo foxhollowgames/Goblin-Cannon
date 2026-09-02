@@ -227,13 +227,14 @@ func is_ghost_state_active() -> bool:
 	return is_ghost
 
 ## Checks and triggers interaction if a ball contacts any machinery component in this module.
+## Checks and triggers interaction if a ball contacts any machinery component or wall enclosure in this module.
 func check_ball_collision(ball: Node, sim_tick: int) -> Dictionary:
 	if is_ghost:
 		return { "activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO }
 	if not is_instance_valid(ball):
 		return { "activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO }
 
-	var ball_pos: Vector2 = ball.global_position if "global_position" in ball else (ball.position if "position" in ball else Vector2.ZERO)
+	var ball_pos: Vector2 = (ball.global_position if ball.is_inside_tree() else ball.position) if "position" in ball else Vector2.ZERO
 	var ball_radius: float = Constants.BALL_RADIUS
 
 	for comp in _components:
@@ -245,6 +246,46 @@ func check_ball_collision(ball: Node, sim_tick: int) -> Dictionary:
 			var result: Dictionary = comp.trigger_activation(ball, sim_tick)
 			if result.get("activated", false):
 				return result
+
+	return _check_wall_segment_collision(ball)
+
+func _check_wall_segment_collision(ball: Node) -> Dictionary:
+	if module_data == null:
+		return { "activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO }
+	var segments: Array[Dictionary] = module_data.get_solid_edge_segments(rotation_step)
+	if segments.is_empty():
+		return { "activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO }
+
+	var ball_pos: Vector2 = (ball.global_position if ball.is_inside_tree() else ball.position) if "position" in ball else Vector2.ZERO
+	var ball_vel: Vector2 = ball.linear_velocity if "linear_velocity" in ball else Vector2.ZERO
+	var ball_radius: float = Constants.BALL_RADIUS
+	var module_base_pos: Vector2 = global_position if is_inside_tree() else position
+
+	for seg in segments:
+		var p1_local: Vector2 = seg["p1"]
+		var p2_local: Vector2 = seg["p2"]
+		var w1: Vector2 = module_base_pos + Vector2(p1_local.x * CELL_WIDTH, p1_local.y * CELL_HEIGHT)
+		var w2: Vector2 = module_base_pos + Vector2(p2_local.x * CELL_WIDTH, p2_local.y * CELL_HEIGHT)
+		var norm: Vector2 = seg["normal"]
+
+		var closest: Vector2 = Geometry2D.get_closest_point_to_segment(ball_pos, w1, w2)
+		var dist: float = ball_pos.distance_to(closest)
+		if dist <= ball_radius + 2.0:
+			var hit_normal: Vector2 = (ball_pos - closest).normalized()
+			if hit_normal.length_squared() < 0.01:
+				hit_normal = norm
+			var eff_vel: Vector2 = ball_vel if ball_vel.length_squared() > 0.01 else -hit_normal * 100.0
+			var bounce_dot: float = eff_vel.dot(hit_normal)
+			if bounce_dot <= 0.0:
+				var reflected: Vector2 = eff_vel.bounce(hit_normal) * 0.85
+				if "linear_velocity" in ball:
+					ball.linear_velocity = reflected
+				return {
+					"activated": true,
+					"energy_granted": 0,
+					"impulse_applied": reflected - eff_vel,
+					"wall_hit": true
+				}
 	return { "activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO }
 
 ## Returns true if all active balls are completely outside this module's collision footprint.
@@ -309,39 +350,49 @@ func _draw() -> void:
 	if _goal_flash_timer > 0.0:
 		wall_highlight_col = Color(1.0, 0.95, 0.5, 1.0)
 
-	# 1. Draw transparent background for all cells (empty and occupied)
+	# 1. Draw transparent background for all cells
 	for c in _anchored_cells:
 		var center := Vector2(float(c.x) * CELL_WIDTH, float(c.y) * CELL_HEIGHT)
 		var cell_rect := Rect2(center.x - half_w, center.y - half_h, CELL_WIDTH, CELL_HEIGHT)
 		draw_rect(cell_rect, bg_col)
 
-	# 2. Draw outer perimeter walls ONLY where boundary edges actually exist
-	for c in _anchored_cells:
-		var center := Vector2(float(c.x) * CELL_WIDTH, float(c.y) * CELL_HEIGHT)
-		var top_l := Vector2(center.x - half_w, center.y - half_h)
-		var top_r := Vector2(center.x + half_w, center.y - half_h)
-		var bot_l := Vector2(center.x - half_w, center.y + half_h)
-		var bot_r := Vector2(center.x + half_w, center.y + half_h)
+	# 2. Draw wall enclosures and internal dividing lines
+	if module_data != null:
+		var segments: Array[Dictionary] = module_data.get_solid_edge_segments(rotation_step)
+		for seg in segments:
+			var p1_l: Vector2 = seg["p1"]
+			var p2_l: Vector2 = seg["p2"]
+			var p1_px := Vector2(p1_l.x * CELL_WIDTH, p1_l.y * CELL_HEIGHT)
+			var p2_px := Vector2(p2_l.x * CELL_WIDTH, p2_l.y * CELL_HEIGHT)
+			var is_internal: bool = seg.get("is_internal", false)
 
-		# Top edge
-		if not _anchored_cells.has(Vector2i(c.x, c.y - 1)):
-			draw_line(top_l, top_r, wall_ink_col, 3.5)
-			draw_line(top_l, top_r, wall_highlight_col, 1.5)
+			if is_internal:
+				draw_line(p1_px, p2_px, wall_ink_col, 3.0)
+				draw_line(p1_px, p2_px, Color(0.3, 0.8, 1.0, 0.8), 1.5)
+			else:
+				draw_line(p1_px, p2_px, wall_ink_col, 4.0)
+				draw_line(p1_px, p2_px, wall_highlight_col, 2.0)
+	else:
+		# Fallback outer outline rendering
+		for c in _anchored_cells:
+			var center := Vector2(float(c.x) * CELL_WIDTH, float(c.y) * CELL_HEIGHT)
+			var top_l := Vector2(center.x - half_w, center.y - half_h)
+			var top_r := Vector2(center.x + half_w, center.y - half_h)
+			var bot_l := Vector2(center.x - half_w, center.y + half_h)
+			var bot_r := Vector2(center.x + half_w, center.y + half_h)
 
-		# Bottom edge
-		if not _anchored_cells.has(Vector2i(c.x, c.y + 1)):
-			draw_line(bot_l, bot_r, wall_ink_col, 3.5)
-			draw_line(bot_l, bot_r, wall_highlight_col, 1.5)
-
-		# Left edge
-		if not _anchored_cells.has(Vector2i(c.x - 1, c.y)):
-			draw_line(top_l, bot_l, wall_ink_col, 3.5)
-			draw_line(top_l, bot_l, wall_highlight_col, 1.5)
-
-		# Right edge
-		if not _anchored_cells.has(Vector2i(c.x + 1, c.y)):
-			draw_line(top_r, bot_r, wall_ink_col, 3.5)
-			draw_line(top_r, bot_r, wall_highlight_col, 1.5)
+			if not _anchored_cells.has(Vector2i(c.x, c.y - 1)):
+				draw_line(top_l, top_r, wall_ink_col, 3.5)
+				draw_line(top_l, top_r, wall_highlight_col, 1.5)
+			if not _anchored_cells.has(Vector2i(c.x, c.y + 1)):
+				draw_line(bot_l, bot_r, wall_ink_col, 3.5)
+				draw_line(bot_l, bot_r, wall_highlight_col, 1.5)
+			if not _anchored_cells.has(Vector2i(c.x - 1, c.y)):
+				draw_line(top_l, bot_l, wall_ink_col, 3.5)
+				draw_line(top_l, bot_l, wall_highlight_col, 1.5)
+			if not _anchored_cells.has(Vector2i(c.x + 1, c.y)):
+				draw_line(top_r, bot_r, wall_ink_col, 3.5)
+				draw_line(top_r, bot_r, wall_highlight_col, 1.5)
 
 	# 3. Draw goal status markers on components
 	if module_data != null and not is_ghost:
@@ -350,10 +401,8 @@ func _draw() -> void:
 				for c in _components:
 					var comp_pos: Vector2 = c.position
 					if _hit_cells.has(c.local_cell):
-						# Lit indicator halo
 						draw_arc(comp_pos, c.component_radius + 4.0, 0, TAU, 16, Color(1.0, 0.85, 0.2, 0.9), 2.5)
 					else:
-						# Dim pending indicator pip
 						draw_circle(comp_pos + Vector2(0, -c.component_radius - 2.0), 2.5, Color(0.4, 0.4, 0.4, 0.6))
 			GoalArchetype.SEQUENCE_ROUTE:
 				var target_seq: Array[Vector2i] = module_data.goal_target_sequence

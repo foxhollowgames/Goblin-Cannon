@@ -14,6 +14,13 @@ enum CellType {
 	DIRECTIONAL_DEFLECTOR = 7
 }
 
+enum EnclosureType {
+	OPEN_FRAME = 0,
+	FULL_ENCLOSURE = 1,
+	DIRECTIONAL_FUNNEL = 2,
+	DIVIDED_LANES = 3
+}
+
 enum GoalArchetype {
 	NONE = 0,
 	TARGET_BANK = 1,
@@ -49,6 +56,10 @@ enum RewardType {
 @export var bumper_durability: int = 0
 ## Default or current rotation step (0..3).
 @export var rotation_step: int = 0
+## Wall enclosure architecture.
+@export var enclosure_type: int = EnclosureType.OPEN_FRAME
+## Custom wall side overrides per local cell coord: Vector2i -> Array of side strings ("N", "E", "S", "W").
+@export var custom_wall_edges: Dictionary = {}
 
 ## Pinball goal archetype and reward definition
 @export var goal_type: int = GoalArchetype.NONE
@@ -194,6 +205,114 @@ static func get_rotated_direction(dir: Vector2, steps: int = 0) -> Vector2:
 			return Vector2(dir.y, -dir.x)
 	return dir
 
+static func rotate_side(side: String, steps: int = 0) -> String:
+	var s: int = posmod(steps, 4)
+	if s == 0:
+		return side
+	var order := ["N", "E", "S", "W"]
+	var idx: int = order.find(side)
+	if idx == -1:
+		return side
+	return order[(idx + s) % 4]
+
+## Returns Array of Dictionary for edge wall segments in anchored rotated space.
+## Each element: { "p1": Vector2, "p2": Vector2, "normal": Vector2, "side": String, "cell": Vector2i, "is_internal": bool }
+func get_solid_edge_segments(steps: int = 0) -> Array[Dictionary]:
+	var anchored: Array[Vector2i] = get_anchored_rotated_cells(steps)
+	if anchored.is_empty():
+		return []
+
+	var segments: Array[Dictionary] = []
+	var cell_set: Dictionary = {}
+	for c in anchored:
+		cell_set[c] = true
+
+	var max_x: int = anchored[0].x
+	for c in anchored:
+		max_x = maxi(max_x, c.x)
+
+	for c in anchored:
+		_append_cell_edge_segments(c, steps, cell_set, max_x, segments)
+
+	return segments
+
+func _append_cell_edge_segments(c: Vector2i, steps: int, cell_set: Dictionary, max_x: int, segments: Array[Dictionary]) -> void:
+	var has_top: bool = cell_set.has(Vector2i(c.x, c.y - 1))
+	var has_bot: bool = cell_set.has(Vector2i(c.x, c.y + 1))
+	var has_left: bool = cell_set.has(Vector2i(c.x - 1, c.y))
+	var has_right: bool = cell_set.has(Vector2i(c.x + 1, c.y))
+
+	var is_funnel: bool = (enclosure_type == EnclosureType.DIRECTIONAL_FUNNEL)
+	var is_full: bool = (enclosure_type == EnclosureType.FULL_ENCLOSURE)
+	var is_divided: bool = (enclosure_type == EnclosureType.DIVIDED_LANES)
+
+	var n_solid: bool = (is_full or is_divided) and not has_top
+	var s_solid: bool = (is_full or is_divided) and not has_bot
+	var w_solid: bool = (is_full or is_divided or is_funnel) and not has_left
+	var e_solid: bool = (is_full or is_divided or is_funnel) and not has_right
+	var is_internal_e: bool = false
+	if is_divided and has_right and c.x < max_x:
+		e_solid = true
+		is_internal_e = true
+
+	var orig_idx: int = _find_orig_cell_index_for_anchored(c, steps)
+	if orig_idx >= 0 and orig_idx < cells.size():
+		for cs in _get_custom_sides_for_cell(cells[orig_idx]):
+			match rotate_side(cs, steps):
+				"N": n_solid = true
+				"S": s_solid = true
+				"W": w_solid = true
+				"E": e_solid = true
+
+	_build_edge_dicts(c, n_solid, s_solid, w_solid, e_solid, is_internal_e, segments)
+
+func _build_edge_dicts(c: Vector2i, n_solid: bool, s_solid: bool, w_solid: bool, e_solid: bool, is_internal_e: bool, segments: Array[Dictionary]) -> void:
+	var hw: float = 0.5
+	var hh: float = 0.5
+	var fx: float = float(c.x)
+	var fy: float = float(c.y)
+
+	if n_solid:
+		segments.append({"p1": Vector2(fx - hw, fy - hh), "p2": Vector2(fx + hw, fy - hh), "normal": Vector2(0, -1), "side": "N", "cell": c, "is_internal": false})
+	if s_solid:
+		segments.append({"p1": Vector2(fx - hw, fy + hh), "p2": Vector2(fx + hw, fy + hh), "normal": Vector2(0, 1), "side": "S", "cell": c, "is_internal": false})
+	if w_solid:
+		segments.append({"p1": Vector2(fx - hw, fy - hh), "p2": Vector2(fx - hw, fy + hh), "normal": Vector2(-1, 0), "side": "W", "cell": c, "is_internal": false})
+	if e_solid:
+		segments.append({"p1": Vector2(fx + hw, fy - hh), "p2": Vector2(fx + hw, fy + hh), "normal": Vector2(1, 0), "side": "E", "cell": c, "is_internal": is_internal_e})
+
+	return segments
+
+func _find_orig_cell_index_for_anchored(anchored_cell: Vector2i, steps: int) -> int:
+	var anchored_list: Array[Vector2i] = get_anchored_rotated_cells(steps)
+	for i in range(anchored_list.size()):
+		if anchored_list[i] == anchored_cell:
+			return i
+	return -1
+
+func _get_custom_sides_for_cell(cell: Vector2i) -> Array[String]:
+	var raw = null
+	if custom_wall_edges.has(cell):
+		raw = custom_wall_edges[cell]
+	else:
+		var key_str: String = "%d,%d" % [cell.x, cell.y]
+		if custom_wall_edges.has(key_str):
+			raw = custom_wall_edges[key_str]
+	var res: Array[String] = []
+	if raw is Array:
+		for item in raw:
+			res.append(str(item))
+	return res
+
+func _serialize_custom_wall_edges() -> Dictionary:
+	var res: Dictionary = {}
+	for k in custom_wall_edges:
+		var key_str: String = "%d,%d" % [k.x, k.y] if k is Vector2i else str(k)
+		var val = custom_wall_edges[k]
+		if val is Array:
+			res[key_str] = val
+	return res
+
 func serialize() -> Dictionary:
 	var serialized_cells: Array = []
 	for c in cells:
@@ -234,6 +353,8 @@ func serialize() -> Dictionary:
 		"energy_values": serialized_energies,
 		"bumper_durability": bumper_durability,
 		"rotation_step": rotation_step,
+		"enclosure_type": enclosure_type,
+		"custom_wall_edges": _serialize_custom_wall_edges(),
 		"goal_type": goal_type,
 		"reward_type": reward_type,
 		"goal_target_sequence": serialized_seq,
@@ -252,6 +373,7 @@ func deserialize(dict: Dictionary) -> void:
 	tier = int(dict.get("tier", 1))
 	bumper_durability = int(dict.get("bumper_durability", 0))
 	rotation_step = int(dict.get("rotation_step", 0))
+	enclosure_type = int(dict.get("enclosure_type", EnclosureType.OPEN_FRAME))
 	goal_type = int(dict.get("goal_type", GoalArchetype.NONE))
 	reward_type = int(dict.get("reward_type", RewardType.NONE))
 	goal_target_count = int(dict.get("goal_target_count", 0))
@@ -261,6 +383,15 @@ func deserialize(dict: Dictionary) -> void:
 	goal_title = str(dict.get("goal_title", ""))
 	goal_description = str(dict.get("goal_description", ""))
 	reward_description = str(dict.get("reward_description", ""))
+
+	custom_wall_edges.clear()
+	var raw_walls = dict.get("custom_wall_edges", {})
+	if raw_walls is Dictionary:
+		for k in raw_walls:
+			var cell_pos: Vector2i = _parse_vector2i_key(k)
+			var val = raw_walls[k]
+			if val is Array:
+				custom_wall_edges[cell_pos] = val
 
 	goal_target_sequence.clear()
 	var raw_seq = dict.get("goal_target_sequence", [])
