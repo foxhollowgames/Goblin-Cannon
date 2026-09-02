@@ -53,8 +53,8 @@ static func build_almanac_button(pressed_cb: Callable) -> Button:
 	var btn: Button = Button.new()
 	btn.text = ""
 	btn.tooltip_text = "Almanac (L): Open the catalog of all balls, pegs, and relics."
-	btn.custom_minimum_size = Vector2(36, 32)
-	btn.position = Vector2(198, 8)
+	btn.custom_minimum_size = Vector2(38, 36)
+	btn.position = Vector2(12, 9)
 	btn.process_mode = Node.PROCESS_MODE_ALWAYS
 	var btn_style: StyleBoxFlat = StyleBoxFlat.new()
 	btn_style.bg_color = MonsterPalette.ALMANAC_BTN_BG()
@@ -106,8 +106,8 @@ static func build_bag_button(pressed_cb: Callable) -> Button:
 	var btn: Button = Button.new()
 	btn.text = ""
 	btn.tooltip_text = "Junk Box (I / B / Esc): Open your Junk Box inventory and drag modules to the board."
-	btn.custom_minimum_size = Vector2(36, 32)
-	btn.position = Vector2(240, 8)
+	btn.custom_minimum_size = Vector2(38, 36)
+	btn.position = Vector2(56, 9)
 	btn.process_mode = Node.PROCESS_MODE_ALWAYS
 	var btn_style: StyleBoxFlat = StyleBoxFlat.new()
 	btn_style.bg_color = MonsterPalette.BAG_BTN_BG()

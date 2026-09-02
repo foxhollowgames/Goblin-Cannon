@@ -73,11 +73,11 @@ func _create_timer_label() -> void:
 
 	var ui: Node = get_parent()
 	if ui:
-		var top_wall: Control = ui.get_node_or_null("LeftPanel/TopWallContainer") as Control
-		if top_wall:
-			top_wall.add_child(_timer_label)
-			_timer_label.position = Vector2(-75, 0)
-			_timer_label.size = Vector2(70, 24)
+		var left_panel: Control = ui.get_node_or_null("LeftPanel") as Control
+		if left_panel:
+			left_panel.add_child(_timer_label)
+			_timer_label.position = Vector2(288, 15)
+			_timer_label.size = Vector2(65, 24)
 			return
 	add_child(_timer_label)
 	_timer_label.position = Vector2(10, 4)

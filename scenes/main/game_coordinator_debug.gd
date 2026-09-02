@@ -49,7 +49,7 @@ func apply_test_scenario_overrides() -> void:
 func build_debug_tools_column() -> Control:
 	var debug_tools: Control = Control.new()
 	debug_tools.name = "DebugTools"
-	debug_tools.position = Vector2(282, 8)
+	debug_tools.position = Vector2(100, 9)
 	debug_tools.process_mode = Node.PROCESS_MODE_ALWAYS
 
 	# Create DebugMenuPanel

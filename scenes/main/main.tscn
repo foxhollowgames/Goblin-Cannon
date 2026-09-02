@@ -72,6 +72,24 @@ offset_bottom = 720.0
 mouse_filter = 2
 color = Color(0.133333, 0.14902, 0.25098, 1)
 
+[node name="TopHeaderLayer" type="CanvasLayer" parent="." unique_id=1561640444]
+layer = 10
+
+[node name="TopHeaderBarBg" type="ColorRect" parent="TopHeaderLayer" unique_id=596473155]
+layout_mode = 0
+offset_right = 960.0
+offset_bottom = 54.0
+mouse_filter = 2
+color = Color(0.12, 0.08, 0.06, 1)
+
+[node name="TopHeaderBarBorder" type="ColorRect" parent="TopHeaderLayer/TopHeaderBarBg" unique_id=596473154]
+layout_mode = 0
+offset_top = 52.0
+offset_right = 960.0
+offset_bottom = 54.0
+mouse_filter = 2
+color = Color(0.38, 0.24, 0.12, 1)
+
 [node name="UILayer" type="CanvasLayer" parent="." unique_id=1561640443]
 
 [node name="LeftPanel" type="Control" parent="UILayer" unique_id=1998517521]
@@ -81,74 +99,56 @@ offset_right = 960.0
 offset_bottom = 720.0
 mouse_filter = 2
 
-[node name="TopHeaderBarBg" type="ColorRect" parent="UILayer/LeftPanel" unique_id=596473155]
-layout_mode = 0
-offset_right = 960.0
-offset_bottom = 54.0
-mouse_filter = 2
-color = Color(0.1, 0.06, 0.04, 0.96)
-
-[node name="TopHeaderBarBorder" type="ColorRect" parent="UILayer/LeftPanel/TopHeaderBarBg" unique_id=596473154]
-layout_mode = 0
-offset_top = 52.0
-offset_right = 960.0
-offset_bottom = 54.0
-mouse_filter = 2
-color = Color(0.38, 0.22, 0.12, 1)
-
 [node name="TopWallContainer" type="Control" parent="UILayer/LeftPanel" unique_id=596473156]
-custom_minimum_size = Vector2(240, 50)
+custom_minimum_size = Vector2(280, 34)
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -120.0
-offset_top = 4.0
-offset_right = 120.0
-offset_bottom = 54.0
+offset_left = -110.0
+offset_top = 10.0
+offset_right = 170.0
+offset_bottom = 44.0
 
 [node name="WallHealthBar" type="ProgressBar" parent="UILayer/LeftPanel/TopWallContainer" unique_id=596473157]
 layout_mode = 1
-anchors_preset = 10
+anchors_preset = 15
 anchor_right = 1.0
-offset_bottom = 22.0
+anchor_bottom = 1.0
 grow_horizontal = 2
+grow_vertical = 2
 value = 100.0
 show_percentage = false
 
 [node name="ValueLabel" type="Label" parent="UILayer/LeftPanel/TopWallContainer" unique_id=596473158]
 layout_mode = 1
-anchors_preset = 5
+anchors_preset = 8
 anchor_left = 0.5
+anchor_top = 0.5
 anchor_right = 0.5
+anchor_bottom = 0.5
 offset_left = -40.0
-offset_top = 1.0
+offset_top = -10.0
 offset_right = 40.0
-offset_bottom = 21.0
+offset_bottom = 10.0
 grow_horizontal = 2
+grow_vertical = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 13
 text = "100/100"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="GoldContainer" type="HBoxContainer" parent="UILayer/LeftPanel/TopWallContainer" unique_id=1535948080]
+[node name="GoldContainer" type="HBoxContainer" parent="UILayer/LeftPanel" unique_id=1535948080]
 layout_mode = 1
-anchors_preset = 7
-anchor_left = 0.5
-anchor_top = 1.0
-anchor_right = 0.5
-anchor_bottom = 1.0
-offset_left = -60.0
-offset_top = -24.0
-offset_right = 60.0
-offset_bottom = -2.0
-grow_horizontal = 2
-grow_vertical = 0
-alignment = 1
+offset_left = 192.0
+offset_top = 15.0
+offset_right = 275.0
+offset_bottom = 39.0
+alignment = 0
 theme_override_constants/separation = 6
 
-[node name="GoldIcon" type="TextureRect" parent="UILayer/LeftPanel/TopWallContainer/GoldContainer" unique_id=1535948082]
+[node name="GoldIcon" type="TextureRect" parent="UILayer/LeftPanel/GoldContainer" unique_id=1535948082]
 custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
 size_flags_vertical = 4
@@ -156,8 +156,12 @@ texture = ExtResource("26_gold_icon")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="RunGold" type="Label" parent="UILayer/LeftPanel/TopWallContainer/GoldContainer" unique_id=1535948081]
+[node name="RunGold" type="Label" parent="UILayer/LeftPanel/GoldContainer" unique_id=1535948081]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.94, 0.58, 0.2, 1)
+theme_override_font_sizes/font_size = 15
+text = "0"
+horizontal_alignment = 0
 size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.94, 0.58, 0.2, 1)
 theme_override_font_sizes/font_size = 15

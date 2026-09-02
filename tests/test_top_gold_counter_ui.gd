@@ -8,21 +8,23 @@ func run() -> void:
 	test_gold_label_text_updates_without_prefix()
 
 func test_gold_counter_node_structure_under_wall_health_bar() -> void:
-	begin("Gold counter sits inside TopWallContainer underneath wall health bar with gold icon")
+	begin("Gold counter sits in top header bar stat zone with gold icon and number label")
 	var main_scene: PackedScene = load("res://scenes/main/main.tscn") as PackedScene
 	assert_true(main_scene != null, "main scene loaded")
 	var main: Node2D = main_scene.instantiate() as Node2D
 	assert_true(main != null, "main scene instantiated")
 
-	var top_wall: Control = main.get_node_or_null("UILayer/LeftPanel/TopWallContainer") as Control
+	var left_panel: Control = main.get_node_or_null("UILayer/LeftPanel") as Control
+	assert_true(left_panel != null, "LeftPanel exists")
+
+	var top_wall: Control = left_panel.get_node_or_null("TopWallContainer") as Control
 	assert_true(top_wall != null, "TopWallContainer exists")
-	assert_gte(top_wall.custom_minimum_size.y, 50.0, "TopWallContainer has padded minimum height")
 
 	var health_bar: ProgressBar = top_wall.get_node_or_null("WallHealthBar") as ProgressBar
 	assert_true(health_bar != null, "WallHealthBar exists inside TopWallContainer")
 
-	var gold_container: HBoxContainer = top_wall.get_node_or_null("GoldContainer") as HBoxContainer
-	assert_true(gold_container != null, "GoldContainer HBoxContainer exists inside TopWallContainer")
+	var gold_container: HBoxContainer = left_panel.get_node_or_null("GoldContainer") as HBoxContainer
+	assert_true(gold_container != null, "GoldContainer HBoxContainer exists inside LeftPanel top bar stat zone")
 
 	var gold_icon: TextureRect = gold_container.get_node_or_null("GoldIcon") as TextureRect
 	assert_true(gold_icon != null, "GoldIcon TextureRect exists inside GoldContainer")

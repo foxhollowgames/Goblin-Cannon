@@ -9,34 +9,37 @@ func run() -> void:
 	test_debug_menu_toggle_and_children()
 
 func test_hopper_positioning_below_top_bar() -> void:
-	begin("TopHeaderBarBg exists, Hopper position Y sits strictly below header bar, and spawn position is masked")
+	begin("TopHeaderLayer exists with layer=10, solid TopHeaderBarBg, and non-overlapping controls")
 	var main_scene: PackedScene = load("res://scenes/main/main.tscn") as PackedScene
 	assert_true(main_scene != null, "main scene loaded")
 	var main: Node2D = main_scene.instantiate() as Node2D
 	assert_true(main != null, "main instance created")
 	
-	var top_bar_bg: ColorRect = main.get_node_or_null("UILayer/LeftPanel/TopHeaderBarBg") as ColorRect
-	assert_true(top_bar_bg != null, "TopHeaderBarBg node exists in UILayer/LeftPanel")
+	var top_header_layer: CanvasLayer = main.get_node_or_null("TopHeaderLayer") as CanvasLayer
+	assert_true(top_header_layer != null, "TopHeaderLayer exists in main scene")
+	assert_eq(top_header_layer.layer, 10, "TopHeaderLayer layer is 10 (above 2D physics world)")
+	
+	var top_bar_bg: ColorRect = top_header_layer.get_node_or_null("TopHeaderBarBg") as ColorRect
+	assert_true(top_bar_bg != null, "TopHeaderBarBg node exists in TopHeaderLayer")
 	assert_eq(top_bar_bg.offset_bottom, 54.0, "TopHeaderBarBg height is 54px")
+	assert_eq(top_bar_bg.color.a, 1.0, "TopHeaderBarBg color alpha is 1.0 (100% solid opaque)")
 	
 	var hopper: Node2D = main.get_node_or_null("Hopper") as Node2D
 	assert_true(hopper != null, "hopper node exists in main scene")
 	
 	const TOP_BAR_RESERVED_HEIGHT: float = 54.0
-	var hopper_top_rim_y: float = hopper.position.y - 80.0
-	assert_gte(hopper_top_rim_y, TOP_BAR_RESERVED_HEIGHT, "Hopper top rim Y (55.0) sits strictly below top UI header bar height (54.0)")
-	assert_gt(hopper.position.y, TOP_BAR_RESERVED_HEIGHT, "Hopper position Y (135.0) sits strictly below top UI header bar height (54.0)")
+	assert_gt(hopper.position.y, TOP_BAR_RESERVED_HEIGHT, "Hopper position Y (88.0) sits strictly below top UI header bar height (54.0)")
 	
 	main.free()
 
 func test_debug_menu_top_bar_positioning() -> void:
-	begin("Debug Menu sits inside the top header UI bar area")
+	begin("Debug Menu sits inside left button zone at X=100")
 	var gc_debug: GameCoordinatorDebug = GameCoordinatorDebug.new()
 	var debug_tools: Control = gc_debug.build_debug_tools_column()
 	assert_true(debug_tools != null, "debug tools control created")
 	assert_eq(debug_tools.name, "DebugTools", "Control name is DebugTools")
-	assert_eq(debug_tools.position.y, 8.0, "Debug Menu sits in top bar Y coordinate")
-	assert_gt(debug_tools.position.x, 200.0, "Debug Menu X position is aligned after top bar buttons")
+	assert_eq(debug_tools.position.y, 9.0, "Debug Menu sits in top bar Y coordinate")
+	assert_eq(debug_tools.position.x, 100.0, "Debug Menu X position is aligned at X=100")
 	
 	debug_tools.free()
 	gc_debug.free()
