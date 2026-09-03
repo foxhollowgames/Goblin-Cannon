@@ -109,6 +109,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-098`](#lrn-098) | TASK-040 | `asset_resources` | Goblin Mood and Reset Hand Sprite Integration | 2026-09-03 |
 | [`LRN-099`](#lrn-099) | TASK-061 | `tooling` | Dashboard Kanban Drag and Drop Task Progression | 2026-09-03 |
 | [`LRN-100`](#lrn-100) | TASK-062 | `tooling` | Dashboard Parked Ideas Status and Kanban Column | 2026-09-03 |
+| [`LRN-101`](#lrn-101) | TASK-064 | `tooling` | Dashboard Task Card Category Chips and Clutter Reduction | 2026-09-03 |
 
 ---
 
@@ -1711,5 +1712,21 @@ Adding a dedicated PARKED column to the 5-column Kanban grid with a distinct pur
 
 #### Actionable Guideline for Future Agents
 When expanding Kanban workflow states, update VALID_STATUSES in the updater server, the HTML template grid, the filter dropdowns, and modal transition controls so all interaction paths stay aligned.
+
+---
+
+### <a id="lrn-101"></a> LRN-101: Dashboard Task Card Category Chips and Clutter Reduction
+- **Task:** `TASK-064`
+- **Category:** `tooling`
+- **Created:** `2026-09-03T11:13:20.033747`
+
+#### Context & Problem
+Removing truncated branch paths from small task cards and simplifying verbose categories into standardized color chips
+
+#### Key Insight & Learning
+Displaying truncated branch strings on compact cards creates visual clutter without providing utility; mapping raw subcategories into high-level colored discipline chips (UX, UI, Art, Design, Coding, Planning) improves card legibility and scannability while keeping full branch details in the modal.
+
+#### Actionable Guideline for Future Agents
+On compact Kanban cards, omit long technical metadata like branch names that get truncated; use clear color-coded discipline badges and provide detailed technical paths inside an inspection modal.
 
 ---
