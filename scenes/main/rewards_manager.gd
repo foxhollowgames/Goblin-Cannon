@@ -30,7 +30,7 @@ func _ready() -> void:
 	var main: Node = get_parent()
 	_reward_handler = main.get_node_or_null("RewardHandler")
 	_modal_layer = CanvasLayer.new()
-	_modal_layer.layer = 10
+	_modal_layer.layer = 20
 	_modal_layer.name = "ModalLayer"
 	var draft_scene: PackedScene = load("res://scenes/rewards/reward_draft_panel.tscn") as PackedScene
 	if draft_scene:

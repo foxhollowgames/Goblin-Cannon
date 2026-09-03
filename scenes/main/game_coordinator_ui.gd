@@ -216,7 +216,7 @@ static func create_inventory_ui(coordinator: Node, reward_handler: Node, board: 
 	if not main:
 		return {}
 	var overlay: CanvasLayer = CanvasLayer.new()
-	overlay.layer = 8
+	overlay.layer = 20
 	overlay.name = "InventoryOverlay"
 	overlay.process_mode = Node.PROCESS_MODE_ALWAYS
 	main.add_child(overlay)
