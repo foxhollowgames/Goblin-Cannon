@@ -99,6 +99,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-088`](#lrn-088) | TASK-049 | `godot_engine` | On-Board Relic Tooltip Simplification | 2026-09-02 |
 | [`LRN-089`](#lrn-089) | TASK-054 | `inventory_and_board_systems` | relic_junk_box_return | 2026-09-02 |
 | [`LRN-090`](#lrn-090) | TASK-055 | `machinery` | rotation | 2026-09-02 |
+| [`LRN-091`](#lrn-091) | TASK-TOOLING | `tooling` | Dashboard Task Chronological Sorting | 2026-09-02 |
 
 ---
 
@@ -1541,5 +1542,21 @@ Internal machinery components like GuideTrack, VerticalUpKicker, OutlaneKickback
 
 #### Actionable Guideline for Future Agents
 Always sync internal component direction properties when polyomino modules rotate, updating launch, eject, and offset vectors as well as ghost hover preview chevrons.
+
+---
+
+### <a id="lrn-091"></a> LRN-091: Dashboard Task Chronological Sorting
+- **Task:** `TASK-TOOLING`
+- **Category:** `tooling`
+- **Created:** `2026-09-02T18:45:13.077114`
+
+#### Context & Problem
+Users expect kanban boards and task matrix columns to display the most recently updated tasks at the top rather than requiring scrolling down past older completed tasks.
+
+#### Key Insight & Learning
+Tracking task file mtime with task index/number fallback allows automatic chronological ordering in both generated static HTML and interactive browser client views without manual reordering in master markdown tables.
+
+#### Actionable Guideline for Future Agents
+In visual task boards, default to descending sort by modification timestamp and task ID so newly created and updated tasks are immediately visible at the top of each column.
 
 ---
