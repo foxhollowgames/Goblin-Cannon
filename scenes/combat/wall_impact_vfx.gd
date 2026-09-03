@@ -6,8 +6,9 @@ const PARTICLE_COUNT: int = 24
 const BURST_RADIUS: float = 45.0
 const DURATION: float = 0.35
 const PARTICLE_SIZE: float = 12.0
+const IMPACT_VFX_PATH: String = "res://assets/VFX/Essentials VFX Spritesheets/Star_Explosion_V1_A_spritesheet.png"
 
-const IMPACT_VFX_TEXTURE: Texture2D = preload("res://assets/VFX/Essentials VFX Spritesheets/Star_Explosion_V1_A_spritesheet.png")
+static var IMPACT_VFX_TEXTURE: Texture2D = (load(IMPACT_VFX_PATH) as Texture2D) if ResourceLoader.exists(IMPACT_VFX_PATH) else null
 #endregion
 
 #region Variables

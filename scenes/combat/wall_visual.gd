@@ -11,8 +11,11 @@ const DEBRIS_COUNT: int = 28
 const DEBRIS_GRAVITY: float = 580.0
 const EXPLOSION_DURATION: float = 1.8
 
-const WALL_TILE_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Platformer Pack Medieval/PNG/medievalTile_015.png")
-const WALL_CAP_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Platformer Assets Tile Extensions/PNG Castle/castleHalfMid.png")
+const WALL_TILE_PATH: String = "res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Platformer Pack Medieval/PNG/medievalTile_015.png"
+const WALL_CAP_PATH: String = "res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Platformer Assets Tile Extensions/PNG Castle/castleHalfMid.png"
+
+static var WALL_TILE_TEXTURE: Texture2D = (load(WALL_TILE_PATH) as Texture2D) if ResourceLoader.exists(WALL_TILE_PATH) else null
+static var WALL_CAP_TEXTURE: Texture2D = (load(WALL_CAP_PATH) as Texture2D) if ResourceLoader.exists(WALL_CAP_PATH) else null
 #endregion
 
 #region Variables
@@ -130,5 +133,3 @@ func _draw() -> void:
 			draw_rect(cap, Color(0.3, 0.27, 0.24, 1))
 			draw_rect(cap, Color(0.4, 0.36, 0.32, 1), false, 1.0)
 #endregion
-
-

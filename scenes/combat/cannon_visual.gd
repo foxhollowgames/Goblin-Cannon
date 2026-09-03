@@ -14,8 +14,11 @@ const STATUS_MAX_STACKS: int = 5
 const STATUS_DECAY_TICKS: int = 120
 const STATUS_OVERLAY_SIZE: float = 50.0
 
-const CANNON_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Pirate Pack/PNG/Retina/Ship parts/cannonMobile.png")
-const FIRE_VFX_TEXTURE: Texture2D = preload("res://assets/VFX/Essentials VFX Spritesheets/Impact_Fire_Lv1_spritesheet.png")
+const CANNON_TEXTURE_PATH: String = "res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Pirate Pack/PNG/Retina/Ship parts/cannonMobile.png"
+const FIRE_VFX_PATH: String = "res://assets/VFX/Essentials VFX Spritesheets/Impact_Fire_Lv1_spritesheet.png"
+
+static var CANNON_TEXTURE: Texture2D = (load(CANNON_TEXTURE_PATH) as Texture2D) if ResourceLoader.exists(CANNON_TEXTURE_PATH) else null
+static var FIRE_VFX_TEXTURE: Texture2D = (load(FIRE_VFX_PATH) as Texture2D) if ResourceLoader.exists(FIRE_VFX_PATH) else null
 
 var current_energy: int = 0
 var max_energy: int = 10000
