@@ -100,6 +100,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-089`](#lrn-089) | TASK-054 | `inventory_and_board_systems` | relic_junk_box_return | 2026-09-02 |
 | [`LRN-090`](#lrn-090) | TASK-055 | `machinery` | rotation | 2026-09-02 |
 | [`LRN-091`](#lrn-091) | TASK-TOOLING | `tooling` | Dashboard Task Chronological Sorting | 2026-09-02 |
+| [`LRN-092`](#lrn-092) | TASK-056 | `tooling` | Interactive Task Details Modal and Branch Command Sanitization | 2026-09-02 |
 
 ---
 
@@ -1558,5 +1559,21 @@ Tracking task file mtime with task index/number fallback allows automatic chrono
 
 #### Actionable Guideline for Future Agents
 In visual task boards, default to descending sort by modification timestamp and task ID so newly created and updated tasks are immediately visible at the top of each column.
+
+---
+
+### <a id="lrn-092"></a> LRN-092: Interactive Task Details Modal and Branch Command Sanitization
+- **Task:** `TASK-056`
+- **Category:** `tooling`
+- **Created:** `2026-09-02T19:09:50.762025`
+
+#### Context & Problem
+When adding interactive task modals to the HTML visual task board that display packet details and allow copying checkout commands, raw markdown backticks around branch names break terminal shell execution in bash/zsh command substitution.
+
+#### Key Insight & Learning
+Always strip markdown formatting backticks from parsed branch names before generating clipboard shell commands and displaying branch labels, and provide graceful clipboard promise error handling for non-secure contexts.
+
+#### Actionable Guideline for Future Agents
+When parsing tabular metadata from markdown files for dashboard shell integrations, sanitize command strings by stripping backticks and wrapping clipboard write calls with error handlers.
 
 ---
