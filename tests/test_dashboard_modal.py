@@ -1,4 +1,4 @@
-﻿import os
+import os
 import re
 import json
 
@@ -47,6 +47,10 @@ def test_dashboard_modal():
     assert "Expandable Task Details Modal" in t56["title"], "TASK-056 title mismatch"
     assert t56["body"], "TASK-056 body is empty"
     assert "Acceptance Criteria" in t56["body"], "TASK-056 body missing Acceptance Criteria"
+    assert "`" not in t56["branch"], f"Branch should not contain backticks: {t56['branch']}"
+    assert t56["branch"] == "feature/dashboard-task-detail-modal", f"Unexpected branch: {t56['branch']}"
+    for t in tasks:
+        assert "`" not in t.get("branch", ""), f"Task {t['id']} branch has backticks: {t.get('branch')}"
 
     print(f"PASS: Dashboard modal verified successfully across {len(tasks)} tasks.")
     print(f"Line counts: generator={len(gen_lines)}, dashboard={len(lines)}")

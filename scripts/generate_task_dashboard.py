@@ -37,7 +37,7 @@ def parse_tasks(repo_root):
         category = m[3].strip()
         priority = m[4].strip()
         status = m[5].strip()
-        branch = m[6].strip()
+        branch = m[6].strip().strip('`')
 
         summary, body, file_name = "", "", ""
         mtime = os.path.getmtime(readme_path)
@@ -301,10 +301,13 @@ function navTaskModal(delta) {
 function copyBranch() {
   const t = ALL_TASKS.find(x => x.id === currentModalId);
   if (!t || !t.branch) return;
-  navigator.clipboard.writeText(`git checkout ${t.branch}`);
+  const clean = t.branch.replace(/`/g, '').trim();
   const b = document.getElementById('btn-copy-branch');
-  b.innerText = 'Copied!';
-  setTimeout(() => b.innerText = 'Copy', 1500);
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(`git checkout ${clean}`).then(() => {
+      b.innerText = 'Copied!'; setTimeout(() => b.innerText = 'Copy', 1500);
+    }).catch(() => { b.innerText = 'Copied!'; });
+  }
 }
 
 window.addEventListener('keydown', e => {
@@ -471,7 +474,7 @@ def main():
         f.write(html_content)
     print(f"Generated standalone task dashboard at {out_file}")
 
-    brain_root = r"C:\Users\josep\.gemini\antigravity\brain"
+    brain_root = os.path.expanduser("~/.gemini/antigravity/brain")
     if os.path.exists(brain_root):
         conv_id = os.environ.get("ANTIGRAVITY_CONVERSATION_ID", "")
         target_dirs = [os.path.join(brain_root, conv_id)] if conv_id and os.path.exists(os.path.join(brain_root, conv_id)) else []
