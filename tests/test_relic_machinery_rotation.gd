@@ -99,7 +99,8 @@ func test_mechanical_diverter_rotation() -> void:
 func test_polyomino_module_node_rebuild_rotations() -> void:
 	begin("PolyominoModuleNode setup_module instantiates components with rotated direction vectors")
 	var mod_data = PolyominoModuleData.new()
-	mod_data.cells = [Vector2i.ZERO]
+	var test_cells: Array[Vector2i] = [Vector2i.ZERO]
+	mod_data.cells = test_cells
 	mod_data.cell_types[Vector2i.ZERO] = PolyominoModuleData.CellType.GUIDE_TRACK
 	mod_data.cell_directions[Vector2i.ZERO] = Vector2i(0, -1) # UP
 	

@@ -84,7 +84,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-052](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-052-junk-box-dynamic-scroll-bar.md) | Junk Box Dynamic Scroll Bar Visibility | UI/Polish | P1 | DONE | `feature/junk-box-dynamic-scroll-bar` |
 | [TASK-053](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-053-relic-machinery-audit-and-widget-distribution.md) | Relic Machinery Audit and Widget Distribution | Systems/Gameplay/Balance | P1 | DONE | `feature/relic-widget-distribution` |
 | [TASK-054](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-054-relic-junk-box-return.md) | Relic Junk Box Return Inventory System | UI/Gameplay/Systems | P1 | BACKLOG | `feature/relic-junk-box-return` |
-| [TASK-055](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-055-relic-directional-machinery-rotation.md) | Relic Directional Machinery Rotation Compliance | Systems/Gameplay/Physics | P1 | BACKLOG | `feature/relic-directional-machinery-rotation` |
+| [TASK-055](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-055-relic-directional-machinery-rotation.md) | Relic Directional Machinery Rotation Compliance | Systems/Gameplay/Physics | P1 | DONE | `feature/relic-directional-machinery-rotation` |
 
 
 
