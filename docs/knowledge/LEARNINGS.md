@@ -101,6 +101,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-090`](#lrn-090) | TASK-055 | `machinery` | rotation | 2026-09-02 |
 | [`LRN-091`](#lrn-091) | TASK-TOOLING | `tooling` | Dashboard Task Chronological Sorting | 2026-09-02 |
 | [`LRN-092`](#lrn-092) | TASK-056 | `tooling` | Interactive Task Details Modal and Branch Command Sanitization | 2026-09-02 |
+| [`LRN-093`](#lrn-093) | TASK-046 | `godot_engine` | Stationary combat terrain with synchronized wall advance tweens | 2026-09-02 |
 
 ---
 
@@ -1575,5 +1576,21 @@ Always strip markdown formatting backticks from parsed branch names before gener
 
 #### Actionable Guideline for Future Agents
 When parsing tabular metadata from markdown files for dashboard shell integrations, sanitize command strings by stripping backticks and wrapping clipboard write calls with error handlers.
+
+---
+
+### <a id="lrn-093"></a> LRN-093: Stationary combat terrain with synchronized wall advance tweens
+- **Task:** `TASK-046`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-02T19:19:01.542528`
+
+#### Context & Problem
+Implementing scrolling terrain and cannon breach movement for the right-panel BattlefieldView where combat must remain stationary, and animating Node tweens in headless unit tests
+
+#### Key Insight & Learning
+1) In Godot 4, Tween objects created on nodes outside the SceneTree automatically pause; nodes must be attached to the SceneTree root for custom_step() to step tweens synchronously in unit tests. 2) Custom properties tweened on stationary CanvasItems do not trigger _draw() unless queue_redraw() is conditionally polled in _process() while the tween is running. 3) Cannon positioning in BattlefieldView must support both reparented CanvasLayers and local node hierarchies for standalone/test support.
+
+#### Actionable Guideline for Future Agents
+When unit testing Tweens synchronously in headless test scripts, attach the test node to the active scene tree root (e.g. Engine.get_main_loop().root.add_child) and use autofree. When animating custom Node2D drawing properties via Tween, monitor tween.is_running() in _process to dispatch queue_redraw() even when overall movement speed is zero.
 
 ---
