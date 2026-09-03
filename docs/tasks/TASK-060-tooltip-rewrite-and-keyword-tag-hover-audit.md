@@ -1,6 +1,6 @@
-﻿# TASK-060: In-Game Tooltip Rewrite and Keyword Tag Hover Audit
+# TASK-060: In-Game Tooltip Rewrite and Keyword Tag Hover Audit
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Polish / Design
 - **Target Branch:** `feature/tooltip-rewrite-and-keyword-tag-hover-audit`
@@ -47,9 +47,9 @@ Tooltip copy and tag markup have drifted across recent game features:
 
 ## Acceptance Criteria
 
-- [ ] All gameplay tags (including `Energize`) display hover highlights and open keyword flyouts.
-- [ ] All tooltip, relic, and shop descriptions are rewritten to match established writing style rules.
-- [ ] No keyword definition exceeds 80 characters.
-- [ ] No shop or peg description exceeds 100 characters.
-- [ ] Tooltip strings fit cleanly in UI cards without exceeding 2 lines or clipping.
-- [ ] Headless unit tests pass cleanly without errors.
+- [x] All gameplay tags (including `Energize`) display hover highlights and open keyword flyouts.
+- [x] All tooltip, relic, and shop descriptions are rewritten to match established writing style rules.
+- [x] No keyword definition exceeds 80 characters.
+- [x] No shop or peg description exceeds 100 characters.
+- [x] Tooltip strings fit cleanly in UI cards without exceeding 2 lines or clipping.
+- [x] Headless unit tests pass cleanly without errors.

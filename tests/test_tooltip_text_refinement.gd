@@ -8,6 +8,8 @@ func run() -> void:
 	test_trampoline_shop_description_text()
 	test_keyword_definitions_concise_and_non_empty()
 	test_milestone_shop_peg_descriptions_concise_and_non_empty()
+	test_all_ball_abilities_have_keyword_glossary_entry()
+	test_format_bbcode_detects_energize_and_explosive()
 
 func test_trampoline_peg_tooltip_text() -> void:
 	begin("KeywordDatabase.KEYWORDS['Trampoline Peg'] simplified to direct action text")
@@ -35,3 +37,23 @@ func test_milestone_shop_peg_descriptions_concise_and_non_empty() -> void:
 		var desc: String = str(data.get("desc", ""))
 		assert_false(desc.strip_edges().is_empty(), "shop desc for '%s' is not empty" % kind)
 		assert_lte(desc.length(), 100, "shop desc for '%s' is concise (<= 100 chars)" % kind)
+
+func test_all_ball_abilities_have_keyword_glossary_entry() -> void:
+	begin("All RewardCardCatalog ball candidate abilities have non-empty glossary definitions")
+	var candidates: Array = RewardCardCatalog.build_ball_candidates()
+	assert_gt(candidates.size(), 0, "ball candidates exist")
+	for cand in candidates:
+		var def: BallDefinition = cand as BallDefinition
+		if def and not def.ability_name.is_empty():
+			var ability: String = def.ability_name
+			var def_text: String = KeywordDatabase.get_definition(ability)
+			assert_false(def_text.strip_edges().is_empty(), "glossary entry exists for ball ability '%s'" % ability)
+			assert_lte(def_text.length(), 80, "glossary entry for '%s' is <= 80 chars" % ability)
+
+func test_format_bbcode_detects_energize_and_explosive() -> void:
+	begin("format_bbcode correctly formats and highlights Energize and Explosive")
+	var input_text: String = "Energize the peg with Explosive blast."
+	var formatted: String = KeywordDatabase.format_bbcode(input_text)
+	assert_true(formatted.contains("[url=Energize]"), "contains [url=Energize]")
+	assert_true(formatted.contains("[url=Explosive]"), "contains [url=Explosive]")
+	assert_true(formatted.contains("[url=Blast]"), "contains [url=Blast]")

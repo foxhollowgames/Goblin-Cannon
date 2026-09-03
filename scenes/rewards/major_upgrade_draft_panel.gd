@@ -224,8 +224,11 @@ func _make_card(pick: Resource, index: int) -> Control:
 			goal_label.custom_minimum_size = Vector2(180, 0)
 			goal_label.add_theme_font_size_override("normal_font_size", 12)
 			goal_label.add_theme_font_size_override("bold_font_size", 12)
-			var goal_text: String = "[center][color=#ffcc44][b]★ %s[/b][/color]\n[color=#cfcfcf]%s[/color]\n[color=#44ffaa]%s[/color][/center]" % [g_title, g_desc, r_desc]
+			var f_desc: String = KeywordDatabase.format_bbcode(g_desc)
+			var f_reward: String = KeywordDatabase.format_bbcode(r_desc)
+			var goal_text: String = "[center][color=#ffcc44][b]★ %s[/b][/color]\n[color=#cfcfcf]%s[/color]\n[color=#44ffaa]%s[/color][/center]" % [g_title, f_desc, f_reward]
 			goal_label.text = goal_text
+			KeywordDatabase.attach_rich_text_label(goal_label)
 			card_vbox.add_child(goal_label)
 	else:
 		var fallback_spacer: Control = Control.new()
