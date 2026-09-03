@@ -1,4 +1,4 @@
-﻿extends "res://tests/test_base.gd"
+extends "res://tests/test_base.gd"
 
 const CircularCannonWidgetScript = preload("res://scenes/ui/circular_cannon_widget.gd")
 const ScrollingTerrainScript = preload("res://scenes/combat/scrolling_terrain.gd")
@@ -74,12 +74,15 @@ func test_battlefield_view_sync_with_widget() -> void:
 	root.add_child(widget)
 	autofree(widget)
 
+	bf_view.terrain_advance_started.connect(widget.start_advancing)
+	bf_view.terrain_advance_stopped.connect(widget.stop_advancing)
+
 	bf_view.play_wall_destroyed_transition()
 	var terrain: Node2D = widget.get_scrolling_terrain()
-	assert_true(terrain.get("is_advancing"), "BattlefieldView forwards wall break advance to CircularCannonWidget")
+	assert_true(terrain.get("is_advancing"), "BattlefieldView terrain_advance_started triggers widget start_advancing")
 
 	bf_view.play_next_wall_intro()
-	assert_not_null_val(terrain.get("_speed_tween"), "BattlefieldView forwards next wall intro stop to CircularCannonWidget")
+	assert_not_null_val(terrain.get("_speed_tween"), "BattlefieldView terrain_advance_stopped triggers widget stop_advancing")
 
 func assert_not_null_val(val: Variant, msg: String) -> void:
 	if val != null:

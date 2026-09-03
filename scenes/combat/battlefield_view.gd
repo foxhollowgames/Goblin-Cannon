@@ -5,6 +5,8 @@ extends Node2D
 #region Signals
 signal wall_break_transition_finished
 signal next_wall_intro_finished
+signal terrain_advance_started(duration: float, max_speed: float)
+signal terrain_advance_stopped(duration: float)
 #endregion
 
 #region Constants
@@ -82,9 +84,7 @@ func play_wall_destroyed_transition() -> void:
 		_wall_visual.play_explosion()
 	if _terrain and _terrain.has_method("start_advancing"):
 		_terrain.start_advancing(CANNON_ROLL_FORWARD_DURATION, TERRAIN_ADVANCE_SPEED)
-	var widget: Node = _find_circular_cannon_widget()
-	if widget and widget.has_method("start_advancing"):
-		widget.start_advancing(CANNON_ROLL_FORWARD_DURATION, TERRAIN_ADVANCE_SPEED)
+	terrain_advance_started.emit(CANNON_ROLL_FORWARD_DURATION, TERRAIN_ADVANCE_SPEED)
 	if _roll_tween and _roll_tween.is_valid():
 		_roll_tween.kill()
 	_roll_tween = create_tween()
@@ -100,9 +100,7 @@ func play_next_wall_intro() -> void:
 		_wall_visual.play_rebuild()
 	if _terrain and _terrain.has_method("stop_advancing"):
 		_terrain.stop_advancing(CANNON_ROLL_BACK_DURATION)
-	var widget: Node = _find_circular_cannon_widget()
-	if widget and widget.has_method("stop_advancing"):
-		widget.stop_advancing(CANNON_ROLL_BACK_DURATION)
+	terrain_advance_stopped.emit(CANNON_ROLL_BACK_DURATION)
 	if _roll_tween and _roll_tween.is_valid():
 		_roll_tween.kill()
 	_roll_tween = create_tween()
@@ -173,15 +171,4 @@ func _spawn_wall_impact(impact_pos: Vector2) -> void:
 		if impact and impact.has_method("setup"):
 			impact.setup(impact_pos)
 			_vfx_container.add_child(impact)
-
-func _find_circular_cannon_widget() -> Node:
-	var tree: SceneTree = get_tree()
-	if tree:
-		if tree.current_scene:
-			var w: Node = tree.current_scene.find_child("CircularCannonWidget", true, false)
-			if w:
-				return w
-		if tree.root:
-			return tree.root.find_child("CircularCannonWidget", true, false)
-	return null
 #endregion
