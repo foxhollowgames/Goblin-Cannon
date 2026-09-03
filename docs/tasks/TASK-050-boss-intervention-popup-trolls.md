@@ -2,7 +2,7 @@
 
 - **Status:** PARKED
 - **Priority:** P1
-- **Category:** Systems / Gameplay
+- **Category:** Design
 - **Target Branch:** `feature/boss-intervention-popup-trolls`
 - **Related Tasks:** [TASK-021](TASK-021-wall-siege-timer-and-pushback.md), [TASK-036](TASK-036-pinball-kinetic-machinery-and-lane-switches.md), [TASK-051](TASK-051-componentized-pinball-machinery-roster.md)
 

@@ -1,6 +1,6 @@
 # TASK-023: Emergency Tinkering and Machine Breakdown Minigames Design
 
-- **Status:** BACKLOG
+- **Status:** PARKED
 - **Priority:** P2
 - **Category:** Design / Systems
 - **Parent Task:** [TASK-001](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-001-gameplay-loop-and-pacing.md)
