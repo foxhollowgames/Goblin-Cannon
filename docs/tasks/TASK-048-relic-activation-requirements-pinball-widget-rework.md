@@ -1,6 +1,6 @@
 # TASK-048: Relic Activation Requirements Pinball Widget Rework
 
-- **Status:** BACKLOG
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay
 - **Target Branch:** `feature/relic-pinball-activation-rework`
@@ -34,7 +34,7 @@ Display explicit activation requirements on inventory tooltips and cards to prov
 
 ## Acceptance Criteria
 
-- [ ] Relic activation conditions directly connect to kinetic hits on internal pinball widgets.
-- [ ] Activation requirements and counters are clearly exposed in UI tooltips and relic data.
-- [ ] Relic active abilities trigger correctly upon meeting hit thresholds.
-- [ ] Unit tests pass cleanly in headless mode.
+- [x] Relic activation conditions directly connect to kinetic hits on internal pinball widgets.
+- [x] Activation requirements and counters are clearly exposed in UI tooltips and relic data.
+- [x] Relic active abilities trigger correctly upon meeting hit thresholds.
+- [x] Unit tests pass cleanly in headless mode.

@@ -48,6 +48,8 @@ var _accent_color: Color = Color(0.6, 0.6, 0.6)
 
 # Pinball goal runtime tracking state
 var _hit_cells: Dictionary = {} # Vector2i -> bool (for Target Bank)
+var _widget_hit_counts: Dictionary = {} # int (CellType) -> int (hit count)
+var _current_hit_counter: int = 0
 var _sequence_index: int = 0 # for Sequential Route
 var _orbit_count: int = 0 # for Orbit Flow
 var _jackpot_pool: int = 0 # for Jackpot Accumulator
@@ -78,6 +80,8 @@ func setup_module(p_item: Resource, p_grid_pos: Vector2i, p_rotation: int = 0) -
 
 func reset_goal_state() -> void:
 	_hit_cells.clear()
+	_widget_hit_counts.clear()
+	_current_hit_counter = 0
 	_sequence_index = 0
 	_orbit_count = 0
 	_jackpot_pool = 0
@@ -128,55 +132,37 @@ func _rebuild_components() -> void:
 
 func _create_component_for_type(c_type: int) -> PolyominoMachineryComponent:
 	match c_type:
-		PolyominoModuleData.CellType.EMPTY:
-			return null
-		PolyominoModuleData.CellType.BUMPER:
-			return PinballBumperScript.new()
-		PolyominoModuleData.CellType.ACCELERATOR, PolyominoModuleData.CellType.ROTARY_BOOSTER:
-			return SpeedBoostWheelScript.new()
-		PolyominoModuleData.CellType.MANA_SIPHON:
-			return ManaSiphonScript.new()
-		PolyominoModuleData.CellType.DIRECTIONAL_DEFLECTOR, PolyominoModuleData.CellType.FUNNEL, PolyominoModuleData.CellType.GUIDE_RAIL:
-			return DirectionalDeflectorScript.new()
-		PolyominoModuleData.CellType.ROLLOVER_SWITCH:
-			return RolloverSwitchScript.new()
-		PolyominoModuleData.CellType.POP_BUMPER:
-			return PopBumperScript.new()
-		PolyominoModuleData.CellType.DROP_TARGET:
-			return DropTargetScript.new()
-		PolyominoModuleData.CellType.WIRE_GATE:
-			return WireGateScript.new()
-		PolyominoModuleData.CellType.SLINGSHOT:
-			return SlingshotKickerScript.new()
-		PolyominoModuleData.CellType.STANDUP_TARGET:
-			return StandupTargetScript.new()
-		PolyominoModuleData.CellType.SPINNER:
-			return SpinnerScript.new()
-		PolyominoModuleData.CellType.SCOOP_SINKHOLE:
-			return ScoopSinkholeScript.new()
-		PolyominoModuleData.CellType.BALL_LOCK:
-			return BallLockScript.new()
-		PolyominoModuleData.CellType.GUIDE_TRACK:
-			return GuideTrackScript.new()
-		PolyominoModuleData.CellType.ORBIT_LOOP:
-			return OrbitLoopScript.new()
-		PolyominoModuleData.CellType.CAPTIVE_BALL:
-			return CaptiveBallScript.new()
-		PolyominoModuleData.CellType.MECHANICAL_DIVERTER:
-			return MechanicalDiverterScript.new()
-		PolyominoModuleData.CellType.VERTICAL_UP_KICKER:
-			return VerticalUpKickerScript.new()
-		PolyominoModuleData.CellType.BASH_TOY:
-			return BashToyScript.new()
-		PolyominoModuleData.CellType.OUTLANE_KICKBACK:
-			return OutlaneKickbackScript.new()
-		_:
-			return PinballBumperScript.new()
+		PolyominoModuleData.CellType.EMPTY: return null
+		PolyominoModuleData.CellType.BUMPER: return PinballBumperScript.new()
+		PolyominoModuleData.CellType.ACCELERATOR, PolyominoModuleData.CellType.ROTARY_BOOSTER: return SpeedBoostWheelScript.new()
+		PolyominoModuleData.CellType.MANA_SIPHON: return ManaSiphonScript.new()
+		PolyominoModuleData.CellType.DIRECTIONAL_DEFLECTOR, PolyominoModuleData.CellType.FUNNEL, PolyominoModuleData.CellType.GUIDE_RAIL: return DirectionalDeflectorScript.new()
+		PolyominoModuleData.CellType.ROLLOVER_SWITCH: return RolloverSwitchScript.new()
+		PolyominoModuleData.CellType.POP_BUMPER: return PopBumperScript.new()
+		PolyominoModuleData.CellType.DROP_TARGET: return DropTargetScript.new()
+		PolyominoModuleData.CellType.WIRE_GATE: return WireGateScript.new()
+		PolyominoModuleData.CellType.SLINGSHOT: return SlingshotKickerScript.new()
+		PolyominoModuleData.CellType.STANDUP_TARGET: return StandupTargetScript.new()
+		PolyominoModuleData.CellType.SPINNER: return SpinnerScript.new()
+		PolyominoModuleData.CellType.SCOOP_SINKHOLE: return ScoopSinkholeScript.new()
+		PolyominoModuleData.CellType.BALL_LOCK: return BallLockScript.new()
+		PolyominoModuleData.CellType.GUIDE_TRACK: return GuideTrackScript.new()
+		PolyominoModuleData.CellType.ORBIT_LOOP: return OrbitLoopScript.new()
+		PolyominoModuleData.CellType.CAPTIVE_BALL: return CaptiveBallScript.new()
+		PolyominoModuleData.CellType.MECHANICAL_DIVERTER: return MechanicalDiverterScript.new()
+		PolyominoModuleData.CellType.VERTICAL_UP_KICKER: return VerticalUpKickerScript.new()
+		PolyominoModuleData.CellType.BASH_TOY: return BashToyScript.new()
+		PolyominoModuleData.CellType.OUTLANE_KICKBACK: return OutlaneKickbackScript.new()
+		_: return PinballBumperScript.new()
 
 func _on_component_activated(comp: PolyominoMachineryComponent, ball: Node, energy: int, impulse: Vector2) -> void:
 	machinery_triggered.emit(comp, ball, energy, impulse)
-	if comp and comp.cell_type == PolyominoModuleData.CellType.ROLLOVER_SWITCH:
-		_check_rollover_bank_completion(comp)
+	if comp:
+		var c_type: int = comp.cell_type
+		_widget_hit_counts[c_type] = _widget_hit_counts.get(c_type, 0) + 1
+		_current_hit_counter += 1
+		if c_type == PolyominoModuleData.CellType.ROLLOVER_SWITCH:
+			_check_rollover_bank_completion(comp)
 	_evaluate_goal_progress(comp, ball, energy)
 
 func _check_rollover_bank_completion(sw: Node) -> void:
@@ -186,14 +172,11 @@ func _check_rollover_bank_completion(sw: Node) -> void:
 	var all_lit: bool = true
 	var count: int = 0
 	for comp in _components:
-		if comp and comp.cell_type == PolyominoModuleData.CellType.ROLLOVER_SWITCH:
-			var comp_b_id: StringName = comp.get("bank_id") if "bank_id" in comp else &"bank_1"
-			if comp_b_id == b_id:
-				count += 1
-				var is_sw_lit: bool = comp.get("is_lit") if "is_lit" in comp else false
-				if not is_sw_lit:
-					all_lit = false
-					break
+		if comp and comp.cell_type == PolyominoModuleData.CellType.ROLLOVER_SWITCH and comp.get("bank_id") == b_id:
+			count += 1
+			if not comp.get("is_lit"):
+				all_lit = false
+				break
 	if count > 0 and all_lit:
 		bank_completed.emit(b_id, RewardType.ENERGY_SURGE, 15)
 
@@ -201,6 +184,19 @@ func _check_rollover_bank_completion(sw: Node) -> void:
 func _evaluate_goal_progress(comp: PolyominoMachineryComponent, ball: Node, energy: int) -> void:
 	if module_data == null or is_ghost:
 		return
+	if module_data.required_widget_type != PolyominoModuleData.CellType.EMPTY and module_data.activation_threshold > 0:
+		var hits: int = _widget_hit_counts.get(module_data.required_widget_type, 0)
+		if hits >= module_data.activation_threshold:
+			_widget_hit_counts[module_data.required_widget_type] = 0
+			_current_hit_counter = 0
+			_trigger_goal_completion(ball)
+			return
+	elif module_data.activation_threshold > 0 and module_data.goal_type == GoalArchetype.NONE:
+		if _current_hit_counter >= module_data.activation_threshold:
+			_current_hit_counter = 0
+			_trigger_goal_completion(ball)
+			return
+
 	var g_type: int = module_data.goal_type
 	if g_type == GoalArchetype.NONE:
 		return
@@ -296,12 +292,9 @@ func set_ghost_state(p_ghost: bool) -> void:
 func is_ghost_state_active() -> bool:
 	return is_ghost
 
-## Checks and triggers interaction if a ball contacts any machinery component in this module.
 ## Checks and triggers interaction if a ball contacts any machinery component or wall enclosure in this module.
 func check_ball_collision(ball: Node, sim_tick: int) -> Dictionary:
-	if is_ghost:
-		return { "activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO }
-	if not is_instance_valid(ball):
+	if is_ghost or not is_instance_valid(ball):
 		return { "activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO }
 
 	var ball_pos: Vector2 = (ball.global_position if ball.is_inside_tree() else ball.position) if "position" in ball else Vector2.ZERO
@@ -332,30 +325,21 @@ func _check_wall_segment_collision(ball: Node) -> Dictionary:
 	var module_base_pos: Vector2 = global_position if is_inside_tree() else position
 
 	for seg in segments:
-		var p1_local: Vector2 = seg["p1"]
-		var p2_local: Vector2 = seg["p2"]
-		var w1: Vector2 = module_base_pos + Vector2(p1_local.x * CELL_WIDTH, p1_local.y * CELL_HEIGHT)
-		var w2: Vector2 = module_base_pos + Vector2(p2_local.x * CELL_WIDTH, p2_local.y * CELL_HEIGHT)
-		var norm: Vector2 = seg["normal"]
-
+		var p1_l: Vector2 = seg["p1"]
+		var p2_l: Vector2 = seg["p2"]
+		var w1: Vector2 = module_base_pos + Vector2(p1_l.x * CELL_WIDTH, p1_l.y * CELL_HEIGHT)
+		var w2: Vector2 = module_base_pos + Vector2(p2_l.x * CELL_WIDTH, p2_l.y * CELL_HEIGHT)
 		var closest: Vector2 = Geometry2D.get_closest_point_to_segment(ball_pos, w1, w2)
-		var dist: float = ball_pos.distance_to(closest)
-		if dist <= ball_radius + 2.0:
+		if ball_pos.distance_to(closest) <= ball_radius + 2.0:
 			var hit_normal: Vector2 = (ball_pos - closest).normalized()
 			if hit_normal.length_squared() < 0.01:
-				hit_normal = norm
+				hit_normal = seg["normal"]
 			var eff_vel: Vector2 = ball_vel if ball_vel.length_squared() > 0.01 else -hit_normal * 100.0
-			var bounce_dot: float = eff_vel.dot(hit_normal)
-			if bounce_dot <= 0.0:
+			if eff_vel.dot(hit_normal) <= 0.0:
 				var reflected: Vector2 = eff_vel.bounce(hit_normal) * 0.85
 				if "linear_velocity" in ball:
 					ball.linear_velocity = reflected
-				return {
-					"activated": true,
-					"energy_granted": 0,
-					"impulse_applied": reflected - eff_vel,
-					"wall_hit": true
-				}
+				return { "activated": true, "energy_granted": 0, "impulse_applied": reflected - eff_vel, "wall_hit": true }
 	return { "activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO }
 
 ## Returns true if all active balls are completely outside this module's collision footprint.
@@ -363,14 +347,11 @@ func is_area_clear_of_balls(active_balls: Array, ball_radius: float = Constants.
 	var base_pos: Vector2 = global_position if is_inside_tree() else position
 	for c in _anchored_cells:
 		var center: Vector2 = base_pos + Vector2(float(c.x) * CELL_WIDTH, float(c.y) * CELL_HEIGHT)
-		var cell_rect: Rect2 = Rect2(center.x - CELL_WIDTH * 0.5, center.y - CELL_HEIGHT * 0.5, CELL_WIDTH, CELL_HEIGHT)
-		var check_rect: Rect2 = cell_rect.grow(ball_radius + 2.0)
+		var check_rect: Rect2 = Rect2(center.x - CELL_WIDTH * 0.5, center.y - CELL_HEIGHT * 0.5, CELL_WIDTH, CELL_HEIGHT).grow(ball_radius + 2.0)
 		for ball in active_balls:
-			if not is_instance_valid(ball):
-				continue
+			if not is_instance_valid(ball): continue
 			var b_pos: Vector2 = ball.global_position if (ball.is_inside_tree() and "global_position" in ball) else (ball.position if "position" in ball else Vector2.ZERO)
-			if check_rect.has_point(b_pos):
-				return false
+			if check_rect.has_point(b_pos): return false
 	return true
 
 func get_all_components() -> Array[PolyominoMachineryComponent]:
@@ -378,6 +359,40 @@ func get_all_components() -> Array[PolyominoMachineryComponent]:
 
 func get_component_at_local_cell(cell: Vector2i) -> PolyominoMachineryComponent:
 	return _components_by_cell.get(cell, null)
+
+func get_widget_hit_count(w_type: int) -> int:
+	return _widget_hit_counts.get(w_type, 0)
+
+func get_current_hit_count() -> int:
+	if module_data and module_data.required_widget_type != PolyominoModuleData.CellType.EMPTY:
+		return _widget_hit_counts.get(module_data.required_widget_type, 0)
+	if module_data and module_data.goal_type == GoalArchetype.TARGET_BANK:
+		return _hit_cells.size()
+	if module_data and module_data.goal_type == GoalArchetype.ORBIT_FLOW:
+		return _orbit_count
+	return _current_hit_counter
+
+func get_activation_threshold() -> int:
+	if module_data == null:
+		return 0
+	if module_data.activation_threshold > 0:
+		return module_data.activation_threshold
+	if module_data.goal_type == GoalArchetype.TARGET_BANK:
+		return _components.size()
+	if module_data.goal_type == GoalArchetype.ORBIT_FLOW:
+		return maxi(2, module_data.goal_target_count)
+	return module_data.goal_target_count
+
+func get_charge_progress() -> float:
+	var th: int = get_activation_threshold()
+	return 0.0 if th <= 0 else clampf(float(get_current_hit_count()) / float(th), 0.0, 1.0)
+
+func get_progress_string() -> String:
+	var th: int = get_activation_threshold()
+	return "" if th <= 0 else "%d / %d" % [get_current_hit_count(), th]
+
+func get_activation_requirement_text() -> String:
+	return "" if module_data == null else module_data.get_activation_requirement()
 
 func _ready() -> void:
 	set_process(true)
@@ -442,30 +457,15 @@ func _draw() -> void:
 			else:
 				draw_line(p1_px, p2_px, wall_ink_col, 4.0)
 				draw_line(p1_px, p2_px, wall_highlight_col, 2.0)
-	else:
-		# Fallback outer outline rendering
-		for c in _anchored_cells:
-			var center := Vector2(float(c.x) * CELL_WIDTH, float(c.y) * CELL_HEIGHT)
-			var top_l := Vector2(center.x - half_w, center.y - half_h)
-			var top_r := Vector2(center.x + half_w, center.y - half_h)
-			var bot_l := Vector2(center.x - half_w, center.y + half_h)
-			var bot_r := Vector2(center.x + half_w, center.y + half_h)
-
-			if not _anchored_cells.has(Vector2i(c.x, c.y - 1)):
-				draw_line(top_l, top_r, wall_ink_col, 3.5)
-				draw_line(top_l, top_r, wall_highlight_col, 1.5)
-			if not _anchored_cells.has(Vector2i(c.x, c.y + 1)):
-				draw_line(bot_l, bot_r, wall_ink_col, 3.5)
-				draw_line(bot_l, bot_r, wall_highlight_col, 1.5)
-			if not _anchored_cells.has(Vector2i(c.x - 1, c.y)):
-				draw_line(top_l, bot_l, wall_ink_col, 3.5)
-				draw_line(top_l, bot_l, wall_highlight_col, 1.5)
-			if not _anchored_cells.has(Vector2i(c.x + 1, c.y)):
-				draw_line(top_r, bot_r, wall_ink_col, 3.5)
-				draw_line(top_r, bot_r, wall_highlight_col, 1.5)
-
-	# 3. Draw goal status markers on components
+	# 3. Draw live charge indicators and goal status markers on components
 	if module_data != null and not is_ghost:
+		var th: int = get_activation_threshold()
+		if th > 0:
+			var ratio: float = get_charge_progress()
+			for comp_item in _components:
+				if module_data.required_widget_type == PolyominoModuleData.CellType.EMPTY or comp_item.cell_type == module_data.required_widget_type:
+					draw_arc(comp_item.position, comp_item.component_radius + 4.0, -PI * 0.5, -PI * 0.5 + TAU * ratio, 24, Color(0.2, 0.9, 0.5, 0.9), 2.5)
+
 		match module_data.goal_type:
 			GoalArchetype.TARGET_BANK:
 				for c in _components:

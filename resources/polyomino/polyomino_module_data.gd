@@ -88,6 +88,14 @@ enum RewardType {
 @export var goal_title: String = ""
 @export var goal_description: String = ""
 @export var reward_description: String = ""
+@export var activation_requirement: String = ""
+@export var required_widget_type: int = CellType.EMPTY
+@export var activation_threshold: int = 0
+
+func get_activation_requirement() -> String:
+	if not activation_requirement.is_empty():
+		return activation_requirement
+	return goal_description
 
 func get_cell_count() -> int:
 	return cells.size()
@@ -381,6 +389,9 @@ func serialize() -> Dictionary:
 		"goal_title": goal_title,
 		"goal_description": goal_description,
 		"reward_description": reward_description,
+		"activation_requirement": activation_requirement,
+		"required_widget_type": required_widget_type,
+		"activation_threshold": activation_threshold,
 	}
 
 func deserialize(dict: Dictionary) -> void:
@@ -399,6 +410,9 @@ func deserialize(dict: Dictionary) -> void:
 	goal_title = str(dict.get("goal_title", ""))
 	goal_description = str(dict.get("goal_description", ""))
 	reward_description = str(dict.get("reward_description", ""))
+	activation_requirement = str(dict.get("activation_requirement", ""))
+	required_widget_type = int(dict.get("required_widget_type", CellType.EMPTY))
+	activation_threshold = int(dict.get("activation_threshold", 0))
 
 	custom_wall_edges.clear()
 	var raw_walls = dict.get("custom_wall_edges", {})

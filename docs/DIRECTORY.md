@@ -93,6 +93,7 @@
 | `test_relic_enclosures.gd` | `Relic Enclosures` | [tests/test_relic_enclosures.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_enclosures.gd) |
 | `test_relic_junk_box_return.gd` | `RelicJunkBoxReturn` | [tests/test_relic_junk_box_return.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_junk_box_return.gd) |
 | `test_relic_machinery_rotation.gd` | `RelicMachineryRotation` | [tests/test_relic_machinery_rotation.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_machinery_rotation.gd) |
+| `test_relic_pinball_activation.gd` | `RelicPinballActivation` | [tests/test_relic_pinball_activation.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_pinball_activation.gd) |
 | `test_relic_pinball_goals.gd` | `RelicPinballGoals` | [tests/test_relic_pinball_goals.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_pinball_goals.gd) |
 | `test_relic_selection_preview.gd` | `RelicSelectionPreview` | [tests/test_relic_selection_preview.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_selection_preview.gd) |
 | `test_relic_widget_distribution.gd` | `RelicWidgetDistribution` | [tests/test_relic_widget_distribution.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_widget_distribution.gd) |
