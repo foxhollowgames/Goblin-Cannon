@@ -10,28 +10,66 @@ signal cell_clicked(cell_pos: Vector2i)
 signal item_clicked(item: JunkBoxItem)
 signal item_hovered(item: JunkBoxItem)
 signal item_unhovered()
+signal grid_size_changed()
 
-const CELL_SIZE: int = 48
+const CELL_SIZE: int = 46
+const CELL_WIDTH: int = 46
+const CELL_HEIGHT: int = 46
 const CELL_PAD: int = 2
 
 var hovered_cell: Vector2i = Vector2i(-1, -1)
 var hovered_item: JunkBoxItem = null
 var drag_controller: Node = null
 
+func get_cell_size() -> int:
+	return CELL_SIZE
+
+func get_peg_preview_parameters() -> Dictionary:
+	return {
+		"cell_width": float(CELL_WIDTH),
+		"cell_height": float(CELL_HEIGHT),
+		"cell_pad": CELL_PAD,
+		"grid_columns": GameState.junk_box.grid_columns if GameState.junk_box != null else 6
+	}
+
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS
-	GameState.junk_box.inventory_changed.connect(_on_inventory_changed)
-	_update_size()
+	if GameState.junk_box != null:
+		GameState.junk_box.inventory_changed.connect(_on_inventory_changed)
+	update_grid_size()
 
 func _on_inventory_changed() -> void:
-	_update_size()
+	update_grid_size()
 	queue_redraw()
 
 func _update_size() -> void:
-	var rows: int = maxi(GameState.junk_box.get_max_row() + 4, GameState.junk_box.DEFAULT_MIN_ROWS)
+	update_grid_size()
+
+func update_grid_size() -> void:
+	if GameState.junk_box == null:
+		return
+	var max_occ: int = GameState.junk_box.get_max_occupied_row()
+	var needed_rows: int = max_occ + 4 if max_occ >= 0 else 4
+
+	var parent_scroll: ScrollContainer = get_parent() as ScrollContainer
+	var container_height: float = 0.0
+	if parent_scroll != null:
+		container_height = parent_scroll.size.y if parent_scroll.size.y > 0.0 else parent_scroll.custom_minimum_size.y
+
+	var visible_rows: int = 0
+	if container_height > 0.0:
+		visible_rows = int(floor(container_height / CELL_SIZE))
+
+	var rows: int = needed_rows
+	if visible_rows > 0 and needed_rows <= visible_rows:
+		rows = max(needed_rows, visible_rows)
+
 	var cols: int = GameState.junk_box.grid_columns
 	custom_minimum_size = Vector2(cols * CELL_SIZE, rows * CELL_SIZE)
 	size = custom_minimum_size
+
+	grid_size_changed.emit()
+
 
 func get_cell_at_global_pos(global_pos: Vector2) -> Vector2i:
 	var local_pos: Vector2 = global_pos - global_position
@@ -70,8 +108,11 @@ func _pos_to_cell(pos: Vector2) -> Vector2i:
 	return Vector2i(int(floor(pos.x / CELL_SIZE)), int(floor(pos.y / CELL_SIZE)))
 
 func _draw() -> void:
+	if GameState.junk_box == null:
+		return
 	var cols: int = GameState.junk_box.grid_columns
-	var rows: int = maxi(GameState.junk_box.get_max_row() + 4, GameState.junk_box.DEFAULT_MIN_ROWS)
+	var rows: int = maxi(int(size.y / CELL_SIZE), 1)
+
 	
 	var bg_color: Color = Constants.ui_buckets_panel_bg()
 	var border_color: Color = Constants.ui_buckets_panel_border()

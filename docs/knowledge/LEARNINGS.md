@@ -38,6 +38,65 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-027`](#lrn-027) | TASK-024 | `board_systems` | Polyomino Relic Footprint Scaling and Empty Playfield Spacing | 2026-08-29 |
 | [`LRN-028`](#lrn-028) | TASK-033 | `board_systems` | Polyomino Relic Exterior Perimeter Wall and Transparent Chassis Drawing | 2026-08-29 |
 | [`LRN-029`](#lrn-029) | TASK-049 | `godot_engine` | Polyomino Relic Pinball Goals and Reward Dispatching | 2026-08-29 |
+| [`LRN-030`](#lrn-030) | TASK-DIRECTORY-01 | `tooling` | AI Codebase Directory and Automated Quality Tooling | 2026-08-31 |
+| [`LRN-031`](#lrn-031) | TASK-BOARD-DECOMP-01 | `godot_engine` | Board Scene Sub-Manager Decomposition and VFX Pooling Lifecycle | 2026-08-31 |
+| [`LRN-032`](#lrn-032) | TASK-COORD-DECOMP-01 | `godot_engine` | GameCoordinator Sub-Manager Decomposition | 2026-09-01 |
+| [`LRN-033`](#lrn-033) | TASK-PEG-DECOMP-01 | `godot_engine` | Peg Drawing Static Class Extraction | 2026-09-01 |
+| [`LRN-034`](#lrn-034) | TASK-REWARD-DRAFT-01 | `godot_engine` | RewardDraftPanel UI Component Extraction via Ollama | 2026-09-01 |
+| [`LRN-035`](#lrn-035) | TASK-COORD-UI-01 | `godot_engine` | GameCoordinator UI Sub-Manager Extraction | 2026-09-01 |
+| [`LRN-036`](#lrn-036) | TASK-COORD-DECOMP-02 | `godot_engine` | GameCoordinator Full Sub-Manager Refactoring | 2026-09-01 |
+| [`LRN-037`](#lrn-037) | Decompose large source files | `Architecture` | game_coordinator_decomposition | 2026-09-01 |
+| [`LRN-038`](#lrn-038) | FIX-SHOP-ICONS | `godot_engine` | Shop card VBox attachment and marker script path | 2026-09-01 |
+| [`LRN-039`](#lrn-039) | TASK-033 | `physics` | polyomino relic enclosures | 2026-09-01 |
+| [`LRN-040`](#lrn-040) | FIX-POLYOMINO-PARSER | `godot_engine` | GDScript Void Return Parse Errors | 2026-09-01 |
+| [`LRN-041`](#lrn-041) | TASK-TEST-FRAMEWORK-PARSE-ISOLATION | `testing` | Godot Test Runner Parse Failure Isolation | 2026-09-01 |
+| [`LRN-042`](#lrn-042) | TASK-021 | `gameplay` | Wall Siege Timer and Defender Pushback Logic | 2026-09-01 |
+| [`LRN-043`](#lrn-043) | TASK-022 | `balance` | Exponential Wall HP and Gold Scaling Model | 2026-09-01 |
+| [`LRN-044`](#lrn-044) | TASK-036 | `machinery` | Pinball Kinetic Machinery and Rollover Bank Completion | 2026-09-01 |
+| [`LRN-045`](#lrn-045) | TASK-039 | `ui` | Junk Box Sidebar Integration and Pegboard Display Equivalence | 2026-09-01 |
+| [`LRN-046`](#lrn-046) | TASK-002 | `campaign` | Six-Playthrough Story Campaign Architecture | 2026-09-01 |
+| [`LRN-047`](#lrn-047) | TASK-003 | `characters` | Character Bespoke Progression Mechanics | 2026-09-01 |
+| [`LRN-048`](#lrn-048) | TASK-018 | `polyomino` | Tetromino Module Combining and Fusion System | 2026-09-01 |
+| [`LRN-049`](#lrn-049) | TASK-008 | `synergies` | Build Archetypes and Synergy Linkages | 2026-09-01 |
+| [`LRN-050`](#lrn-050) | TASK-004 | `ui` | Right Panel UI and Comic Cutout Vignettes | 2026-09-01 |
+| [`LRN-051`](#lrn-051) | TASK-004 | `ui` | Live Main Scene UI Integration | 2026-09-02 |
+| [`LRN-052`](#lrn-052) | TASK-040 | `asset_resources` | External Asset Pools and VFX Spritesheet Storage | 2026-09-02 |
+| [`LRN-053`](#lrn-053) | TASK-004 | `ui` | Right Sidebar Junk Box and Circular Cannon Orb Layout | 2026-09-02 |
+| [`LRN-054`](#lrn-054) | TASK-005 | `flow` | Takeover Cutscene Reward Sequencing | 2026-09-02 |
+| [`LRN-055`](#lrn-055) | TASK-039 | `ui` | JunkBoxPanel Sidebar Width Containment | 2026-09-02 |
+| [`LRN-056`](#lrn-056) | TASK-039 | `ui` | Godot Scene Instantiation and Onready Initialization Order | 2026-09-02 |
+| [`LRN-057`](#lrn-057) | TASK-039 | `ui` | CenterPanel Scene Anchors in main.tscn | 2026-09-02 |
+| [`LRN-058`](#lrn-058) | TASK-039 | `ui` | JunkBoxPanel Grid Cell Scaling for 320px Sidebar Width | 2026-09-02 |
+| [`LRN-059`](#lrn-059) | TASK-039 | `ui` | JunkBoxPanel Header Title Sizing | 2026-09-02 |
+| [`LRN-060`](#lrn-060) | TASK-039 | `ui` | Godot VBoxContainer Orientation Exception Prevention | 2026-09-02 |
+| [`LRN-061`](#lrn-061) | TASK-039 | `verification` | Playwright Chromium UI Verification | 2026-09-02 |
+| [`LRN-062`](#lrn-062) | TASK-042 | `ui` | UI Layout and Centering | 2026-09-02 |
+| [`LRN-063`](#lrn-063) | TASK-004 | `ui` | Square Cannon UI Panel Layout | 2026-09-02 |
+| [`LRN-064`](#lrn-064) | TASK-043 | `ui_visuals` | Replace Code-Drawn Cannons with Sprite Assets | 2026-09-02 |
+| [`LRN-065`](#lrn-065) | TASK-043 | `ui_visuals` | Single Cannon Rendering, Crisp Native Sprite Scale & Cartoon Coffee Fire VFX | 2026-09-02 |
+| [`LRN-066`](#lrn-066) | TASK-043 | `ui_visuals` | Center-Left Cannon UI Positioning & Right-Aligned Fire VFX | 2026-09-02 |
+| [`LRN-067`](#lrn-067) | TASK-043 | `ui_visuals` | Cannon Charge Overlay & UI Charge State Forwarding | 2026-09-02 |
+| [`LRN-068`](#lrn-068) | TASK-043 | `ui_visuals` | Flying Energy Particle VFX Destination Targeting | 2026-09-02 |
+| [`LRN-069`](#lrn-069) | TASK-043 | `ui_visuals` | Gain Text Centering Underneath Charge Bar & 2-Stage Catch-Up Bar Animation | 2026-09-02 |
+| [`LRN-070`](#lrn-070) | TASK-043 | `ui_visuals` | Pure White Target Bar Accessibility & Non-Overlapping Segment Drawing | 2026-09-02 |
+| [`LRN-071`](#lrn-071) | TASK-043 | `ui_visuals` | High-Contrast Visual Accessibility for Lead Target Jump Bar | 2026-09-02 |
+| [`LRN-072`](#lrn-072) | TASK-043 | `ui_visuals` | 0.5-Second Delay for Energy Charge Catch-Up Bar Animation | 2026-09-02 |
+| [`LRN-073`](#lrn-073) | TASK-043 | `ui_visuals` | Preserving Catch-Up Tween Delays in Per-Frame Energy Updates | 2026-09-02 |
+| [`LRN-074`](#lrn-074) | TASK-040 | `asset_resources` | Preloaded Asset Pack Tile and VFX Spritesheet Integration | 2026-09-02 |
+| [`LRN-075`](#lrn-075) | TASK-047 | `game_design` | pinball_layout_mapping | 2026-09-02 |
+| [`LRN-076`](#lrn-076) | TASK-042 | `ui` | Hopper Repositioning and Top Bar Debug Menu | 2026-09-02 |
+| [`LRN-077`](#lrn-077) | TASK-044 | `ui` | Full-Screen Comic Overlay Game Pause Behavior | 2026-09-02 |
+| [`LRN-078`](#lrn-078) | TASK-042 | `ui` | Top Header UI Bar Background and Ball Spawn Masking | 2026-09-02 |
+| [`LRN-079`](#lrn-079) | TASK-004 | `ui` | gold_counter_repositioning | 2026-09-02 |
+| [`LRN-080`](#lrn-080) | TASK-042 | `ui` | hopper_top_bar_clearance | 2026-09-02 |
+| [`LRN-081`](#lrn-081) | TASK-042 | `ui` | High-Layer CanvasLayer for Top UI Header Bar and Non-Overlapping Control Layout | 2026-09-02 |
+| [`LRN-082`](#lrn-082) | TASK-042 | `ui` | UI Button Layering Order and Hopper Outline Geometry | 2026-09-02 |
+| [`LRN-083`](#lrn-083) | TASK-042 | `ui` | Cannon Overlay Layering Order and Sidebar Widget Texture Rendering | 2026-09-02 |
+| [`LRN-084`](#lrn-084) | TASK-042 | `ui` | Single Canonical Node Rendering vs Duplicate Static Texture Drawing | 2026-09-02 |
+| [`LRN-085`](#lrn-085) | TASK-052 | `ui` | Junk Box Dynamic Scroll Bar Visibility | 2026-09-02 |
+| [`LRN-086`](#lrn-086) | TASK-053 | `game_balance` | relic_machinery | 2026-09-02 |
+| [`LRN-087`](#lrn-087) | TASK-042 | `godot_engine` | hopper_ball_cascade_physics | 2026-09-02 |
+| [`LRN-088`](#lrn-088) | TASK-049 | `godot_engine` | On-Board Relic Tooltip Simplification | 2026-09-02 |
 
 ---
 
@@ -504,5 +563,949 @@ PolyominoModuleNode tracks cell hits and progress counters locally while delegat
 
 #### Actionable Guideline for Future Agents
 Keep Board.gd lean by delegating specialized mechanic triggers to standalone handlers and use PolyominoModuleNode runtime state for compound shape tracking.
+
+---
+
+### <a id="lrn-030"></a> LRN-030: AI Codebase Directory and Automated Quality Tooling
+- **Task:** `TASK-DIRECTORY-01`
+- **Category:** `tooling`
+- **Created:** `2026-08-31T21:44:23.298306`
+
+#### Context & Problem
+AI agents needed a single reference for repo file locations, signal wiring, and GDScript standards without doing expensive grep passes.
+
+#### Key Insight & Learning
+Generating docs/DIRECTORY.md via python scripts/generate_directory.py and verifying freshness in python scripts/lint_gdscript.py keeps AI navigation accurate and prevents drift.
+
+#### Actionable Guideline for Future Agents
+Run python scripts/generate_directory.py whenever creating, renaming, or refactoring files, and run python scripts/lint_gdscript.py before opening PRs.
+
+---
+
+### <a id="lrn-031"></a> LRN-031: Board Scene Sub-Manager Decomposition and VFX Pooling Lifecycle
+- **Task:** `TASK-BOARD-DECOMP-01`
+- **Category:** `godot_engine`
+- **Created:** `2026-08-31T22:22:05.866330`
+
+#### Context & Problem
+Extracting large script responsibilities into modular sub-managers requires strict pooling lifecycle management and explicit scene setup API calls.
+
+#### Key Insight & Learning
+When preallocating UI nodes or VFX objects in sub-managers, call set_process(false), bind set_pool_release(release_cb), and reset modulate/transform on release and reuse to prevent auto-destruction and color contamination.
+
+#### Actionable Guideline for Future Agents
+Always wire object pool release callbacks during preallocation in sub-managers and reset instance properties in get_from_pool.
+
+---
+
+### <a id="lrn-032"></a> LRN-032: GameCoordinator Sub-Manager Decomposition
+- **Task:** `TASK-COORD-DECOMP-01`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-01T08:38:03.790138`
+
+#### Context & Problem
+Extracting coordinator responsibilities into debug, ball manager, and flow controller sub-managers.
+
+#### Key Insight & Learning
+Sub-manager scripts that do not render 2D content must extend Node not Node2D. Always verify callback method names match the actual parent script signatures before wiring delegation calls.
+
+#### Actionable Guideline for Future Agents
+Use find_child for dynamically-instantiated modal lookups instead of fixed node paths.
+
+---
+
+### <a id="lrn-033"></a> LRN-033: Peg Drawing Static Class Extraction
+- **Task:** `TASK-PEG-DECOMP-01`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-01T08:43:36.541289`
+
+#### Context & Problem
+Peg drawing methods run on the same CanvasItem and cannot move to a child Node.
+
+#### Key Insight & Learning
+Use static RefCounted classes (PegKindDrawing, PegDrawing) that accept the CanvasItem as a parameter to extract draw routines without breaking the Godot _draw() lifecycle.
+
+#### Actionable Guideline for Future Agents
+For CanvasItem draw extraction, prefer static utility classes that accept ci: CanvasItem rather than composition nodes.
+
+---
+
+### <a id="lrn-034"></a> LRN-034: RewardDraftPanel UI Component Extraction via Ollama
+- **Task:** `TASK-REWARD-DRAFT-01`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-01T15:28:08.377561`
+
+#### Context & Problem
+Extracting UI component markers and static card builders from RewardDraftPanel.
+
+#### Key Insight & Learning
+Dynamic script loading (load()) for static helper classes prevents class_name symbol resolution cache errors during headless unit test execution.
+
+#### Actionable Guideline for Future Agents
+Use dynamic script loading for extracted RefCounted UI builders to ensure zero symbol cache conflicts.
+
+---
+
+### <a id="lrn-035"></a> LRN-035: GameCoordinator UI Sub-Manager Extraction
+- **Task:** `TASK-COORD-UI-01`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-01T15:47:13.912272`
+
+#### Context & Problem
+Extracting UI creation and modal toggle methods from GameCoordinator.
+
+#### Key Insight & Learning
+GameCoordinator UI sub-managers reduce coordinator responsibilities by delegating modal toggles and UI creation callbacks.
+
+#### Actionable Guideline for Future Agents
+Keep UI creation and modal management logic in GameCoordinatorUI.
+
+---
+
+### <a id="lrn-036"></a> LRN-036: GameCoordinator Full Sub-Manager Refactoring
+- **Task:** `TASK-COORD-DECOMP-02`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-01T16:00:49.081229`
+
+#### Context & Problem
+Decomposing GameCoordinator into modular sub-managers.
+
+#### Key Insight & Learning
+GameCoordinator can delegate UI, screen building, input, signals, test scenarios, and ball inventory to sub-managers to achieve full modularity.
+
+#### Actionable Guideline for Future Agents
+Keep sub-manager responsibilities tightly scoped to maintain source files under 500 lines.
+
+---
+
+### <a id="lrn-037"></a> LRN-037: game_coordinator_decomposition
+- **Task:** `Decompose large source files`
+- **Category:** `Architecture`
+- **Created:** `2026-09-01T16:18:09.032806`
+
+#### Context & Problem
+All repository source files required to be under 500 lines
+
+#### Key Insight & Learning
+Decomposed GameCoordinator, RewardHandler, and RewardDraftPanel into modular static helpers and sub-managers
+
+#### Actionable Guideline for Future Agents
+Keep source files under 500 lines by delegating specialized sub-tasks to dedicated helper classes
+
+---
+
+### <a id="lrn-038"></a> LRN-038: Shop card VBox attachment and marker script path
+- **Task:** `FIX-SHOP-ICONS`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-01T18:45:19.156318`
+
+#### Context & Problem
+Shop cards displayed empty frames without title, icon, or description rendering
+
+#### Key Insight & Learning
+RewardCardBuilder.make_shop_card_layer omitted layer.add_child(card_vbox), leaving card_vbox un-parented in the scene tree
+
+#### Actionable Guideline for Future Agents
+Always ensure container layout builder functions attach created child VBoxContainer nodes to their parent layer before returning.
+
+---
+
+### <a id="lrn-039"></a> LRN-039: polyomino relic enclosures
+- **Task:** `TASK-033`
+- **Category:** `physics`
+- **Created:** `2026-09-01T22:06:22.817285`
+
+#### Context & Problem
+Implementing wall enclosures and funnel collision
+
+#### Key Insight & Learning
+Polyomino module wall enclosures generate cell boundary edge line segments rotated via posmod steps.
+
+#### Actionable Guideline for Future Agents
+Use get_solid_edge_segments to calculate edge colliders for polyomino enclosures.
+
+---
+
+### <a id="lrn-040"></a> LRN-040: GDScript Void Return Parse Errors
+- **Task:** `FIX-POLYOMINO-PARSER`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-01T22:07:23.753398`
+
+#### Context & Problem
+A void return function returning a value in GDScript causes a parse error that breaks preloaded scripts across the engine.
+
+#### Key Insight & Learning
+Functions returning void must return cleanly without returning values.
+
+#### Actionable Guideline for Future Agents
+Check that functions returning void do not return expressions, especially when modifying array parameters by reference.
+
+---
+
+### <a id="lrn-041"></a> LRN-041: Godot Test Runner Parse Failure Isolation
+- **Task:** `TASK-TEST-FRAMEWORK-PARSE-ISOLATION`
+- **Category:** `testing`
+- **Created:** `2026-09-01T22:23:52.871539`
+
+#### Context & Problem
+Top-level static preloads in test runner files cause full test suite compilation failures when preloaded scripts have syntax errors.
+
+#### Key Insight & Learning
+Dynamic script loading via load() inside test runner methods isolates script parse failures and prevents whole suite blockages.
+
+#### Actionable Guideline for Future Agents
+Always load test dependencies dynamically inside test methods and include a headless script parse smoke pass in linter tooling.
+
+---
+
+### <a id="lrn-042"></a> LRN-042: Wall Siege Timer and Defender Pushback Logic
+- **Task:** `TASK-021`
+- **Category:** `gameplay`
+- **Created:** `2026-09-01T22:27:32.250353`
+
+#### Context & Problem
+Wall siege failures need consistent defender pushback state transitions and 120s timer configuration.
+
+#### Key Insight & Learning
+CombatManager owns wall siege timers and defender pushback transitions, emitting pushback_occurred signals to reset wall HP and decrement wall index.
+
+#### Actionable Guideline for Future Agents
+Always handle wall timer expirations via CombatManager.apply_defender_pushback and ensure WALL_PHASE_TIME_SECONDS is set to 120.
+
+---
+
+### <a id="lrn-043"></a> LRN-043: Exponential Wall HP and Gold Scaling Model
+- **Task:** `TASK-022`
+- **Category:** `balance`
+- **Created:** `2026-09-01T22:28:20.208636`
+
+#### Context & Problem
+Wall HP scaling and breach rewards need predictable mathematical curves to maintain pacing across 45-60 minute runs.
+
+#### Key Insight & Learning
+Exponential formulas Health(n) = BaseHP * (1.35)^n and Gold(n) = BaseGold * (1.25)^n keep progression pacing calibrated while preventing arithmetic overflow.
+
+#### Actionable Guideline for Future Agents
+Use CityDefinition.get_wall_hp_max_for_index and get_wall_breach_gold_reward for all wall health and resource payout calculations.
+
+---
+
+### <a id="lrn-044"></a> LRN-044: Pinball Kinetic Machinery and Rollover Bank Completion
+- **Task:** `TASK-036`
+- **Category:** `machinery`
+- **Created:** `2026-09-01T22:30:16.136168`
+
+#### Context & Problem
+Kinetic pinball devices (rollovers, pop bumpers, drop targets, wire gates, slingshots) require distinct component scripts and rollover bank triggers.
+
+#### Key Insight & Learning
+RolloverSwitch devices emit bank_completed signals on full bank illumination when set_lit is updated prior to trigger_activation signal emissions.
+
+#### Actionable Guideline for Future Agents
+Use PolyominoModuleData.CellType for pinball component types and verify rollover bank state via cell_type matching in PolyominoModuleNode.
+
+---
+
+### <a id="lrn-045"></a> LRN-045: Junk Box Sidebar Integration and Pegboard Display Equivalence
+- **Task:** `TASK-039`
+- **Category:** `ui`
+- **Created:** `2026-09-01T22:31:13.044453`
+
+#### Context & Problem
+JunkBoxPanel sidebar layout and pegboard UI previews must match live playfield dimensions without obscuring active combat.
+
+#### Key Insight & Learning
+Setting JunkBoxGridView CELL_WIDTH=52 and CELL_HEIGHT=56 aligns preview grid cells with live PolyominoModuleNode dimensions, and integrate_into_sidebar mounts the panel directly into the right UI container.
+
+#### Actionable Guideline for Future Agents
+Use JunkBoxPanel.integrate_into_sidebar and JunkBoxGridView.get_peg_preview_parameters for sidebar placement and pegboard UI preview scaling.
+
+---
+
+### <a id="lrn-046"></a> LRN-046: Six-Playthrough Story Campaign Architecture
+- **Task:** `TASK-002`
+- **Category:** `campaign`
+- **Created:** `2026-09-01T22:32:06.197821`
+
+#### Context & Problem
+GameState tracks 6 distinct campaign runs, character archetypes, unlocked McGuffins, and convergence triggers.
+
+#### Key Insight & Learning
+start_campaign_run and complete_campaign_run handle sequential unlock gating across all 6 playthroughs, automatically setting convergence_active on run 6.
+
+#### Actionable Guideline for Future Agents
+Use GameState.start_campaign_run, complete_campaign_run, and save_campaign_progress/load_campaign_progress for multi-run campaign state management.
+
+---
+
+### <a id="lrn-047"></a> LRN-047: Character Bespoke Progression Mechanics
+- **Task:** `TASK-003`
+- **Category:** `characters`
+- **Created:** `2026-09-01T22:32:38.351538`
+
+#### Context & Problem
+CharacterProgressionManager provides character-specific passive perks and multiplier calculations for all 6 playthrough archetypes.
+
+#### Key Insight & Learning
+CharacterProgressionManager computes wall damage, peg energy bonuses, revive chances, and booster speed multipliers based on character_archetype, with goblin_convergence combining peak values from all archetypes.
+
+#### Actionable Guideline for Future Agents
+Use CharacterProgressionManager.get_perks_for_archetype and compute_* helper functions to query character-specific perks during run execution.
+
+---
+
+### <a id="lrn-048"></a> LRN-048: Tetromino Module Combining and Fusion System
+- **Task:** `TASK-018`
+- **Category:** `polyomino`
+- **Created:** `2026-09-01T22:33:27.001827`
+
+#### Context & Problem
+PolyominoFusionSystem provides tier-based module merging and recipe blueprint crafting.
+
+#### Key Insight & Learning
+PolyominoFusionSystem checks tier equivalence and RECIPE_BLUEPRINTS to combine lower-tier or prerequisite items into higher tier or blueprint output modules.
+
+#### Actionable Guideline for Future Agents
+Use PolyominoFusionSystem.can_fuse and PolyominoFusionSystem.fuse_modules for module combining and crafting operations.
+
+---
+
+### <a id="lrn-049"></a> LRN-049: Build Archetypes and Synergy Linkages
+- **Task:** `TASK-008`
+- **Category:** `synergies`
+- **Created:** `2026-09-01T22:34:05.295100`
+
+#### Context & Problem
+BuildSynergyDatabase calculates synergy multipliers for 4 core build archetypes (pyro, cryo, voltage, swarm).
+
+#### Key Insight & Learning
+BuildSynergyDatabase.get_synergy_multiplier evaluates ball and peg combinations to boost weapon energy routing and damage based on archetype focus.
+
+#### Actionable Guideline for Future Agents
+Use BuildSynergyDatabase.get_synergy_multiplier to scale damage and energy routing during combat calculations.
+
+---
+
+### <a id="lrn-050"></a> LRN-050: Right Panel UI and Comic Cutout Vignettes
+- **Task:** `TASK-004`
+- **Category:** `ui`
+- **Created:** `2026-09-01T22:34:43.998475`
+
+#### Context & Problem
+ComicVignettePanel displays comic cutout bubbles when the main cannon fires.
+
+#### Key Insight & Learning
+ComicVignettePanel.trigger_firing_vignette calculates wall degradation ratio and goblin reaction mood states, auto-dismissing after animation without blocking board mouse events.
+
+#### Actionable Guideline for Future Agents
+Use ComicVignettePanel with mouse_filter MOUSE_FILTER_IGNORE to render live combat cutout vignettes over UI panels.
+
+---
+
+### <a id="lrn-051"></a> LRN-051: Live Main Scene UI Integration
+- **Task:** `TASK-004`
+- **Category:** `ui`
+- **Created:** `2026-09-02T08:36:04.920443`
+
+#### Context & Problem
+Connected ComicVignettePanel and JunkBoxPanel into game_coordinator_ui.gd.
+
+#### Key Insight & Learning
+ComicVignettePanel connects to CombatManager.cannon_fired_at_wall signal while JunkBoxPanel integrates directly into UILayer/CenterPanel.
+
+#### Actionable Guideline for Future Agents
+Wire UI overlay panels inside game_coordinator_ui.gd create_inventory_ui method to attach them to live scene runtime.
+
+---
+
+### <a id="lrn-052"></a> LRN-052: External Asset Pools and VFX Spritesheet Storage
+- **Task:** `TASK-040`
+- **Category:** `asset_resources`
+- **Created:** `2026-09-02T09:29:34.649549`
+
+#### Context & Problem
+Agents require knowledge of external local asset packs for graphics and particle effects.
+
+#### Key Insight & Learning
+External asset pack directory C:\Users\josep\Desktop\Games\Essentials VFX Spritesheets contains VFX spritesheets for particle effects, explosions, and impact animations alongside in-repo Kenney assets.
+
+#### Actionable Guideline for Future Agents
+When sourcing visual assets and particle effects, inspect both assets/ and C:\Users\josep\Desktop\Games\Essentials VFX Spritesheets.
+
+---
+
+### <a id="lrn-053"></a> LRN-053: Right Sidebar Junk Box and Circular Cannon Orb Layout
+- **Task:** `TASK-004`
+- **Category:** `ui`
+- **Created:** `2026-09-02T09:29:45.523426`
+
+#### Context & Problem
+Restructured right sidebar layout to host JunkBoxPanel permanently.
+
+#### Key Insight & Learning
+CircularCannonWidget renders rising liquid energy fill in the bottom-right corner while TopWallContainer displays wall health above Gold.
+
+#### Actionable Guideline for Future Agents
+Keep right sidebar reserved for JunkBoxPanel and position top status bars cleanly inside LeftPanel.
+
+---
+
+### <a id="lrn-054"></a> LRN-054: Takeover Cutscene Reward Sequencing
+- **Task:** `TASK-005`
+- **Category:** `flow`
+- **Created:** `2026-09-02T09:34:04.851333`
+
+#### Context & Problem
+Sequenced reward selection modal popups after full-screen comic takeover cutscenes.
+
+#### Key Insight & Learning
+GameCoordinatorFlow.handle_wall_destroyed plays FullscreenComicTakeover first, connecting takeover_completed signal to handle_wall_break_transition_finished.
+
+#### Actionable Guideline for Future Agents
+Chain cutscene takeover completion signals before dispatching reward modal popups.
+
+---
+
+### <a id="lrn-055"></a> LRN-055: JunkBoxPanel Sidebar Width Containment
+- **Task:** `TASK-039`
+- **Category:** `ui`
+- **Created:** `2026-09-02T09:35:29.545122`
+
+#### Context & Problem
+Restructured JunkBoxPanel scene node layout from HBoxContainer to VBoxContainer.
+
+#### Key Insight & Learning
+HBoxContainer with size_flags_horizontal SIZE_EXPAND_FILL inside JunkBoxPanel forced the panel to expand across the full screen. Stacking controls vertically in VBoxContainer confines the scene strictly within 320px sidebar width.
+
+#### Actionable Guideline for Future Agents
+Use vertical VBoxContainer stacking for sub-panels inside 320px wide sidebars to prevent horizontal expansion over the main playfield.
+
+---
+
+### <a id="lrn-056"></a> LRN-056: Godot Scene Instantiation and Onready Initialization Order
+- **Task:** `TASK-039`
+- **Category:** `ui`
+- **Created:** `2026-09-02T09:37:08.684977`
+
+#### Context & Problem
+Resolved JunkBoxPanel layout failure caused by pre-SceneTree node reference evaluation.
+
+#### Key Insight & Learning
+Calling custom layout functions on an instantiated scene before adding it to the SceneTree evaluates @onready variables as null. Re-applying layout configurations inside _ready ensures node references are populated.
+
+#### Actionable Guideline for Future Agents
+Always invoke layout configuration methods in _ready() or re-evaluate @onready nodes using get_node_or_null() if called before add_child().
+
+---
+
+### <a id="lrn-057"></a> LRN-057: CenterPanel Scene Anchors in main.tscn
+- **Task:** `TASK-039`
+- **Category:** `ui`
+- **Created:** `2026-09-02T09:39:43.041280`
+
+#### Context & Problem
+Removed conflicting anchors_preset = 15 override from CenterPanel node in main.tscn.
+
+#### Key Insight & Learning
+Overriding CenterPanel with anchors_preset = 15 inside main.tscn caused the entire sidebar container to stretch from x=4 to x=1276 across the screen. Preserving anchors_preset = 0 keeps CenterPanel at x=960 to x=1280.
+
+#### Actionable Guideline for Future Agents
+Verify main.tscn container nodes do not contain duplicate anchors_preset overrides that expand sidebar panels across the entire playfield.
+
+---
+
+### <a id="lrn-058"></a> LRN-058: JunkBoxPanel Grid Cell Scaling for 320px Sidebar Width
+- **Task:** `TASK-039`
+- **Category:** `ui`
+- **Created:** `2026-09-02T09:52:01.003694`
+
+#### Context & Problem
+Adjusted JunkBoxGridView CELL_WIDTH/HEIGHT to 46px to keep panel total width at 292px.
+
+#### Key Insight & Learning
+A 6-column grid with 52px cells produces a 312px grid, which plus 16px margins equals 328px and overflows a 320px sidebar by 8px. Reducing cell size to 46px produces a 276px grid, leaving 16px padding on both sides with zero cutoff.
+
+#### Actionable Guideline for Future Agents
+Calculate grid column counts and cell padding so total sub-container width is less than 304px inside 320px sidebars.
+
+---
+
+### <a id="lrn-059"></a> LRN-059: JunkBoxPanel Header Title Sizing
+- **Task:** `TASK-039`
+- **Category:** `ui`
+- **Created:** `2026-09-02T09:53:31.102710`
+
+#### Context & Problem
+Adjusted Title font size and set custom_minimum_size on SortBtn in junk_box_panel.tscn.
+
+#### Key Insight & Learning
+Label with SIZE_EXPAND_FILL inside a 304px MarginContainer squished the Auto-Pack button to 88px, truncating it as Auto-Pa... Setting SortBtn custom_minimum_size to Vector2(84, 24) and font_size to 12 prevents button truncation.
+
+#### Actionable Guideline for Future Agents
+Explicitly set custom_minimum_size on header action buttons inside narrow sidebar containers.
+
+---
+
+### <a id="lrn-060"></a> LRN-060: Godot VBoxContainer Orientation Exception Prevention
+- **Task:** `TASK-039`
+- **Category:** `ui`
+- **Created:** `2026-09-02T09:54:53.391188`
+
+#### Context & Problem
+Resolved runtime C++ exception when attempting set_vertical on a VBoxContainer node.
+
+#### Key Insight & Learning
+Calling .vertical = true on a Node typed as BoxContainer when the actual instance is already a VBoxContainer throws a C++ runtime exception ('Can\'t change orientation of VBoxContainer') and aborts script execution. Explicitly checking 'hbox is HBoxContainer' avoids the exception.
+
+#### Actionable Guideline for Future Agents
+Check node type using 'is HBoxContainer' before mutating .vertical on BoxContainer nodes.
+
+---
+
+### <a id="lrn-061"></a> LRN-061: Playwright Chromium UI Verification
+- **Task:** `TASK-039`
+- **Category:** `verification`
+- **Created:** `2026-09-02T10:00:26.342326`
+
+#### Context & Problem
+Added Python Playwright Chromium capture script to verify HTML dashboard and visual task matrix.
+
+#### Key Insight & Learning
+Python Playwright Chromium (sync_api) can launch headless browser instances to capture pixel-perfect 1280x720 full-page screenshots of local HTML visual dashboards.
+
+#### Actionable Guideline for Future Agents
+Use python -m playwright to capture automated visual dashboard snapshots during automated UI verification.
+
+---
+
+### <a id="lrn-062"></a> LRN-062: UI Layout and Centering
+- **Task:** `TASK-042`
+- **Category:** `ui`
+- **Created:** `2026-09-02T10:10:19.572956`
+
+#### Context & Problem
+UI overlapping, right sidebar overflow, board uncentered
+
+#### Key Insight & Learning
+RunGold label repositioning, 6-col Junk Box grid width, 15-col 116px start offset board centering
+
+#### Actionable Guideline for Future Agents
+Keep sidebar panel minimum width <= 304px for 320px containers and use 15 cols with 116px start X for 960px board centering.
+
+---
+
+### <a id="lrn-063"></a> LRN-063: Square Cannon UI Panel Layout
+- **Task:** `TASK-004`
+- **Category:** `ui`
+- **Created:** `2026-09-02T10:20:34.284271`
+
+#### Context & Problem
+Cannon UI floating circle over junk box grid
+
+#### Key Insight & Learning
+Embedding CircularCannonWidget inside junk_box_panel.tscn at bottom of sidebar provides clean non-overlapping layout
+
+#### Actionable Guideline for Future Agents
+Place sidebar widgets as embedded children within sidebar containers rather than hardcoding global screen coordinates
+
+---
+
+### <a id="lrn-064"></a> LRN-064: Replace Code-Drawn Cannons with Sprite Assets
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T10:34:00.994995`
+
+#### Context & Problem
+Procedural rect/circle drawing for battlefield cannon and UI cannon widget lacked visual quality and firing indicators
+
+#### Key Insight & Learning
+Using texture assets (cannonMobile.png) combined with parallel Tweens for recoil displacement and explosion1.png for muzzle flash provides clean visual polish
+
+#### Actionable Guideline for Future Agents
+Preload sprite texture assets for game objects and UI widgets, combining recoil shake Tweens and muzzle flash sprite overlays on firing events.
+
+---
+
+### <a id="lrn-065"></a> LRN-065: Single Cannon Rendering, Crisp Native Sprite Scale & Cartoon Coffee Fire VFX
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T10:39:00.774827`
+
+#### Context & Problem
+CircularCannonWidget and CannonVisual both drew cannon textures causing duplicate cannon rendering and blurry upscaling
+
+#### Key Insight & Learning
+Removing texture drawing from widget container and rendering cannonMobile.png at native 43.5x30px in CannonVisual eliminates duplication and retains crisp sprite definition. Animating Impact_Fire_Lv1_spritesheet.png 4x4 region frames on firing signal provides rich fire VFX.
+
+#### Actionable Guideline for Future Agents
+Keep UI widget containers dedicated to panel backgrounds and energy overlays while delegating cannon sprite rendering and fire VFX to CannonVisual at crisp unscaled dimensions.
+
+---
+
+### <a id="lrn-066"></a> LRN-066: Center-Left Cannon UI Positioning & Right-Aligned Fire VFX
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T10:41:43.920256`
+
+#### Context & Problem
+Cannon position needed to be centered on the left side of the bottom UI container with fire VFX lined up against the right side of the sprite
+
+#### Key Insight & Learning
+Setting CannonVisual position to Vector2(50, 628) in battlefield_view.tscn and drawing Impact_Fire_Lv1_spritesheet.png at muzzle_right_x = center_x + 21.75 with horizontal recoil (_recoil_offset_x = -12.0) places the sprite cleanly in the center-left UI box and aligns fire VFX against the right edge.
+
+#### Actionable Guideline for Future Agents
+Align rightward-firing cannon sprites at center-left UI container bounds and line up muzzle blast VFX regions directly against the right edge of the sprite.
+
+---
+
+### <a id="lrn-067"></a> LRN-067: Cannon Charge Overlay & UI Charge State Forwarding
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T10:45:31.135706`
+
+#### Context & Problem
+CannonVisual was reparented to CannonOverlay canvas layer and lacked an explicit charge overlay progress meter
+
+#### Key Insight & Learning
+Adding set_charge and set_energy methods to CannonVisual and drawing a 54x6px gold/amber progress meter under the cannon sprite in _draw() with set_charge forwarding from center_panel_ui.gd ensures live charge visibility during combat.
+
+#### Actionable Guideline for Future Agents
+Implement explicit set_charge methods on canvas overlay visual nodes and forward charge updates from center_panel_ui to maintain live charge meter overlays.
+
+---
+
+### <a id="lrn-068"></a> LRN-068: Flying Energy Particle VFX Destination Targeting
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T10:51:53.950672`
+
+#### Context & Problem
+Energy gain VFX particles flew to the center of the widget container box instead of the charge bar under the cannon
+
+#### Key Insight & Learning
+Querying CannonVisual.global_position + Vector2(0.0, 18.0) in center_panel_ui.gd show_energy_gain ensures flying energy particles stream directly to the charge bar under the cannon sprite.
+
+#### Actionable Guideline for Future Agents
+Calculate energy flow particle destination coordinates using the target visual node position (CannonVisual.global_position + Vector2(0.0, 18.0)) to align flying particles with the charge progress bar.
+
+---
+
+### <a id="lrn-069"></a> LRN-069: Gain Text Centering Underneath Charge Bar & 2-Stage Catch-Up Bar Animation
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T11:05:54.879289`
+
+#### Context & Problem
+Gain text label overlapped the charge bar and charge energy gains lacked clear visual feedback for jump amounts
+
+#### Key Insight & Learning
+Setting label_w = 80.0, horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER, and position = end_pos + Vector2(-label_w * 0.5, 8.0) centers gain labels directly underneath the charge bar. Adding _target_ratio white lead bar with 0.35s TRANS_QUAD smooth yellow catch-up tweening gives clear energy jump visual feedback.
+
+#### Actionable Guideline for Future Agents
+Center gain text labels horizontally underneath target UI bars and use a 2-stage white lead bar with smooth yellow catch-up fill animation for energy jumps.
+
+---
+
+### <a id="lrn-070"></a> LRN-070: Pure White Target Bar Accessibility & Non-Overlapping Segment Drawing
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T11:09:11.334042`
+
+#### Context & Problem
+Semi-transparent white drawn beneath or over yellow bars tint-blended into light yellow
+
+#### Key Insight & Learning
+Drawing the lead target bar segment from liquid_ratio to _target_ratio separately using solid pure white Color(1.0, 1.0, 1.0, 1.0) with zero overlap over the yellow fill bar ensures pure #FFFFFF contrast for accessibility.
+
+#### Actionable Guideline for Future Agents
+Render lead target bar segments using solid pure white Color(1.0, 1.0, 1.0, 1.0) starting at liquid_ratio to prevent color blending and guarantee high-contrast accessibility.
+
+---
+
+### <a id="lrn-071"></a> LRN-071: High-Contrast Visual Accessibility for Lead Target Jump Bar
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T11:13:40.576121`
+
+#### Context & Problem
+Adjacent white and yellow bars lacked stark visual contrast for users with visual impairments
+
+#### Key Insight & Learning
+Rendering the lead target segment as a protruding 12px tall box with solid pure white Color(1.0, 1.0, 1.0, 1.0) fill, solid black outline Color(0.0, 0.0, 0.0, 1.0), and 2px vertical black separator line creates extreme shape and color contrast for visual accessibility.
+
+#### Actionable Guideline for Future Agents
+Combine shape protrusion, black outline borders, and black separator lines around pure white target segments to guarantee extreme visual contrast for accessibility.
+
+---
+
+### <a id="lrn-072"></a> LRN-072: 0.5-Second Delay for Energy Charge Catch-Up Bar Animation
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T11:15:26.923267`
+
+#### Context & Problem
+The yellow catch-up bar started animating immediately on energy gain without allowing the viewer to register the target jump
+
+#### Key Insight & Learning
+Adding .set_delay(0.5) to the _catchup_tween in set_energy() holds the high-contrast white lead bar steady for half a second before the yellow bar animates up to meet it.
+
+#### Actionable Guideline for Future Agents
+Use .set_delay(0.5) on catch-up bar fill tweens to pause long enough for viewers to register energy jump amounts before animating.
+
+---
+
+### <a id="lrn-073"></a> LRN-073: Preserving Catch-Up Tween Delays in Per-Frame Energy Updates
+- **Task:** `TASK-043`
+- **Category:** `ui_visuals`
+- **Created:** `2026-09-02T11:17:52.110498`
+
+#### Context & Problem
+Calling set_energy every frame with unchanged energy values snapped liquid_ratio = new_ratio and killed active catch-up tweens
+
+#### Key Insight & Learning
+Only mutating liquid_ratio when new_ratio < _target_ratio (energy reset) and launching tweens when new_ratio > _target_ratio allows tick-by-tick set_energy calls without interrupting running catch-up tween delays.
+
+#### Actionable Guideline for Future Agents
+In per-frame progress bar setters, do not snap the animated fill ratio on same-ratio ticks; allow active delay tweens to run to completion.
+
+---
+
+### <a id="lrn-074"></a> LRN-074: Preloaded Asset Pack Tile and VFX Spritesheet Integration
+- **Task:** `TASK-040`
+- **Category:** `asset_resources`
+- **Created:** `2026-09-02T11:56:31.004823`
+
+#### Context & Problem
+Replacing programmer shapes with Kenney stone wall tiles and Essentials VFX explosion sheets across combat scenes
+
+#### Key Insight & Learning
+Preloading Texture2D assets and drawing textured rects inside CanvasItem _draw() ensures crisp asset rendering across battlefields and particle bursts while avoiding runtime allocations
+
+#### Actionable Guideline for Future Agents
+Preload stone wall tiles and VFX spritesheets at file load time and render them inside CanvasItem _draw() using explicit region rects for animation frames
+
+---
+
+### <a id="lrn-075"></a> LRN-075: pinball_layout_mapping
+- **Task:** `TASK-047`
+- **Category:** `game_design`
+- **Created:** `2026-09-02T12:06:06.394443`
+
+#### Context & Problem
+Researching pinball playfield components and adapting them for polyomino grid relics
+
+#### Key Insight & Learning
+Pinball playfield mechanics can be systematically mapped to polyomino relic grid modules by preserving kinetic flow and chaos.
+
+#### Actionable Guideline for Future Agents
+Map pinball board components to specific polyomino shape footprints to balance kinetic flow and unpredictable chaos in Goblin Cannon.
+
+---
+
+### <a id="lrn-076"></a> LRN-076: Hopper Repositioning and Top Bar Debug Menu
+- **Task:** `TASK-042`
+- **Category:** `ui`
+- **Created:** `2026-09-02T13:18:25.171075`
+
+#### Context & Problem
+Hopper and loose debug buttons overlapped top UI header bar and playfield area.
+
+#### Key Insight & Learning
+Consolidating debug controls into a collapsible top bar panel reserves playfield space while keeping debug tools accessible.
+
+#### Actionable Guideline for Future Agents
+Position the hopper strictly beneath top header UI elements (Y > 50). Consolidate loose debug buttons into a collapsible top bar panel to reserve playfield space.
+
+---
+
+### <a id="lrn-077"></a> LRN-077: Full-Screen Comic Overlay Game Pause Behavior
+- **Task:** `TASK-044`
+- **Category:** `ui`
+- **Created:** `2026-09-02T13:19:59.192879`
+
+#### Context & Problem
+Full-screen comic overlay cutscenes (wall breaks, boss victories, cinematics) needed to pause game state without pausing bottom-right cannon animations.
+
+#### Key Insight & Learning
+Setting GameState.paused = true in FullscreenComicTakeover play_takeover() and GameState.paused = false in dismiss_takeover() pauses board physics and timers while keeping process_mode = PROCESS_MODE_ALWAYS active.
+
+#### Actionable Guideline for Future Agents
+In FullscreenComicTakeover, manage GameState.paused on play_takeover and dismiss_takeover, and leave bottom-right cannon widgets (ComicVignettePanel, CircularCannonWidget) unpaused.
+
+---
+
+### <a id="lrn-078"></a> LRN-078: Top Header UI Bar Background and Ball Spawn Masking
+- **Task:** `TASK-042`
+- **Category:** `ui`
+- **Created:** `2026-09-02T13:31:59.051144`
+
+#### Context & Problem
+Balls spawned above the hopper transparently in open space behind top UI labels.
+
+#### Key Insight & Learning
+Adding a solid top UI header bar background and setting SPAWN_Y_OFFSET behind the header bar masks the spawn origin so balls emerge cleanly from beneath the header bar.
+
+#### Actionable Guideline for Future Agents
+Mask ball spawn origins behind solid header bar panels (SPAWN_Y_OFFSET <= header_bar_bottom) to keep ball emergence visually clean.
+
+---
+
+### <a id="lrn-079"></a> LRN-079: gold_counter_repositioning
+- **Task:** `TASK-004`
+- **Category:** `ui`
+- **Created:** `2026-09-02T13:42:43.749710`
+
+#### Context & Problem
+Top UI header layout and gold counter visual presentation
+
+#### Key Insight & Learning
+Padding out TopWallContainer vertically allows hosting both WallHealthBar and GoldContainer with a gold coin icon texture.
+
+#### Actionable Guideline for Future Agents
+Position the gold counter inside TopWallContainer directly underneath WallHealthBar, replacing the text label prefix with a coin_gold.png HUD icon texture asset.
+
+---
+
+### <a id="lrn-080"></a> LRN-080: hopper_top_bar_clearance
+- **Task:** `TASK-042`
+- **Category:** `ui`
+- **Created:** `2026-09-02T13:53:51.776246`
+
+#### Context & Problem
+Top UI header bar padding vs Hopper node position
+
+#### Key Insight & Learning
+Setting Hopper position Y to 135 ensures its top rim (local offset Y = -80, global Y = 55) clears the 54px top header UI bar without overlap.
+
+#### Actionable Guideline for Future Agents
+Position the Hopper node at Y = 135 in main.tscn so that its bin top rim (Y = 55) sits cleanly below the 54px top header UI bar.
+
+---
+
+### <a id="lrn-081"></a> LRN-081: High-Layer CanvasLayer for Top UI Header Bar and Non-Overlapping Control Layout
+- **Task:** `TASK-042`
+- **Category:** `ui`
+- **Created:** `2026-09-02T13:59:39.409238`
+
+#### Context & Problem
+Hopper 2D world nodes bled through transparent top UI header, and timer text overlapped debug buttons.
+
+#### Key Insight & Learning
+Placing top UI header background panels in a high CanvasLayer (layer=10) with 100% solid opacity blocks all 2D world nodes behind Y <= 54, while separating utility buttons, stats, and health containers across dedicated X zones eliminates UI control overlaps.
+
+#### Actionable Guideline for Future Agents
+Place top UI header bars in high CanvasLayer layers (layer >= 10) with 100% opacity to mask world nodes, and enforce strict non-overlapping X coordinate zones for utility buttons, timer, gold, and health bars.
+
+---
+
+### <a id="lrn-082"></a> LRN-082: UI Button Layering Order and Hopper Outline Geometry
+- **Task:** `TASK-042`
+- **Category:** `ui`
+- **Created:** `2026-09-02T14:32:20.926698`
+
+#### Context & Problem
+Separate top CanvasLayer overlaid UI controls, and default Line2D white outline drew a bar across the hopper opening.
+
+#### Key Insight & Learning
+Keep top bar background panel as child 0 inside UILayer (layer=10) so UI controls draw on top of it, and omit closing top points in Line2D outline to keep bin openings open.
+
+#### Actionable Guideline for Future Agents
+Place header background panels as child 0 of the UI CanvasLayer, and omit top closing line segments from hopper Line2D outlines.
+
+---
+
+### <a id="lrn-083"></a> LRN-083: Cannon Overlay Layering Order and Sidebar Widget Texture Rendering
+- **Task:** `TASK-042`
+- **Category:** `ui`
+- **Created:** `2026-09-02T14:40:53.725931`
+
+#### Context & Problem
+CannonOverlay layer was below UILayer layer 10 hiding CannonVisual, and CircularCannonWidget lacked cannon texture rendering.
+
+#### Key Insight & Learning
+Set CannonOverlay layer to 15 (above UILayer layer 10) so main cannon visuals render on top of the UI, and render cannonMobile.png inside CircularCannonWidget._draw() to guarantee crisp cannon rendering in the sidebar.
+
+#### Actionable Guideline for Future Agents
+Keep CannonOverlay layer higher than UILayer (layer=15 > layer=10), and ensure custom Control widget _draw() methods explicitly draw texture assets.
+
+---
+
+### <a id="lrn-084"></a> LRN-084: Single Canonical Node Rendering vs Duplicate Static Texture Drawing
+- **Task:** `TASK-042`
+- **Category:** `ui`
+- **Created:** `2026-09-02T14:43:58.911654`
+
+#### Context & Problem
+Both CannonVisual and CircularCannonWidget rendered cannon sprite assets simultaneously in the bottom right panel.
+
+#### Key Insight & Learning
+Avoid duplicate asset texture rendering in container controls when a dedicated animated Node2D (CannonVisual) is reparented to an overlay layer for the same UI area.
+
+#### Actionable Guideline for Future Agents
+Rely on single primary animated nodes (e.g. CannonVisual) on overlay layers rather than drawing duplicate static textures inside parent container widgets.
+
+---
+
+### <a id="lrn-085"></a> LRN-085: Junk Box Dynamic Scroll Bar Visibility
+- **Task:** `TASK-052`
+- **Category:** `ui`
+- **Created:** `2026-09-02T14:57:44.115349`
+
+#### Context & Problem
+ScrollContainer showed vertical scrollbar constantly even when inventory items were empty or fit within visible space.
+
+#### Key Insight & Learning
+ScrollContainer calculates scrollbar visibility by comparing child custom_minimum_size against container size. By calculating grid rows dynamically based on occupied cells and container viewport height, scrollbar toggles automatically.
+
+#### Actionable Guideline for Future Agents
+Use JunkBoxGridView.update_grid_size to dynamically calculate minimum row height and JunkBoxPanel.update_scroll_bar_visibility to toggle scrollbar mode and container margin padding.
+
+---
+
+### <a id="lrn-086"></a> LRN-086: relic_machinery
+- **Task:** `TASK-053`
+- **Category:** `game_balance`
+- **Created:** `2026-09-02T16:05:33.087999`
+
+#### Context & Problem
+Audited relic machinery distribution across Tier 1, Tier 2, and Tier 3 relics.
+
+#### Key Insight & Learning
+Bash toys are high-reward elements that should be reserved for top tier relics.
+
+#### Actionable Guideline for Future Agents
+Assign high-rarity bash toys exclusively to Tier 3 relics while maintaining an even distribution of all 15 pinball widgets across lower tier relics.
+
+---
+
+### <a id="lrn-087"></a> LRN-087: hopper_ball_cascade_physics
+- **Task:** `TASK-042`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-02T16:09:12.243290`
+
+#### Context & Problem
+Balls dropped vertically at exact center with 0 velocity stacked in a rigid 1D column inside the hopper.
+
+#### Key Insight & Learning
+Symmetrical 2D circle physics with zero X velocity and high linear damp freezes balls in a vertical stack without rolling.
+
+#### Actionable Guideline for Future Agents
+Randomize ball spawn X offsets, apply small horizontal velocity nudges, and use low linear damp inside the hopper bin to ensure 2D cascading.
+
+---
+
+### <a id="lrn-088"></a> LRN-088: On-Board Relic Tooltip Simplification
+- **Task:** `TASK-049`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-02T16:17:19.150466`
+
+#### Context & Problem
+Reworking hover tooltips for polyomino relics on active pegboard layout
+
+#### Key Insight & Learning
+On-board hover tooltips should omit detailed specs like tier, size, and shape properties to avoid visual clutter
+
+#### Actionable Guideline for Future Agents
+Format on-board relic hover tooltips to show only activation requirements and relic effects while preserving full specs in shop and inventory cards.
 
 ---

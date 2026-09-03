@@ -1,6 +1,6 @@
 # TASK-022: Wall Health Exponential Scaling and Campaign Pacing Model
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Math / Balance
 - **Parent Task:** [TASK-001](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-001-gameplay-loop-and-pacing.md)
@@ -25,6 +25,6 @@ Calibrate the model for a 45-to-60-minute single campaign playthrough.
 
 ## Acceptance Criteria
 
-- [ ] Formula balances progression for a target 45-to-60-minute complete campaign run.
-- [ ] Wall health values scale predictably without arithmetic overflow.
-- [ ] Headless unit tests verify scaling formulas across all campaign stages.
+- [x] Formula balances progression for a target 45-to-60-minute complete campaign run.
+- [x] Wall health values scale predictably without arithmetic overflow.
+- [x] Headless unit tests verify scaling formulas across all campaign stages.

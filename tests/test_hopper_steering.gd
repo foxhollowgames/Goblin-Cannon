@@ -8,6 +8,7 @@ func run() -> void:
 	test_hopper_boundary_clamping()
 	test_hopper_horizontal_carry()
 	test_hopper_manual_steer_input()
+	test_hopper_no_mouse_control()
 	test_game_coordinator_unhandled_keys()
 
 func test_hopper_steer_left_right() -> void:
@@ -110,3 +111,17 @@ func test_game_coordinator_unhandled_keys() -> void:
 	
 	debug_overlay.free()
 	gc.free()
+
+func test_hopper_no_mouse_control() -> void:
+	begin("Hopper ignores mouse movement and _unhandled_input is not defined")
+	var hopper_script: GDScript = load("res://scenes/hopper/hopper.gd") as GDScript
+	var hopper: Node2D = Node2D.new()
+	hopper.set_script(hopper_script)
+	hopper.global_position = Vector2(480.0, 28.0)
+	
+	assert_false(hopper.has_method("_unhandled_input"), "Hopper should not handle mouse input events")
+	
+	hopper._physics_process(0.1)
+	assert_approx(hopper.global_position.x, 480.0, 0.001, "Hopper position should not change without steer input")
+	hopper.free()
+

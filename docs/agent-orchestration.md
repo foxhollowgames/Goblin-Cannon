@@ -54,6 +54,7 @@ flowchart LR
 ### Godot-specific discipline
 
 - Treat **`project.godot`** and **`.uid` files** as sensitive: agents should not rename or bulk-delete UIDs.
+- **Task Dashboard Maintenance:** Any task CRUD operation (creation, status transition, priority update, or deletion) MUST trigger `python scripts/generate_task_dashboard.py` to keep `docs/tasks/dashboard.html` in sync.
 - Prefer **automated verification** you document once (e.g. [GUT](https://github.com/bitwes/Gut), headless quit-after-N patterns) so “done” is objective.
 - Have the planner name **systems** (simulation vs UI vs content) to reduce merge conflicts.
 

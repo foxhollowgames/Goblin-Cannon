@@ -1,6 +1,8 @@
 extends Node2D
-## Graphical goblin cannon at the bottom of the battlefield.
-## Supports status effect overlays (fire, frozen, lightning) like minions; apply via apply_status().
+## Graphical goblin cannon positioned at the center-left of the bottom UI.
+## Renders a single crisp native cannonMobile.png sprite texture asset
+## with energy charge meter overlay, white flash lead bar with smooth yellow catch-up animation,
+## horizontal recoil shake tween, and Cartoon Coffee Fire VFX.
 
 const CANNON_ZONE_HEIGHT: float = 120.0
 const CANNON_WIDTH: float = 80.0
@@ -10,11 +12,67 @@ const SHIELD_RADIUS: float = 52.0
 const SHIELD_CENTER_OFFSET: Vector2 = Vector2(0.0, 6.0)
 const STATUS_MAX_STACKS: int = 5
 const STATUS_DECAY_TICKS: int = 120
-const STATUS_OVERLAY_SIZE: float = 50.0  # scale for flame/ice/lightning overlays
+const STATUS_OVERLAY_SIZE: float = 50.0
+
+const CANNON_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Pirate Pack/PNG/Retina/Ship parts/cannonMobile.png")
+const FIRE_VFX_TEXTURE: Texture2D = preload("res://assets/VFX/Essentials VFX Spritesheets/Impact_Fire_Lv1_spritesheet.png")
+
+var current_energy: int = 0
+var max_energy: int = 10000
+var liquid_ratio: float = 0.0
+var _target_ratio: float = 0.0
+var _catchup_tween: Tween
 
 var _shield_display: int = 0
 var _status_stacks: Dictionary = {}
 var _status_decay_counter: int = 0
+
+var _recoil_offset_x: float = 0.0
+var _show_muzzle_flash: bool = false
+var _flash_frame: int = 0
+
+func set_energy(p_current: int, p_max: int = 10000) -> void:
+	current_energy = maxi(0, p_current)
+	max_energy = maxi(1, p_max)
+	var new_ratio: float = clampf(float(current_energy) / float(max_energy), 0.0, 1.0)
+	
+	if new_ratio > _target_ratio:
+		_target_ratio = new_ratio
+		if _catchup_tween == null or not _catchup_tween.is_valid() or not _catchup_tween.is_running():
+			_catchup_tween = create_tween()
+			_catchup_tween.tween_property(self, "liquid_ratio", _target_ratio, 0.5).set_delay(0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		else:
+			_catchup_tween.kill()
+			_catchup_tween = create_tween()
+			_catchup_tween.tween_property(self, "liquid_ratio", _target_ratio, 0.5).set_delay(0.5).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	elif new_ratio < _target_ratio:
+		if _catchup_tween and _catchup_tween.is_valid():
+			_catchup_tween.kill()
+		_target_ratio = new_ratio
+		liquid_ratio = new_ratio
+	queue_redraw()
+
+func set_charge(p_current: int, p_max: int = 10000) -> void:
+	set_energy(p_current, p_max)
+
+func trigger_firing_anim() -> void:
+	_recoil_offset_x = -12.0
+	_show_muzzle_flash = true
+	_flash_frame = 0
+	
+	var tw: Tween = create_tween()
+	tw.set_parallel(true)
+	# Recoil shake tween: kick backward left, then return smoothly
+	tw.tween_property(self, "_recoil_offset_x", 0.0, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(self, "_flash_frame", 3, 0.22).set_trans(Tween.TRANS_LINEAR)
+	tw.chain().tween_callback(func():
+		_show_muzzle_flash = false
+		_recoil_offset_x = 0.0
+		_target_ratio = 0.0
+		liquid_ratio = 0.0
+		queue_redraw()
+	)
+	queue_redraw()
 
 func apply_status(status_id: StringName, stacks: int) -> void:
 	if stacks <= 0:
@@ -54,50 +112,72 @@ func set_sidearm_cooldowns(_slots: Array) -> void:
 	pass
 
 func _process(_delta: float) -> void:
-	if _status_stacks.size() > 0:
+	if _status_stacks.size() > 0 or absf(_recoil_offset_x) > 0.0 or _show_muzzle_flash or _target_ratio > 0.0 or liquid_ratio > 0.0:
 		queue_redraw()
 
 func _draw() -> void:
-	var center_x: float = 0.0
-	var base_y: float = CANNON_ZONE_HEIGHT * 0.5
-	var metal_dark: Color = Constants.gameplay_cannon_metal_dark()
-	var metal_mid: Color = Constants.gameplay_cannon_metal_mid()
-	var band: Color = Constants.gameplay_cannon_barrel_accent()
-	var muzzle: Color = Constants.gameplay_cannon_muzzle_glow()
-	# Base / wheels (dark metal)
-	draw_circle(Vector2(-18, base_y + 20), 16, metal_dark)
-	draw_arc(Vector2(-18, base_y + 20), 16, 0, TAU, 24, metal_mid, 2.0)
-	draw_circle(Vector2(18, base_y + 20), 16, metal_dark)
-	draw_arc(Vector2(18, base_y + 20), 16, 0, TAU, 24, metal_mid, 2.0)
-	# Chassis
-	var chassis := Rect2(-40, base_y - 8, 80, 28)
-	draw_rect(chassis, metal_mid)
-	draw_rect(
-		chassis,
-		band,
-		false,
-		2.0
-	)
-	# Barrel (pointing up slightly)
-	var barrel_start := Vector2(0, base_y - 18)
-	var barrel_end := Vector2(0, base_y - 18 - BARREL_LENGTH)
-	draw_line(barrel_start, barrel_end, metal_dark)
-	for i in range(3):
-		var r: float = BARREL_RADIUS - i * 2.0
-		var shade: Color = metal_dark.lerp(metal_mid, float(i) * 0.12)
-		draw_arc(barrel_start, r, -PI * 0.5 - 0.2, -PI * 0.5 + 0.2, 8, shade)
-		draw_arc(barrel_end, r, PI * 0.5 - 0.2, PI * 0.5 + 0.2, 8, shade)
-	# Barrel band (copper/goblin accent)
-	draw_rect(Rect2(-16, base_y - 22, 32, 8), band)
-	draw_rect(Rect2(-16, base_y - 22, 32, 8), band.lightened(0.12), false, 1.0)
-	# Muzzle glow (subtle)
-	draw_circle(barrel_end, 6, Color(muzzle.r, muzzle.g, muzzle.b, 0.6))
-	# --- Status effect overlays (flame, ice, lightning; same style as minions) ---
+	var center_x: float = _recoil_offset_x
+	var center_y: float = 0.0
+
+	# 1. Render Cannon Sprite Asset (Crisp native scale: 43.5 x 30.0)
+	if CANNON_TEXTURE:
+		var sprite_w: float = 43.5
+		var sprite_h: float = 30.0
+		var sprite_rect := Rect2(center_x - sprite_w * 0.5, center_y - sprite_h * 0.5, sprite_w, sprite_h)
+		draw_texture_rect(CANNON_TEXTURE, sprite_rect, false)
+
+	# 2. Render High-Contrast Accessibility Energy Charge Bar Overlay
+	if _target_ratio > 0.0 or liquid_ratio > 0.0:
+		var bar_w: float = 60.0
+		var bar_h: float = 8.0
+		var bar_x: float = center_x - bar_w * 0.5
+		var bar_y: float = center_y + 18.0
+		var bg_rect := Rect2(bar_x, bar_y, bar_w, bar_h)
+		
+		# Background Box (Dark slate container)
+		draw_rect(bg_rect, Color("#090d14"), true)
+		draw_rect(bg_rect, Color("#334155"), false, 1.5)
+
+		# Primary Yellow Catch-Up Fill Bar (smoothly lerps/catches up to target_ratio)
+		if liquid_ratio > 0.0:
+			var fill_w: float = (bar_w - 2.0) * liquid_ratio
+			if fill_w > 0.0:
+				var fill_rect := Rect2(bar_x + 1.0, bar_y + 1.0, fill_w, bar_h - 2.0)
+				var fill_col := Color("#d97706").lerp(Color("#f59e0b"), liquid_ratio)
+				draw_rect(fill_rect, fill_col, true)
+
+		# Stark High-Contrast Pure White Lead Target Box (Pure #FFFFFF Fill with Black Outline & Height Protrusion)
+		if _target_ratio > liquid_ratio:
+			var start_x: float = bar_x + 1.0 + (bar_w - 2.0) * liquid_ratio
+			var lead_w: float = (bar_w - 2.0) * (_target_ratio - liquid_ratio)
+			if lead_w > 0.0:
+				# Black Separator Line between yellow bar and white box
+				draw_line(Vector2(start_x, bar_y - 2.0), Vector2(start_x, bar_y + bar_h + 2.0), Color(0.0, 0.0, 0.0, 1.0), 2.0)
+				# Protruding Outer Black Outline Box
+				var outline_rect := Rect2(start_x, bar_y - 2.0, lead_w, bar_h + 4.0)
+				draw_rect(outline_rect, Color(0.0, 0.0, 0.0, 1.0), true)
+				# Solid Pure White Inner Fill (#FFFFFF)
+				var inner_rect := Rect2(start_x + 1.0, bar_y - 1.0, maxf(1.0, lead_w - 2.0), bar_h + 2.0)
+				draw_rect(inner_rect, Color(1.0, 1.0, 1.0, 1.0), true)
+
+	# 3. Cartoon Coffee Fire VFX Muzzle Blast (Lined up against the right side of the sprite)
+	if _show_muzzle_flash and FIRE_VFX_TEXTURE:
+		var frame_idx: int = clampi(_flash_frame, 0, 15)
+		var col: int = frame_idx % 4
+		var row: int = frame_idx / 4
+		var src_rect := Rect2(col * 1024, row * 1024, 1024, 1024)
+		var flash_w: float = 48.0
+		var flash_h: float = 48.0
+		var muzzle_right_x: float = center_x + 21.75
+		var dest_rect := Rect2(muzzle_right_x, center_y - flash_h * 0.5, flash_w, flash_h)
+		draw_texture_rect_region(FIRE_VFX_TEXTURE, dest_rect, src_rect, Color(1, 1, 1, 0.95))
+
+	# 4. Status effect overlays (flame, ice, lightning)
 	var flame_stacks: int = _status_stacks.get(Constants.STATUS_FIRE, 0)
 	var frozen_stacks: int = _status_stacks.get(Constants.STATUS_FROZEN, 0)
 	var lightning_stacks: int = _status_stacks.get(Constants.STATUS_LIGHTNING, 0)
 	var sz: float = STATUS_OVERLAY_SIZE
-	var center: Vector2 = Vector2(0.0, base_y)
+	var center := Vector2(center_x, center_y)
 	if flame_stacks > 0:
 		var v: Vector2 = _cannon_stack_alpha_sat(flame_stacks)
 		var base_orange := Color(1.0, 0.5, 0.1, v.x)

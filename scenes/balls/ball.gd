@@ -327,9 +327,9 @@ func apply_hopper_physics(inside: bool) -> void:
 	_in_hopper_bin = inside
 	if inside:
 		physics_material_override = _hopper_material
-		linear_damp = 3.0
+		linear_damp = 0.8
 		lock_rotation = false
-		angular_damp = 6.0
+		angular_damp = 1.5
 		if _phantom_trail_particles:
 			_phantom_trail_particles.emitting = false
 	else:

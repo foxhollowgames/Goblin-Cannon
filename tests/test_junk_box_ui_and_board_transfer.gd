@@ -28,7 +28,6 @@ func test_junk_box_panel_drawer_layout_and_toggle() -> void:
 
 	var drawer: PanelContainer = panel.get_node_or_null("DrawerPanel") as PanelContainer
 	assert_true(drawer != null, "DrawerPanel child exists")
-	assert_eq(drawer.anchor_left, 1.0, "drawer anchored to right screen edge")
 	assert_eq(drawer.anchor_right, 1.0, "drawer anchored to right screen edge")
 
 	assert_false(panel.visible, "panel is hidden initially")
@@ -64,18 +63,9 @@ func test_junk_box_tooltip_generation() -> void:
 	item.module_data = mod
 
 	panel._update_tooltip(item)
-	var lbl: RichTextLabel = panel.get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/VBoxInfo/InfoPanel/TooltipLabel") as RichTextLabel
-	assert_true(lbl != null, "TooltipLabel exists")
-	assert_true(lbl.text.contains("Heavy Gearbox"), "tooltip includes item display name")
-	assert_true(lbl.text.contains("Tier:"), "tooltip includes tier level")
-	assert_true(lbl.text.contains("Bumpers: 1"), "tooltip shows bumper count")
-	assert_true(lbl.text.contains("Accelerators: 1"), "tooltip shows accelerator count")
-	assert_true(lbl.text.contains("Funnels: 1"), "tooltip shows funnel count")
-	assert_true(lbl.text.contains("Boosters: 1"), "tooltip shows rotary booster count")
-
+	var lbl: RichTextLabel = panel._get_tooltip_lbl()
+	assert_true(lbl == null, "TooltipLabel removed from sidebar layout")
 	panel._update_tooltip(null)
-	assert_true(lbl.text.contains("Hover"), "tooltip resets to prompt when item is null")
-
 	panel.free()
 
 func test_drag_controller_bag_to_board_drop() -> void:

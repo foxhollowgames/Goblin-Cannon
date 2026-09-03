@@ -20,9 +20,9 @@ const PolyominoModuleNode = preload("res://scenes/board/machinery/polyomino_modu
 const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
 const PolyominoGoalRewardHandler = preload("res://scenes/board/machinery/polyomino_goal_reward_handler.gd")
 const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
-const BOARD_GRID_COLS: int = 16
+const BOARD_GRID_COLS: int = 15
 const BOARD_GRID_ROWS: int = 8
-const BOARD_GRID_START_X: float = 90.0
+const BOARD_GRID_START_X: float = 116.0
 const BOARD_GRID_START_Y: float = 200.0
 const BOARD_GRID_COL_SPACING: float = 52.0
 const BOARD_GRID_ROW_SPACING: float = 56.0
@@ -2782,14 +2782,19 @@ func _format_module_tooltip_body(item: JunkBoxItem) -> String:
 	if relic_id == &"" and item.module_data != null:
 		relic_id = item.module_data.module_id
 
-	if item.module_data != null:
-		body += "Tier: %d  |  Size: %d Cells\n" % [item.module_data.tier, item.module_data.get_cell_count()]
-	var shape_name: String = PolyominoRelicDatabase.get_relic_shape_name(relic_id) if relic_id != &"" else ""
-	if not shape_name.is_empty():
-		body += "Shape: %s\n" % shape_name
-	var desc: String = PolyominoRelicDatabase.get_relic_kinetic_description(relic_id) if relic_id != &"" else ""
-	if not desc.is_empty():
-		body += "\n[u]Machinery & Effect[/u]\n%s" % desc
+	var goal_desc: String = PolyominoRelicDatabase.get_relic_goal_description(relic_id) if relic_id != &"" else ""
+	var reward_desc: String = PolyominoRelicDatabase.get_relic_reward_description(relic_id) if relic_id != &"" else ""
+
+	if not goal_desc.is_empty():
+		body += "[u]Activation Requirement[/u]\n%s" % goal_desc
+	if not reward_desc.is_empty():
+		if not body.is_empty():
+			body += "\n\n"
+		body += "[u]Relic Effect[/u]\n%s" % reward_desc
+	if body.is_empty():
+		var desc: String = PolyominoRelicDatabase.get_relic_kinetic_description(relic_id) if relic_id != &"" else ""
+		if not desc.is_empty():
+			body += "[u]Machinery & Effect[/u]\n%s" % desc
 	return body
 
 ## Converts a global/board world position into integer board grid coordinates (col, row).
@@ -3014,6 +3019,33 @@ func unslot_module(instance_id: StringName) -> Resource:
 
 	module_unslotted_from_board.emit(item)
 	return item
+
+## Unslots a module from the board and returns it to the Junk Box inventory.
+## If target_cell is specified (x >= 0, y >= 0), attempts to place it at target_cell.
+## Otherwise, automatically finds the first available slot in the junk box.
+## Returns true if successfully returned to the junk box, false if transfer failed.
+func return_module_to_junk_box(instance_id: StringName, junk_box: JunkBoxData = null, target_cell: Vector2i = Vector2i(-1, -1)) -> bool:
+	if not _placed_modules.has(instance_id):
+		return false
+	var jb: JunkBoxData = junk_box if junk_box != null else (GameState.junk_box if GameState and GameState.junk_box != null else null)
+	if jb == null:
+		return false
+	var item: Resource = _placed_modules[instance_id]
+	var orig_grid_pos: Vector2i = item.grid_position if "grid_position" in item else Vector2i.ZERO
+	var orig_rot: int = item.rotation_step if "rotation_step" in item else 0
+
+	unslot_module(instance_id)
+
+	var success: bool = false
+	if target_cell.x >= 0 and target_cell.y >= 0:
+		success = jb.place_item(item, target_cell, orig_rot)
+	if not success:
+		success = jb.add_item_auto(item)
+
+	if not success:
+		place_module(item, orig_grid_pos, orig_rot)
+		return false
+	return true
 
 ## Returns the placed module occupying grid_pos, or null.
 func get_module_at_cell(grid_pos: Vector2i) -> Resource:

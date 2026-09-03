@@ -1,4 +1,4 @@
-﻿extends "res://tests/test_base.gd"
+extends "res://tests/test_base.gd"
 
 const BoardScript = preload("res://scenes/board/board.gd")
 const RewardHandlerScript = preload("res://scenes/rewards/reward_handler.gd")
@@ -48,7 +48,7 @@ func test_relic_draft_populates_junk_box_without_activating_passive() -> void:
 	rh.free()
 
 func test_board_placement_activates_relic_effect() -> void:
-	begin("Board placement activates relic effect in GameState")
+	begin("Board placement activates relic upgrade tracking in GameState")
 	_ensure_clean_state()
 
 	var board := Node2D.new()
@@ -57,11 +57,12 @@ func test_board_placement_activates_relic_effect() -> void:
 
 	var item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(&"explosion_radius")
 	assert_true(item != null, "item created")
-	assert_eq(GameState.explosion_radius_bonus, 0, "initial bonus is 0")
+	assert_false(GameState.has_wall_break_upgrade(&"explosion_radius"), "initial upgrade inactive")
 
 	var placed: bool = board.place_module(item, Vector2i(2, 2), 0)
 	assert_true(placed, "module placed on board")
-	assert_eq(GameState.explosion_radius_bonus, 1, "+1 explosion radius activated on board placement")
+	assert_true(GameState.has_wall_break_upgrade(&"explosion_radius"), "relic upgrade active on board placement")
+	assert_eq(GameState.explosion_radius_bonus, 0, "passive stat bonus remains 0 (effects are board triggered)")
 
 	board.free()
 
@@ -124,12 +125,13 @@ func test_multiple_relics_board_slotting_and_clear() -> void:
 	board.place_module(item1, Vector2i(0, 0), 0)
 	board.place_module(item2, Vector2i(5, 0), 0)
 
-	assert_eq(GameState.cannon_base_damage_bonus, 10, "devastating barrage active")
+	assert_true(GameState.has_wall_break_upgrade(&"devastating_barrage"), "devastating barrage active")
 	assert_true(GameState.has_boss_upgrade(&"cascade_reactor"), "cascade reactor active")
+	assert_eq(GameState.cannon_base_damage_bonus, 0, "passive stat bonus remains 0 (board triggered)")
 
 	board.clear_all_placed_modules()
 
-	assert_eq(GameState.cannon_base_damage_bonus, 0, "devastating barrage reverted on clear")
+	assert_false(GameState.has_wall_break_upgrade(&"devastating_barrage"), "devastating barrage reverted on clear")
 	assert_false(GameState.has_boss_upgrade(&"cascade_reactor"), "cascade reactor reverted on clear")
 
 	board.free()

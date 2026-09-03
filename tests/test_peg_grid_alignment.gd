@@ -39,11 +39,11 @@ func test_coordinate_mapping_and_spacing() -> void:
 	var board: Node2D = Node2D.new()
 	board.set_script(BoardScript)
 
-	assert_eq(board.BOARD_GRID_COLS, 16, "BOARD_GRID_COLS is 16")
+	assert_eq(board.BOARD_GRID_COLS, 15, "BOARD_GRID_COLS is 15")
 	assert_eq(board.BOARD_GRID_ROWS, 8, "BOARD_GRID_ROWS is 8")
 	assert_eq(board.BOARD_GRID_COL_SPACING, 52.0, "BOARD_GRID_COL_SPACING is 52.0")
 	assert_eq(board.BOARD_GRID_ROW_SPACING, 56.0, "BOARD_GRID_ROW_SPACING is 56.0")
-	assert_eq(board.BOARD_GRID_START_X, 90.0, "BOARD_GRID_START_X is 90.0")
+	assert_eq(board.BOARD_GRID_START_X, 116.0, "BOARD_GRID_START_X is 116.0")
 	assert_eq(board.BOARD_GRID_START_Y, 200.0, "BOARD_GRID_START_Y is 200.0")
 
 	for r in range(board.BOARD_GRID_ROWS):
@@ -57,7 +57,7 @@ func test_coordinate_mapping_and_spacing() -> void:
 			assert_eq(roundtrip, cell, "world position roundtrips to grid cell %s" % str(cell))
 
 	# Test fuzzy coordinate snapping
-	var fuzzy: Vector2 = Vector2(90.0 + 3.0 * 52.0 + 12.0, 200.0 + 4.0 * 56.0 - 15.0)
+	var fuzzy: Vector2 = Vector2(116.0 + 3.0 * 52.0 + 12.0, 200.0 + 4.0 * 56.0 - 15.0)
 	var snapped: Vector2i = board.world_to_board_cell(fuzzy)
 	assert_eq(snapped, Vector2i(3, 4), "fuzzy position snaps to nearest grid cell (3, 4)")
 
@@ -70,8 +70,8 @@ func test_initial_pegs_grid_alignment() -> void:
 	board.set_script(BoardScript)
 	board._ready()
 
-	var expected_total_pegs: int = (board.BOARD_GRID_COLS * board.BOARD_GRID_ROWS) / 2
-	assert_eq(board._peg_by_id.size(), expected_total_pegs, "spawned exact 64 initial pegs (half of 16x8 cells)")
+	var expected_total_pegs: int = 60
+	assert_eq(board._peg_by_id.size(), expected_total_pegs, "spawned exact 60 initial pegs")
 
 	for r in range(board.BOARD_GRID_ROWS):
 		for c in range(board.BOARD_GRID_COLS):
@@ -143,13 +143,13 @@ func test_grid_query_helpers() -> void:
 
 	# Bounds check
 	assert_true(board.is_cell_in_bounds(Vector2i(0, 0)), "(0,0) is in bounds")
-	assert_true(board.is_cell_in_bounds(Vector2i(15, 7)), "(15,7) is in bounds")
+	assert_true(board.is_cell_in_bounds(Vector2i(14, 7)), "(14,7) is in bounds")
 	assert_false(board.is_cell_in_bounds(Vector2i(-1, 0)), "(-1,0) is out of bounds")
-	assert_false(board.is_cell_in_bounds(Vector2i(16, 0)), "(16,0) is out of bounds")
+	assert_false(board.is_cell_in_bounds(Vector2i(15, 0)), "(15,0) is out of bounds")
 	assert_false(board.is_cell_in_bounds(Vector2i(0, 8)), "(0,8) is out of bounds")
 
-	# Staggered board has 64 empty cells initially
-	assert_eq(board.get_empty_grid_cells().size(), 64, "64 empty cells on initial staggered board")
+	# Staggered board has 60 empty cells initially
+	assert_eq(board.get_empty_grid_cells().size(), 60, "60 empty cells on initial staggered board")
 	assert_false(board.is_cell_empty(Vector2i(0, 0)), "cell (0,0) has peg")
 	assert_true(board.is_cell_empty(Vector2i(1, 0)), "cell (1,0) is empty spot")
 
@@ -158,7 +158,7 @@ func test_grid_query_helpers() -> void:
 	assert_true(removed != null, "unslot_peg_at_cell returns peg")
 	assert_true(board.is_cell_empty(Vector2i(0, 0)), "cell (0,0) is now empty")
 	assert_eq(board.get_peg_at_cell(Vector2i(0, 0)), null, "get_peg_at_cell returns null for unslotted cell")
-	assert_eq(board.get_empty_grid_cells().size(), 65, "65 empty cells on board")
+	assert_eq(board.get_empty_grid_cells().size(), 61, "61 empty cells on board")
 
 	if removed:
 		removed.free()

@@ -27,5 +27,5 @@ position = Vector2(270, 44)
 [node name="ProjectilesContainer" type="Node2D" parent="."]
 
 [node name="CannonVisual" type="Node2D" parent="."]
-position = Vector2(160, 660)
+position = Vector2(50, 628)
 script = ExtResource("3_cannon")

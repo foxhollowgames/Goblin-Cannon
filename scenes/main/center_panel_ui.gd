@@ -41,62 +41,46 @@ func _apply_progress_bar_theme(bar: ProgressBar, fill_color: Color) -> void:
 	fill.set_corner_radius_all(3)
 	bar.add_theme_stylebox_override("fill", fill)
 
+const CircularCannonWidgetScript = preload("res://scenes/ui/circular_cannon_widget.gd")
+
+var _circular_cannon_widget: Control = null
+
 func _ready() -> void:
 	_energy_flow_vfx_scene = load("res://scenes/ui/energy_flow_vfx.tscn") as PackedScene
-	var wall_under: Control = get_node_or_null("ConquestBar/WallHealthUnder/BarContainer") as Control
-	if wall_under:
-		_wall_health_label = wall_under.get_node_or_null("ValueLabel") as Label
-		_wall_health_bar = wall_under.get_node_or_null("WallHealthBar") as ProgressBar
-		if _wall_health_bar:
-			_apply_progress_bar_theme(_wall_health_bar, MonsterPalette.DUSTY_ROSE())
-	# Hide the health and sidearm buckets (no longer used)
-	var health_bucket: Control = get_node_or_null("BottomEnergyPools/BucketsPanel/HBox/HealthBucket") as Control
-	if health_bucket:
-		health_bucket.visible = false
-	var sidearm_bucket: Control = get_node_or_null("BottomEnergyPools/BucketsPanel/HBox/SidearmBucket") as Control
-	if sidearm_bucket:
-		sidearm_bucket.visible = false
 	var ui: Node = get_parent()
 	if ui:
-		_run_gold_label = ui.get_node_or_null("LeftPanel/RunGold") as Label
+		var wall_container: Control = ui.get_node_or_null("LeftPanel/TopWallContainer") as Control
+		if wall_container:
+			_wall_health_label = wall_container.get_node_or_null("ValueLabel") as Label
+			_wall_health_bar = wall_container.get_node_or_null("WallHealthBar") as ProgressBar
+			if _wall_health_bar:
+				_apply_progress_bar_theme(_wall_health_bar, MonsterPalette.DUSTY_ROSE())
+		_run_gold_label = ui.find_child("RunGold", true, false) as Label
 		if _run_gold_label:
 			_run_gold_label.add_theme_color_override("font_color", Color(0.94, 0.58, 0.20, 1.0))
-		var charge_bucket: Control = ui.get_node_or_null("CenterPanel/BottomEnergyPools/BucketsPanel/HBox/ChargeBucket/BarContainer") as Control
-		if charge_bucket:
-			_charge_bar = charge_bucket
-			_charge_label = charge_bucket.get_node_or_null("ValueLabel") as Label
-			_charge_progress = charge_bucket.get_node_or_null("Bar") as ProgressBar
-			if _charge_progress:
-				_apply_progress_bar_theme(_charge_progress, COLOR_MAIN)
-	var bag_panel: Control = get_node_or_null("BagPanel") as Control
-	if bag_panel:
-		_bag_label = bag_panel.get_node_or_null("BagLabel") as Label
-	var conquest_bar: VBoxContainer = get_node_or_null("ConquestBar") as VBoxContainer
-	if conquest_bar:
-		var content: Node = conquest_bar.get_node_or_null("ConquestContentCenter/ConquestContent")
-		if content:
-			_conquest_path = content.get_node_or_null("ConquestPathWrapper/ConquestPath") as VBoxContainer
-			_conquest_goal_label = content.get_node_or_null("ConquestGoalLabel") as Label
-			_gate_title_label = _conquest_goal_label
-	# Create timer label above the conquest bar
+		_circular_cannon_widget = ui.find_child("CircularCannonWidget", true, false) as Control
+
 	_create_timer_label()
 
 func _create_timer_label() -> void:
 	_timer_label = Label.new()
 	_timer_label.name = "TimerLabel"
 	_timer_label.text = "3:00"
-	_timer_label.add_theme_font_size_override("font_size", 32)
+	_timer_label.add_theme_font_size_override("font_size", 22)
 	_timer_label.add_theme_color_override("font_color", MonsterPalette.SWATCH_CREAM())
 	_timer_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_timer_label.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
-	# Insert at the top of the CenterPanel
-	var cannon_col: VBoxContainer = get_node_or_null("CannonColumn") as VBoxContainer
-	if cannon_col:
-		cannon_col.add_child(_timer_label)
-		cannon_col.move_child(_timer_label, 0)
-	else:
-		add_child(_timer_label)
-		_timer_label.position = Vector2(0, 4)
+	_timer_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+
+	var ui: Node = get_parent()
+	if ui:
+		var left_panel: Control = ui.get_node_or_null("LeftPanel") as Control
+		if left_panel:
+			left_panel.add_child(_timer_label)
+			_timer_label.position = Vector2(288, 15)
+			_timer_label.size = Vector2(65, 24)
+			return
+	add_child(_timer_label)
+	_timer_label.position = Vector2(10, 4)
 
 func set_gate_name(gate_name: String) -> void:
 	if _gate_title_label:
@@ -186,7 +170,7 @@ func set_fortification(current: int, maximum: int) -> void:
 
 func set_run_gold(amount: int) -> void:
 	if _run_gold_label:
-		_run_gold_label.text = "Gold: %d" % amount
+		_run_gold_label.text = "%d" % amount
 
 func set_bag(count: int) -> void:
 	if _bag_label:
@@ -200,6 +184,13 @@ func set_charge(current: int, threshold: int) -> void:
 		_charge_progress.max_value = float(threshold)
 		_charge_progress.value = float(current)
 		_charge_progress.queue_redraw()
+	if _circular_cannon_widget:
+		_circular_cannon_widget.set_energy(current, threshold)
+	var main: Node = get_tree().current_scene if get_tree() else null
+	if main:
+		var cannon_visual: Node2D = main.find_child("CannonVisual", true, false) as Node2D
+		if cannon_visual and cannon_visual.has_method("set_charge"):
+			cannon_visual.set_charge(current, threshold)
 
 func set_timer(seconds_remaining: float) -> void:
 	if not _timer_label:
@@ -217,12 +208,20 @@ func set_timer(seconds_remaining: float) -> void:
 
 ## Energy gain VFX (only main cannon now).
 func show_energy_gain(main_internal: int, _sidearm_internal: int, _shield_internal: int, exit_position: Vector2, _alignment: int = 0) -> void:
-	var end_bar: Control = _charge_bar
+	var end_bar: Control = _circular_cannon_widget if _circular_cannon_widget else _charge_bar
+	if not end_bar and get_parent():
+		end_bar = get_parent().find_child("CircularCannonWidget", true, false) as Control
 	var amount_display: int = main_internal / 100
-	if not end_bar:
+	var end_pos: Vector2 = Vector2.ZERO
+	var main_scene: Node = get_tree().current_scene if get_tree() else null
+	var cannon_visual: Node2D = main_scene.find_child("CannonVisual", true, false) as Node2D if main_scene else null
+	if cannon_visual:
+		end_pos = cannon_visual.global_position + Vector2(0.0, 18.0)
+	elif end_bar:
+		var end_rect: Rect2 = end_bar.get_global_rect()
+		end_pos = end_rect.get_center()
+	else:
 		return
-	var end_rect: Rect2 = end_bar.get_global_rect()
-	var end_pos: Vector2 = end_rect.get_center()
 
 	# One flying VFX per gain burst; rapid sources (e.g. many leech ticks) reuse the label only.
 	var reuse_label: bool = _energy_gain_label != null and is_instance_valid(_energy_gain_label) and _energy_gain_label.modulate.a > ENERGY_GAIN_ACCUMULATE_THRESHOLD
@@ -249,8 +248,11 @@ func _show_gain_on_main_bar(end_pos: Vector2, amount_display: int) -> void:
 			_energy_gain_label.queue_free()
 		_energy_gain_label = Label.new()
 		_energy_gain_label.text = "+%d" % _energy_gain_total
-		_energy_gain_label.position = end_pos + Vector2(8, -10)
-		_energy_gain_label.add_theme_font_size_override("font_size", 18)
+		var label_w: float = 80.0
+		_energy_gain_label.custom_minimum_size = Vector2(label_w, 20.0)
+		_energy_gain_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_energy_gain_label.position = end_pos + Vector2(-label_w * 0.5, 8.0)
+		_energy_gain_label.add_theme_font_size_override("font_size", 16)
 		_energy_gain_label.add_theme_color_override("font_color", COLOR_MAIN)
 		_energy_gain_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		get_parent().add_child(_energy_gain_label)
@@ -279,7 +281,7 @@ func show_gold_gain(amount: int, origin_position: Vector2) -> void:
 	if not end_target:
 		var ui: Node = get_parent()
 		if ui:
-			_run_gold_label = ui.get_node_or_null("LeftPanel/RunGold") as Label
+			_run_gold_label = ui.find_child("RunGold", true, false) as Label
 			end_target = _run_gold_label
 	if not end_target:
 		if GameState:
@@ -354,9 +356,10 @@ func _on_gold_gain_faded() -> void:
 func _pulse_gold_label() -> void:
 	if not _run_gold_label or not is_instance_valid(_run_gold_label):
 		return
-	_run_gold_label.pivot_offset = _run_gold_label.size * 0.5
+	var target: Control = _run_gold_label.get_parent() as Control if _run_gold_label.get_parent() is BoxContainer else _run_gold_label
+	target.pivot_offset = target.size * 0.5
 	if _gold_pulse_tween and _gold_pulse_tween.is_valid():
 		_gold_pulse_tween.kill()
 	_gold_pulse_tween = create_tween()
-	_gold_pulse_tween.tween_property(_run_gold_label, "scale", Vector2(1.15, 1.15), 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_gold_pulse_tween.tween_property(_run_gold_label, "scale", Vector2(1.0, 1.0), 0.12).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	_gold_pulse_tween.tween_property(target, "scale", Vector2(1.15, 1.15), 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	_gold_pulse_tween.tween_property(target, "scale", Vector2(1.0, 1.0), 0.12).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)

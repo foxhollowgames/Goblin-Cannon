@@ -165,7 +165,8 @@ func _update_ghost() -> void:
 		else:
 			ghost_preview.global_position = junk_box_grid_view.global_position + Vector2(final_cell.x * 48.0, final_cell.y * 48.0)
 
-		_ghost_visual.update_data(cells, cell_types, cell_size, valid, tier)
+		var mod_data: PolyominoModuleData = dragging_item.module_data if dragging_item != null else null
+		_ghost_visual.update_data(cells, mod_data, cell_size, valid, tier, current_rotation_step)
 	elif board and _is_mouse_over_board():
 		var col_spacing: float = board.BOARD_GRID_COL_SPACING if "BOARD_GRID_COL_SPACING" in board else 52.0
 		var row_spacing: float = board.BOARD_GRID_ROW_SPACING if "BOARD_GRID_ROW_SPACING" in board else 56.0
@@ -187,12 +188,20 @@ func _update_ghost() -> void:
 		else:
 			ghost_preview.global_position = mouse_pos
 
-		_ghost_visual.update_data(cells, cell_types, cell_size, valid, tier)
+		var mod_data: PolyominoModuleData = dragging_item.module_data if dragging_item != null else null
+		_ghost_visual.update_data(cells, mod_data, cell_size, valid, tier, current_rotation_step)
+	elif drag_source == DragSource.BOARD and junk_box_panel and junk_box_panel.is_visible_in_tree() and _is_mouse_over(junk_box_panel):
+		var cell_size := Vector2(48.0, 48.0)
+		ghost_preview.global_position = mouse_pos - Vector2(24.0, 24.0)
+		var can_fit: bool = junk_box_data != null and junk_box_data.find_first_available_slot(dragging_item).x >= 0
+		var mod_data: PolyominoModuleData = dragging_item.module_data if dragging_item != null else null
+		_ghost_visual.update_data(cells, mod_data, cell_size, can_fit, tier, current_rotation_step)
 	else:
 		# Floating in empty/invalid area
 		var cell_size := Vector2(48.0, 48.0)
 		ghost_preview.global_position = mouse_pos - Vector2(24.0, 24.0)
-		_ghost_visual.update_data(cells, cell_types, cell_size, false, tier)
+		var mod_data: PolyominoModuleData = dragging_item.module_data if dragging_item != null else null
+		_ghost_visual.update_data(cells, mod_data, cell_size, false, tier, current_rotation_step)
 
 func _handle_drop() -> void:
 	var mouse_pos: Vector2 = _get_safe_mouse_position()
@@ -207,7 +216,7 @@ func _handle_drop() -> void:
 
 		var final_cell: Vector2i = target_cell - get_current_grab_offset()
 		var ignore_id: StringName = dragging_item.instance_id if drag_source == DragSource.JUNK_BOX else &""
-		var valid: bool = junk_box_data.can_place_item(dragging_item, final_cell, current_rotation_step, ignore_id)
+		var valid: bool = junk_box_data.can_place_item(dragging_item, final_cell, current_rotation_step, ignore_id) if junk_box_data else false
 
 		if valid:
 			if drag_source == DragSource.BOARD:
@@ -216,6 +225,16 @@ func _handle_drop() -> void:
 				junk_box_data.place_item(dragging_item, final_cell, current_rotation_step)
 			else:
 				junk_box_data.move_item(dragging_item.instance_id, final_cell, current_rotation_step)
+		elif drag_source == DragSource.BOARD and junk_box_data:
+			if junk_box_data.add_item_auto(dragging_item):
+				pass
+			else:
+				_cancel_drag()
+		else:
+			_cancel_drag()
+	elif drag_source == DragSource.BOARD and junk_box_panel and junk_box_panel.is_visible_in_tree() and _is_mouse_over(junk_box_panel):
+		if junk_box_data and junk_box_data.add_item_auto(dragging_item):
+			pass
 		else:
 			_cancel_drag()
 	elif board and _is_mouse_over_board():
@@ -273,17 +292,19 @@ func _is_mouse_over_board() -> bool:
 # ==============================================================================
 class _GhostPreviewVisual extends Control:
 	var cells: Array[Vector2i] = []
-	var cell_types: Dictionary = {}
+	var module_data: PolyominoModuleData = null
 	var cell_size: Vector2 = Vector2(48.0, 48.0)
 	var is_valid: bool = true
 	var tier: int = 1
+	var rotation_step: int = 0
 
-	func update_data(p_cells: Array[Vector2i], p_types: Dictionary, p_size: Vector2, p_valid: bool, p_tier: int) -> void:
+	func update_data(p_cells: Array[Vector2i], p_module_data: PolyominoModuleData, p_size: Vector2, p_valid: bool, p_tier: int, p_rot_step: int = 0) -> void:
 		cells = p_cells
-		cell_types = p_types
+		module_data = p_module_data
 		cell_size = p_size
 		is_valid = p_valid
 		tier = p_tier
+		rotation_step = p_rot_step
 		queue_redraw()
 
 	func _draw() -> void:
@@ -293,27 +314,38 @@ class _GhostPreviewVisual extends Control:
 		var fill_color: Color = Color(0.2, 0.9, 0.3, 0.65) if is_valid else Color(0.95, 0.2, 0.2, 0.65)
 		var border_color: Color = Color(0.4, 1.0, 0.5, 0.9) if is_valid else Color(1.0, 0.4, 0.4, 0.9)
 
-		for c in cells:
+		var orig_cells: Array[Vector2i] = module_data.cells if module_data != null else []
+
+		for idx in range(cells.size()):
+			var c: Vector2i = cells[idx]
 			var rect := Rect2(c.x * cell_size.x + 2.0, c.y * cell_size.y + 2.0, cell_size.x - 4.0, cell_size.y - 4.0)
 			draw_rect(rect, fill_color)
 			draw_rect(rect, border_color, false, 2.5)
 
 			var center: Vector2 = rect.get_center()
-			var c_type: int = 0
-			if cell_types.has(c):
-				c_type = cell_types[c]
-			elif cell_types.has("%d,%d" % [c.x, c.y]):
-				c_type = cell_types["%d,%d" % [c.x, c.y]]
+			var orig_c: Vector2i = orig_cells[idx] if idx < orig_cells.size() else c
+			var c_type: int = module_data.get_cell_type_at(orig_c) if module_data != null else 0
 
+			if c_type == PolyominoModuleData.CellType.EMPTY:
+				continue
+
+			var orig_dir: Vector2 = module_data.get_cell_direction_at(orig_c) if module_data != null else Vector2.DOWN
+			var rot_dir: Vector2 = PolyominoModuleData.get_rotated_direction(orig_dir, rotation_step)
 			var icon_col: Color = border_color
-			if c_type == 3: # BUMPER
+
+			if c_type == PolyominoModuleData.CellType.BUMPER or c_type == PolyominoModuleData.CellType.POP_BUMPER:
 				draw_circle(center, rect.size.x * 0.22, icon_col)
-			elif c_type == 4: # ACCELERATOR
-				var pts: PackedVector2Array = [center + Vector2(0, -8), center + Vector2(8, 8), center + Vector2(-8, 8)]
-				draw_colored_polygon(pts, icon_col)
-			elif c_type == 2: # FUNNEL
+			elif c_type == PolyominoModuleData.CellType.ROTARY_BOOSTER:
+				draw_arc(center, 8.0, 0, TAU, 16, icon_col, 2.0)
+			elif c_type == PolyominoModuleData.CellType.FUNNEL:
 				draw_line(center + Vector2(-8, -8), center + Vector2(0, 8), icon_col, 2.0)
 				draw_line(center + Vector2(8, -8), center + Vector2(0, 8), icon_col, 2.0)
-			elif c_type == 5: # ROTARY_BOOSTER
-				draw_arc(center, 8.0, 0, TAU, 16, icon_col, 2.0)
+			else:
+				# Rotated directional chevrons for ACCELERATOR, DEFLECTOR, GUIDE_TRACK, KICKERS, DIVERTER, SINKHOLE, LOCK, etc.
+				var dir_norm: Vector2 = rot_dir.normalized() if rot_dir != Vector2.ZERO else Vector2.DOWN
+				var head: Vector2 = center + dir_norm * (rect.size.x * 0.28)
+				var perp: Vector2 = Vector2(-dir_norm.y, dir_norm.x) * (rect.size.x * 0.22)
+				var base_p: Vector2 = center - dir_norm * (rect.size.x * 0.15)
+				var pts: PackedVector2Array = [head, base_p + perp, base_p - perp]
+				draw_colored_polygon(pts, icon_col)
 

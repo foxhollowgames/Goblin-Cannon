@@ -4,6 +4,8 @@ extends Node
 
 signal wall_destroyed
 signal time_expired
+signal pushback_occurred(from_wall_index: int, to_wall_index: int)
+signal cannon_fired_at_wall(damage: int, remaining_hp: int, max_hp: int)
 
 const TICKS_PER_SECOND: int = 60
 ## Endless mode: ramp difficulty (testing). HP rises; timer tightens toward a floor.
@@ -85,6 +87,7 @@ func _on_main_fired(damage: int) -> void:
 	_wall_hp -= damage
 	if _wall_hp < 0:
 		_wall_hp = 0
+	cannon_fired_at_wall.emit(damage, _wall_hp, _wall_hp_max)
 	_emit_wall_destroyed_once()
 
 func _emit_wall_destroyed_once() -> void:
@@ -174,3 +177,16 @@ func get_current_gate_name() -> String:
 
 func is_all_walls_destroyed() -> bool:
 	return _current_wall_index >= _wall_names.size()
+
+func apply_defender_pushback() -> void:
+	var from_idx: int = _current_wall_index
+	if _current_wall_index > 0:
+		_current_wall_index -= 1
+	var city: CityDefinition = GameState.get_current_city_definition() if GameState else null
+	_wall_hp_max = city.get_wall_hp_max_for_index(_current_wall_index) if city else 200
+	_wall_hp = _wall_hp_max
+	_wall_destroyed_emitted = false
+	_time_expired_emitted = false
+	_timer_ticks_remaining = _get_wall_time_ticks(_current_wall_index)
+	pushback_occurred.emit(from_idx, _current_wall_index)
+

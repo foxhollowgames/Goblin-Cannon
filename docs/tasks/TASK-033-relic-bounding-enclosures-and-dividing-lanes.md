@@ -1,6 +1,6 @@
 # TASK-033: Relic Bounding Enclosures, Perimeter Walls, and Dividing Lanes
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay / Physics
 - **Target Branch:** `feature/relic-bounding-enclosures`
@@ -46,8 +46,8 @@ Enable relics to guide, channel, or divide ball movement physically across the b
 
 ## Acceptance Criteria
 
-- [ ] Relic definitions specify outer wall enclosures and internal dividing lines.
-- [ ] Edge collision segments generate on solid borders and rotate cleanly.
-- [ ] Funnel relics guide balls through entrance and exit openings.
-- [ ] Visual comic outlines render on all solid wall boundaries.
-- [ ] Headless unit tests verify enclosure definitions and collision generation.
+- [x] Relic definitions specify outer wall enclosures and internal dividing lines.
+- [x] Edge collision segments generate on solid borders and rotate cleanly.
+- [x] Funnel relics guide balls through entrance and exit openings.
+- [x] Visual comic outlines render on all solid wall boundaries.
+- [x] Headless unit tests verify enclosure definitions and collision generation.

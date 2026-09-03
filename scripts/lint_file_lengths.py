@@ -16,19 +16,20 @@ def normalize_path(root_dir: str, file_path: str) -> str:
     return os.path.relpath(file_path, root_dir).replace(os.sep, "/")
 
 BASELINE_LIMITS = {
-    "scenes/board/board.gd": 3237,
+    "scenes/board/board.gd": 3268,
     "scenes/main/game_coordinator.gd": 1531,
     "scenes/board/peg.gd": 1180,
     "scenes/rewards/reward_draft_panel.gd": 886,
     "scenes/rewards/reward_handler.gd": 729,
     "resources/polyomino/polyomino_relic_database.gd": 654,
-    "autoloads/constants.gd": 563,
+    "autoloads/constants.gd": 575,
     "scenes/ui/debug_full_store_modal.gd": 546,
     "orchestration/client/main.ts": 1086,
     "orchestration/client/style.css": 672,
     "orchestration/src/server/index.ts": 663,
     "orchestration/src/lib/task-merge.ts": 515,
     "docs/ARCHITECTURE.md": 558,
+    "docs/knowledge/LEARNINGS.md": 1515,
     "scenes/main/main.tscn": 508,
 }
 

@@ -1,6 +1,6 @@
 # TASK-018: Tetromino Module Combining and Fusion Design
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay
 - **Target Branch:** `feature/tetromino-module-fusion`
@@ -26,6 +26,6 @@ Define how players combine duplicate or weak modules into powerful, high-tier ki
 
 ## Acceptance Criteria
 
-- [ ] Select and document the primary combination mechanic (tier merging, rarity fusion, or recipe blueprints).
-- [ ] Document the rule set for upgrading duplicate and low-tier modules.
-- [ ] Define the UI flow for dragging and combining modules in the scrapbox toolbox.
+- [x] Select and document the primary combination mechanic (tier merging, rarity fusion, or recipe blueprints).
+- [x] Document the rule set for upgrading duplicate and low-tier modules.
+- [x] Define the UI flow for dragging and combining modules in the scrapbox toolbox.

@@ -67,39 +67,39 @@ func test_kinetic_glyph_types_and_directions() -> void:
 	begin("Kinetic glyph types and directional flow definitions")
 	var preview: RelicLayoutPreview = RelicLayoutPreview.new()
 
-	# Test Bumper component relic
+	# Test Standup Target component relic
 	preview.setup_for_relic(&"supernova_peg")
 	var mod_bumper: PolyominoModuleData = preview.get_module_data()
 	assert_true(mod_bumper != null, "supernova_peg module exists")
 	var has_bumper: bool = false
 	for c in mod_bumper.cells:
-		if mod_bumper.get_cell_type_at(c) == PolyominoModuleData.CellType.BUMPER:
+		if mod_bumper.get_cell_type_at(c) == PolyominoModuleData.CellType.STANDUP_TARGET:
 			has_bumper = true
-	assert_true(has_bumper, "supernova_peg contains bumper cell")
+	assert_true(has_bumper, "supernova_peg contains standup target cell")
 
-	# Test Accelerator component relic with directional vector
+	# Test Spinner component relic with directional vector
 	preview.setup_for_relic(&"hyper_elastic")
 	var mod_accel: PolyominoModuleData = preview.get_module_data()
 	assert_true(mod_accel != null, "hyper_elastic module exists")
 	var has_accel: bool = false
 	for c in mod_accel.cells:
-		if mod_accel.get_cell_type_at(c) == PolyominoModuleData.CellType.ACCELERATOR:
+		if mod_accel.get_cell_type_at(c) == PolyominoModuleData.CellType.SPINNER:
 			has_accel = true
 			var dir: Vector2 = mod_accel.get_cell_direction_at(c)
-			assert_eq(dir, Vector2.UP, "hyper_elastic accelerator direction is UP")
-	assert_true(has_accel, "hyper_elastic contains accelerator cell")
+			assert_eq(dir, Vector2.UP, "hyper_elastic spinner direction is UP")
+	assert_true(has_accel, "hyper_elastic contains spinner cell")
 
-	# Test Funnel component relic
+	# Test Ball Lock component relic
 	preview.setup_for_relic(&"perpetual_engine")
 	var mod_funnel: PolyominoModuleData = preview.get_module_data()
 	assert_true(mod_funnel != null, "perpetual_engine module exists")
 	var has_funnel: bool = false
 	for c in mod_funnel.cells:
-		if mod_funnel.get_cell_type_at(c) == PolyominoModuleData.CellType.FUNNEL:
+		if mod_funnel.get_cell_type_at(c) == PolyominoModuleData.CellType.BALL_LOCK:
 			has_funnel = true
 			var f_dir: Vector2 = mod_funnel.get_cell_direction_at(c)
-			assert_eq(f_dir, Vector2.DOWN, "perpetual_engine funnel direction is DOWN")
-	assert_true(has_funnel, "perpetual_engine contains funnel cell")
+			assert_eq(f_dir, Vector2.DOWN, "perpetual_engine ball lock direction is DOWN")
+	assert_true(has_funnel, "perpetual_engine contains ball lock cell")
 
 	# Test Rotary Booster component relic
 	preview.setup_for_relic(&"storm_of_fragments")
@@ -121,15 +121,15 @@ func test_kinetic_glyph_types_and_directions() -> void:
 			has_siphon = true
 	assert_true(has_siphon, "blood_tithe contains mana siphon cell")
 
-	# Test Directional Deflector component relic
+	# Test Mechanical Diverter component relic
 	preview.setup_for_relic(&"shrapnel_split")
 	var mod_deflector: PolyominoModuleData = preview.get_module_data()
 	assert_true(mod_deflector != null, "shrapnel_split module exists")
 	var has_deflector: bool = false
 	for c in mod_deflector.cells:
-		if mod_deflector.get_cell_type_at(c) == PolyominoModuleData.CellType.DIRECTIONAL_DEFLECTOR:
+		if mod_deflector.get_cell_type_at(c) == PolyominoModuleData.CellType.MECHANICAL_DIVERTER:
 			has_deflector = true
-	assert_true(has_deflector, "shrapnel_split contains directional deflector cell")
+	assert_true(has_deflector, "shrapnel_split contains mechanical diverter cell")
 
 	preview.free()
 

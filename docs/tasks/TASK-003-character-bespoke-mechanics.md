@@ -1,6 +1,6 @@
 # TASK-003: Character Bespoke Progression Mechanics
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems
 - **Target Branch:** `feature/character-mechanics`
@@ -34,7 +34,7 @@ Each character swaps out a major piece of the game experience for their upgrades
 
 ## Acceptance Criteria
 
-- [ ] The Merchant Shop is active for the Goblin and hidden for secondary characters.
-- [ ] Each secondary character archetype connects to a dedicated upgrade interface or system.
-- [ ] Base pegboard physics, collision detection, and energy routing function identically for all characters.
-- [ ] Automated tests verify mechanic isolation and calculations.
+- [x] The Merchant Shop is active for the Goblin and hidden for secondary characters.
+- [x] Each secondary character archetype connects to a dedicated upgrade interface or system.
+- [x] Base pegboard physics, collision detection, and energy routing function identically for all characters.
+- [x] Automated tests verify mechanic isolation and calculations.

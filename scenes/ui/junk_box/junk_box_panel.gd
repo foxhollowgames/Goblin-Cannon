@@ -8,6 +8,9 @@ const JunkBoxData = preload("res://resources/inventory/junk_box_data.gd")
 const JunkBoxGridView = preload("res://scenes/ui/junk_box/junk_box_grid_view.gd")
 const JunkBoxDragController = preload("res://scenes/ui/junk_box/junk_box_drag_controller.gd")
 
+const MARGIN_RIGHT_OVERFLOW: int = 2
+const MARGIN_RIGHT_DEFAULT: int = 6
+
 signal closed
 
 var _game_coordinator: Node
@@ -17,7 +20,6 @@ var drag_controller: Node = null
 @onready var drawer_panel: PanelContainer = $DrawerPanel
 @onready var grid_view: JunkBoxGridView = $DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/ScrollContainer/JunkBoxGridView
 @onready var scroll_container: ScrollContainer = $DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/ScrollContainer
-@onready var tooltip_lbl: RichTextLabel = $DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/VBoxInfo/InfoPanel/TooltipLabel
 @onready var close_btn: Button = $DrawerPanel/MarginContainer/VBoxContainer/HBoxTitle/CloseBtn
 @onready var sort_btn: Button = $DrawerPanel/MarginContainer/VBoxContainer/HBoxTitle/SortBtn
 
@@ -32,7 +34,11 @@ func _ensure_drag_controller_exists() -> void:
 			add_child(drag_controller)
 
 func _ready() -> void:
-	hide()
+	if _sidebar_mode:
+		show()
+		_apply_sidebar_layout()
+	else:
+		hide()
 	_ensure_drag_controller_exists()
 	if grid_view:
 		drag_controller.junk_box_grid_view = grid_view
@@ -41,10 +47,16 @@ func _ready() -> void:
 			grid_view.item_hovered.connect(_on_item_hovered)
 		if not grid_view.item_unhovered.is_connected(_on_item_unhovered):
 			grid_view.item_unhovered.connect(_on_item_unhovered)
+		if not grid_view.grid_size_changed.is_connected(update_scroll_bar_visibility):
+			grid_view.grid_size_changed.connect(update_scroll_bar_visibility)
 	if drawer_panel:
 		drag_controller.junk_box_panel = drawer_panel
 	if scroll_container:
 		drag_controller.scroll_container = scroll_container
+		if not scroll_container.resized.is_connected(_on_scroll_container_resized):
+			scroll_container.resized.connect(_on_scroll_container_resized)
+
+
 
 	if close_btn and not close_btn.pressed.is_connected(_close):
 		close_btn.pressed.connect(_close)
@@ -80,6 +92,9 @@ func set_board(p_board: Node) -> void:
 		p_board.set_drag_controller(drag_controller)
 
 func toggle() -> void:
+	if _sidebar_mode:
+		show()
+		return
 	if visible:
 		_close()
 	else:
@@ -88,8 +103,13 @@ func toggle() -> void:
 func _open() -> void:
 	_update_tooltip(null)
 	show()
+	if _sidebar_mode:
+		_apply_sidebar_layout()
 
 func _close() -> void:
+	if _sidebar_mode:
+		show()
+		return
 	hide()
 	closed.emit()
 
@@ -99,8 +119,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventKey:
 		var key: InputEventKey = event as InputEventKey
 		if key.pressed and not key.echo and key.keycode == KEY_ESCAPE:
-			_close()
-			get_viewport().set_input_as_handled()
+			if not _sidebar_mode:
+				_close()
+				get_viewport().set_input_as_handled()
 
 func _on_sort_pressed() -> void:
 	if GameState.junk_box != null:
@@ -113,19 +134,11 @@ func _on_item_unhovered() -> void:
 	_update_tooltip(null)
 
 func _get_tooltip_lbl() -> RichTextLabel:
-	if tooltip_lbl:
-		return tooltip_lbl
-	tooltip_lbl = get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/VBoxInfo/InfoPanel/TooltipLabel") as RichTextLabel
-	return tooltip_lbl
+	return null
 
-func _update_tooltip(item: JunkBoxItem) -> void:
-	var lbl: RichTextLabel = _get_tooltip_lbl()
-	if lbl == null:
-		return
+func _format_item_tooltip(item: JunkBoxItem) -> String:
 	if item == null:
-		lbl.text = "[color=#cfbba8]Hover an item in the box to inspect details.[/color]"
-		return
-	
+		return "[color=#cfbba8]Hover an item in the box to inspect details.[/color]"
 	var text: String = "[b][color=#f4d06f]%s[/color][/b]\n" % item.display_name
 	var relic_id: StringName = &""
 	if "custom_payload" in item and item.custom_payload is Dictionary:
@@ -161,4 +174,121 @@ func _update_tooltip(item: JunkBoxItem) -> void:
 			if a > 0: text += "• Accelerators: %d\n" % a
 			if f > 0: text += "• Funnels: %d\n" % f
 			if r > 0: text += "• Boosters: %d\n" % r
-	lbl.text = text
+	return text
+
+func _update_tooltip(item: JunkBoxItem) -> void:
+	var lbl: RichTextLabel = _get_tooltip_lbl()
+	if lbl == null:
+		return
+	lbl.text = _format_item_tooltip(item)
+
+var _sidebar_mode: bool = false
+
+func integrate_into_sidebar(parent_container: Control) -> void:
+	if parent_container == null:
+		return
+	_sidebar_mode = true
+	var p: Node = get_parent()
+	if p and p != parent_container:
+		p.remove_child(self)
+	if get_parent() != parent_container:
+		parent_container.add_child(self)
+
+	_apply_sidebar_layout()
+
+func _apply_sidebar_layout() -> void:
+	_sidebar_mode = true
+	var p: PanelContainer = drawer_panel if drawer_panel else get_node_or_null("DrawerPanel") as PanelContainer
+	var c_btn: Button = close_btn if close_btn else get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxTitle/CloseBtn") as Button
+	var s_cont: ScrollContainer = scroll_container if scroll_container else get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/ScrollContainer") as ScrollContainer
+	var hbox: BoxContainer = get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent") as BoxContainer
+
+	anchors_preset = Control.PRESET_FULL_RECT
+	anchor_left = 0.0
+	anchor_top = 0.0
+	anchor_right = 1.0
+	anchor_bottom = 1.0
+	offset_left = 0
+	offset_top = 0
+	offset_right = 0
+	offset_bottom = 0
+
+	if p:
+		p.anchors_preset = Control.PRESET_FULL_RECT
+		p.anchor_left = 0.0
+		p.anchor_top = 0.0
+		p.anchor_right = 1.0
+		p.anchor_bottom = 1.0
+		p.offset_left = 0
+		p.offset_top = 0
+		p.offset_right = 0
+		p.offset_bottom = 0
+		p.custom_minimum_size = Vector2(304, 720)
+
+	if c_btn:
+		c_btn.visible = false
+
+	if hbox and hbox is HBoxContainer:
+		(hbox as HBoxContainer).vertical = true
+
+	if s_cont:
+		s_cont.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		s_cont.custom_minimum_size = Vector2(290, 200)
+
+	show()
+
+func is_integrated_in_sidebar() -> bool:
+	return _sidebar_mode
+
+func get_pegboard_preview_scale() -> float:
+	return 1.0
+
+func update_scroll_bar_visibility() -> void:
+	var s_cont: ScrollContainer = scroll_container if scroll_container else get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/ScrollContainer") as ScrollContainer
+	var g_view: JunkBoxGridView = grid_view if grid_view else get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/ScrollContainer/JunkBoxGridView") as JunkBoxGridView
+	if s_cont == null or g_view == null:
+		return
+
+	var v_bar: VScrollBar = s_cont.get_v_scroll_bar()
+	var content_height: float = g_view.custom_minimum_size.y
+	var container_height: float = s_cont.size.y if s_cont.size.y > 0.0 else s_cont.custom_minimum_size.y
+
+	if container_height > 0.0 and content_height <= container_height:
+		s_cont.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+		if v_bar:
+			v_bar.visible = false
+	else:
+		s_cont.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+		if v_bar:
+			v_bar.visible = true
+
+	_adjust_container_margins()
+
+func _adjust_container_margins() -> void:
+	var s_cont: ScrollContainer = scroll_container if scroll_container else get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/ScrollContainer") as ScrollContainer
+	var g_view: JunkBoxGridView = grid_view if grid_view else get_node_or_null("DrawerPanel/MarginContainer/VBoxContainer/HBoxContent/ScrollContainer/JunkBoxGridView") as JunkBoxGridView
+	if s_cont == null:
+		return
+	var margin_cont: MarginContainer = get_node_or_null("DrawerPanel/MarginContainer") as MarginContainer
+	if margin_cont == null:
+		return
+
+	var v_bar: VScrollBar = s_cont.get_v_scroll_bar()
+	var container_height: float = s_cont.size.y if s_cont.size.y > 0.0 else s_cont.custom_minimum_size.y
+	var is_overflowing: bool = false
+	if g_view != null and container_height > 0.0:
+		is_overflowing = g_view.custom_minimum_size.y > container_height
+	if v_bar != null and v_bar.visible:
+		is_overflowing = true
+
+	if is_overflowing:
+		margin_cont.add_theme_constant_override("margin_right", MARGIN_RIGHT_OVERFLOW)
+	else:
+		margin_cont.add_theme_constant_override("margin_right", MARGIN_RIGHT_DEFAULT)
+
+
+func _on_scroll_container_resized() -> void:
+	if grid_view:
+		grid_view.update_grid_size()
+
+

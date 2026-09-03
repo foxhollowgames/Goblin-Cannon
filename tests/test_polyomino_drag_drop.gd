@@ -76,8 +76,8 @@ func test_board_module_placement_and_bounds() -> void:
 	assert_false(board.can_place_module(item, Vector2i(-1, 2)), "cannot place with negative col")
 
 	# Out of bounds: right edge overflow (T-shape width is 3 -> cols 0, 1, 2)
-	assert_false(board.can_place_module(item, Vector2i(14, 2)), "cannot place overflowing right edge")
-	assert_true(board.can_place_module(item, Vector2i(13, 2), -1, &"mod_t_1"), "fits right at edge (cols 13, 14, 15)")
+	assert_false(board.can_place_module(item, Vector2i(13, 2)), "cannot place overflowing right edge")
+	assert_true(board.can_place_module(item, Vector2i(12, 2), -1, &"mod_t_1"), "fits right at edge (cols 12, 13, 14)")
 
 	# Out of bounds: bottom edge overflow (T-shape height is 2 -> rows 0, 1)
 	assert_false(board.can_place_module(item, Vector2i(2, 7)), "cannot place overflowing bottom edge")

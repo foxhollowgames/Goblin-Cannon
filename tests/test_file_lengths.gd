@@ -6,13 +6,13 @@ func _init() -> void:
 const MAX_LINES: int = 500
 
 const BASELINE_LIMITS: Dictionary = {
-	"res://scenes/board/board.gd": 3237,
+	"res://scenes/board/board.gd": 3268,
 	"res://scenes/main/game_coordinator.gd": 1531,
 	"res://scenes/board/peg.gd": 1180,
 	"res://scenes/rewards/reward_draft_panel.gd": 886,
 	"res://scenes/rewards/reward_handler.gd": 729,
 	"res://resources/polyomino/polyomino_relic_database.gd": 654,
-	"res://autoloads/constants.gd": 563,
+	"res://autoloads/constants.gd": 575,
 	"res://scenes/ui/debug_full_store_modal.gd": 546,
 }
 

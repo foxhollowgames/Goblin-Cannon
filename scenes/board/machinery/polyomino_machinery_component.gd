@@ -14,11 +14,19 @@ const MAX_PITCH_SCALE: float = 1.05
 
 @export var local_cell: Vector2i = Vector2i.ZERO
 @export var cell_type: int = 0
-@export var direction: Vector2 = Vector2.DOWN
+@export var direction: Vector2 = Vector2.DOWN: set = set_direction
 @export var base_energy: int = 0
 @export var impulse_strength: float = 0.0
 @export var is_permeable: bool = false
 @export var component_radius: float = 18.0
+
+func set_direction(p_dir: Vector2) -> void:
+	direction = p_dir
+	_update_direction()
+	queue_redraw()
+
+func _update_direction() -> void:
+	pass
 
 var _last_hit_tick_by_ball: Dictionary = {}  # ball_id (int) -> int (sim_tick)
 var _spring_scale: Vector2 = Vector2.ONE

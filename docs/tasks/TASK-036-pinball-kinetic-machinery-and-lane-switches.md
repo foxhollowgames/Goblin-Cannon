@@ -1,9 +1,10 @@
 # TASK-036: Pinball Kinetic Machinery, Rollover Lane Switches, and Device Roster Revision
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay / Design
-- **Target Branch:** \eature/pinball-kinetic-machinery- **Related Tasks:** [TASK-024](TASK-024-polyomino-relic-shapes-and-sizes.md), [TASK-026](TASK-026-polyomino-internal-machinery-and-bumpers.md), [TASK-033](TASK-033-relic-bounding-enclosures-and-dividing-lanes.md)
+- **Target Branch:** `feature/pinball-kinetic-machinery`
+- **Related Tasks:** [TASK-024](TASK-024-polyomino-relic-shapes-and-sizes.md), [TASK-026](TASK-026-polyomino-internal-machinery-and-bumpers.md), [TASK-033](TASK-033-relic-bounding-enclosures-and-dividing-lanes.md)
 
 ## Description
 
@@ -27,7 +28,7 @@ Remove or rework devices that do not fit the pinball tactile theme (such as stat
 ### 2. Rollover Lane Bank & Completion Logic
 - Support grouping of lane switches within a polyomino module.
 - Track lit state per switch during active ball simulation ticks.
-- Trigger signal \ank_completed(bank_id: StringName, reward_type: int, reward_value: int)\ when all switches in a group are lit.
+- Trigger signal `bank_completed(bank_id: StringName, reward_type: int, reward_value: int)` when all switches in a group are lit.
 - Reset lit states on round completion or when bank resets.
 
 ### 3. Visual & Audio Feedback
@@ -36,12 +37,12 @@ Remove or rework devices that do not fit the pinball tactile theme (such as stat
 - Jackpot fanfare chime on full bank completion.
 
 ### 4. Data Model Integration
-- Register new device types in \PolyominoModuleData.CellType\.
-- Update \PolyominoRelicDatabase\ to integrate rollover lanes and target banks across thematic relics.
-- Update \RelicLayoutPreview\ to render distinct pinball component glyphs.
+- Register new device types in `PolyominoModuleData.CellType`.
+- Update `PolyominoRelicDatabase` to integrate rollover lanes and target banks across thematic relics.
+- Update `RelicLayoutPreview` to render distinct pinball component glyphs.
 
 ### 5. Automated Tests
-- Unit tests in \	ests/test_pinball_machinery.gd\ validating:
+- Unit tests in `tests/test_pinball_machinery.gd` validating:
   - Rollover lane hit detection and state changes.
   - Full bank completion triggers and jackpot rewards.
   - Drop target hit registration and reset cycles.
@@ -51,8 +52,8 @@ Remove or rework devices that do not fit the pinball tactile theme (such as stat
 
 ## Acceptance Criteria
 
-- [ ] Rollover lane switches record hits and illuminate individually.
-- [ ] Bank completion logic triggers bonus rewards when all grouped switches are lit.
-- [ ] Incongruous non-pinball devices are removed or converted to tactile pinball mechanics.
-- [ ] Visual indicators and audio cues show active switch states.
-- [ ] Headless unit tests verify all new kinetic pinball components.
+- [x] Rollover lane switches record hits and illuminate individually.
+- [x] Bank completion logic triggers bonus rewards when all grouped switches are lit.
+- [x] Incongruous non-pinball devices are removed or converted to tactile pinball mechanics.
+- [x] Visual indicators and audio cues show active switch states.
+- [x] Headless unit tests verify all new kinetic pinball components.

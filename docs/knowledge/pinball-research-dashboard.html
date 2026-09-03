@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Physical Pinball Machine Component Research</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    body {
+      background-color: #090d16;
+      color: #f1f5f9;
+    }
+    .component-card {
+      background-color: #0f172a;
+      border: 1px solid #1e293b;
+      transition: all 0.2s ease-in-out;
+    }
+    .component-card:hover {
+      transform: translateY(-2px);
+      border-color: #38bdf8;
+      box-shadow: 0 4px 20px -2px rgba(56, 189, 248, 0.15);
+    }
+    .table-img {
+      width: 140px;
+      height: 96px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      cursor: pointer;
+      transition: transform 0.2s ease-in-out;
+    }
+    .table-img:hover {
+      transform: scale(1.05);
+      border-color: #38bdf8;
+    }
+    /* Modal Lightbox Overlay */
+    #lightbox {
+      display: none;
+    }
+    #lightbox.active {
+      display: flex;
+    }
+  </style>
+</head>
+<body class="bg-[#090d16] text-slate-100 antialiased p-6 min-h-screen">
+
+  <div class="max-w-6xl mx-auto space-y-8">
+    
+    <!-- Header Banner -->
+    <header class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2 border border-cyan-500/20">
+          TASK-047 Strict Physical Pinball Research
+        </div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-white">Physical Pinball Playfield Component Analysis</h1>
+        <p class="text-slate-400 text-sm mt-1">
+          Click any image to enlarge full size. Dedicated physical photo representation of real board objects.
+        </p>
+      </div>
+      <div class="flex gap-2">
+        <a href="#physical-table" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold rounded-lg shadow-lg transition">
+          Physical Component Table 📋
+        </a>
+      </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <div class="flex border-b border-slate-800 gap-6 overflow-x-auto text-sm font-medium">
+      <a href="#physical-table" class="pb-3 border-b-2 border-cyan-400 text-cyan-400 font-semibold">Physical Component Table</a>
+      <a href="#machines" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Real Board Photos</a>
+      <a href="#quotes" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Player Sentiment</a>
+      <a href="#sources" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Sources & Videos</a>
+    </div>
+
+    <!-- Section 1: STRICT PHYSICAL PINBALL COMPONENT TAXONOMY TABLE (WITH LARGER PHOTOS) -->
+    <section id="physical-table" class="space-y-4">
+      <h2 class="text-2xl font-bold flex items-center gap-2 text-white">
+        <span>📋</span> Strict Physical Pinball Component Taxonomy (Click Images to Enlarge)
+      </h2>
+      <p class="text-slate-300 text-sm">
+        Comprehensive documentation of real physical pinball board components, solenoids, and mechanical hardware:
+      </p>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="border-b border-slate-800 text-slate-400">
+              <th class="pb-3 font-semibold w-40">Photo (Click to Enlarge)</th>
+              <th class="pb-3 font-semibold">Physical Component</th>
+              <th class="pb-3 font-semibold">Mechanical Target Type</th>
+              <th class="pb-3 font-semibold">Plain-English Physical Operation</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/60 text-xs">
+            <tr>
+              <td class="py-3"><img src="images/pop_bumper.jpg" alt="Pop Bumper" class="table-img" onclick="openLightbox(this.src, 'Pop Bumpers (Jet Bumpers)')"></td>
+              <td class="py-3 font-bold text-cyan-300">Pop Bumpers (Jet Bumpers)</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 font-mono">Active Solenoid Ring</span></td>
+              <td class="py-3 text-slate-200 leading-relaxed">Cylindrical bumpers with a floating ring. When touched, an under-board solenoid fires downward, violently repelling the steel ball.</td>
+            </tr>
+            <tr>
+              <td class="py-3"><img src="images/drop_target.jpg" alt="Drop Target" class="table-img" onclick="openLightbox(this.src, 'Drop Target Banks')"></td>
+              <td class="py-3 font-bold text-emerald-300">Drop Target Banks</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 font-mono">Falling Plastic Plates</span></td>
+              <td class="py-3 text-slate-200 leading-relaxed">Vertical plastic plates over solenoid slots. Hits knock plates flat below the wooden board. Solenoids reset targets upward.</td>
+            </tr>
+            <tr>
+              <td class="py-3"><img src="images/standup_target.jpg" alt="Standup Target" class="table-img" onclick="openLightbox(this.src, 'Standup Target Banks')"></td>
+              <td class="py-3 font-bold text-white">Standup Target Banks</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Stationary Leaf Switches</span></td>
+              <td class="py-3 text-slate-300 leading-relaxed">Rigid plastic or metal plates mounted to playfield wood. They stay upright on contact and bounce the ball backwards.</td>
+            </tr>
+            <tr>
+              <td class="py-3"><img src="images/spinner.jpg" alt="Spinner" class="table-img" onclick="openLightbox(this.src, 'Spinners (Spinning Targets)')"></td>
+              <td class="py-3 font-bold text-amber-300">Spinners (Spinning Targets)</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-mono">Hinged Axle Plate</span></td>
+              <td class="py-3 text-slate-200 leading-relaxed">Metal plates hinged above a lane. Passing balls push under the plate, spinning it rapidly to trigger repeated switch contacts.</td>
+            </tr>
+            <tr>
+              <td class="py-3"><img src="images/scoop.jpg" alt="Scoop" class="table-img" onclick="openLightbox(this.src, 'Scoops / Sinkholes')"></td>
+              <td class="py-3 font-bold text-purple-300">Scoops / Sinkholes</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/30 font-mono">Playfield Surface Cutouts</span></td>
+              <td class="py-3 text-slate-200 leading-relaxed">Holes cut into playfield wood. Balls roll in, fall into under-board troughs to pause play, and eject via solenoid kickers.</td>
+            </tr>
+            <tr>
+              <td class="py-3"><img src="images/addams_family.jpg" alt="Ball Lock" class="table-img" onclick="openLightbox(this.src, 'Physical Ball Locks')"></td>
+              <td class="py-3 font-bold text-rose-300">Physical Ball Locks</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/30 font-mono">Under-Board Troughs</span></td>
+              <td class="py-3 text-slate-200 leading-relaxed">Subterranean channels or mechanical traps holding 1 to 3 steel balls. Releasing all balls simultaneously starts Multi-Ball.</td>
+            </tr>
+            <tr>
+              <td class="py-3"><img src="images/ramp.jpg" alt="Ramp" class="table-img" onclick="openLightbox(this.src, 'Ramps & Habitrails')"></td>
+              <td class="py-3 font-bold text-white">Ramps & Habitrails</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Elevated Wire Tracks</span></td>
+              <td class="py-3 text-slate-300 leading-relaxed">Molded inclines and stainless steel wireform tracks. They carry balls over obstacles and deliver gravity returns to flipper lanes.</td>
+            </tr>
+            <tr>
+              <td class="py-3"><img src="images/attack_from_mars.jpg" alt="Orbit" class="table-img" onclick="openLightbox(this.src, 'Orbits & Loops')"></td>
+              <td class="py-3 font-bold text-white">Orbits & Loops</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Outer Perimeter Lanes</span></td>
+              <td class="py-3 text-slate-300 leading-relaxed">Smooth curved outer channels along playfield edges. Fast shots travel around the top loop and return down the opposite lane.</td>
+            </tr>
+            <tr>
+              <td class="py-3"><img src="images/slingshot.jpg" alt="Slingshot" class="table-img" onclick="openLightbox(this.src, 'Slingshots')"></td>
+              <td class="py-3 font-bold text-white">Slingshots</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Active Kicker Rubbers</span></td>
+              <td class="py-3 text-slate-300 leading-relaxed">Triangular rubber bands above flippers. Solenoid kicker arms behind the rubber bands launch the ball sideways across the board.</td>
+            </tr>
+            <tr>
+              <td class="py-3"><img src="images/rollover_lane.jpg" alt="Rollover Lane" class="table-img" onclick="openLightbox(this.src, 'Rollover Lanes')"></td>
+              <td class="py-3 font-bold text-white">Rollover Lanes</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Floor Wire Switches</span></td>
+              <td class="py-3 text-slate-300 leading-relaxed">Narrow channels with wire switch arms protruding through playfield wood. Balls roll over switch arms to register lane lighting.</td>
+            </tr>
+            <tr>
+              <td class="py-3"><img src="images/twilight_zone.jpg" alt="Captive Ball" class="table-img" onclick="openLightbox(this.src, 'Captive Balls / Newton Balls')"></td>
+              <td class="py-3 font-bold text-white">Captive Balls / Newton Balls</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Trapped Steel Ball Track</span></td>
+              <td class="py-3 text-slate-300 leading-relaxed">A steel ball trapped inside a short channel in front of a target switch. Ball impacts transfer energy through the trapped ball.</td>
+            </tr>
+            <tr>
+              <td class="py-3"><img src="images/magnet.jpg" alt="Under-Board Magnet" class="table-img" onclick="openLightbox(this.src, 'Under-Board Magnets')"></td>
+              <td class="py-3 font-bold text-white">Under-Board Magnets</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Electromagnet Coils</span></td>
+              <td class="py-3 text-slate-300 leading-relaxed">Coils under playfield wood. When energized, magnets capture, spin, hold, or throw steel balls in wild trajectories.</td>
+            </tr>
+            <tr>
+              <td class="py-3"><img src="images/playfield_hardware.jpg" alt="Mechanical Diverter" class="table-img" onclick="openLightbox(this.src, 'Mechanical Diverters')"></td>
+              <td class="py-3 font-bold text-white">Mechanical Diverters</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Solenoid Gate Flappers</span></td>
+              <td class="py-3 text-slate-300 leading-relaxed">Solenoid gates inside ramps or orbits that swing open or closed to redirect balls into different playfield channels.</td>
+            </tr>
+            <tr>
+              <td class="py-3"><img src="images/vuk.jpg" alt="Vertical Up Kicker" class="table-img" onclick="openLightbox(this.src, 'Vertical Up Kickers (VUKs)')"></td>
+              <td class="py-3 font-bold text-white">Vertical Up Kickers (VUKs)</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Under-Board Plunger Pots</span></td>
+              <td class="py-3 text-slate-300 leading-relaxed">Subterranean solenoid cups. When balls enter the pot under the table, vertical solenoids shoot balls up through board holes to upper rails.</td>
+            </tr>
+            <tr>
+              <td class="py-3"><img src="images/bash_toy.jpg" alt="Physical Bash Toy" class="table-img" onclick="openLightbox(this.src, 'Physical Bash Toys (Flying Saucer)')"></td>
+              <td class="py-3 font-bold text-amber-300">Physical Bash Toys</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/30 font-mono">Motorized Sculptures</span></td>
+              <td class="py-3 text-slate-200 leading-relaxed">Heavy interactive targets (Flying Saucer, Castle Gate). Direct ball hits trigger mechanical shaking, doors opening, or toy damage.</td>
+            </tr>
+            <tr>
+              <td class="py-3"><img src="images/slingshot.jpg" alt="Outlane Kickback" class="table-img" onclick="openLightbox(this.src, 'Outlane Kickbacks')"></td>
+              <td class="py-3 font-bold text-white">Outlane Kickbacks</td>
+              <td class="py-3"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700 font-mono">Solenoid Plunger Pins</span></td>
+              <td class="py-3 text-slate-300 leading-relaxed">Solenoid pins hidden inside bottom outlanes. Active kickbacks launch balls entering outlanes back onto the main playfield.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Section 2: Real Machine Case Studies -->
+    <section id="machines" class="space-y-4">
+      <h2 class="text-xl font-bold flex items-center gap-2 text-white">
+        <span>🎰</span> Iconic Pinball Machines (Real Physical Board Photos)
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <!-- Twilight Zone -->
+        <div class="component-card rounded-xl overflow-hidden p-0 shadow-lg flex flex-col justify-between">
+          <div class="relative h-64 overflow-hidden bg-slate-950">
+            <img src="images/twilight_zone.jpg" alt="Real Twilight Zone Pinball Machine" class="w-full h-full object-cover cursor-pointer hover:scale-105 transition" onclick="openLightbox(this.src, 'Twilight Zone (Bally 1993)')">
+            <div class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded text-xs font-mono text-cyan-300 border border-cyan-500/30">
+              Bally 1993
+            </div>
+          </div>
+          <div class="p-5 space-y-2 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="font-bold text-lg text-white">Twilight Zone</h3>
+              <p class="text-xs text-slate-400">Designer: Pat Lawlor</p>
+            </div>
+            <p class="text-xs text-slate-300">
+              Features a working physical Gumball Machine that stores real balls, magnetic mini-playfields, and a high-speed ceramic ball.
+            </p>
+          </div>
+        </div>
+
+        <!-- The Addams Family -->
+        <div class="component-card rounded-xl overflow-hidden p-0 shadow-lg flex flex-col justify-between">
+          <div class="relative h-64 overflow-hidden bg-slate-950">
+            <img src="images/addams_family.jpg" alt="Real Addams Family Pinball Machine" class="w-full h-full object-cover cursor-pointer hover:scale-105 transition" onclick="openLightbox(this.src, 'The Addams Family (Bally 1992)')">
+            <div class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded text-xs font-mono text-emerald-300 border border-emerald-500/30">
+              Bally 1992
+            </div>
+          </div>
+          <div class="p-5 space-y-2 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="font-bold text-lg text-white">The Addams Family</h3>
+              <p class="text-xs text-slate-400">Designer: Pat Lawlor</p>
+            </div>
+            <p class="text-xs text-slate-300">
+              Features "Thing's Hand" that reaches out of a box to physically steal and lock balls under the board.
+            </p>
+          </div>
+        </div>
+
+        <!-- Attack from Mars -->
+        <div class="component-card rounded-xl overflow-hidden p-0 shadow-lg flex flex-col justify-between">
+          <div class="relative h-64 overflow-hidden bg-slate-950">
+            <img src="images/attack_from_mars.jpg" alt="Real Attack from Mars Pinball Machine" class="w-full h-full object-cover cursor-pointer hover:scale-105 transition" onclick="openLightbox(this.src, 'Attack from Mars (Bally 1995)')">
+            <div class="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-md px-2.5 py-1 rounded text-xs font-mono text-amber-300 border border-amber-500/30">
+              Bally 1995
+            </div>
+          </div>
+          <div class="p-5 space-y-2 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="font-bold text-lg text-white">Attack from Mars</h3>
+              <p class="text-xs text-slate-400">Designer: Brian Eddy</p>
+            </div>
+            <p class="text-xs text-slate-300">
+              The gold standard of "Flow Layouts". Players shoot a central flying saucer target to make it wobble and explode.
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Section 3: Player Sentiment -->
+    <section id="quotes" class="space-y-4">
+      <h2 class="text-xl font-bold flex items-center gap-2 text-white">
+        <span>💬</span> Player Community Quotes & Sentiment
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2">
+          <h3 class="font-bold text-white text-sm">Attack from Mars — Flying Saucer Bash Toy</h3>
+          <p class="text-slate-300 italic leading-relaxed">
+            "Bashing the flying saucer in the center until it wobbles and explodes never gets old. It gives immediate physical feedback."
+          </p>
+          <span class="block text-slate-400 text-[10px]">— Pinside Collector Review</span>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 p-4 rounded-xl space-y-2">
+          <h3 class="font-bold text-white text-sm">Medieval Madness — Castle Gate Destruction</h3>
+          <p class="text-slate-300 italic leading-relaxed">
+            "Lowering the drawbridge and smashing open the castle gate provides the most satisfying physical reward in arcade gaming."
+          </p>
+          <span class="block text-slate-400 text-[10px]">— Pinside #1 Rated Review</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Research Sources & Videos -->
+    <section id="sources" class="space-y-4">
+      <h2 class="text-xl font-bold flex items-center gap-2 text-white">
+        <span>📚</span> Research Sources, Discourse & Video Reviews
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3 shadow-lg">
+          <h3 class="font-bold text-md flex items-center gap-2 text-white">
+            <span>🌐</span> Community Discourse & Ratings
+          </h3>
+          <ul class="text-xs space-y-2.5">
+            <li class="p-3 rounded-lg bg-slate-950 border border-slate-800 hover:border-cyan-500/40 transition">
+              <a href="https://pinside.com/pinball/top-100" target="_blank" class="font-semibold text-cyan-400 hover:underline flex justify-between items-center text-sm">
+                Pinside Top 100 Pinball Machines ↗
+              </a>
+              <p class="text-slate-400 mt-1">Community ranking database for machine layouts, playfield ratings, and mechanical reviews.</p>
+            </li>
+            <li class="p-3 rounded-lg bg-slate-950 border border-slate-800 hover:border-cyan-500/40 transition">
+              <a href="https://www.reddit.com/r/pinball/" target="_blank" class="font-semibold text-cyan-400 hover:underline flex justify-between items-center text-sm">
+                Reddit (r/pinball) Community ↗
+              </a>
+              <p class="text-slate-400 mt-1">Player discussions on flow vs stop-and-go layouts, shot geometry, and component chaos.</p>
+            </li>
+          </ul>
+        </div>
+
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3 shadow-lg">
+          <h3 class="font-bold text-md flex items-center gap-2 text-white">
+            <span>🎥</span> Video Reviews & Gameplay Guides
+          </h3>
+          <ul class="text-xs space-y-2.5">
+            <li class="p-3 rounded-lg bg-slate-950 border border-slate-800 hover:border-cyan-500/40 transition">
+              <a href="https://www.youtube.com/results?search_query=bowen+kerins+pinball+tutorial" target="_blank" class="font-semibold text-cyan-400 hover:underline flex justify-between items-center text-sm">
+                Bowen Kerins & PAPA Pinball Tutorials ↗
+              </a>
+              <p class="text-slate-400 mt-1">Masterclass video breakdowns of playfield geometry, ramp feeds, and ball control tactics.</p>
+            </li>
+            <li class="p-3 rounded-lg bg-slate-950 border border-slate-800 hover:border-cyan-500/40 transition">
+              <a href="https://www.youtube.com/results?search_query=todd+tuckey+coastline+pinball+review" target="_blank" class="font-semibold text-cyan-400 hover:underline flex justify-between items-center text-sm">
+                Todd Tuckey & Coastline Pinball Teardowns ↗
+              </a>
+              <p class="text-slate-400 mt-1">Mechanical inspections of solenoids, pop bumpers, habitrails, and physical bash toys.</p>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Interactive Lightbox Modal for Enlarge Full Size -->
+  <div id="lightbox" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 justify-center items-center p-4 flex flex-col space-y-3" onclick="closeLightbox()">
+    <div class="relative max-w-4xl max-h-[85vh] overflow-hidden rounded-xl border border-slate-700 bg-slate-900 shadow-2xl p-2" onclick="event.stopPropagation()">
+      <div class="flex justify-between items-center px-4 py-2 border-b border-slate-800">
+        <h3 id="lightbox-title" class="text-sm font-bold text-white"></h3>
+        <button onclick="closeLightbox()" class="text-slate-400 hover:text-white font-bold text-lg px-2">✕</button>
+      </div>
+      <div class="p-2 flex justify-center items-center overflow-auto max-h-[75vh]">
+        <img id="lightbox-img" src="" alt="Enlarged View" class="max-w-full max-h-[70vh] object-contain rounded">
+      </div>
+    </div>
+    <p class="text-xs text-slate-400">Click anywhere to close</p>
+  </div>
+
+  <script>
+    function openLightbox(src, title) {
+      document.getElementById('lightbox-img').src = src;
+      document.getElementById('lightbox-title').textContent = title || 'Full Size View';
+      document.getElementById('lightbox').classList.add('active');
+    }
+    function closeLightbox() {
+      document.getElementById('lightbox').classList.remove('active');
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeLightbox();
+    });
+  </script>
+
+</body>
+</html>
