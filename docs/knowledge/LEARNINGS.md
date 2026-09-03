@@ -105,6 +105,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-094`](#lrn-094) | TASK-051 | `godot_engine` | Pinball kinetic machinery subclass lifecycle and bonus energy dispatching | 2026-09-02 |
 | [`LRN-095`](#lrn-095) | TASK-046 | `ui` | Embedding animated terrain art inside corner cannon widget | 2026-09-03 |
 | [`LRN-096`](#lrn-096) | TASK-045 | `refactoring` | Removal of minion systems and dead combat references | 2026-09-03 |
+| [`LRN-097`](#lrn-097) | TASK-048 | `gameplay_systems` | Relic Pinball Widget Activation Binding and Charge Progress Telemetry | 2026-09-03 |
 
 ---
 
@@ -1643,5 +1644,21 @@ Removing deprecated gameplay entity scripts and scenes requires auditing autoloa
 
 #### Actionable Guideline for Future Agents
 When removing deprecated gameplay mechanics, audit autoloads for orphaned helper methods and constants, update architecture docs, regenerate AI directory, and verify the full test suite.
+
+---
+
+### <a id="lrn-097"></a> LRN-097: Relic Pinball Widget Activation Binding and Charge Progress Telemetry
+- **Task:** `TASK-048`
+- **Category:** `gameplay_systems`
+- **Created:** `2026-09-03T10:35:51.408287`
+
+#### Context & Problem
+Connecting polyomino relic trigger conditions directly to kinetic hits on integrated pinball machinery widgets while keeping tooltips uncluttered and file lengths strictly <= 500 lines.
+
+#### Key Insight & Learning
+Per-widget hit counts must be accumulated in PolyominoModuleNode and evaluated against explicit activation thresholds before triggering rewards and resetting counters. Drop targets knock down on hit, so bank evaluation must target distinct drop target components. In tooltips, slotted relics on the board should display concise live charge progress (X / Y) without duplicating inventory shape metadata.
+
+#### Actionable Guideline for Future Agents
+Store activation_requirement, required_widget_type, and activation_threshold in PolyominoModuleData with serialization. Draw dynamic radial arc gauges on interactive widgets during combat simulation. Keep PolyominoModuleNode <= 500 lines by compressing component instantiation match patterns.
 
 ---
