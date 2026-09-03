@@ -95,7 +95,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-062](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-062-dashboard-parked-ideas-column.md) | Visual Task Dashboard Parked Ideas Column | DevOps/Tooling/UI | P1 | DONE | `feature/dashboard-parked-ideas-column` |
 | [TASK-063](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-063-junk-box-relic-display-and-tooltip-fix.md) | Junk Box Relic Display Equivalence and Hover Tooltip Fix | UI/Polish/Gameplay | P1 | DONE | `fix/junk-box-relic-display-and-tooltips` |
 | [TASK-064](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-064-dashboard-card-category-chips.md) | Visual Task Dashboard Card Category Chips and File Path Removal | DevOps/Tooling/UI | P1 | DONE | `feature/dashboard-card-category-chips` |
-| [TASK-065](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-065-ui-wireframe-redesign.md) | UI Wireframe and Screen Layout Redesign | UI/Layout/Design | P1 | READY | `feature/ui-wireframe-redesign` |
+| [TASK-065](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-065-ui-wireframe-redesign.md) | UI Wireframe and Screen Layout Redesign | UI/Layout/Design | P1 | DONE | `feature/ui-wireframe-redesign` |
 
 
 

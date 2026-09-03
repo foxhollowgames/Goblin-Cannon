@@ -1,6 +1,6 @@
 # TASK-065: UI Wireframe and Screen Layout Redesign
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Layout / Design
 - **Target Branch:** `feature/ui-wireframe-redesign`
@@ -36,8 +36,8 @@ Establish clean spatial zones, responsive proportions, and visual hierarchy for 
 
 ## Acceptance Criteria
 
-- [ ] Complete wireframe layouts and coordinate maps documented for the primary gameplay screen.
-- [ ] Wireframe layouts documented for all modal screens (shop, pause, victory, defeat, comic takeovers).
-- [ ] Safe zone and padding guidelines established for 1280x720 canvas stretch modes.
-- [ ] Visual telemetry hierarchy verified to prevent gameplay information clutter.
-- [ ] Task registered in the master task board index and visual dashboard.
+- [x] Complete wireframe layouts and coordinate maps documented for the primary gameplay screen.
+- [x] Wireframe layouts documented for all modal screens (shop, pause, victory, defeat, comic takeovers).
+- [x] Safe zone and padding guidelines established for 1280x720 canvas stretch modes.
+- [x] Visual telemetry hierarchy verified to prevent gameplay information clutter.
+- [x] Task registered in the master task board index and visual dashboard.
