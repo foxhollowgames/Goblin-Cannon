@@ -113,6 +113,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-102`](#lrn-102) | TASK-057 | `godot_engine` | RichTextLabel Flyout Tooltip BBCode Formatting | 2026-09-03 |
 | [`LRN-103`](#lrn-103) | TASK-058 | `UI` | CanvasLayer hierarchy and pause blur | 2026-09-03 |
 | [`LRN-104`](#lrn-104) | TASK-059 | `UI` | HUD header bar cleanup and redundant button removal | 2026-09-03 |
+| [`LRN-105`](#lrn-105) | TASK-060 | `UI` | Keyword hover consistency and tooltip audit | 2026-09-03 |
 
 ---
 
@@ -1779,5 +1780,21 @@ Removing redundant HUD buttons frees space in header bars and eliminates unused 
 
 #### Actionable Guideline for Future Agents
 When an interface panel becomes permanent in a sidebar, remove its transient header bar toggle button and rely on direct sidebar interactions and standard hotkeys.
+
+---
+
+### <a id="lrn-105"></a> LRN-105: Keyword hover consistency and tooltip audit
+- **Task:** `TASK-060`
+- **Category:** `UI`
+- **Created:** `2026-09-03T14:28:53.695359`
+
+#### Context & Problem
+Tags like Explosive, Energized, Pop Bumper, and Siphon appeared in card and relic descriptions without glossary definitions or hover flyout connections.
+
+#### Key Insight & Learning
+Registering all ball ability tags and mechanic terms in KeywordDatabase and wrapping text surfaces via format_bbcode and attach_rich_text_label ensures full interactive flyout coverage.
+
+#### Actionable Guideline for Future Agents
+Every new gameplay tag, status effect, or widget term must have a canonical glossary entry in KeywordDatabase (<= 80 chars) and connect hover signals via attach_rich_text_label.
 
 ---
