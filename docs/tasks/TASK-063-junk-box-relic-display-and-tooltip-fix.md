@@ -1,6 +1,6 @@
 # TASK-063: Junk Box Relic Display Equivalence and Hover Tooltip Fix
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Polish / Gameplay
 - **Target Branch:** `fix/junk-box-relic-display-and-tooltips`
@@ -10,8 +10,8 @@
 
 Fix the relic visual display and hover tooltips in the Junk Box inventory grid.
 Relics in the Junk Box currently do not display the same way that they do on the active board:
-- In `JunkBoxGridView`, relics render as flat solid rectangles with crude primitive line/arc shapes instead of matching the board relic aesthetic (translucent cell backgrounds, comic ink perimeter borders, internal dividing lines, and detailed machinery component glyphs/sprites).
-- Relics in the Junk Box no longer show hover tooltips. `_get_tooltip_lbl()` in `junk_box_panel.gd` returns `null`, causing all hover tooltip updates to fail silently.
+1. In `JunkBoxGridView`, relics render as flat solid rectangles with crude primitive line/arc shapes instead of matching the board relic aesthetic (translucent cell backgrounds, comic ink perimeter borders, internal dividing lines, and detailed machinery component glyphs/sprites).
+2. Relics in the Junk Box no longer show hover tooltips. `_get_tooltip_lbl()` in `junk_box_panel.gd` returns `null`, causing all hover tooltip updates to fail silently.
 
 The Junk Box must render polyomino relics with visual equivalence to the board, and show full item tooltips using the standard flyout tooltip system when hovered.
 
@@ -49,10 +49,10 @@ The Junk Box must render polyomino relics with visual equivalence to the board, 
 
 ## Acceptance Criteria
 
-- [ ] Relics in the Junk Box display with translucent cell fills, comic ink outer borders, internal dividing lines, and proper kinetic machinery visuals.
-- [ ] Hovering over a relic in the Junk Box displays a flyout tooltip containing complete relic specifications.
-- [ ] Unhovering a relic or moving the mouse out of the Junk Box hides the tooltip.
-- [ ] Starting a drag-and-drop operation hides the tooltip immediately.
-- [ ] Drag-and-drop from Junk Box to the board continues to function cleanly.
-- [ ] All modified and new files remain strictly under 500 lines.
-- [ ] Headless unit tests pass cleanly.
+- [x] Relics in the Junk Box display with translucent cell fills, comic ink outer borders, internal dividing lines, and proper kinetic machinery visuals.
+- [x] Hovering over a relic in the Junk Box displays a flyout tooltip containing complete relic specifications.
+- [x] Unhovering a relic or moving the mouse out of the Junk Box hides the tooltip.
+- [x] Starting a drag-and-drop operation hides the tooltip immediately.
+- [x] Drag-and-drop from Junk Box to the board continues to function cleanly.
+- [x] All modified and new files remain strictly under 500 lines.
+- [x] Headless unit tests pass cleanly.
