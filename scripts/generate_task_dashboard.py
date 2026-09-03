@@ -11,6 +11,8 @@ import os
 import re
 import json
 import sys
+import datetime
+
 
 def parse_tasks(repo_root):
     readme_path = os.path.join(repo_root, "docs", "tasks", "README.md")
@@ -35,20 +37,19 @@ def parse_tasks(repo_root):
         category = m[3].strip()
         priority = m[4].strip()
         status = m[5].strip()
-        branch = m[6].strip()
+        branch = m[6].strip().strip('`')
 
-        summary = ""
+        summary, body, file_name = "", "", ""
         mtime = os.path.getmtime(readme_path)
         for fname in os.listdir(task_dir):
             if fname.startswith(task_id) and fname.endswith(".md"):
                 file_path = os.path.join(task_dir, fname)
+                file_name = fname
                 try:
                     mtime = os.path.getmtime(file_path)
                     with open(file_path, "r", encoding="utf-8") as tf:
-                        tcontent = tf.read()
-                        obj_m = re.search(r'##\s*Description\s*\n+([^#\n]+)', tcontent, re.IGNORECASE)
-                        if not obj_m:
-                            obj_m = re.search(r'##\s*1?\.\s*Objective\s*\n+([^#\n]+)', tcontent, re.IGNORECASE)
+                        body = tf.read()
+                        obj_m = re.search(r'##\s*(?:Description|1?\.\s*Objective)\s*\n+([^#\n]+)', body, re.IGNORECASE)
                         if obj_m:
                             summary = obj_m.group(1).strip()
                 except Exception:
@@ -57,29 +58,30 @@ def parse_tasks(repo_root):
 
         num_match = re.search(r'\d+', task_id)
         task_num = int(num_match.group()) if num_match else 0
+        mtime_str = datetime.datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M")
 
         domain = "Gameplay & Systems"
         cat_lower = category.lower()
-        if any(x in cat_lower for x in ["art", "ui", "cinematic", "narrative", "typography"]):
-            domain = "UI, Art & Narrative"
-        elif any(x in cat_lower for x in ["audio", "sound", "sfx"]):
-            domain = "Audio & Polish"
-        elif "devops" in cat_lower:
-            domain = "DevOps & Tooling"
-        elif any(x in cat_lower for x in ["control", "steering"]):
-            domain = "Controls & Input"
+        if any(x in cat_lower for x in ["art", "ui", "cinematic", "narrative", "typography"]): domain = "UI, Art & Narrative"
+        elif any(x in cat_lower for x in ["audio", "sound", "sfx"]): domain = "Audio & Polish"
+        elif "devops" in cat_lower: domain = "DevOps & Tooling"
+        elif any(x in cat_lower for x in ["control", "steering"]): domain = "Controls & Input"
+
 
         tasks.append({
             "id": task_id,
             "num": task_num,
             "mtime": mtime,
+            "mtime_str": mtime_str,
+            "file_name": file_name,
             "title": title,
             "category": category,
             "domain": domain,
             "priority": priority,
             "status": status,
             "branch": branch,
-            "summary": summary
+            "summary": summary,
+            "body": body
         })
 
     tasks.sort(key=lambda t: (t.get("mtime", 0.0), t.get("num", 0)), reverse=True)
@@ -98,7 +100,7 @@ def build_html(tasks):
     pct_backlog = round((backlog_count / total * 100), 1) if total > 0 else 0
 
     js_template = """const ALL_TASKS = __TASKS_JSON__;
-let viewMode = 'kanban';
+let viewMode = 'kanban', currentModalId = null;
 
 function setViewMode(mode) {
   viewMode = mode;
@@ -126,15 +128,11 @@ function getFilteredTasks() {
     return true;
   });
 
-  if (sort === 'recent') {
-    list.sort((a, b) => (b.mtime || 0) - (a.mtime || 0) || (b.num || 0) - (a.num || 0));
-  } else if (sort === 'oldest') {
-    list.sort((a, b) => (a.mtime || 0) - (b.mtime || 0) || (a.num || 0) - (b.num || 0));
-  } else if (sort === 'id_desc') {
-    list.sort((a, b) => (b.num || 0) - (a.num || 0));
-  } else if (sort === 'id_asc') {
-    list.sort((a, b) => (a.num || 0) - (b.num || 0));
-  } else if (sort === 'priority') {
+  if (sort === 'recent') list.sort((a, b) => (b.mtime || 0) - (a.mtime || 0) || (b.num || 0) - (a.num || 0));
+  else if (sort === 'oldest') list.sort((a, b) => (a.mtime || 0) - (b.mtime || 0) || (a.num || 0) - (b.num || 0));
+  else if (sort === 'id_desc') list.sort((a, b) => (b.num || 0) - (a.num || 0));
+  else if (sort === 'id_asc') list.sort((a, b) => (a.num || 0) - (b.num || 0));
+  else if (sort === 'priority') {
     const pMap = {'P0': 0, 'P1': 1, 'P2': 2};
     list.sort((a, b) => (pMap[a.priority] ?? 9) - (pMap[b.priority] ?? 9) || (b.mtime || 0) - (a.mtime || 0));
   }
@@ -143,11 +141,17 @@ function getFilteredTasks() {
 
 function renderCard(t) {
   const prioClass = t.priority === 'P0' ? 'badge-p0' : t.priority === 'P1' ? 'badge-p1' : 'badge-p2';
-  return `<div class="bg-slate-900/90 border border-slate-700/80 rounded-lg p-3 space-y-2 hover:border-slate-500 transition shadow-sm">
-    <div class="flex items-center justify-between"><span class="font-mono text-[11px] text-indigo-300 font-bold">${t.id}</span><span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${prioClass}">${t.priority}</span></div>
-    <h4 class="text-xs font-semibold text-white leading-snug">${t.title}</h4>
+  return `<div onclick="openTaskModal('${t.id}')" class="group bg-slate-900/90 border border-slate-700/80 hover:border-indigo-500 rounded-lg p-3 space-y-2 hover:bg-slate-800/60 transition cursor-pointer shadow-sm">
+    <div class="flex items-center justify-between">
+      <span class="font-mono text-[11px] text-indigo-300 font-bold flex items-center gap-1">${t.id} <span class="opacity-0 group-hover:opacity-100 text-indigo-400 text-[10px] transition">⤢</span></span>
+      <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${prioClass}">${t.priority}</span>
+    </div>
+    <h4 class="text-xs font-semibold text-white leading-snug group-hover:text-indigo-200">${t.title}</h4>
     ${t.summary ? `<p class="text-[11px] text-slate-400 line-clamp-2">${t.summary}</p>` : ''}
-    <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400"><span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">${t.category}</span><span class="font-mono text-[9px] text-slate-500 truncate max-w-[110px]">${t.branch}</span></div>
+    <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
+      <span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">${t.category}</span>
+      <span class="font-mono text-[9px] text-slate-500 truncate max-w-[110px]">${t.branch}</span>
+    </div>
   </div>`;
 }
 
@@ -181,7 +185,15 @@ function renderMatrix(tasks) {
 
 function renderList(tasks) {
   const tbody = document.getElementById('list-table-body');
-  tbody.innerHTML = tasks.map(t => `<tr class="hover:bg-slate-800/50 transition border-b border-slate-800"><td class="px-4 py-3 font-mono font-bold text-indigo-300">${t.id}</td><td class="px-4 py-3 font-semibold text-white">${t.title}</td><td class="px-4 py-3 text-slate-300">${t.domain}</td><td class="px-4 py-3 text-slate-400">${t.category}</td><td class="px-4 py-3"><span class="text-[10px] font-bold px-2 py-0.5 rounded badge-${t.priority.toLowerCase()}">${t.priority}</span></td><td class="px-4 py-3"><span class="text-[10px] font-bold px-2 py-0.5 rounded badge-${t.status.toLowerCase()}">${t.status}</span></td><td class="px-4 py-3 font-mono text-[10px] text-slate-400">${t.branch}</td></tr>`).join('');
+  tbody.innerHTML = tasks.map(t => `<tr onclick="openTaskModal('${t.id}')" class="hover:bg-slate-800/60 transition border-b border-slate-800 cursor-pointer group">
+    <td class="px-4 py-3 font-mono font-bold text-indigo-300 flex items-center gap-1">${t.id} <span class="opacity-0 group-hover:opacity-100 text-[10px] text-indigo-400">⤢</span></td>
+    <td class="px-4 py-3 font-semibold text-white group-hover:text-indigo-200">${t.title}</td>
+    <td class="px-4 py-3 text-slate-300">${t.domain}</td>
+    <td class="px-4 py-3 text-slate-400">${t.category}</td>
+    <td class="px-4 py-3"><span class="text-[10px] font-bold px-2 py-0.5 rounded badge-${t.priority.toLowerCase()}">${t.priority}</span></td>
+    <td class="px-4 py-3"><span class="text-[10px] font-bold px-2 py-0.5 rounded badge-${t.status.toLowerCase()}">${t.status}</span></td>
+    <td class="px-4 py-3 font-mono text-[10px] text-slate-400">${t.branch}</td>
+  </tr>`).join('');
 }
 
 function render() {
@@ -190,6 +202,122 @@ function render() {
   else if (viewMode === 'matrix') renderMatrix(filtered);
   else if (viewMode === 'list') renderList(filtered);
 }
+
+function formatMarkdown(md) {
+  if (!md) return '<p class="text-slate-400 italic text-xs">No task specification content found.</p>';
+  let text = md.replace(/^#[^\\n]+\\n+/, '').replace(/^(-\\s+\\*\\*[^*]+:\\*\\*.*\\n*)+/gm, '').trim();
+  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const fmtInline = s => s.replace(/`([^`]+)`/g, '<code class="bg-slate-800 border border-slate-700 text-indigo-300 px-1 py-0.5 rounded font-mono text-[10px]">$1</code>').replace(/\\*\\*([^*]+)\\*\\*/g, '<strong class="text-white font-semibold">$1</strong>').replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, '<a href="$2" target="_blank" class="text-indigo-400 hover:underline">$1</a>');
+  const lines = text.split('\\n');
+  let out = [], inUl = false, inTbl = false, tblRows = [];
+  const endUl = () => { if (inUl) { out.push('</ul>'); inUl = false; } };
+  const endTbl = () => { if (inTbl) { out.push('<div class="overflow-x-auto my-2"><table class="w-full text-xs text-left border border-slate-700/80 rounded">' + tblRows.join('') + '</table></div>'); inTbl = false; tblRows = []; } };
+
+  for (let raw of lines) {
+    let l = raw.trim();
+    if (!l) { endUl(); endTbl(); continue; }
+    if (l === '---') { endUl(); endTbl(); out.push('<hr class="border-slate-800 my-3" />'); continue; }
+    if (l.startsWith('### ')) { endUl(); endTbl(); out.push(`<h4 class="text-xs font-bold uppercase text-indigo-400 mt-3 mb-1.5">${esc(l.slice(4))}</h4>`); continue; }
+    if (l.startsWith('## ')) { endUl(); endTbl(); out.push(`<h3 class="text-sm font-bold text-white border-b border-slate-800 pb-1 mt-4 mb-2 flex items-center gap-1.5"><span>📌</span><span>${esc(l.slice(3))}</span></h3>`); continue; }
+    const chk = l.match(/^-\\s*\\[([ xX])\\]\\s*(.*)$/);
+    if (chk) {
+      endUl(); endTbl();
+      const done = chk[1].toLowerCase() === 'x';
+      const badge = done ? '<span class="text-emerald-400 font-bold">✓</span>' : '<span class="text-slate-500 font-bold">○</span>';
+      out.push(`<div class="flex items-start gap-2 py-0.5 text-xs"><span class="w-4 flex-shrink-0 text-center">${badge}</span><span class="${done ? 'text-slate-200' : 'text-slate-400'}">${fmtInline(esc(chk[2]))}</span></div>`);
+      continue;
+    }
+    if (l.startsWith('- ') || l.startsWith('* ')) {
+      endTbl();
+      if (!inUl) { out.push('<ul class="space-y-1 my-1.5">'); inUl = true; }
+      out.push(`<li class="text-xs text-slate-300 flex items-start gap-2"><span class="text-indigo-400">•</span><span>${fmtInline(esc(l.slice(2)))}</span></li>`);
+      continue;
+    }
+    if (l.startsWith('|') && l.endsWith('|')) {
+      endUl();
+      if (l.includes('---')) continue;
+      const isHead = !inTbl; inTbl = true;
+      const tag = isHead ? 'th' : 'td';
+      const cls = isHead ? 'bg-slate-800 text-slate-300 font-semibold px-2.5 py-1 text-[11px]' : 'border-t border-slate-800 px-2.5 py-1 text-[11px] text-slate-300';
+      tblRows.push(`<tr>${l.split('|').slice(1, -1).map(c => `<${tag} class="${cls}">${fmtInline(esc(c.trim()))}</${tag}>`).join('')}</tr>`);
+      continue;
+    }
+    endUl(); endTbl();
+    out.push(`<p class="text-xs text-slate-300 leading-relaxed my-1">${fmtInline(esc(l))}</p>`);
+  }
+  endUl(); endTbl();
+  return out.join('');
+}
+
+function openTaskModal(taskId) {
+  const task = ALL_TASKS.find(t => t.id === taskId);
+  if (!task) return;
+  currentModalId = taskId;
+  document.getElementById('modal-id').innerText = task.id;
+  document.getElementById('modal-title').innerText = task.title;
+  const pEl = document.getElementById('modal-prio');
+  pEl.innerText = task.priority;
+  pEl.className = 'text-[10px] font-bold px-2 py-0.5 rounded badge-' + task.priority.toLowerCase();
+  const sEl = document.getElementById('modal-status');
+  sEl.innerText = task.status;
+  sEl.className = 'text-[10px] font-bold px-2 py-0.5 rounded badge-' + task.status.toLowerCase();
+  document.getElementById('modal-cat').innerText = task.category;
+  document.getElementById('modal-domain').innerText = task.domain;
+  document.getElementById('modal-branch').innerText = task.branch;
+  document.getElementById('modal-mtime').innerText = task.mtime_str || '';
+  const fLink = document.getElementById('modal-file-link');
+  if (task.file_name) { fLink.href = task.file_name; fLink.classList.remove('hidden'); }
+  else { fLink.classList.add('hidden'); }
+  document.getElementById('modal-body').innerHTML = formatMarkdown(task.body || task.summary);
+  updateModalNav();
+  document.getElementById('task-modal-backdrop').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeTaskModal() {
+  currentModalId = null;
+  document.getElementById('task-modal-backdrop').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function updateModalNav() {
+  const list = getFilteredTasks();
+  const idx = list.findIndex(t => t.id === currentModalId);
+  const pBtn = document.getElementById('modal-btn-prev');
+  const nBtn = document.getElementById('modal-btn-next');
+  if (idx === -1) { pBtn.disabled = true; nBtn.disabled = true; return; }
+  pBtn.disabled = idx <= 0; nBtn.disabled = idx >= list.length - 1;
+  pBtn.classList.toggle('opacity-30', pBtn.disabled);
+  nBtn.classList.toggle('opacity-30', nBtn.disabled);
+  document.getElementById('modal-nav-idx').innerText = `${idx + 1} of ${list.length}`;
+}
+
+function navTaskModal(delta) {
+  const list = getFilteredTasks();
+  const idx = list.findIndex(t => t.id === currentModalId);
+  if (idx !== -1 && list[idx + delta]) openTaskModal(list[idx + delta].id);
+}
+
+function copyBranch() {
+  const t = ALL_TASKS.find(x => x.id === currentModalId);
+  if (!t || !t.branch) return;
+  const clean = t.branch.replace(/`/g, '').trim();
+  const b = document.getElementById('btn-copy-branch');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(`git checkout ${clean}`).then(() => {
+      b.innerText = 'Copied!'; setTimeout(() => b.innerText = 'Copy', 1500);
+    }).catch(() => { b.innerText = 'Copied!'; });
+  }
+}
+
+window.addEventListener('keydown', e => {
+  if (currentModalId) {
+    if (e.key === 'Escape') closeTaskModal();
+    else if (e.key === 'ArrowLeft') navTaskModal(-1);
+    else if (e.key === 'ArrowRight') navTaskModal(1);
+  }
+});
+
 render();
 """.replace("__TASKS_JSON__", tasks_json)
 
@@ -292,6 +420,38 @@ render();
     </div>
   </div>
 
+  <div id="task-modal-backdrop" onclick="if(event.target.id==='task-modal-backdrop')closeTaskModal()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div id="task-modal-card" class="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+      <div class="p-5 border-b border-slate-800 bg-slate-900/90 flex flex-col gap-3">
+        <div class="flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="modal-id" class="font-mono text-xs font-bold text-indigo-300 bg-indigo-950/80 border border-indigo-700/50 px-2 py-0.5 rounded"></span>
+            <span id="modal-prio" class="text-[10px] font-bold px-2 py-0.5 rounded"></span>
+            <span id="modal-status" class="text-[10px] font-bold px-2 py-0.5 rounded"></span>
+            <span id="modal-cat" class="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700"></span>
+            <span id="modal-domain" class="text-[10px] font-medium px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700"></span>
+          </div>
+          <button onclick="closeTaskModal()" class="text-slate-400 hover:text-white bg-slate-800 rounded-lg w-7 h-7 flex items-center justify-center cursor-pointer text-sm font-bold transition" title="Close (Esc)">✕</button>
+        </div>
+        <h2 id="modal-title" class="text-lg md:text-xl font-bold text-white leading-snug"></h2>
+        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400 pt-1 border-t border-slate-800/60">
+          <div class="flex items-center gap-1.5 font-mono text-[11px]"><span class="text-slate-500">Branch:</span><span id="modal-branch" class="text-indigo-300 font-semibold"></span><button id="btn-copy-branch" onclick="copyBranch()" class="text-[10px] text-slate-400 hover:text-white bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700 cursor-pointer">Copy</button></div>
+          <div class="flex items-center gap-1 text-[11px]"><span class="text-slate-500">Modified:</span><span id="modal-mtime" class="text-slate-300"></span></div>
+          <a id="modal-file-link" href="#" target="_blank" class="text-[11px] text-indigo-400 hover:text-indigo-300 underline">📄 View Markdown File</a>
+        </div>
+      </div>
+      <div id="modal-body" class="p-6 overflow-y-auto flex-1 space-y-2 bg-slate-900/50"></div>
+      <div class="p-4 border-t border-slate-800 bg-slate-900/90 flex items-center justify-between gap-3 text-xs">
+        <div class="flex items-center gap-2">
+          <button id="modal-btn-prev" onclick="navTaskModal(-1)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 cursor-pointer transition">← Prev</button>
+          <button id="modal-btn-next" onclick="navTaskModal(1)" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white border border-slate-700 cursor-pointer transition">Next →</button>
+          <span id="modal-nav-idx" class="text-slate-500 text-[11px] ml-1"></span>
+        </div>
+        <button onclick="closeTaskModal()" class="px-4 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium cursor-pointer transition">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     {js_template}
   </script>
@@ -314,14 +474,12 @@ def main():
         f.write(html_content)
     print(f"Generated standalone task dashboard at {out_file}")
 
-    brain_root = r"C:\Users\josep\.gemini\antigravity\brain"
+    brain_root = os.path.expanduser("~/.gemini/antigravity/brain")
     if os.path.exists(brain_root):
         conv_id = os.environ.get("ANTIGRAVITY_CONVERSATION_ID", "")
-        if conv_id and os.path.exists(os.path.join(brain_root, conv_id)):
-            target_dirs = [os.path.join(brain_root, conv_id)]
-        else:
-            dirs = [os.path.join(brain_root, d) for d in os.listdir(brain_root) if os.path.isdir(os.path.join(brain_root, d))]
-            dirs.sort(key=os.path.getmtime, reverse=True)
+        target_dirs = [os.path.join(brain_root, conv_id)] if conv_id and os.path.exists(os.path.join(brain_root, conv_id)) else []
+        if not target_dirs:
+            dirs = sorted([os.path.join(brain_root, d) for d in os.listdir(brain_root) if os.path.isdir(os.path.join(brain_root, d))], key=os.path.getmtime, reverse=True)
             target_dirs = dirs[:1] if dirs else []
         for tdir in target_dirs:
             artifact_file = os.path.join(tdir, "task_dashboard.html")

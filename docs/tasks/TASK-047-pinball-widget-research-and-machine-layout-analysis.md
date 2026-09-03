@@ -1,6 +1,6 @@
 # TASK-047: Pinball Widget Research & Machine Layout Analysis
 
-- **Status:** COMPLETED
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Research/Design
 - **Target Branch:** `feature/pinball-widget-research`

@@ -1,6 +1,6 @@
 # TASK-054: Relic Junk Box Return Inventory System
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Gameplay / Systems
 - **Target Branch:** `feature/relic-junk-box-return`
@@ -40,8 +40,8 @@ Make sure that returning a relic restores original pegboard cells and pegs clean
 
 ## Acceptance Criteria
 
-- [ ] Players can drag or send active board relics into the junk box inventory.
-- [ ] Relic removal restores original pegboard grid cells and pegs.
-- [ ] Junk box UI updates to display the returned relic item.
-- [ ] Relic passives and modifiers stop when the relic leaves the board.
-- [ ] Unit tests pass cleanly in headless mode.
+- [x] Players can drag or send active board relics into the junk box inventory.
+- [x] Relic removal restores original pegboard grid cells and pegs.
+- [x] Junk box UI updates to display the returned relic item.
+- [x] Relic passives and modifiers stop when the relic leaves the board.
+- [x] Unit tests pass cleanly in headless mode.
