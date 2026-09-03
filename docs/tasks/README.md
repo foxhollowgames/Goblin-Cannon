@@ -76,15 +76,17 @@ python scripts/generate_task_dashboard.py
 | [TASK-044](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-044-pause-game-for-comic-overlay-scenes.md) | Pause Game State for Full Comic Overlay Cinematics | Gameplay/Systems/UI | P1 | BACKLOG | `feature/pause-game-comic-overlays` |
 | [TASK-045](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-045-remove-minion-system.md) | Remove Minion System and Mechanics | Refactoring/Cleanup | P2 | BACKLOG | `feature/remove-minion-system` |
 | [TASK-046](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-046-cannon-scrolling-terrain-animation.md) | Cannon Scrolling Terrain Animation & Right-Widget Wall Transition | UI/Visuals | P1 | BACKLOG | `feature/cannon-scrolling-terrain-animation` |
-| [TASK-047](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-047-pinball-widget-research-and-machine-layout-analysis.md) | Pinball Widget Research & Machine Layout Analysis | Research/Design | P1 | BACKLOG | `feature/pinball-widget-research` |
+| [TASK-047](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-047-pinball-widget-research-and-machine-layout-analysis.md) | Pinball Widget Research & Machine Layout Analysis | Research/Design | P1 | DONE | `feature/pinball-widget-research` |
 | [TASK-048](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-048-relic-activation-requirements-pinball-widget-rework.md) | Relic Activation Requirements Pinball Widget Rework | Systems/Gameplay | P1 | BACKLOG | `feature/relic-pinball-activation-rework` |
-| [TASK-049](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-049-on-board-relic-tooltip-rework.md) | On-Board Relic Tooltip Information Rework | UI/Polish | P1 | BACKLOG | `feature/on-board-relic-tooltip-rework` |
+| [TASK-049](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-049-on-board-relic-tooltip-rework.md) | On-Board Relic Tooltip Information Rework | UI/Polish | P1 | DONE | `feature/on-board-relic-tooltip-rework` |
 | [TASK-050](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-050-boss-intervention-popup-trolls.md) | Boss Intervention Pop-Up Targets | Systems/Gameplay | P1 | BACKLOG | `feature/boss-intervention-popup-trolls` |
 | [TASK-051](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-051-componentized-pinball-machinery-roster.md) | Componentized Pinball Machinery Roster | Systems/Gameplay/Physics | P1 | DONE | `feature/pinball-machinery-componentization` |
 | [TASK-052](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-052-junk-box-dynamic-scroll-bar.md) | Junk Box Dynamic Scroll Bar Visibility | UI/Polish | P1 | DONE | `feature/junk-box-dynamic-scroll-bar` |
 | [TASK-053](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-053-relic-machinery-audit-and-widget-distribution.md) | Relic Machinery Audit and Widget Distribution | Systems/Gameplay/Balance | P1 | DONE | `feature/relic-widget-distribution` |
-| [TASK-054](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-054-relic-junk-box-return.md) | Relic Junk Box Return Inventory System | UI/Gameplay/Systems | P1 | BACKLOG | `feature/relic-junk-box-return` |
+| [TASK-054](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-054-relic-junk-box-return.md) | Relic Junk Box Return Inventory System | UI/Gameplay/Systems | P1 | DONE | `feature/relic-junk-box-return` |
 | [TASK-055](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-055-relic-directional-machinery-rotation.md) | Relic Directional Machinery Rotation Compliance | Systems/Gameplay/Physics | P1 | DONE | `feature/relic-directional-machinery-rotation` |
+| [TASK-056](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-056-dashboard-task-detail-modal.md) | Visual Task Dashboard Expandable Task Details Modal | DevOps/Tooling/UI | P1 | DONE | `feature/dashboard-task-detail-modal` |
+
 
 
 
