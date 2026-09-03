@@ -103,6 +103,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-092`](#lrn-092) | TASK-056 | `tooling` | Interactive Task Details Modal and Branch Command Sanitization | 2026-09-02 |
 | [`LRN-093`](#lrn-093) | TASK-046 | `godot_engine` | Stationary combat terrain with synchronized wall advance tweens | 2026-09-02 |
 | [`LRN-094`](#lrn-094) | TASK-051 | `godot_engine` | Pinball kinetic machinery subclass lifecycle and bonus energy dispatching | 2026-09-02 |
+| [`LRN-095`](#lrn-095) | TASK-046 | `ui` | Embedding animated terrain art inside corner cannon widget | 2026-09-03 |
 
 ---
 
@@ -1609,5 +1610,21 @@ Implementing missing pinball machinery subclasses (standup_target, spinner, orbi
 
 #### Actionable Guideline for Future Agents
 Always invoke super._process(delta) in kinetic machinery subclasses to ensure base spring and spark decay animations run. Temporarily adjust base_energy for super.trigger_activation calls to ensure all downstream energy receivers and signals capture the total energy granted.
+
+---
+
+### <a id="lrn-095"></a> LRN-095: Embedding animated terrain art inside corner cannon widget
+- **Task:** `TASK-046`
+- **Category:** `ui`
+- **Created:** `2026-09-03T08:01:38.807445`
+
+#### Context & Problem
+The Task 46 scrolling terrain was initially rendered on layer 0 in BattlefieldView, which was fully obscured by the opaque Junk Box panel on UILayer (layer 10), leaving the corner cannon widget drawing a flat dark rectangle.
+
+#### Key Insight & Learning
+1) Embedding a configurable ScrollingTerrain child inside CircularCannonWidget with show_behind_parent=true and clip_contents=true renders rich terrain art directly behind the cannon sprite without bleeding. 2) Synchronizing advance/stop signals via GameCoordinatorUI preserves Call-Down, Signal-Up architecture without cross-branch scene tree queries.
+
+#### Actionable Guideline for Future Agents
+Embed animated terrain or visual backdrops directly into UI container widgets with show_behind_parent=true and wire transition events through top-level coordinator signals instead of querying unrelated scene branches.
 
 ---
