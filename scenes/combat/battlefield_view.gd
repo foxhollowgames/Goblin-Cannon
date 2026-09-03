@@ -2,6 +2,11 @@ extends Node2D
 ## Visual battlefield: wall at top, cannon at bottom. Main cannon fires at wall with VFX.
 ## Features a ScrollingTerrain roadway ground layer that remains still during combat and rolls on advance.
 
+#region Signals
+signal wall_break_transition_finished
+signal next_wall_intro_finished
+#endregion
+
 #region Constants
 const BATTLEFIELD_WIDTH: float = 320.0
 const BATTLEFIELD_HEIGHT: float = 720.0
@@ -15,11 +20,10 @@ const CANNON_BLAST_CENTER: Vector2 = Vector2(160.0, 640.0 + CANNON_OVERLAY_OFFSE
 const CANNON_ROLL_DISTANCE: float = 200.0
 const CANNON_ROLL_FORWARD_DURATION: float = 1.4
 const CANNON_ROLL_BACK_DURATION: float = 1.0
-#endregion
-
-#region Signals
-signal wall_break_transition_finished
-signal next_wall_intro_finished
+const CANNON_ROLL_FORWARD_DELAY: float = 0.3
+const CANNON_ROLL_BACK_DELAY: float = 0.2
+const TERRAIN_ADVANCE_SPEED: float = 320.0
+const FIRING_RUMBLE_INTENSITY: float = 2.5
 #endregion
 
 #region Variables
@@ -36,16 +40,19 @@ var _cannon_roll_offset_y: float = 0.0
 var _roll_tween: Tween = null
 #endregion
 
-#region Engine Callbacks
+#region Lifecycle Methods
 func _ready() -> void:
 	_init_terrain()
 	_init_wall_and_cannon()
 	_load_vfx_scenes()
 
 func _process(_delta: float) -> void:
-	if _cannon_visual and _cannon_visual.get_parent() != self:
-		var target_y: float = CANNON_OVERLAY_OFFSET_Y + _cannon_roll_offset_y
-		_cannon_visual.global_position = global_position + _cannon_overlay_local_pos + Vector2(0.0, target_y)
+	if _cannon_visual:
+		var target_offset := Vector2(0.0, CANNON_OVERLAY_OFFSET_Y + _cannon_roll_offset_y)
+		if _cannon_visual.get_parent() != self:
+			_cannon_visual.global_position = global_position + _cannon_overlay_local_pos + target_offset
+		else:
+			_cannon_visual.position = _cannon_overlay_local_pos + target_offset
 
 func _exit_tree() -> void:
 	if _main_cannon and _main_cannon.has_signal("main_fired") and _main_cannon.main_fired.is_connected(_on_main_fired):
@@ -74,12 +81,12 @@ func play_wall_destroyed_transition() -> void:
 	if _wall_visual and _wall_visual.has_method("play_explosion"):
 		_wall_visual.play_explosion()
 	if _terrain and _terrain.has_method("start_advancing"):
-		_terrain.start_advancing(CANNON_ROLL_FORWARD_DURATION, 320.0)
+		_terrain.start_advancing(CANNON_ROLL_FORWARD_DURATION, TERRAIN_ADVANCE_SPEED)
 	if _roll_tween and _roll_tween.is_valid():
 		_roll_tween.kill()
 	_roll_tween = create_tween()
 	_roll_tween.tween_property(self, "_cannon_roll_offset_y", -CANNON_ROLL_DISTANCE, CANNON_ROLL_FORWARD_DURATION) \
-		.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC).set_delay(0.3)
+		.set_ease(Tween.EASE_IN_OUT).set_trans(Tween.TRANS_CUBIC).set_delay(CANNON_ROLL_FORWARD_DELAY)
 	_roll_tween.tween_callback(func():
 		wall_break_transition_finished.emit()
 	)
@@ -94,13 +101,13 @@ func play_next_wall_intro() -> void:
 		_roll_tween.kill()
 	_roll_tween = create_tween()
 	_roll_tween.tween_property(self, "_cannon_roll_offset_y", 0.0, CANNON_ROLL_BACK_DURATION) \
-		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC).set_delay(0.2)
+		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_CUBIC).set_delay(CANNON_ROLL_BACK_DELAY)
 	_roll_tween.tween_callback(func():
 		next_wall_intro_finished.emit()
 	)
 #endregion
 
-#region Private Helpers
+#region Private Methods
 func _init_terrain() -> void:
 	_terrain = get_node_or_null("ScrollingTerrain") as Node2D
 	if _terrain == null:
@@ -142,7 +149,7 @@ func _on_main_fired(_damage: int) -> void:
 	if _cannon_visual and _cannon_visual.has_method("trigger_firing_anim"):
 		_cannon_visual.trigger_firing_anim()
 	if _terrain and _terrain.has_method("trigger_recoil_rumble"):
-		_terrain.trigger_recoil_rumble(2.5)
+		_terrain.trigger_recoil_rumble(FIRING_RUMBLE_INTENSITY)
 	if _muzzle_blast_scene and _vfx_container:
 		var blast: Node2D = _muzzle_blast_scene.instantiate() as Node2D
 		if blast and blast.has_method("setup"):
