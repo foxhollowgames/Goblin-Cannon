@@ -73,7 +73,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-041](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-041-remove-hopper-mouse-control.md) | Remove Hopper Mouse Control | Controls | P1 | DONE | `feature/remove-hopper-mouse-control` |
 | [TASK-042](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-042-hopper-positioning-top-ui-bar-and-debug-menu.md) | Hopper Repositioning, Top UI Bar & Debug Menu Integration | UI/Layout | P1 | DONE | `feature/hopper-top-bar-debug-menu` |
 | [TASK-043](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-043-replace-drawn-cannons-with-sprite-assets.md) | Replace Drawn Cannons with Library Sprite Assets | UI/Visuals | P1 | DONE | `feature/replace-drawn-cannons-with-assets` |
-| [TASK-044](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-044-pause-game-for-comic-overlay-scenes.md) | Pause Game State for Full Comic Overlay Cinematics | Gameplay/Systems/UI | P1 | BACKLOG | `feature/pause-game-comic-overlays` |
+| [TASK-044](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-044-pause-game-for-comic-overlay-scenes.md) | Pause Game State for Full Comic Overlay Cinematics | Gameplay/Systems/UI | P1 | DONE | `feature/pause-game-comic-overlays` |
 | [TASK-045](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-045-remove-minion-system.md) | Remove Minion System and Mechanics | Refactoring/Cleanup | P2 | DONE | `feature/remove-minion-system` |
 | [TASK-046](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-046-cannon-scrolling-terrain-animation.md) | Cannon Scrolling Terrain Animation & Right-Widget Wall Transition | UI/Visuals | P1 | DONE | `feature/cannon-scrolling-terrain-animation` |
 | [TASK-047](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-047-pinball-widget-research-and-machine-layout-analysis.md) | Pinball Widget Research & Machine Layout Analysis | Research/Design | P1 | DONE | `feature/pinball-widget-research` |
@@ -86,6 +86,13 @@ python scripts/generate_task_dashboard.py
 | [TASK-054](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-054-relic-junk-box-return.md) | Relic Junk Box Return Inventory System | UI/Gameplay/Systems | P1 | DONE | `feature/relic-junk-box-return` |
 | [TASK-055](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-055-relic-directional-machinery-rotation.md) | Relic Directional Machinery Rotation Compliance | Systems/Gameplay/Physics | P1 | DONE | `feature/relic-directional-machinery-rotation` |
 | [TASK-056](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-056-dashboard-task-detail-modal.md) | Visual Task Dashboard Expandable Task Details Modal | DevOps/Tooling/UI | P1 | DONE | `feature/dashboard-task-detail-modal` |
+| [TASK-057](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-057-board-relic-tooltip-bbcode-rendering.md) | Board Relic Tooltip BBCode Formatting and Text Styling | UI/Polish | P1 | READY | `fix/board-relic-tooltip-bbcode-rendering` |
+| [TASK-058](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-058-cannon-layer-order-pause-blur.md) | Cannon Layer Order and Pause Blur Hierarchy | UI/Visuals | P1 | READY | `feature/cannon-layer-order-pause-blur` |
+| [TASK-059](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-059-remove-backpack-button-from-hud.md) | Remove Backpack Button from HUD Header Bar | UI/Cleanup | P1 | READY | `feature/remove-backpack-button-hud` |
+| [TASK-060](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-060-tooltip-rewrite-and-keyword-tag-hover-audit.md) | In-Game Tooltip Rewrite and Keyword Tag Hover Audit | UI/Polish/Design | P1 | READY | `feature/tooltip-rewrite-and-keyword-tag-hover-audit` |
+| [TASK-061](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-061-dashboard-drag-drop-task-status.md) | Visual Task Dashboard Drag-and-Drop Task Status Update | DevOps/Tooling/UI | P1 | DONE | `feature/dashboard-drag-drop-task-status` |
+
+
 
 
 

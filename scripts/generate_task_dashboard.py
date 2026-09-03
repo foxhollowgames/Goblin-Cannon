@@ -2,106 +2,60 @@
 """
 Generate an interactive HTML visual task dashboard for Goblin Cannon.
 Parses tasks from docs/tasks/README.md and docs/tasks/TASK-*.md files.
-Outputs:
-  - docs/tasks/dashboard.html (under 500 lines for project linter)
-  - Artifact HTML in current conversation artifact folder
+Supports drag-and-drop task progression between Kanban status columns.
 """
 
-import os
-import re
-import json
-import sys
-import datetime
+import os, re, json, sys, datetime
 
 
 def parse_tasks(repo_root):
     readme_path = os.path.join(repo_root, "docs", "tasks", "README.md")
-    if not os.path.exists(readme_path):
-        print(f"Error: {readme_path} not found.")
-        return []
-    
-    with open(readme_path, "r", encoding="utf-8") as f:
-        readme_content = f.read()
+    if not os.path.exists(readme_path): return []
+    with open(readme_path, "r", encoding="utf-8") as f: readme_content = f.read()
 
-    table_matches = re.findall(
-        r'\|\s*\[(TASK-\d+)\]\(([^)]+)\)\s*\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|',
-        readme_content
-    )
-
-    tasks = []
-    task_dir = os.path.join(repo_root, "docs", "tasks")
+    table_matches = re.findall(r'\|\s*\[(TASK-\d+)\]\(([^)]+)\)\s*\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|\s*([^|]+)\|', readme_content)
+    tasks, task_dir = [], os.path.join(repo_root, "docs", "tasks")
 
     for m in table_matches:
-        task_id = m[0].strip()
-        title = m[2].strip()
-        category = m[3].strip()
-        priority = m[4].strip()
-        status = m[5].strip()
-        branch = m[6].strip().strip('`')
-
-        summary, body, file_name = "", "", ""
-        mtime = os.path.getmtime(readme_path)
+        task_id, title, category, priority, status, branch = m[0].strip(), m[2].strip(), m[3].strip(), m[4].strip(), m[5].strip(), m[6].strip().strip('`')
+        summary, body, file_name, mtime = "", "", "", os.path.getmtime(readme_path)
         for fname in os.listdir(task_dir):
             if fname.startswith(task_id) and fname.endswith(".md"):
-                file_path = os.path.join(task_dir, fname)
-                file_name = fname
+                file_name, file_path = fname, os.path.join(task_dir, fname)
                 try:
                     mtime = os.path.getmtime(file_path)
                     with open(file_path, "r", encoding="utf-8") as tf:
                         body = tf.read()
                         obj_m = re.search(r'##\s*(?:Description|1?\.\s*Objective)\s*\n+([^#\n]+)', body, re.IGNORECASE)
-                        if obj_m:
-                            summary = obj_m.group(1).strip()
-                except Exception:
-                    pass
+                        if obj_m: summary = obj_m.group(1).strip()
+                except Exception: pass
                 break
         if not summary: summary = f"{title} ({category})"
-
-        num_match = re.search(r'\d+', task_id)
-        task_num = int(num_match.group()) if num_match else 0
-        mtime_str = datetime.datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M")
-
+        num_m = re.search(r'\d+', task_id)
+        task_num = int(num_m.group()) if num_m else 0
         domain = "Gameplay & Systems"
-        cat_lower = category.lower()
-        if any(x in cat_lower for x in ["art", "ui", "cinematic", "narrative", "typography"]): domain = "UI, Art & Narrative"
-        elif any(x in cat_lower for x in ["audio", "sound", "sfx"]): domain = "Audio & Polish"
-        elif "devops" in cat_lower: domain = "DevOps & Tooling"
-        elif any(x in cat_lower for x in ["control", "steering"]): domain = "Controls & Input"
-
-
-        tasks.append({
-            "id": task_id,
-            "num": task_num,
-            "mtime": mtime,
-            "mtime_str": mtime_str,
-            "file_name": file_name,
-            "title": title,
-            "category": category,
-            "domain": domain,
-            "priority": priority,
-            "status": status,
-            "branch": branch,
-            "summary": summary,
-            "body": body
-        })
+        c_low = category.lower()
+        if any(x in c_low for x in ["art", "ui", "cinematic", "narrative", "typography"]): domain = "UI, Art & Narrative"
+        elif any(x in c_low for x in ["audio", "sound", "sfx"]): domain = "Audio & Polish"
+        elif "devops" in c_low: domain = "DevOps & Tooling"
+        elif any(x in c_low for x in ["control", "steering"]): domain = "Controls & Input"
+        tasks.append({"id": task_id, "num": task_num, "mtime": mtime, "mtime_str": datetime.datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M"), "file_name": file_name, "title": title, "category": category, "domain": domain, "priority": priority, "status": status, "branch": branch, "summary": summary, "body": body})
 
     tasks.sort(key=lambda t: (t.get("mtime", 0.0), t.get("num", 0)), reverse=True)
     return tasks
 
+
 def build_html(tasks):
     tasks_json = json.dumps(tasks)
-    
     total = len(tasks)
-    done_count = sum(1 for t in tasks if t["status"] == "DONE")
-    ready_count = sum(1 for t in tasks if t["status"] == "READY")
-    backlog_count = sum(1 for t in tasks if t["status"] == "BACKLOG")
-    in_prog_count = sum(1 for t in tasks if t["status"] == "IN_PROGRESS")
-    pct_done = round((done_count / total * 100), 1) if total > 0 else 0
-    pct_ready = round((ready_count / total * 100), 1) if total > 0 else 0
-    pct_backlog = round((backlog_count / total * 100), 1) if total > 0 else 0
+    d_cnt, r_cnt = sum(1 for t in tasks if t["status"] == "DONE"), sum(1 for t in tasks if t["status"] == "READY")
+    b_cnt, p_cnt = sum(1 for t in tasks if t["status"] == "BACKLOG"), sum(1 for t in tasks if t["status"] == "IN_PROGRESS")
+    pct_done = round(d_cnt / (total or 1) * 100, 1)
+    pct_ready = round(r_cnt / (total or 1) * 100, 1)
+    pct_backlog = round(b_cnt / (total or 1) * 100, 1)
 
     js_template = """const ALL_TASKS = __TASKS_JSON__;
-let viewMode = 'kanban', currentModalId = null;
+let viewMode = 'kanban', currentModalId = null, isDragging = false;
 const esc = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 function setViewMode(mode) {
@@ -117,10 +71,8 @@ function setViewMode(mode) {
 
 function getFilteredTasks() {
   const query = (document.getElementById('input-search').value || '').trim().toLowerCase();
-  const st = document.getElementById('filter-status').value;
-  const dom = document.getElementById('filter-domain').value;
-  const prio = document.getElementById('filter-priority').value;
-  const sort = document.getElementById('filter-sort') ? document.getElementById('filter-sort').value : 'recent';
+  const st = document.getElementById('filter-status').value, dom = document.getElementById('filter-domain').value;
+  const prio = document.getElementById('filter-priority').value, sort = document.getElementById('filter-sort')?.value || 'recent';
 
   let list = ALL_TASKS.filter(t => {
     if (st !== 'ALL' && t.status !== st) return false;
@@ -129,7 +81,6 @@ function getFilteredTasks() {
     if (query && !(t.id + ' ' + t.title + ' ' + t.category + ' ' + t.branch + ' ' + t.summary).toLowerCase().includes(query)) return false;
     return true;
   });
-
   if (sort === 'recent') list.sort((a, b) => (b.mtime || 0) - (a.mtime || 0) || (b.num || 0) - (a.num || 0));
   else if (sort === 'oldest') list.sort((a, b) => (a.mtime || 0) - (b.mtime || 0) || (a.num || 0) - (b.num || 0));
   else if (sort === 'id_desc') list.sort((a, b) => (b.num || 0) - (a.num || 0));
@@ -141,9 +92,67 @@ function getFilteredTasks() {
   return list;
 }
 
+function handleDragStart(e, id) { isDragging = true; e.dataTransfer.setData('text/plain', id); e.dataTransfer.effectAllowed = 'move'; e.currentTarget.classList.add('opacity-40', 'scale-95'); }
+function handleDragEnd(e) { e.currentTarget.classList.remove('opacity-40', 'scale-95'); setTimeout(() => { isDragging = false; }, 120); }
+function handleDragOver(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; e.currentTarget.classList.add('ring-2', 'ring-indigo-500', 'bg-slate-800/80'); }
+function handleDragLeave(e) { e.currentTarget.classList.remove('ring-2', 'ring-indigo-500', 'bg-slate-800/80'); }
+function handleDrop(e, targetStatus) { e.preventDefault(); e.currentTarget.classList.remove('ring-2', 'ring-indigo-500', 'bg-slate-800/80'); const taskId = e.dataTransfer.getData('text/plain'); if (taskId) changeTaskStatus(taskId, targetStatus); }
+
+function showToast(msg, type = 'info') {
+  const c = document.getElementById('toast-container');
+  if (!c) return;
+  const t = document.createElement('div'), border = type === 'success' ? 'border-emerald-500 text-emerald-300' : type === 'warning' ? 'border-amber-500 text-amber-300' : 'border-indigo-500 text-indigo-200';
+  t.className = `bg-slate-900/95 border ${border} text-xs px-3 py-2 rounded-lg shadow-xl flex items-center gap-2 animate-in fade-in transition duration-200`;
+  t.innerHTML = `<span>${esc(msg)}</span>`;
+  c.appendChild(t);
+  setTimeout(() => { t.classList.add('opacity-0'); setTimeout(() => t.remove(), 300); }, 3500);
+}
+
+function changeTaskStatus(taskId, newStatus) {
+  const task = ALL_TASKS.find(t => t.id === taskId);
+  if (!task || task.status === newStatus) return;
+  task.status = newStatus;
+  task.mtime = Date.now() / 1000;
+  task.mtime_str = new Date().toISOString().replace('T', ' ').slice(0, 16);
+  render();
+  updateTopMetrics();
+  if (currentModalId === taskId) {
+    const sEl = document.getElementById('modal-status');
+    if (sEl) { sEl.innerText = newStatus; sEl.className = 'text-[10px] font-bold px-2 py-0.5 rounded badge-' + newStatus.toLowerCase(); }
+  }
+  showToast(`Updating ${taskId} to ${newStatus}...`, 'info');
+  const host = window.location.origin.startsWith('http') ? '' : 'http://127.0.0.1:8765';
+  fetch(host + '/api/task/update', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id: taskId, status: newStatus })
+  }).then(r => r.json()).then(data => {
+    if (data.success) showToast(`✓ ${taskId} moved to ${newStatus} (saved to disk)`, 'success');
+    else showToast(`⚠️ Server error: ${data.error || 'Failed to save'}`, 'warning');
+  }).catch(() => {
+    showToast(`⚠️ Local server offline. Run: python scripts/task_server.py`, 'warning');
+  });
+}
+
+function updateTopMetrics() {
+  const total = ALL_TASKS.length;
+  const d = ALL_TASKS.filter(t => t.status === 'DONE').length, r = ALL_TASKS.filter(t => t.status === 'READY').length;
+  const b = ALL_TASKS.filter(t => t.status === 'BACKLOG').length, p = ALL_TASKS.filter(t => t.status === 'IN_PROGRESS').length;
+  const pD = Math.round(d / total * 100), pR = Math.round(r / total * 100), pB = Math.round(b / total * 100);
+  const el = id => document.getElementById(id);
+  if (el('stat-done')) el('stat-done').innerText = d;
+  if (el('stat-ready')) el('stat-ready').innerText = r;
+  if (el('stat-backlog')) el('stat-backlog').innerText = b;
+  if (el('stat-inprog')) el('stat-inprog').innerText = p;
+  if (el('stat-progress-label')) el('stat-progress-label').innerText = `Overall Progress: ${pD}% (${d}/${total} Tasks Completed)`;
+  if (el('bar-done')) el('bar-done').style.width = pD + '%';
+  if (el('bar-ready')) el('bar-ready').style.width = pR + '%';
+  if (el('bar-backlog')) el('bar-backlog').style.width = pB + '%';
+}
+
 function renderCard(t) {
   const prioClass = t.priority === 'P0' ? 'badge-p0' : t.priority === 'P1' ? 'badge-p1' : 'badge-p2';
-  return `<div onclick="openTaskModal('${t.id}')" class="group bg-slate-900/90 border border-slate-700/80 hover:border-indigo-500 rounded-lg p-3 space-y-2 hover:bg-slate-800/60 transition cursor-pointer shadow-sm">
+  return `<div draggable="true" ondragstart="handleDragStart(event, '${t.id}')" ondragend="handleDragEnd(event)" onclick="openTaskModal('${t.id}')" class="group bg-slate-900/90 border border-slate-700/80 hover:border-indigo-500 rounded-lg p-3 space-y-2 hover:bg-slate-800/60 transition cursor-grab active:cursor-grabbing shadow-sm select-none">
     <div class="flex items-center justify-between">
       <span class="font-mono text-[11px] text-indigo-300 font-bold flex items-center gap-1">${t.id} <span class="opacity-0 group-hover:opacity-100 text-indigo-400 text-[10px] transition">⤢</span></span>
       <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${prioClass}">${t.priority}</span>
@@ -160,10 +169,10 @@ function renderCard(t) {
 function renderKanban(tasks) {
   const cols = {'BACKLOG': document.getElementById('cards-backlog'), 'READY': document.getElementById('cards-ready'), 'IN_PROGRESS': document.getElementById('cards-in_progress'), 'DONE': document.getElementById('cards-done')};
   const cnts = {'BACKLOG': document.getElementById('cnt-backlog'), 'READY': document.getElementById('cnt-ready'), 'IN_PROGRESS': document.getElementById('cnt-in_progress'), 'DONE': document.getElementById('cnt-done')};
-  Object.values(cols).forEach(c => c.innerHTML = '');
+  Object.values(cols).forEach(c => { if (c) c.innerHTML = ''; });
   const counts = {'BACKLOG': 0, 'READY': 0, 'IN_PROGRESS': 0, 'DONE': 0};
-  tasks.forEach(t => { const st = cols[t.status] ? t.status : 'BACKLOG'; cols[st].innerHTML += renderCard(t); counts[st]++; });
-  Object.keys(counts).forEach(k => cnts[k].innerText = counts[k]);
+  tasks.forEach(t => { const st = cols[t.status] ? t.status : 'BACKLOG'; if (cols[st]) { cols[st].innerHTML += renderCard(t); counts[st]++; } });
+  Object.keys(counts).forEach(k => { if (cnts[k]) cnts[k].innerText = counts[k]; });
 }
 
 function renderMatrix(tasks) {
@@ -208,13 +217,11 @@ function render() {
 function formatMarkdown(md) {
   if (!md) return '<div class="bg-slate-800/60 border border-slate-700/80 rounded-lg p-3 text-xs space-y-1"><div class="text-amber-400 font-semibold flex items-center gap-1.5"><span>⚠️</span><span>Specification Packet Pending</span></div><p class="text-slate-300 text-[11px]">Detailed specification markdown file has not yet been created in docs/tasks/.</p></div>';
   let text = md.replace(/^#[^\\n]+\\n+/, '').replace(/^(-\\s+\\*\\*[^*]+:\\*\\*.*\\n*)+/gm, '').trim();
-  const fmtInline = s => s.replace(/`([^`]+)`/g, '<code class="bg-slate-800 border border-slate-700 text-indigo-300 px-1 py-0.5 rounded font-mono text-[10px]">$1</code>').replace(/\\*\\*([^*]+)\\*\\*/g, '<strong class="text-white font-semibold">$1</strong>').replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, '<a href="$2" target="_blank" class="text-indigo-400 hover:underline">$1</a>');
-  const lines = text.split('\\n');
+  const fmt = s => s.replace(/`([^`]+)`/g, '<code class="bg-slate-800 border border-slate-700 text-indigo-300 px-1 py-0.5 rounded font-mono text-[10px]">$1</code>').replace(/\\*\\*([^*]+)\\*\\*/g, '<strong class="text-white font-semibold">$1</strong>').replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, '<a href="$2" target="_blank" class="text-indigo-400 hover:underline">$1</a>');
   let out = [], inUl = false, inTbl = false, tblRows = [];
   const endUl = () => { if (inUl) { out.push('</ul>'); inUl = false; } };
   const endTbl = () => { if (inTbl) { out.push('<div class="overflow-x-auto my-2"><table class="w-full text-xs text-left border border-slate-700/80 rounded">' + tblRows.join('') + '</table></div>'); inTbl = false; tblRows = []; } };
-
-  for (let raw of lines) {
+  for (let raw of text.split('\\n')) {
     let l = raw.trim();
     if (!l) { endUl(); endTbl(); continue; }
     if (l === '---') { endUl(); endTbl(); out.push('<hr class="border-slate-800 my-3" />'); continue; }
@@ -224,33 +231,30 @@ function formatMarkdown(md) {
     if (chk) {
       endUl(); endTbl();
       const done = chk[1].toLowerCase() === 'x';
-      const badge = done ? '<span class="text-emerald-400 font-bold">✓</span>' : '<span class="text-slate-500 font-bold">○</span>';
-      out.push(`<div class="flex items-start gap-2 py-0.5 text-xs"><span class="w-4 flex-shrink-0 text-center">${badge}</span><span class="${done ? 'text-slate-200' : 'text-slate-400'}">${fmtInline(esc(chk[2]))}</span></div>`);
+      out.push(`<div class="flex items-start gap-2 py-0.5 text-xs"><span class="w-4 flex-shrink-0 text-center font-bold ${done ? 'text-emerald-400' : 'text-slate-500'}">${done ? '✓' : '○'}</span><span class="${done ? 'text-slate-200' : 'text-slate-400'}">${fmt(esc(chk[2]))}</span></div>`);
       continue;
     }
     if (l.startsWith('- ') || l.startsWith('* ')) {
-      endTbl();
-      if (!inUl) { out.push('<ul class="space-y-1 my-1.5">'); inUl = true; }
-      out.push(`<li class="text-xs text-slate-300 flex items-start gap-2"><span class="text-indigo-400">•</span><span>${fmtInline(esc(l.slice(2)))}</span></li>`);
+      endTbl(); if (!inUl) { out.push('<ul class="space-y-1 my-1.5">'); inUl = true; }
+      out.push(`<li class="text-xs text-slate-300 flex items-start gap-2"><span class="text-indigo-400">•</span><span>${fmt(esc(l.slice(2)))}</span></li>`);
       continue;
     }
     if (l.startsWith('|') && l.endsWith('|')) {
-      endUl();
-      if (l.includes('---')) continue;
-      const isHead = !inTbl; inTbl = true;
-      const tag = isHead ? 'th' : 'td';
+      endUl(); if (l.includes('---')) continue;
+      const isHead = !inTbl; inTbl = true; const tag = isHead ? 'th' : 'td';
       const cls = isHead ? 'bg-slate-800 text-slate-300 font-semibold px-2.5 py-1 text-[11px]' : 'border-t border-slate-800 px-2.5 py-1 text-[11px] text-slate-300';
-      tblRows.push(`<tr>${l.split('|').slice(1, -1).map(c => `<${tag} class="${cls}">${fmtInline(esc(c.trim()))}</${tag}>`).join('')}</tr>`);
+      tblRows.push(`<tr>${l.split('|').slice(1, -1).map(c => `<${tag} class="${cls}">${fmt(esc(c.trim()))}</${tag}>`).join('')}</tr>`);
       continue;
     }
     endUl(); endTbl();
-    out.push(`<p class="text-xs text-slate-300 leading-relaxed my-1">${fmtInline(esc(l))}</p>`);
+    out.push(`<p class="text-xs text-slate-300 leading-relaxed my-1">${fmt(esc(l))}</p>`);
   }
   endUl(); endTbl();
   return out.join('');
 }
 
 function openTaskModal(taskId) {
+  if (isDragging) return;
   const task = ALL_TASKS.find(t => t.id === taskId);
   if (!task) return;
   currentModalId = taskId;
@@ -284,8 +288,7 @@ function closeTaskModal() {
 function updateModalNav() {
   const list = getFilteredTasks();
   const idx = list.findIndex(t => t.id === currentModalId);
-  const pBtn = document.getElementById('modal-btn-prev');
-  const nBtn = document.getElementById('modal-btn-next');
+  const pBtn = document.getElementById('modal-btn-prev'), nBtn = document.getElementById('modal-btn-next');
   if (idx === -1) { pBtn.disabled = true; nBtn.disabled = true; return; }
   pBtn.disabled = idx <= 0; nBtn.disabled = idx >= list.length - 1;
   pBtn.classList.toggle('opacity-30', pBtn.disabled);
@@ -302,9 +305,8 @@ function navTaskModal(delta) {
 function copyBranch() {
   const t = ALL_TASKS.find(x => x.id === currentModalId);
   if (!t || !t.branch) return;
-  const clean = t.branch.replace(/`/g, '').trim();
-  const b = document.getElementById('btn-copy-branch');
-  if (navigator.clipboard && navigator.clipboard.writeText) {
+  const clean = t.branch.replace(/`/g, '').trim(), b = document.getElementById('btn-copy-branch');
+  if (navigator.clipboard?.writeText) {
     navigator.clipboard.writeText(`git checkout ${clean}`).then(() => {
       b.innerText = 'Copied!'; setTimeout(() => b.innerText = 'Copy', 1500);
     }).catch(() => { b.innerText = 'Copied!'; });
@@ -339,25 +341,25 @@ render();
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--border,#334155)] pb-5">
       <div>
         <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-white flex items-center gap-3">🏴‍☠️ Goblin Cannon Task Matrix</h1>
-        <p class="text-sm text-slate-400 mt-1">Interactive visual task board, status breakdown, and category matrix</p>
+        <p class="text-sm text-slate-400 mt-1">Interactive task board with drag-and-drop workflow status updates</p>
       </div>
-      <span class="text-xs font-semibold px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Overall Progress: {pct_done}% ({done_count}/{total} Tasks Completed)</span>
+      <span id="stat-progress-label" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Overall Progress: {pct_done}% ({d_cnt}/{total} Tasks Completed)</span>
     </div>
 
     <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-slate-400">Total Tasks</div><div class="text-2xl font-bold mt-1 text-white">{total}</div><div class="text-[11px] text-slate-500 mt-1">Canonical packets</div></div>
-      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-emerald-400">Completed (DONE)</div><div class="text-2xl font-bold mt-1 text-emerald-400">{done_count}</div><div class="text-[11px] text-emerald-400/80 mt-1">{pct_done}% of total</div></div>
-      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-indigo-400">Ready for Dev</div><div class="text-2xl font-bold mt-1 text-indigo-400">{ready_count}</div><div class="text-[11px] text-indigo-400/80 mt-1">{pct_ready}% of total</div></div>
-      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-amber-400">In Backlog</div><div class="text-2xl font-bold mt-1 text-amber-400">{backlog_count}</div><div class="text-[11px] text-amber-400/80 mt-1">{pct_backlog}% of total</div></div>
-      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-pink-400">Active (In Progress)</div><div class="text-2xl font-bold mt-1 text-pink-400">{in_prog_count}</div><div class="text-[11px] text-pink-400/80 mt-1">Active branch</div></div>
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-slate-400">Total Tasks</div><div id="stat-total" class="text-2xl font-bold mt-1 text-white">{total}</div><div class="text-[11px] text-slate-500 mt-1">Canonical packets</div></div>
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-emerald-400">Completed (DONE)</div><div id="stat-done" class="text-2xl font-bold mt-1 text-emerald-400">{d_cnt}</div><div class="text-[11px] text-emerald-400/80 mt-1">Merged & tested</div></div>
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-indigo-400">Ready for Dev</div><div id="stat-ready" class="text-2xl font-bold mt-1 text-indigo-400">{r_cnt}</div><div class="text-[11px] text-indigo-400/80 mt-1">Ready to pull</div></div>
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-amber-400">In Backlog</div><div id="stat-backlog" class="text-2xl font-bold mt-1 text-amber-400">{b_cnt}</div><div class="text-[11px] text-amber-400/80 mt-1">Upcoming work</div></div>
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-pink-400">Active (In Progress)</div><div id="stat-inprog" class="text-2xl font-bold mt-1 text-pink-400">{p_cnt}</div><div class="text-[11px] text-pink-400/80 mt-1">Active branch</div></div>
     </div>
 
     <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4">
-      <div class="flex justify-between text-xs font-semibold mb-2"><span class="text-white">Completion Breakdown</span><span class="text-slate-400">{done_count} Done · {ready_count} Ready · {backlog_count} Backlog</span></div>
+      <div class="flex justify-between text-xs font-semibold mb-2"><span class="text-white">Completion Breakdown</span><span class="text-slate-400">Drag cards between columns to change status</span></div>
       <div class="w-full h-3 bg-slate-700 rounded-full overflow-hidden flex">
-        <div style="width: {pct_done}%" class="bg-emerald-500 h-full" title="Done: {pct_done}%"></div>
-        <div style="width: {pct_ready}%" class="bg-indigo-500 h-full" title="Ready: {pct_ready}%"></div>
-        <div style="width: {pct_backlog}%" class="bg-slate-500 h-full" title="Backlog: {pct_backlog}%"></div>
+        <div id="bar-done" style="width: {pct_done}%" class="bg-emerald-500 h-full transition-all duration-300" title="Done: {pct_done}%"></div>
+        <div id="bar-ready" style="width: {pct_ready}%" class="bg-indigo-500 h-full transition-all duration-300" title="Ready: {pct_ready}%"></div>
+        <div id="bar-backlog" style="width: {pct_backlog}%" class="bg-slate-500 h-full transition-all duration-300" title="Backlog: {pct_backlog}%"></div>
       </div>
     </div>
 
@@ -391,22 +393,10 @@ render();
     </div>
 
     <div id="container-kanban" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 flex flex-col">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3"><span class="font-semibold text-xs text-amber-400 uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span> Backlog</span><span id="cnt-backlog" class="text-xs font-bold bg-slate-800 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/20">0</span></div>
-        <div id="cards-backlog" class="kanban-col space-y-3 flex-1 overflow-y-auto"></div>
-      </div>
-      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 flex flex-col">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3"><span class="font-semibold text-xs text-indigo-400 uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-indigo-400"></span> Ready</span><span id="cnt-ready" class="text-xs font-bold bg-slate-800 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/20">0</span></div>
-        <div id="cards-ready" class="kanban-col space-y-3 flex-1 overflow-y-auto"></div>
-      </div>
-      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 flex flex-col">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3"><span class="font-semibold text-xs text-pink-400 uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-pink-400"></span> In Progress</span><span id="cnt-in_progress" class="text-xs font-bold bg-slate-800 text-pink-400 px-2 py-0.5 rounded-full border border-pink-500/20">0</span></div>
-        <div id="cards-in_progress" class="kanban-col space-y-3 flex-1 overflow-y-auto"></div>
-      </div>
-      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 flex flex-col">
-        <div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3"><span class="font-semibold text-xs text-emerald-400 uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Done</span><span id="cnt-done" class="text-xs font-bold bg-slate-800 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">0</span></div>
-        <div id="cards-done" class="kanban-col space-y-3 flex-1 overflow-y-auto"></div>
-      </div>
+      <div ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'BACKLOG')" class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 flex flex-col transition"><div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3"><span class="font-semibold text-xs text-amber-400 uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span> Backlog</span><span id="cnt-backlog" class="text-xs font-bold bg-slate-800 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/20">0</span></div><div id="cards-backlog" class="kanban-col space-y-3 flex-1 overflow-y-auto"></div></div>
+      <div ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'READY')" class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 flex flex-col transition"><div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3"><span class="font-semibold text-xs text-indigo-400 uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-indigo-400"></span> Ready</span><span id="cnt-ready" class="text-xs font-bold bg-slate-800 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/20">0</span></div><div id="cards-ready" class="kanban-col space-y-3 flex-1 overflow-y-auto"></div></div>
+      <div ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'IN_PROGRESS')" class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 flex flex-col transition"><div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3"><span class="font-semibold text-xs text-pink-400 uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-pink-400"></span> In Progress</span><span id="cnt-in_progress" class="text-xs font-bold bg-slate-800 text-pink-400 px-2 py-0.5 rounded-full border border-pink-500/20">0</span></div><div id="cards-in_progress" class="kanban-col space-y-3 flex-1 overflow-y-auto"></div></div>
+      <div ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'DONE')" class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 flex flex-col transition"><div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3"><span class="font-semibold text-xs text-emerald-400 uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400"></span> Done</span><span id="cnt-done" class="text-xs font-bold bg-slate-800 text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-500/20">0</span></div><div id="cards-done" class="kanban-col space-y-3 flex-1 overflow-y-auto"></div></div>
     </div>
 
     <div id="container-matrix" class="hidden space-y-6"></div>
@@ -420,6 +410,8 @@ render();
       </table>
     </div>
   </div>
+
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
 
   <div id="task-modal-backdrop" onclick="if(event.target.id==='task-modal-backdrop')closeTaskModal()" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div id="task-modal-card" class="bg-slate-900 border border-slate-700 rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-150">
@@ -435,10 +427,19 @@ render();
           <button onclick="closeTaskModal()" class="text-slate-400 hover:text-white bg-slate-800 rounded-lg w-7 h-7 flex items-center justify-center cursor-pointer text-sm font-bold transition" title="Close (Esc)">✕</button>
         </div>
         <h2 id="modal-title" class="text-lg md:text-xl font-bold text-white leading-snug"></h2>
-        <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400 pt-1 border-t border-slate-800/60">
-          <div class="flex items-center gap-1.5 font-mono text-[11px]"><span class="text-slate-500">Branch:</span><span id="modal-branch" class="text-indigo-300 font-semibold"></span><button id="btn-copy-branch" onclick="copyBranch()" class="text-[10px] text-slate-400 hover:text-white bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700 cursor-pointer">Copy</button></div>
-          <div class="flex items-center gap-1 text-[11px]"><span class="text-slate-500">Modified:</span><span id="modal-mtime" class="text-slate-300"></span></div>
-          <a id="modal-file-link" href="#" target="_blank" class="text-[11px] text-indigo-400 hover:text-indigo-300 underline">📄 View Markdown File</a>
+        <div class="flex flex-wrap items-center justify-between gap-y-2 text-xs text-slate-400 pt-1 border-t border-slate-800/60">
+          <div class="flex items-center gap-x-4 gap-y-1 flex-wrap">
+            <div class="flex items-center gap-1.5 font-mono text-[11px]"><span class="text-slate-500">Branch:</span><span id="modal-branch" class="text-indigo-300 font-semibold"></span><button id="btn-copy-branch" onclick="copyBranch()" class="text-[10px] text-slate-400 hover:text-white bg-slate-800 px-1.5 py-0.5 rounded border border-slate-700 cursor-pointer">Copy</button></div>
+            <div class="flex items-center gap-1 text-[11px]"><span class="text-slate-500">Modified:</span><span id="modal-mtime" class="text-slate-300"></span></div>
+            <a id="modal-file-link" href="#" target="_blank" class="text-[11px] text-indigo-400 hover:text-indigo-300 underline">📄 View Markdown File</a>
+          </div>
+          <div class="flex items-center gap-1.5 text-[11px]">
+            <span class="text-slate-400">Move:</span>
+            <button onclick="changeTaskStatus(currentModalId, 'BACKLOG')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 cursor-pointer">Backlog</button>
+            <button onclick="changeTaskStatus(currentModalId, 'READY')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-slate-700 cursor-pointer">Ready</button>
+            <button onclick="changeTaskStatus(currentModalId, 'IN_PROGRESS')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-pink-400 border border-slate-700 cursor-pointer">In Progress</button>
+            <button onclick="changeTaskStatus(currentModalId, 'DONE')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 cursor-pointer">Done</button>
+          </div>
         </div>
       </div>
       <div id="modal-body" class="p-6 overflow-y-auto flex-1 space-y-2 bg-slate-900/50"></div>
@@ -461,15 +462,14 @@ render();
 """
     return html
 
+
 def main():
     repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     tasks = parse_tasks(repo_root)
     if not tasks:
         print("No tasks found.")
         sys.exit(1)
-
     html_content = build_html(tasks)
-
     out_file = os.path.join(repo_root, "docs", "tasks", "dashboard.html")
     with open(out_file, "w", encoding="utf-8") as f:
         f.write(html_content)
@@ -478,15 +478,14 @@ def main():
     brain_root = os.path.expanduser("~/.gemini/antigravity/brain")
     if os.path.exists(brain_root):
         conv_id = os.environ.get("ANTIGRAVITY_CONVERSATION_ID", "")
-        target_dirs = [os.path.join(brain_root, conv_id)] if conv_id and os.path.exists(os.path.join(brain_root, conv_id)) else []
-        if not target_dirs:
+        tdirs = [os.path.join(brain_root, conv_id)] if conv_id and os.path.exists(os.path.join(brain_root, conv_id)) else []
+        if not tdirs:
             dirs = sorted([os.path.join(brain_root, d) for d in os.listdir(brain_root) if os.path.isdir(os.path.join(brain_root, d))], key=os.path.getmtime, reverse=True)
-            target_dirs = dirs[:1] if dirs else []
-        for tdir in target_dirs:
-            artifact_file = os.path.join(tdir, "task_dashboard.html")
-            with open(artifact_file, "w", encoding="utf-8") as f:
+            tdirs = dirs[:1] if dirs else []
+        for tdir in tdirs:
+            with open(os.path.join(tdir, "task_dashboard.html"), "w", encoding="utf-8") as f:
                 f.write(html_content)
-            print(f"Generated conversation artifact dashboard at {artifact_file}")
+
 
 if __name__ == "__main__":
     main()
