@@ -2,7 +2,7 @@
 
 - **Status:** BACKLOG
 - **Priority:** P1
-- **Category:** Systems / Gameplay
+- **Category:** Design
 - **Target Branch:** `feature/final-ball-list-campaign-1`
 
 ## Description
