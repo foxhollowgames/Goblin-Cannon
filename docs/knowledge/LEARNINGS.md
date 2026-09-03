@@ -117,6 +117,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-106`](#lrn-106) | TASK-063 | `UI` | Junk Box relic display equivalence and flyout tooltips | 2026-09-03 |
 | [`LRN-107`](#lrn-107) | TASK-065 | `UI` | UI Wireframe and Screen Layout Redesign | 2026-09-03 |
 | [`LRN-108`](#lrn-108) | TASK-066 | `inventory_and_ui_systems` | Junk Box Manual Relic Placement and Self-Exclusion | 2026-09-03 |
+| [`LRN-109`](#lrn-109) | TASK-066 | `godot_engine` | Junk Box Manual Relic Placement and Controller Lifecycle | 2026-09-03 |
 
 ---
 
@@ -1847,5 +1848,21 @@ When moving a relic to a nearby cell, target cells can overlap its own origin ce
 
 #### Actionable Guideline for Future Agents
 Always pass the active item instance ID to inventory can_place_item to allow self-exclusion, and fetch the cell dimension dynamically from JunkBoxGridView.get_cell_size.
+
+---
+
+### <a id="lrn-109"></a> LRN-109: Junk Box Manual Relic Placement and Controller Lifecycle
+- **Task:** `TASK-066`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-03T15:09:02.068092`
+
+#### Context & Problem
+Relics in the Junk Box could not move internally due to cell size mismatch and multiple active drag controllers in headless tests.
+
+#### Key Insight & Learning
+JunkBoxDragController must calculate positions from JunkBoxGridView cell size and clean up child controllers when JunkBoxPanel exits the scene tree.
+
+#### Actionable Guideline for Future Agents
+Always retrieve cell size from the grid view and free auxiliary controllers during _exit_tree.
 
 ---
