@@ -5,7 +5,8 @@ from playwright.sync_api import sync_playwright
 
 def run_playwright_verification() -> None:
     html_path = Path("docs/tasks/dashboard.html").resolve()
-    artifact_dir = Path(r"C:\Users\josep\.gemini\antigravity\brain\531c46cb-8072-4f87-b5f7-0dbc38a43bbf")
+    conv_id = os.environ.get("ANTIGRAVITY_CONVERSATION_ID", "4ae3c293-2f09-46ba-a308-6cfc5485d424")
+    artifact_dir = Path(os.path.expanduser(f"~/.gemini/antigravity/brain/{conv_id}"))
     artifact_dir.mkdir(parents=True, exist_ok=True)
     target_img = artifact_dir / "playwright_dashboard_capture.png"
 
