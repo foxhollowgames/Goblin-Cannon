@@ -108,6 +108,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-097`](#lrn-097) | TASK-048 | `gameplay_systems` | Relic Pinball Widget Activation Binding and Charge Progress Telemetry | 2026-09-03 |
 | [`LRN-098`](#lrn-098) | TASK-040 | `asset_resources` | Goblin Mood and Reset Hand Sprite Integration | 2026-09-03 |
 | [`LRN-099`](#lrn-099) | TASK-061 | `tooling` | Dashboard Kanban Drag and Drop Task Progression | 2026-09-03 |
+| [`LRN-100`](#lrn-100) | TASK-062 | `tooling` | Dashboard Parked Ideas Status and Kanban Column | 2026-09-03 |
 
 ---
 
@@ -1694,5 +1695,21 @@ Using HTML5 drag events on cards with drop zones on Kanban columns connected to 
 
 #### Actionable Guideline for Future Agents
 When adding local file write actions from a web dashboard, provide a lightweight localhost HTTP server with CORS headers so direct file:/// and localhost browser sessions can update project markdown files safely.
+
+---
+
+### <a id="lrn-100"></a> LRN-100: Dashboard Parked Ideas Status and Kanban Column
+- **Task:** `TASK-062`
+- **Category:** `tooling`
+- **Created:** `2026-09-03T11:05:57.964263`
+
+#### Context & Problem
+Adding a dedicated Parked Ideas column to the task matrix dashboard
+
+#### Key Insight & Learning
+Adding a dedicated PARKED column to the 5-column Kanban grid with a distinct purple color scheme gives a clear area for ideas on hold, distinct from the active backlog.
+
+#### Actionable Guideline for Future Agents
+When expanding Kanban workflow states, update VALID_STATUSES in the updater server, the HTML template grid, the filter dropdowns, and modal transition controls so all interaction paths stay aligned.
 
 ---
