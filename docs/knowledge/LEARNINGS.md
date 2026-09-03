@@ -111,6 +111,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-100`](#lrn-100) | TASK-062 | `tooling` | Dashboard Parked Ideas Status and Kanban Column | 2026-09-03 |
 | [`LRN-101`](#lrn-101) | TASK-064 | `tooling` | Dashboard Task Card Category Chips and Clutter Reduction | 2026-09-03 |
 | [`LRN-102`](#lrn-102) | TASK-057 | `godot_engine` | RichTextLabel Flyout Tooltip BBCode Formatting | 2026-09-03 |
+| [`LRN-103`](#lrn-103) | TASK-058 | `UI` | CanvasLayer hierarchy and pause blur | 2026-09-03 |
 
 ---
 
@@ -1745,5 +1746,21 @@ RichTextLabel with bbcode_enabled=true and fit_content=true parses BBCode tags l
 
 #### Actionable Guideline for Future Agents
 Use RichTextLabel with bbcode_enabled=true, fit_content=true, and MOUSE_FILTER_IGNORE for hover tooltip bodies that display formatted headers or highlighted keywords.
+
+---
+
+### <a id="lrn-103"></a> LRN-103: CanvasLayer hierarchy and pause blur
+- **Task:** `TASK-058`
+- **Category:** `UI`
+- **Created:** `2026-09-03T14:17:01.956219`
+
+#### Context & Problem
+Modal layers were previously layer 10 and sat below CannonOverlay at layer 15, causing the cannon to render unblurred during pause modals.
+
+#### Key Insight & Learning
+CanvasLayer nodes order visual rendering: higher layer numbers render over lower layer numbers. Setting _modal_layer and InventoryOverlay to layer 20 ensures pause blur shaders sample CannonOverlay (layer 15).
+
+#### Actionable Guideline for Future Agents
+Always set pause overlays and full-screen modals to layer 20 or higher so that all game world and overlay elements are included in the screen texture.
 
 ---
