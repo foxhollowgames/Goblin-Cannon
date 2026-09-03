@@ -49,7 +49,7 @@ def build_html(tasks):
     tasks_json = json.dumps(tasks)
     total = len(tasks)
     d_cnt, r_cnt = sum(1 for t in tasks if t["status"] == "DONE"), sum(1 for t in tasks if t["status"] == "READY")
-    b_cnt, p_cnt = sum(1 for t in tasks if t["status"] == "BACKLOG"), sum(1 for t in tasks if t["status"] == "IN_PROGRESS")
+    b_cnt, p_cnt, k_cnt = sum(1 for t in tasks if t["status"] == "BACKLOG"), sum(1 for t in tasks if t["status"] == "IN_PROGRESS"), sum(1 for t in tasks if t["status"] == "PARKED")
     pct_done = round(d_cnt / (total or 1) * 100, 1)
     pct_ready = round(r_cnt / (total or 1) * 100, 1)
     pct_backlog = round(b_cnt / (total or 1) * 100, 1)
@@ -137,12 +137,13 @@ function changeTaskStatus(taskId, newStatus) {
 function updateTopMetrics() {
   const total = ALL_TASKS.length;
   const d = ALL_TASKS.filter(t => t.status === 'DONE').length, r = ALL_TASKS.filter(t => t.status === 'READY').length;
-  const b = ALL_TASKS.filter(t => t.status === 'BACKLOG').length, p = ALL_TASKS.filter(t => t.status === 'IN_PROGRESS').length;
+  const b = ALL_TASKS.filter(t => t.status === 'BACKLOG').length, p = ALL_TASKS.filter(t => t.status === 'IN_PROGRESS').length, k = ALL_TASKS.filter(t => t.status === 'PARKED').length;
   const pD = Math.round(d / total * 100), pR = Math.round(r / total * 100), pB = Math.round(b / total * 100);
   const el = id => document.getElementById(id);
   if (el('stat-done')) el('stat-done').innerText = d;
   if (el('stat-ready')) el('stat-ready').innerText = r;
   if (el('stat-backlog')) el('stat-backlog').innerText = b;
+  if (el('stat-parked')) el('stat-parked').innerText = k;
   if (el('stat-inprog')) el('stat-inprog').innerText = p;
   if (el('stat-progress-label')) el('stat-progress-label').innerText = `Overall Progress: ${pD}% (${d}/${total} Tasks Completed)`;
   if (el('bar-done')) el('bar-done').style.width = pD + '%';
@@ -167,10 +168,10 @@ function renderCard(t) {
 }
 
 function renderKanban(tasks) {
-  const cols = {'BACKLOG': document.getElementById('cards-backlog'), 'READY': document.getElementById('cards-ready'), 'IN_PROGRESS': document.getElementById('cards-in_progress'), 'DONE': document.getElementById('cards-done')};
-  const cnts = {'BACKLOG': document.getElementById('cnt-backlog'), 'READY': document.getElementById('cnt-ready'), 'IN_PROGRESS': document.getElementById('cnt-in_progress'), 'DONE': document.getElementById('cnt-done')};
+  const cols = {'BACKLOG': document.getElementById('cards-backlog'), 'READY': document.getElementById('cards-ready'), 'IN_PROGRESS': document.getElementById('cards-in_progress'), 'DONE': document.getElementById('cards-done'), 'PARKED': document.getElementById('cards-parked')};
+  const cnts = {'BACKLOG': document.getElementById('cnt-backlog'), 'READY': document.getElementById('cnt-ready'), 'IN_PROGRESS': document.getElementById('cnt-in_progress'), 'DONE': document.getElementById('cnt-done'), 'PARKED': document.getElementById('cnt-parked')};
   Object.values(cols).forEach(c => { if (c) c.innerHTML = ''; });
-  const counts = {'BACKLOG': 0, 'READY': 0, 'IN_PROGRESS': 0, 'DONE': 0};
+  const counts = {'BACKLOG': 0, 'READY': 0, 'IN_PROGRESS': 0, 'DONE': 0, 'PARKED': 0};
   tasks.forEach(t => { const st = cols[t.status] ? t.status : 'BACKLOG'; if (cols[st]) { cols[st].innerHTML += renderCard(t); counts[st]++; } });
   Object.keys(counts).forEach(k => { if (cnts[k]) cnts[k].innerText = counts[k]; });
 }
@@ -333,7 +334,7 @@ render();
   <style>
     .kanban-col {{ min-height: 380px; }}
     .badge-p0 {{ background-color: #ef4444; color: #fff; }} .badge-p1 {{ background-color: #f59e0b; color: #fff; }} .badge-p2 {{ background-color: #3b82f6; color: #fff; }}
-    .badge-done {{ background-color: #10b981; color: #fff; }} .badge-ready {{ background-color: #6366f1; color: #fff; }} .badge-backlog {{ background-color: #6b7280; color: #fff; }} .badge-in_progress {{ background-color: #ec4899; color: #fff; }}
+    .badge-done {{ background-color: #10b981; color: #fff; }} .badge-ready {{ background-color: #6366f1; color: #fff; }} .badge-backlog {{ background-color: #6b7280; color: #fff; }} .badge-in_progress {{ background-color: #ec4899; color: #fff; }} .badge-parked {{ background-color: #8b5cf6; color: #fff; }}
   </style>
 </head>
 <body class="bg-[var(--background,#0f172a)] text-[var(--foreground,#f8fafc)] p-6 font-sans antialiased min-h-screen">
@@ -346,12 +347,13 @@ render();
       <span id="stat-progress-label" class="text-xs font-semibold px-3 py-1.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Overall Progress: {pct_done}% ({d_cnt}/{total} Tasks Completed)</span>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
       <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-slate-400">Total Tasks</div><div id="stat-total" class="text-2xl font-bold mt-1 text-white">{total}</div><div class="text-[11px] text-slate-500 mt-1">Canonical packets</div></div>
       <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-emerald-400">Completed (DONE)</div><div id="stat-done" class="text-2xl font-bold mt-1 text-emerald-400">{d_cnt}</div><div class="text-[11px] text-emerald-400/80 mt-1">Merged & tested</div></div>
       <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-indigo-400">Ready for Dev</div><div id="stat-ready" class="text-2xl font-bold mt-1 text-indigo-400">{r_cnt}</div><div class="text-[11px] text-indigo-400/80 mt-1">Ready to pull</div></div>
       <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-amber-400">In Backlog</div><div id="stat-backlog" class="text-2xl font-bold mt-1 text-amber-400">{b_cnt}</div><div class="text-[11px] text-amber-400/80 mt-1">Upcoming work</div></div>
-      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-pink-400">Active (In Progress)</div><div id="stat-inprog" class="text-2xl font-bold mt-1 text-pink-400">{p_cnt}</div><div class="text-[11px] text-pink-400/80 mt-1">Active branch</div></div>
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-purple-400">Parked Ideas</div><div id="stat-parked" class="text-2xl font-bold mt-1 text-purple-400">{k_cnt}</div><div class="text-[11px] text-purple-400/80 mt-1">Ideas on hold</div></div>
+      <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 shadow-sm"><div class="text-xs font-medium text-pink-400">Active (In Prog)</div><div id="stat-inprog" class="text-2xl font-bold mt-1 text-pink-400">{p_cnt}</div><div class="text-[11px] text-pink-400/80 mt-1">Active branch</div></div>
     </div>
 
     <div class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4">
@@ -380,7 +382,7 @@ render();
             <option value="priority">Sort: Priority (P0 &rarr; P2)</option>
           </select>
           <select id="filter-status" onchange="render()" class="bg-slate-900/80 border border-slate-700 text-xs rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <option value="ALL">All Statuses</option><option value="DONE">DONE</option><option value="READY">READY</option><option value="BACKLOG">BACKLOG</option><option value="IN_PROGRESS">IN_PROGRESS</option>
+            <option value="ALL">All Statuses</option><option value="PARKED">PARKED</option><option value="BACKLOG">BACKLOG</option><option value="READY">READY</option><option value="IN_PROGRESS">IN_PROGRESS</option><option value="DONE">DONE</option>
           </select>
           <select id="filter-domain" onchange="render()" class="bg-slate-900/80 border border-slate-700 text-xs rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
             <option value="ALL">All Domains</option><option value="Gameplay & Systems">Gameplay & Systems</option><option value="UI, Art & Narrative">UI, Art & Narrative</option><option value="Controls & Input">Controls & Input</option><option value="Audio & Polish">Audio & Polish</option><option value="DevOps & Tooling">DevOps & Tooling</option>
@@ -392,7 +394,8 @@ render();
       </div>
     </div>
 
-    <div id="container-kanban" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+    <div id="container-kanban" class="grid grid-cols-1 md:grid-cols-5 gap-3">
+      <div ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'PARKED')" class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 flex flex-col transition"><div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3"><span class="font-semibold text-xs text-purple-400 uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-purple-400"></span> Parked Ideas</span><span id="cnt-parked" class="text-xs font-bold bg-slate-800 text-purple-400 px-2 py-0.5 rounded-full border border-purple-500/20">0</span></div><div id="cards-parked" class="kanban-col space-y-3 flex-1 overflow-y-auto"></div></div>
       <div ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'BACKLOG')" class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 flex flex-col transition"><div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3"><span class="font-semibold text-xs text-amber-400 uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-amber-400"></span> Backlog</span><span id="cnt-backlog" class="text-xs font-bold bg-slate-800 text-amber-400 px-2 py-0.5 rounded-full border border-amber-500/20">0</span></div><div id="cards-backlog" class="kanban-col space-y-3 flex-1 overflow-y-auto"></div></div>
       <div ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'READY')" class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 flex flex-col transition"><div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3"><span class="font-semibold text-xs text-indigo-400 uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-indigo-400"></span> Ready</span><span id="cnt-ready" class="text-xs font-bold bg-slate-800 text-indigo-400 px-2 py-0.5 rounded-full border border-indigo-500/20">0</span></div><div id="cards-ready" class="kanban-col space-y-3 flex-1 overflow-y-auto"></div></div>
       <div ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event, 'IN_PROGRESS')" class="bg-[var(--card,#1e293b)] border border-[var(--border,#334155)] rounded-xl p-4 flex flex-col transition"><div class="flex items-center justify-between pb-3 border-b border-slate-700 mb-3"><span class="font-semibold text-xs text-pink-400 uppercase tracking-wider flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-pink-400"></span> In Progress</span><span id="cnt-in_progress" class="text-xs font-bold bg-slate-800 text-pink-400 px-2 py-0.5 rounded-full border border-pink-500/20">0</span></div><div id="cards-in_progress" class="kanban-col space-y-3 flex-1 overflow-y-auto"></div></div>
@@ -435,6 +438,7 @@ render();
           </div>
           <div class="flex items-center gap-1.5 text-[11px]">
             <span class="text-slate-400">Move:</span>
+            <button onclick="changeTaskStatus(currentModalId, 'PARKED')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-purple-400 border border-slate-700 cursor-pointer">Parked</button>
             <button onclick="changeTaskStatus(currentModalId, 'BACKLOG')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 cursor-pointer">Backlog</button>
             <button onclick="changeTaskStatus(currentModalId, 'READY')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-indigo-400 border border-slate-700 cursor-pointer">Ready</button>
             <button onclick="changeTaskStatus(currentModalId, 'IN_PROGRESS')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-pink-400 border border-slate-700 cursor-pointer">In Progress</button>

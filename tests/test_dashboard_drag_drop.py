@@ -37,6 +37,7 @@ def test_dashboard_html_drag_drop_elements():
     assert "handleDragEnd(event" in html, "Cards missing handleDragEnd"
 
     # Check column drop targets
+    assert "handleDrop(event, 'PARKED')" in html, "Missing Parked drop handler"
     assert "handleDrop(event, 'BACKLOG')" in html, "Missing Backlog drop handler"
     assert "handleDrop(event, 'READY')" in html, "Missing Ready drop handler"
     assert "handleDrop(event, 'IN_PROGRESS')" in html, "Missing In Progress drop handler"
@@ -44,6 +45,8 @@ def test_dashboard_html_drag_drop_elements():
 
     # Check toast container
     assert 'id="toast-container"' in html, "Missing toast-container element"
+    assert 'id="cards-parked"' in html, "Missing cards-parked element"
+    assert 'id="cnt-parked"' in html, "Missing cnt-parked element"
 
     print("PASS: test_dashboard_html_drag_drop_elements")
 
@@ -66,15 +69,18 @@ def test_update_task_status_file_modification():
         rm_content = f.read()
     assert re.search(r'\[TASK-061\].*?\|\s*READY\s*\|', rm_content), "README row missing READY status"
 
-    # 2. Update to IN_PROGRESS
-    res2 = task_server.update_task_status(task_id, "IN_PROGRESS")
-    assert res2.get("success") is True, f"Failed to update to IN_PROGRESS: {res2}"
-
+    # 2. Update to PARKED
+    res_park = task_server.update_task_status(task_id, "PARKED")
+    assert res_park.get("success") is True, f"Failed to update to PARKED: {res_park}"
     with open(task_file, "r", encoding="utf-8") as f:
-        tf_content2 = f.read()
-    assert "- **Status:** IN_PROGRESS" in tf_content2, f"Expected IN_PROGRESS in {task_file}"
+        tf_content_park = f.read()
+    assert "- **Status:** PARKED" in tf_content_park
 
-    # 3. Test invalid status rejected
+    # 3. Update back to DONE
+    res_done = task_server.update_task_status(task_id, "DONE")
+    assert res_done.get("success") is True, f"Failed to update to DONE: {res_done}"
+
+    # 4. Test invalid status rejected
     res_bad = task_server.update_task_status(task_id, "INVALID_STATUS")
     assert res_bad.get("success") is False, "Invalid status should fail"
 
@@ -114,8 +120,8 @@ def test_task_server_http_endpoints():
         assert post_data.get("success") is True, f"Update failed: {post_data}"
         assert post_data.get("status") == "READY"
 
-        # Revert back to IN_PROGRESS
-        payload_rev = json.dumps({"id": "TASK-061", "status": "IN_PROGRESS"}).encode("utf-8")
+        # Revert back to DONE
+        payload_rev = json.dumps({"id": "TASK-061", "status": "DONE"}).encode("utf-8")
         conn.request("POST", "/api/task/update", body=payload_rev, headers={"Content-Type": "application/json", "Content-Length": str(len(payload_rev))})
         resp_rev = conn.getresponse()
         assert resp_rev.status == 200
