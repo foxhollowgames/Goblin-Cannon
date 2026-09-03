@@ -24,7 +24,6 @@ var _battlefield: Node
 var _debug_overlay: Control
 var _inventory_panel: Control
 var _almanac_panel: Control
-var _inventory_btn: Button
 var _almanac_btn: Button
 var _debug_event_spawn_modal: Control
 var _debug_full_store_modal: Control
@@ -370,11 +369,6 @@ func _create_inventory_ui() -> void:
 			if left_panel:
 				_almanac_btn = _build_almanac_button()
 				left_panel.add_child(_almanac_btn)
-				_inventory_btn = _build_bag_button()
-				left_panel.add_child(_inventory_btn)
-				if GameState.junk_box and not GameState.junk_box.inventory_changed.is_connected(_update_bag_button_badge):
-					GameState.junk_box.inventory_changed.connect(_update_bag_button_badge)
-				_update_bag_button_badge()
 				if _debug_manager and _debug_manager.has_method("build_debug_tools_column"):
 					left_panel.add_child(_debug_manager.build_debug_tools_column())
 
@@ -427,16 +421,6 @@ func debug_jump_to_city_and_wall(city_index: int, wall_index: int) -> void:
 
 func _build_almanac_button() -> Button:
 	return GameCoordinatorUI.build_almanac_button(_on_almanac_pressed)
-
-func _build_bag_button() -> Button:
-	return GameCoordinatorUI.build_bag_button(_on_inventory_pressed)
-
-func _update_bag_button_badge() -> void:
-	GameCoordinatorUI.update_bag_button_badge(_inventory_btn, get_parent())
-
-func _on_inventory_pressed() -> void:
-	if not _game_over and not _victory:
-		_toggle_junk_box()
 
 func _on_almanac_pressed() -> void:
 	if not _game_over and not _victory and _almanac_panel and _almanac_panel.has_method("toggle"):
