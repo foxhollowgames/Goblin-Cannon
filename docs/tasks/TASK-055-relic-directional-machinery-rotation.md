@@ -1,6 +1,6 @@
 # TASK-055: Relic Directional Machinery Rotation Compliance
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay / Physics
 - **Target Branch:** `feature/relic-directional-machinery-rotation`
@@ -40,7 +40,7 @@ Make sure directional widgets such as guide tracks and kickers update launch vec
 
 ## Acceptance Criteria
 
-- [ ] Guide tracks and directional machinery rotate with relic rotation.
-- [ ] Launch vectors and physics colliders match rotated relic angles.
-- [ ] Component sprites and hover previews display rotated orientations correctly.
-- [ ] Unit tests pass cleanly in headless mode.
+- [x] Guide tracks and directional machinery rotate with relic rotation.
+- [x] Launch vectors and physics colliders match rotated relic angles.
+- [x] Component sprites and hover previews display rotated orientations correctly.
+- [x] Unit tests pass cleanly in headless mode.
