@@ -1,6 +1,6 @@
 # TASK-045: Remove Minion System and Mechanics
 
-- **Status:** BACKLOG
+- **Status:** DONE
 - **Priority:** P2
 - **Category:** Refactoring / Cleanup
 - **Target Branch:** `feature/remove-minion-system`
@@ -26,6 +26,6 @@ Remove all minion entities, spawning logic, attack states, and minion references
 
 ## Acceptance Criteria
 
-- [ ] `minion.gd` and `minion.tscn` removed from the repository.
-- [ ] Battlefield controllers and combat managers cleaned of minion logic.
-- [ ] Headless unit tests updated and passing cleanly.
+- [x] `minion.gd` and `minion.tscn` removed from the repository.
+- [x] Battlefield controllers and combat managers cleaned of minion logic.
+- [x] Headless unit tests updated and passing cleanly.

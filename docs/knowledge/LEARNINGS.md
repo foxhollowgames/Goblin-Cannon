@@ -104,6 +104,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-093`](#lrn-093) | TASK-046 | `godot_engine` | Stationary combat terrain with synchronized wall advance tweens | 2026-09-02 |
 | [`LRN-094`](#lrn-094) | TASK-051 | `godot_engine` | Pinball kinetic machinery subclass lifecycle and bonus energy dispatching | 2026-09-02 |
 | [`LRN-095`](#lrn-095) | TASK-046 | `ui` | Embedding animated terrain art inside corner cannon widget | 2026-09-03 |
+| [`LRN-096`](#lrn-096) | TASK-045 | `refactoring` | Removal of minion systems and dead combat references | 2026-09-03 |
 
 ---
 
@@ -1626,5 +1627,21 @@ The Task 46 scrolling terrain was initially rendered on layer 0 in BattlefieldVi
 
 #### Actionable Guideline for Future Agents
 Embed animated terrain or visual backdrops directly into UI container widgets with show_behind_parent=true and wire transition events through top-level coordinator signals instead of querying unrelated scene branches.
+
+---
+
+### <a id="lrn-096"></a> LRN-096: Removal of minion systems and dead combat references
+- **Task:** `TASK-045`
+- **Category:** `refactoring`
+- **Created:** `2026-09-03T10:05:13.757062`
+
+#### Context & Problem
+Minions were deprecated in favor of a direct siege combat loop against fortifications and walls, leaving unused minion files and color constants.
+
+#### Key Insight & Learning
+Removing deprecated gameplay entity scripts and scenes requires auditing autoload constants, architecture documentation, and test suites to prevent dangling references.
+
+#### Actionable Guideline for Future Agents
+When removing deprecated gameplay mechanics, audit autoloads for orphaned helper methods and constants, update architecture docs, regenerate AI directory, and verify the full test suite.
 
 ---
