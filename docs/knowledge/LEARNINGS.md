@@ -102,6 +102,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-091`](#lrn-091) | TASK-TOOLING | `tooling` | Dashboard Task Chronological Sorting | 2026-09-02 |
 | [`LRN-092`](#lrn-092) | TASK-056 | `tooling` | Interactive Task Details Modal and Branch Command Sanitization | 2026-09-02 |
 | [`LRN-093`](#lrn-093) | TASK-046 | `godot_engine` | Stationary combat terrain with synchronized wall advance tweens | 2026-09-02 |
+| [`LRN-094`](#lrn-094) | TASK-051 | `godot_engine` | Pinball kinetic machinery subclass lifecycle and bonus energy dispatching | 2026-09-02 |
 
 ---
 
@@ -1592,5 +1593,21 @@ Implementing scrolling terrain and cannon breach movement for the right-panel Ba
 
 #### Actionable Guideline for Future Agents
 When unit testing Tweens synchronously in headless test scripts, attach the test node to the active scene tree root (e.g. Engine.get_main_loop().root.add_child) and use autofree. When animating custom Node2D drawing properties via Tween, monitor tween.is_running() in _process to dispatch queue_redraw() even when overall movement speed is zero.
+
+---
+
+### <a id="lrn-094"></a> LRN-094: Pinball kinetic machinery subclass lifecycle and bonus energy dispatching
+- **Task:** `TASK-051`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-02T19:34:18.586500`
+
+#### Context & Problem
+Implementing missing pinball machinery subclasses (standup_target, spinner, orbit_loop, captive_ball, bash_toy) extending PolyominoMachineryComponent, ensuring super._process decay and full bonus energy propagation
+
+#### Key Insight & Learning
+1) When extending custom components that animate properties in _process (like _spring_scale decay and _spark_progress in PolyominoMachineryComponent), always call super._process(delta) in subclass overrides to avoid permanent visual distortion or frozen sparks. 2) When awarding bonus energy on breaking multi-hit targets (BashToy), temporarily boost base_energy before invoking super.trigger_activation() so ball.add_peg_energy(), component_activated signal emission, and result dictionaries all receive the full bonus consistently. 3) Initialize default component export properties in _init() as well as _ready() so unit tests that instantiate nodes outside the SceneTree immediately read correct values.
+
+#### Actionable Guideline for Future Agents
+Always invoke super._process(delta) in kinetic machinery subclasses to ensure base spring and spark decay animations run. Temporarily adjust base_energy for super.trigger_activation calls to ensure all downstream energy receivers and signals capture the total energy granted.
 
 ---
