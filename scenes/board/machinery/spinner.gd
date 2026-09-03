@@ -31,6 +31,7 @@ func _ready() -> void:
 	super._ready()
 
 func _process(delta: float) -> void:
+	super._process(delta)
 	if spin_velocity > 0.0:
 		spin_angle += spin_velocity * delta
 		spin_velocity = maxf(0.0, spin_velocity - SPIN_FRICTION * delta)

@@ -30,6 +30,7 @@ func _ready() -> void:
 	super._ready()
 
 func _process(delta: float) -> void:
+	super._process(delta)
 	if displacement > 0.0:
 		displacement = maxf(0.0, displacement - RETURN_SPEED * delta)
 		queue_redraw()

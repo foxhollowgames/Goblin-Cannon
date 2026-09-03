@@ -1,7 +1,6 @@
 extends "res://tests/test_base.gd"
 
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
-const PolyominoMachineryComponentScript = preload("res://scenes/board/machinery/polyomino_machinery_component.gd")
 const CellType = PolyominoModuleData.CellType
 
 const StandupTargetScript = preload("res://scenes/board/machinery/standup_target.gd")
@@ -10,6 +9,14 @@ const OrbitLoopScript = preload("res://scenes/board/machinery/orbit_loop.gd")
 const CaptiveBallScript = preload("res://scenes/board/machinery/captive_ball.gd")
 const BashToyScript = preload("res://scenes/board/machinery/bash_toy.gd")
 const PolyominoModuleNodeScript = preload("res://scenes/board/machinery/polyomino_module_node.gd")
+
+class MockBall extends Node2D:
+	var peg_energy: int = 0
+	var linear_velocity: Vector2 = Vector2.ZERO
+	func add_peg_energy(amount: int) -> void:
+		peg_energy += amount
+	func get_ball_id() -> int:
+		return 101
 
 func _init() -> void:
 	suite_name = "PinballComponents"
@@ -21,6 +28,8 @@ func run() -> void:
 	test_orbit_loop_activation()
 	test_captive_ball_activation()
 	test_bash_toy_progression_and_breaking()
+	test_spring_and_spark_process_decay()
+	test_cooldown_suppression()
 	test_polyomino_module_node_factory()
 	cleanup()
 
@@ -58,7 +67,7 @@ func test_standup_target_activation() -> void:
 	var hit_emitted: Array = [false]
 	target.connect("target_hit", func(_n: Node, _b: Node): hit_emitted[0] = true)
 
-	var dummy_ball: Node2D = Node2D.new()
+	var dummy_ball: MockBall = MockBall.new()
 	autofree(dummy_ball)
 	dummy_ball.position = Vector2(0, -10)
 
@@ -66,6 +75,7 @@ func test_standup_target_activation() -> void:
 	assert_true(res.get("activated", false), "Standup target activated")
 	assert_true(hit_emitted[0], "target_hit signal emitted")
 	assert_eq(target.get("hit_count"), 1, "hit_count incremented to 1")
+	assert_gt(dummy_ball.peg_energy, 0, "Ball received energy from standup target")
 
 func test_spinner_activation() -> void:
 	begin("spinner_activation")
@@ -74,7 +84,7 @@ func test_spinner_activation() -> void:
 	var spun_emitted: Array = [false]
 	spinner.connect("spinner_spun", func(_n: Node, _c: int): spun_emitted[0] = true)
 
-	var dummy_ball: Node2D = Node2D.new()
+	var dummy_ball: MockBall = MockBall.new()
 	autofree(dummy_ball)
 
 	var res: Dictionary = spinner.trigger_activation(dummy_ball, 1)
@@ -91,7 +101,7 @@ func test_orbit_loop_activation() -> void:
 	var traversed: Array = [false]
 	orbit.connect("orbit_traversed", func(_n: Node, _b: Node): traversed[0] = true)
 
-	var dummy_ball: Node2D = Node2D.new()
+	var dummy_ball: MockBall = MockBall.new()
 	autofree(dummy_ball)
 
 	var res: Dictionary = orbit.trigger_activation(dummy_ball, 1)
@@ -107,7 +117,7 @@ func test_captive_ball_activation() -> void:
 	var struck: Array = [false]
 	captive.connect("captive_ball_struck", func(_n: Node, _b: Node): struck[0] = true)
 
-	var dummy_ball: Node2D = Node2D.new()
+	var dummy_ball: MockBall = MockBall.new()
 	autofree(dummy_ball)
 
 	var res: Dictionary = captive.trigger_activation(dummy_ball, 1)
@@ -122,21 +132,63 @@ func test_bash_toy_progression_and_breaking() -> void:
 	autofree(bash)
 	bash.set("max_hits", 3)
 	var broken_emitted: Array = [false]
+	var signal_energy_emitted: Array = [0]
 	bash.connect("bash_toy_broken", func(_n: Node): broken_emitted[0] = true)
+	bash.connect("component_activated", func(_c: Node, _b: Node, energy: int, _imp: Vector2): signal_energy_emitted[0] = energy)
 
-	var dummy_ball: Node2D = Node2D.new()
+	var dummy_ball: MockBall = MockBall.new()
 	autofree(dummy_ball)
 
-	for i in range(1, 3):
-		bash.trigger_activation(dummy_ball, i * 10)
-		assert_eq(bash.get("current_hits"), i, "Hits accumulated")
-		assert_false(bash.get("is_broken"), "Bash toy not broken yet")
+	# Hit 1 (normal hit)
+	bash.trigger_activation(dummy_ball, 1)
+	assert_eq(bash.get("current_hits"), 1, "Hit 1 accumulated")
+	assert_eq(dummy_ball.peg_energy, 12, "Normal hit awarded base energy 12 to ball")
 
-	var res: Dictionary = bash.trigger_activation(dummy_ball, 30)
-	assert_eq(bash.get("current_hits"), 3, "Hits reached max")
+	# Hit 2 (normal hit)
+	bash.trigger_activation(dummy_ball, 10)
+	assert_eq(bash.get("current_hits"), 2, "Hit 2 accumulated")
+	assert_false(bash.get("is_broken"), "Bash toy not broken yet")
+	assert_eq(dummy_ball.peg_energy, 24, "Two hits awarded 24 total energy to ball")
+
+	# Hit 3 (breaking hit)
+	var res: Dictionary = bash.trigger_activation(dummy_ball, 20)
+	assert_eq(bash.get("current_hits"), 3, "Hits reached max 3")
 	assert_true(bash.get("is_broken"), "Bash toy is broken")
 	assert_true(broken_emitted[0], "bash_toy_broken signal emitted")
-	assert_gt(res.get("energy_granted", 0), bash.get("base_energy"), "Broken bash toy awards bonus energy")
+	assert_eq(res.get("energy_granted", 0), 37, "Breaking hit returned 37 energy (12 + 25 bonus)")
+	assert_eq(signal_energy_emitted[0], 37, "component_activated reported 37 energy")
+	assert_eq(dummy_ball.peg_energy, 61, "Ball received full bonus energy (24 + 37 = 61)")
+
+func test_spring_and_spark_process_decay() -> void:
+	begin("spring_and_spark_process_decay")
+	var bash: Node2D = BashToyScript.new() as Node2D
+	autofree(bash)
+	var dummy_ball: MockBall = MockBall.new()
+	autofree(dummy_ball)
+
+	bash.trigger_activation(dummy_ball, 1)
+	assert_neq(bash.get("_spring_scale"), Vector2.ONE, "Spring scale excited on impact")
+	assert_lt(bash.get("_spark_progress"), 1.0, "Spark progress started on impact")
+
+	# Process decay over several frames
+	bash._process(0.5)
+	assert_approx(bash.get("_spark_progress"), 1.0, 0.05, "Spark progress decayed back to 1.0 via super._process")
+	assert_approx(bash.get("_spring_scale").x, 1.0, 0.05, "Spring scale X returned to 1.0")
+	assert_approx(bash.get("_spring_scale").y, 1.0, 0.05, "Spring scale Y returned to 1.0")
+
+func test_cooldown_suppression() -> void:
+	begin("cooldown_suppression")
+	var target: Node2D = StandupTargetScript.new() as Node2D
+	autofree(target)
+	var dummy_ball: MockBall = MockBall.new()
+	autofree(dummy_ball)
+
+	var res1: Dictionary = target.trigger_activation(dummy_ball, 10)
+	assert_true(res1.get("activated", false), "First activation accepted")
+
+	# Immediate re-activation on same tick is suppressed by cooldown
+	var res2: Dictionary = target.trigger_activation(dummy_ball, 10)
+	assert_false(res2.get("activated", true), "Immediate re-activation suppressed by cooldown")
 
 func test_polyomino_module_node_factory() -> void:
 	begin("polyomino_module_node_factory")

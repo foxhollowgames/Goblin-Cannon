@@ -34,6 +34,7 @@ func _ready() -> void:
 	super._ready()
 
 func _process(delta: float) -> void:
+	super._process(delta)
 	if _wobble_offset != Vector2.ZERO:
 		_wobble_offset = _wobble_offset.move_toward(Vector2.ZERO, WOBBLE_DECAY * delta * 10.0)
 		queue_redraw()
@@ -42,14 +43,20 @@ func _process(delta: float) -> void:
 #region Public Methods
 ## Triggers activation upon hitting the bash toy, tracking damage progression and emitting signals.
 func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
+	var will_break: bool = (current_hits + 1 >= max_hits) and not is_broken
+	var orig_base_energy: int = base_energy
+	if will_break:
+		base_energy += BROKEN_BONUS_ENERGY
+
 	var res: Dictionary = super.trigger_activation(ball, sim_tick)
+	base_energy = orig_base_energy
+
 	if res.get("activated", false):
 		current_hits += 1
 		_wobble_offset = Vector2(randf_range(-4.0, 4.0), randf_range(-4.0, 4.0))
 		bash_hit.emit(self, current_hits)
-		if current_hits >= max_hits and not is_broken:
+		if will_break:
 			is_broken = true
-			res["energy_granted"] = int(res.get("energy_granted", base_energy)) + BROKEN_BONUS_ENERGY
 			bash_toy_broken.emit(self)
 		queue_redraw()
 	return res
