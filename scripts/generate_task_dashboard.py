@@ -55,6 +55,7 @@ def parse_tasks(repo_root):
                 except Exception:
                     pass
                 break
+        if not summary: summary = f"{title} ({category})"
 
         num_match = re.search(r'\d+', task_id)
         task_num = int(num_match.group()) if num_match else 0
@@ -101,6 +102,7 @@ def build_html(tasks):
 
     js_template = """const ALL_TASKS = __TASKS_JSON__;
 let viewMode = 'kanban', currentModalId = null;
+const esc = s => (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
 function setViewMode(mode) {
   viewMode = mode;
@@ -146,11 +148,11 @@ function renderCard(t) {
       <span class="font-mono text-[11px] text-indigo-300 font-bold flex items-center gap-1">${t.id} <span class="opacity-0 group-hover:opacity-100 text-indigo-400 text-[10px] transition">⤢</span></span>
       <span class="text-[10px] font-bold px-1.5 py-0.5 rounded ${prioClass}">${t.priority}</span>
     </div>
-    <h4 class="text-xs font-semibold text-white leading-snug group-hover:text-indigo-200">${t.title}</h4>
-    ${t.summary ? `<p class="text-[11px] text-slate-400 line-clamp-2">${t.summary}</p>` : ''}
+    <h4 class="text-xs font-semibold text-white leading-snug group-hover:text-indigo-200">${esc(t.title)}</h4>
+    ${t.summary ? `<p class="text-[11px] text-slate-400 line-clamp-2">${esc(t.summary)}</p>` : ''}
     <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
-      <span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">${t.category}</span>
-      <span class="font-mono text-[9px] text-slate-500 truncate max-w-[110px]">${t.branch}</span>
+      <span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">${esc(t.category)}</span>
+      <span class="font-mono text-[9px] text-slate-500 truncate max-w-[110px]">${esc(t.branch)}</span>
     </div>
   </div>`;
 }
@@ -187,12 +189,12 @@ function renderList(tasks) {
   const tbody = document.getElementById('list-table-body');
   tbody.innerHTML = tasks.map(t => `<tr onclick="openTaskModal('${t.id}')" class="hover:bg-slate-800/60 transition border-b border-slate-800 cursor-pointer group">
     <td class="px-4 py-3 font-mono font-bold text-indigo-300 flex items-center gap-1">${t.id} <span class="opacity-0 group-hover:opacity-100 text-[10px] text-indigo-400">⤢</span></td>
-    <td class="px-4 py-3 font-semibold text-white group-hover:text-indigo-200">${t.title}</td>
-    <td class="px-4 py-3 text-slate-300">${t.domain}</td>
-    <td class="px-4 py-3 text-slate-400">${t.category}</td>
+    <td class="px-4 py-3 font-semibold text-white group-hover:text-indigo-200">${esc(t.title)}</td>
+    <td class="px-4 py-3 text-slate-300">${esc(t.domain)}</td>
+    <td class="px-4 py-3 text-slate-400">${esc(t.category)}</td>
     <td class="px-4 py-3"><span class="text-[10px] font-bold px-2 py-0.5 rounded badge-${t.priority.toLowerCase()}">${t.priority}</span></td>
     <td class="px-4 py-3"><span class="text-[10px] font-bold px-2 py-0.5 rounded badge-${t.status.toLowerCase()}">${t.status}</span></td>
-    <td class="px-4 py-3 font-mono text-[10px] text-slate-400">${t.branch}</td>
+    <td class="px-4 py-3 font-mono text-[10px] text-slate-400">${esc(t.branch)}</td>
   </tr>`).join('');
 }
 
@@ -204,9 +206,8 @@ function render() {
 }
 
 function formatMarkdown(md) {
-  if (!md) return '<p class="text-slate-400 italic text-xs">No task specification content found.</p>';
+  if (!md) return '<div class="bg-slate-800/60 border border-slate-700/80 rounded-lg p-3 text-xs space-y-1"><div class="text-amber-400 font-semibold flex items-center gap-1.5"><span>⚠️</span><span>Specification Packet Pending</span></div><p class="text-slate-300 text-[11px]">Detailed specification markdown file has not yet been created in docs/tasks/.</p></div>';
   let text = md.replace(/^#[^\\n]+\\n+/, '').replace(/^(-\\s+\\*\\*[^*]+:\\*\\*.*\\n*)+/gm, '').trim();
-  const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const fmtInline = s => s.replace(/`([^`]+)`/g, '<code class="bg-slate-800 border border-slate-700 text-indigo-300 px-1 py-0.5 rounded font-mono text-[10px]">$1</code>').replace(/\\*\\*([^*]+)\\*\\*/g, '<strong class="text-white font-semibold">$1</strong>').replace(/\\[([^\\]]+)\\]\\(([^)]+)\\)/g, '<a href="$2" target="_blank" class="text-indigo-400 hover:underline">$1</a>');
   const lines = text.split('\\n');
   let out = [], inUl = false, inTbl = false, tblRows = [];

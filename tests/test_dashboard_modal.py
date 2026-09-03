@@ -51,6 +51,15 @@ def test_dashboard_modal():
     assert t56["branch"] == "feature/dashboard-task-detail-modal", f"Unexpected branch: {t56['branch']}"
     for t in tasks:
         assert "`" not in t.get("branch", ""), f"Task {t['id']} branch has backticks: {t.get('branch')}"
+        assert t.get("body"), f"Task {t['id']} has empty body"
+        assert t.get("summary"), f"Task {t['id']} has empty summary"
+
+    # Specifically check TASK-048, TASK-050, TASK-051
+    for check_id in ["TASK-048", "TASK-050", "TASK-051"]:
+        ct = next((t for t in tasks if t["id"] == check_id), None)
+        assert ct is not None, f"Task {check_id} missing from ALL_TASKS"
+        assert len(ct["body"]) > 500, f"Task {check_id} body too short"
+        assert len(ct["summary"]) > 20, f"Task {check_id} summary too short"
 
     print(f"PASS: Dashboard modal verified successfully across {len(tasks)} tasks.")
     print(f"Line counts: generator={len(gen_lines)}, dashboard={len(lines)}")
