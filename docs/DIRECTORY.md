@@ -82,6 +82,7 @@
 | `test_pause_game_comic_overlays.gd` | `PauseGameComicOverlays` | [tests/test_pause_game_comic_overlays.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_pause_game_comic_overlays.gd) |
 | `test_peg_grid_alignment.gd` | `PegGridAlignment` | [tests/test_peg_grid_alignment.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_peg_grid_alignment.gd) |
 | `test_phantom_trail.gd` | `PhantomTrail` | [tests/test_phantom_trail.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_phantom_trail.gd) |
+| `test_pinball_components.gd` | `PinballComponents` | [tests/test_pinball_components.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_pinball_components.gd) |
 | `test_pinball_machinery.gd` | `PinballMachinery` | [tests/test_pinball_machinery.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_pinball_machinery.gd) |
 | `test_polyomino_drag_drop.gd` | `PolyominoDragDrop` | [tests/test_polyomino_drag_drop.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_polyomino_drag_drop.gd) |
 | `test_polyomino_machinery.gd` | `PolyominoMachinery` | [tests/test_polyomino_machinery.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_polyomino_machinery.gd) |
