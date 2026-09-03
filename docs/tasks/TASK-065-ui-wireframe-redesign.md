@@ -1,6 +1,6 @@
 # TASK-065: UI Wireframe and Screen Layout Redesign
 
-- **Status:** DONE
+- **Status:** BACKLOG
 - **Priority:** P1
 - **Category:** UI / Layout / Design
 - **Target Branch:** `feature/ui-wireframe-redesign`

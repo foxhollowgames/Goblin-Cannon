@@ -67,6 +67,7 @@
 | `test_hopper_top_bar_debug_menu.gd` | `HopperTopBarDebugMenu` | [tests/test_hopper_top_bar_debug_menu.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_hopper_top_bar_debug_menu.gd) |
 | `test_junk_box_dynamic_scroll.gd` | `JunkBoxDynamicScroll` | [tests/test_junk_box_dynamic_scroll.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_junk_box_dynamic_scroll.gd) |
 | `test_junk_box_inventory.gd` | `JunkBoxInventory` | [tests/test_junk_box_inventory.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_junk_box_inventory.gd) |
+| `test_junk_box_manual_placement.gd` | `JunkBoxManualPlacement` | [tests/test_junk_box_manual_placement.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_junk_box_manual_placement.gd) |
 | `test_junk_box_relic_display_and_tooltips.gd` | `JunkBoxRelicDisplayAndTooltips` | [tests/test_junk_box_relic_display_and_tooltips.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_junk_box_relic_display_and_tooltips.gd) |
 | `test_junk_box_sidebar_display.gd` | `JunkBoxSidebarDisplay` | [tests/test_junk_box_sidebar_display.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_junk_box_sidebar_display.gd) |
 | `test_junk_box_ui_and_board_transfer.gd` | `JunkBoxUIAndBoardTransfer` | [tests/test_junk_box_ui_and_board_transfer.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_junk_box_ui_and_board_transfer.gd) |

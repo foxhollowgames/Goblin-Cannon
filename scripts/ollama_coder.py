@@ -56,7 +56,7 @@ def query_ollama(
         "stream": False,
         "options": {
             "temperature": temperature,
-            "num_predict": 1024,
+            "num_predict": 4096,
         },
     }
     data_bytes = json.dumps(payload).encode("utf-8")
