@@ -101,12 +101,13 @@ func toggle() -> void:
 		_open()
 
 func _open() -> void:
-	_update_tooltip(null)
+	KeywordDatabase.hide_flyout()
 	show()
 	if _sidebar_mode:
 		_apply_sidebar_layout()
 
 func _close() -> void:
+	KeywordDatabase.hide_flyout()
 	if _sidebar_mode:
 		show()
 		return
@@ -128,18 +129,35 @@ func _on_sort_pressed() -> void:
 		GameState.junk_box.auto_pack()
 
 func _on_item_hovered(item: JunkBoxItem) -> void:
-	_update_tooltip(item)
+	if item == null:
+		KeywordDatabase.hide_flyout()
+		return
+	if drag_controller and drag_controller.dragging_item != null:
+		KeywordDatabase.hide_flyout()
+		return
+	var title_str: String = item.display_name
+	var body_str: String = _format_item_tooltip(item)
+	var mouse_pos: Vector2 = Vector2.ZERO
+	if is_inside_tree() and get_viewport():
+		mouse_pos = get_global_mouse_position()
+	KeywordDatabase.show_flyout_custom(title_str, body_str, mouse_pos)
 
 func _on_item_unhovered() -> void:
-	_update_tooltip(null)
+	KeywordDatabase.hide_flyout()
+
+func _update_tooltip(item: JunkBoxItem) -> void:
+	if item != null:
+		_on_item_hovered(item)
+	else:
+		_on_item_unhovered()
 
 func _get_tooltip_lbl() -> RichTextLabel:
 	return null
 
 func _format_item_tooltip(item: JunkBoxItem) -> String:
 	if item == null:
-		return "[color=#cfbba8]Hover an item in the box to inspect details.[/color]"
-	var text: String = "[b][color=#f4d06f]%s[/color][/b]\n" % item.display_name
+		return ""
+	var text: String = ""
 	var relic_id: StringName = &""
 	if "custom_payload" in item and item.custom_payload is Dictionary:
 		relic_id = StringName(item.custom_payload.get("relic_id", ""))
@@ -179,10 +197,10 @@ func _format_item_tooltip(item: JunkBoxItem) -> String:
 		var f: int = 0
 		var r: int = 0
 		for t in item.module_data.cell_types.values():
-			if t == PolyominoModuleData.CellType.BUMPER: b += 1
+			if t == PolyominoModuleData.CellType.BUMPER or t == PolyominoModuleData.CellType.POP_BUMPER: b += 1
 			elif t == PolyominoModuleData.CellType.ACCELERATOR: a += 1
 			elif t == PolyominoModuleData.CellType.FUNNEL: f += 1
-			elif t == PolyominoModuleData.CellType.ROTARY_BOOSTER: r += 1
+			elif t == PolyominoModuleData.CellType.ROTARY_BOOSTER or t == PolyominoModuleData.CellType.SPINNER: r += 1
 		
 		if b > 0 or a > 0 or f > 0 or r > 0:
 			text += "\n[u]Components[/u]\n"
@@ -190,13 +208,7 @@ func _format_item_tooltip(item: JunkBoxItem) -> String:
 			if a > 0: text += "• Accelerators: %d\n" % a
 			if f > 0: text += "• Funnels: %d\n" % f
 			if r > 0: text += "• Boosters: %d\n" % r
-	return text
-
-func _update_tooltip(item: JunkBoxItem) -> void:
-	var lbl: RichTextLabel = _get_tooltip_lbl()
-	if lbl == null:
-		return
-	lbl.text = _format_item_tooltip(item)
+	return text.strip_edges()
 
 var _sidebar_mode: bool = false
 

@@ -52,6 +52,7 @@ func _ensure_ghost_created() -> void:
 func start_drag(item: JunkBoxItem, source: int, origin_cell: Vector2i, offset_cell: Vector2i) -> void:
 	if item == null:
 		return
+	KeywordDatabase.hide_flyout()
 	_ensure_ghost_created()
 	dragging_item = item
 	drag_source = source
