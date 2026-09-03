@@ -70,6 +70,7 @@
 | `test_junk_box_sidebar_display.gd` | `JunkBoxSidebarDisplay` | [tests/test_junk_box_sidebar_display.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_junk_box_sidebar_display.gd) |
 | `test_junk_box_ui_and_board_transfer.gd` | `JunkBoxUIAndBoardTransfer` | [tests/test_junk_box_ui_and_board_transfer.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_junk_box_ui_and_board_transfer.gd) |
 | `test_keyword_database.gd` | `KeywordDatabase` | [tests/test_keyword_database.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_keyword_database.gd) |
+| `test_keyword_flyout_tooltip.gd` | `KeywordFlyoutTooltip` | [tests/test_keyword_flyout_tooltip.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_keyword_flyout_tooltip.gd) |
 | `test_kingdom_board_events.gd` | `KingdomBoardEvents` | [tests/test_kingdom_board_events.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_kingdom_board_events.gd) |
 | `test_live_board_ghost_placement.gd` | `LiveBoardGhostPlacement` | [tests/test_live_board_ghost_placement.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_live_board_ghost_placement.gd) |
 | `test_lucky_gold_peg.gd` | `LuckyGoldPeg` | [tests/test_lucky_gold_peg.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_lucky_gold_peg.gd) |
