@@ -26,6 +26,8 @@ const LINE_WIDTH_TUFT: float = 1.5
 #endregion
 
 #region Variables
+@export var terrain_width: float = TERRAIN_WIDTH
+@export var terrain_height: float = TERRAIN_HEIGHT
 var scroll_speed: float = 0.0
 var is_advancing: bool = false
 var _scroll_offset_y: float = 0.0
@@ -117,35 +119,48 @@ func trigger_recoil_rumble(intensity: float = 3.0) -> void:
 
 #region Private Methods
 func _draw_roadway_base() -> void:
+	var w: float = terrain_width
+	var h: float = terrain_height
+	var verge_w: float = (w / TERRAIN_WIDTH) * VERGE_WIDTH
+	var road_left: float = verge_w
+	var road_w: float = w - (verge_w * 2.0)
+	var left_track: float = (w / TERRAIN_WIDTH) * LEFT_TRACK_X
+	var right_track: float = (w / TERRAIN_WIDTH) * RIGHT_TRACK_X
+	var track_w: float = (w / TERRAIN_WIDTH) * TRACK_WIDTH
+
 	var c_mud: Color = MonsterPalette.DARK_OLIVE()
 	var c_verge: Color = MonsterPalette.FOREST()
 	var c_verge_border: Color = MonsterPalette.OLIVE()
 	var c_track: Color = MonsterPalette.WARM_BROWN().lerp(c_mud, 0.65)
 
 	# Left and right verges
-	draw_rect(Rect2(0, 0, VERGE_WIDTH, TERRAIN_HEIGHT), c_verge, true)
-	draw_rect(Rect2(TERRAIN_WIDTH - VERGE_WIDTH, 0, VERGE_WIDTH, TERRAIN_HEIGHT), c_verge, true)
+	draw_rect(Rect2(0, 0, verge_w, h), c_verge, true)
+	draw_rect(Rect2(w - verge_w, 0, verge_w, h), c_verge, true)
 	# Roadway center
-	draw_rect(Rect2(ROAD_LEFT_X, 0, ROAD_WIDTH, TERRAIN_HEIGHT), c_mud, true)
+	draw_rect(Rect2(road_left, 0, road_w, h), c_mud, true)
 
 	# Road verge boundary edges
-	draw_line(Vector2(ROAD_LEFT_X, 0), Vector2(ROAD_LEFT_X, TERRAIN_HEIGHT), c_verge_border, LINE_WIDTH_BORDER)
-	draw_line(Vector2(TERRAIN_WIDTH - ROAD_LEFT_X, 0), Vector2(TERRAIN_WIDTH - ROAD_LEFT_X, TERRAIN_HEIGHT), c_verge_border, LINE_WIDTH_BORDER)
+	draw_line(Vector2(road_left, 0), Vector2(road_left, h), c_verge_border, LINE_WIDTH_BORDER)
+	draw_line(Vector2(w - road_left, 0), Vector2(w - road_left, h), c_verge_border, LINE_WIDTH_BORDER)
 
 	# Cart ruts running along the road
-	draw_rect(Rect2(LEFT_TRACK_X, 0, TRACK_WIDTH, TERRAIN_HEIGHT), c_track, true)
-	draw_rect(Rect2(RIGHT_TRACK_X, 0, TRACK_WIDTH, TERRAIN_HEIGHT), c_track, true)
+	draw_rect(Rect2(left_track, 0, track_w, h), c_track, true)
+	draw_rect(Rect2(right_track, 0, track_w, h), c_track, true)
 
 func _draw_repeating_slices() -> void:
+	var w: float = terrain_width
+	var h: float = terrain_height
+	var sx: float = w / TERRAIN_WIDTH
 	var start_y: float = _scroll_offset_y - TILE_REPEAT_Y
 	var c_pebble: Color = MonsterPalette.SLATE().lerp(MonsterPalette.TAN(), 0.3)
 	var c_grass: Color = MonsterPalette.MINT().lerp(MonsterPalette.FOREST(), 0.5)
 
-	while start_y < TERRAIN_HEIGHT + TILE_REPEAT_Y:
+	while start_y < h + TILE_REPEAT_Y:
 		for pt in _detail_pebbles:
-			draw_circle(Vector2(pt.x, start_y + pt.y), PEBBLE_RADIUS, c_pebble)
+			draw_circle(Vector2(pt.x * sx, start_y + pt.y), PEBBLE_RADIUS, c_pebble)
 		for tuft in _detail_verge_tufts:
-			draw_line(Vector2(tuft.x - 3, start_y + tuft.y), Vector2(tuft.x + 3, start_y + tuft.y - 4), c_grass, LINE_WIDTH_TUFT)
-			draw_line(Vector2(tuft.x, start_y + tuft.y), Vector2(tuft.x, start_y + tuft.y - 5), c_grass, LINE_WIDTH_TUFT)
+			var tx: float = tuft.x * sx if tuft.x < TERRAIN_WIDTH * 0.5 else w - ((TERRAIN_WIDTH - tuft.x) * sx)
+			draw_line(Vector2(tx - 3, start_y + tuft.y), Vector2(tx + 3, start_y + tuft.y - 4), c_grass, LINE_WIDTH_TUFT)
+			draw_line(Vector2(tx, start_y + tuft.y), Vector2(tx, start_y + tuft.y - 5), c_grass, LINE_WIDTH_TUFT)
 		start_y += TILE_REPEAT_Y
 #endregion
