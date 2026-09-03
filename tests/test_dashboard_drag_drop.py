@@ -48,6 +48,11 @@ def test_dashboard_html_drag_drop_elements():
     assert 'id="cards-parked"' in html, "Missing cards-parked element"
     assert 'id="cnt-parked"' in html, "Missing cnt-parked element"
 
+    # Check category chip function and styles
+    assert "getCategoryChip" in html, "Missing getCategoryChip function"
+    assert "max-w-[110px]" not in html, "Old truncated branch string still exists on cards"
+    assert "modal-branch" in html, "Modal must retain full branch information"
+
     print("PASS: test_dashboard_html_drag_drop_elements")
 
 

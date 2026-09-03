@@ -69,18 +69,22 @@ function setViewMode(mode) {
   render();
 }
 
+function getCategoryChip(cat) {
+  const c = (cat || '').toLowerCase();
+  if (/control|steering|input|drag|interactive|ux/.test(c)) return { label: 'UX', cls: 'bg-cyan-950/80 text-cyan-300 border border-cyan-700/50' };
+  if (/ui|hud|tooltip|cutout|panel|typography/.test(c)) return { label: 'UI', cls: 'bg-blue-950/80 text-blue-300 border border-blue-700/50' };
+  if (/art|sprite|visual|texture|cinematic/.test(c)) return { label: 'Art', cls: 'bg-pink-950/80 text-pink-300 border border-pink-700/50' };
+  if (/design|balance|math|synergy|archetype/.test(c)) return { label: 'Design', cls: 'bg-amber-950/80 text-amber-300 border border-amber-700/50' };
+  if (/planning|research|narrative|story|roadmap/.test(c)) return { label: 'Planning', cls: 'bg-purple-950/80 text-purple-300 border border-purple-700/50' };
+  return { label: 'Coding', cls: 'bg-emerald-950/80 text-emerald-300 border border-emerald-700/50' };
+}
+
 function getFilteredTasks() {
   const query = (document.getElementById('input-search').value || '').trim().toLowerCase();
   const st = document.getElementById('filter-status').value, dom = document.getElementById('filter-domain').value;
   const prio = document.getElementById('filter-priority').value, sort = document.getElementById('filter-sort')?.value || 'recent';
 
-  let list = ALL_TASKS.filter(t => {
-    if (st !== 'ALL' && t.status !== st) return false;
-    if (dom !== 'ALL' && t.domain !== dom) return false;
-    if (prio !== 'ALL' && t.priority !== prio) return false;
-    if (query && !(t.id + ' ' + t.title + ' ' + t.category + ' ' + t.branch + ' ' + t.summary).toLowerCase().includes(query)) return false;
-    return true;
-  });
+  let list = ALL_TASKS.filter(t => (st === 'ALL' || t.status === st) && (dom === 'ALL' || t.domain === dom) && (prio === 'ALL' || t.priority === prio) && (!query || (t.id + ' ' + t.title + ' ' + t.category + ' ' + t.branch + ' ' + t.summary).toLowerCase().includes(query)));
   if (sort === 'recent') list.sort((a, b) => (b.mtime || 0) - (a.mtime || 0) || (b.num || 0) - (a.num || 0));
   else if (sort === 'oldest') list.sort((a, b) => (a.mtime || 0) - (b.mtime || 0) || (a.num || 0) - (b.num || 0));
   else if (sort === 'id_desc') list.sort((a, b) => (b.num || 0) - (a.num || 0));
@@ -135,24 +139,17 @@ function changeTaskStatus(taskId, newStatus) {
 }
 
 function updateTopMetrics() {
-  const total = ALL_TASKS.length;
+  const total = ALL_TASKS.length, el = id => document.getElementById(id);
   const d = ALL_TASKS.filter(t => t.status === 'DONE').length, r = ALL_TASKS.filter(t => t.status === 'READY').length;
   const b = ALL_TASKS.filter(t => t.status === 'BACKLOG').length, p = ALL_TASKS.filter(t => t.status === 'IN_PROGRESS').length, k = ALL_TASKS.filter(t => t.status === 'PARKED').length;
   const pD = Math.round(d / total * 100), pR = Math.round(r / total * 100), pB = Math.round(b / total * 100);
-  const el = id => document.getElementById(id);
-  if (el('stat-done')) el('stat-done').innerText = d;
-  if (el('stat-ready')) el('stat-ready').innerText = r;
-  if (el('stat-backlog')) el('stat-backlog').innerText = b;
-  if (el('stat-parked')) el('stat-parked').innerText = k;
-  if (el('stat-inprog')) el('stat-inprog').innerText = p;
+  [['stat-done', d], ['stat-ready', r], ['stat-backlog', b], ['stat-parked', k], ['stat-inprog', p]].forEach(([id, val]) => { if (el(id)) el(id).innerText = val; });
   if (el('stat-progress-label')) el('stat-progress-label').innerText = `Overall Progress: ${pD}% (${d}/${total} Tasks Completed)`;
-  if (el('bar-done')) el('bar-done').style.width = pD + '%';
-  if (el('bar-ready')) el('bar-ready').style.width = pR + '%';
-  if (el('bar-backlog')) el('bar-backlog').style.width = pB + '%';
+  if (el('bar-done')) el('bar-done').style.width = pD + '%'; if (el('bar-ready')) el('bar-ready').style.width = pR + '%'; if (el('bar-backlog')) el('bar-backlog').style.width = pB + '%';
 }
 
 function renderCard(t) {
-  const prioClass = t.priority === 'P0' ? 'badge-p0' : t.priority === 'P1' ? 'badge-p1' : 'badge-p2';
+  const prioClass = t.priority === 'P0' ? 'badge-p0' : t.priority === 'P1' ? 'badge-p1' : 'badge-p2', chip = getCategoryChip(t.category);
   return `<div draggable="true" ondragstart="handleDragStart(event, '${t.id}')" ondragend="handleDragEnd(event)" onclick="openTaskModal('${t.id}')" class="group bg-slate-900/90 border border-slate-700/80 hover:border-indigo-500 rounded-lg p-3 space-y-2 hover:bg-slate-800/60 transition cursor-grab active:cursor-grabbing shadow-sm select-none">
     <div class="flex items-center justify-between">
       <span class="font-mono text-[11px] text-indigo-300 font-bold flex items-center gap-1">${t.id} <span class="opacity-0 group-hover:opacity-100 text-indigo-400 text-[10px] transition">⤢</span></span>
@@ -160,9 +157,8 @@ function renderCard(t) {
     </div>
     <h4 class="text-xs font-semibold text-white leading-snug group-hover:text-indigo-200">${esc(t.title)}</h4>
     ${t.summary ? `<p class="text-[11px] text-slate-400 line-clamp-2">${esc(t.summary)}</p>` : ''}
-    <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
-      <span class="bg-slate-800 px-2 py-0.5 rounded text-slate-300">${esc(t.category)}</span>
-      <span class="font-mono text-[9px] text-slate-500 truncate max-w-[110px]">${esc(t.branch)}</span>
+    <div class="pt-2 border-t border-slate-800 flex items-center justify-between text-[10px]">
+      <span class="font-medium px-2 py-0.5 rounded ${chip.cls}">${chip.label}</span>
     </div>
   </div>`;
 }
@@ -197,15 +193,18 @@ function renderMatrix(tasks) {
 
 function renderList(tasks) {
   const tbody = document.getElementById('list-table-body');
-  tbody.innerHTML = tasks.map(t => `<tr onclick="openTaskModal('${t.id}')" class="hover:bg-slate-800/60 transition border-b border-slate-800 cursor-pointer group">
+  tbody.innerHTML = tasks.map(t => {
+    const chip = getCategoryChip(t.category);
+    return `<tr onclick="openTaskModal('${t.id}')" class="hover:bg-slate-800/60 transition border-b border-slate-800 cursor-pointer group">
     <td class="px-4 py-3 font-mono font-bold text-indigo-300 flex items-center gap-1">${t.id} <span class="opacity-0 group-hover:opacity-100 text-[10px] text-indigo-400">⤢</span></td>
     <td class="px-4 py-3 font-semibold text-white group-hover:text-indigo-200">${esc(t.title)}</td>
     <td class="px-4 py-3 text-slate-300">${esc(t.domain)}</td>
-    <td class="px-4 py-3 text-slate-400">${esc(t.category)}</td>
+    <td class="px-4 py-3"><span class="text-[10px] font-medium px-2 py-0.5 rounded ${chip.cls}">${chip.label}</span></td>
     <td class="px-4 py-3"><span class="text-[10px] font-bold px-2 py-0.5 rounded badge-${t.priority.toLowerCase()}">${t.priority}</span></td>
     <td class="px-4 py-3"><span class="text-[10px] font-bold px-2 py-0.5 rounded badge-${t.status.toLowerCase()}">${t.status}</span></td>
     <td class="px-4 py-3 font-mono text-[10px] text-slate-400">${esc(t.branch)}</td>
-  </tr>`).join('');
+  </tr>`;
+  }).join('');
 }
 
 function render() {
