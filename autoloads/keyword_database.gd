@@ -56,7 +56,7 @@ const KEYWORDS: Dictionary = {
 var _flyout_layer: CanvasLayer = null
 var _flyout_panel: PanelContainer = null
 var _flyout_title: Label = null
-var _flyout_body: Label = null
+var _flyout_body: RichTextLabel = null
 
 func _ready() -> void:
 	_setup_flyout()
@@ -75,22 +75,7 @@ func _setup_flyout() -> void:
 	_flyout_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_flyout_panel.z_index = 100
 
-	var style := StyleBoxFlat.new()
-	style.bg_color = Color(0.09, 0.07, 0.12, 0.98)
-	style.border_width_left = 2
-	style.border_width_right = 2
-	style.border_width_top = 2
-	style.border_width_bottom = 2
-	style.border_color = Color(0.95, 0.78, 0.26, 1.0)
-	style.corner_radius_top_left = 6
-	style.corner_radius_top_right = 6
-	style.corner_radius_bottom_left = 6
-	style.corner_radius_bottom_right = 6
-	style.content_margin_left = 12
-	style.content_margin_right = 12
-	style.content_margin_top = 8
-	style.content_margin_bottom = 8
-	_flyout_panel.add_theme_stylebox_override("panel", style)
+	_flyout_panel.add_theme_stylebox_override("panel", _build_flyout_style())
 
 	var vbox := VBoxContainer.new()
 	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -109,15 +94,35 @@ func _setup_flyout() -> void:
 	sep.color = Color(0.4, 0.35, 0.48, 0.8)
 	vbox.add_child(sep)
 
-	_flyout_body = Label.new()
+	_flyout_body = RichTextLabel.new()
 	_flyout_body.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_flyout_body.add_theme_font_size_override("font_size", 12)
-	_flyout_body.add_theme_color_override("font_color", Color(0.92, 0.9, 0.94, 1.0))
+	_flyout_body.bbcode_enabled = true
+	_flyout_body.fit_content = true
 	_flyout_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_flyout_body.custom_minimum_size = Vector2(200, 0)
+	_flyout_body.custom_minimum_size = Vector2(220, 0)
+	_flyout_body.add_theme_font_size_override("normal_font_size", 12)
+	_flyout_body.add_theme_color_override("default_color", Color(0.92, 0.9, 0.94, 1.0))
 	vbox.add_child(_flyout_body)
 
 	_flyout_layer.add_child(_flyout_panel)
+	
+func _build_flyout_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.09, 0.07, 0.12, 0.98)
+	style.border_width_left = 2
+	style.border_width_right = 2
+	style.border_width_top = 2
+	style.border_width_bottom = 2
+	style.border_color = Color(0.95, 0.78, 0.26, 1.0)
+	style.corner_radius_top_left = 6
+	style.corner_radius_top_right = 6
+	style.corner_radius_bottom_left = 6
+	style.corner_radius_bottom_right = 6
+	style.content_margin_left = 12
+	style.content_margin_right = 12
+	style.content_margin_top = 8
+	style.content_margin_bottom = 8
+	return style
 
 ## Updates a RichTextLabel's BBCode text with optional keyword hover styling.
 func update_rtl_text(rtl: RichTextLabel, hovered_key: String = "") -> void:
