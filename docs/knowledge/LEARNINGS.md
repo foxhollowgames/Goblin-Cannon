@@ -112,6 +112,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-101`](#lrn-101) | TASK-064 | `tooling` | Dashboard Task Card Category Chips and Clutter Reduction | 2026-09-03 |
 | [`LRN-102`](#lrn-102) | TASK-057 | `godot_engine` | RichTextLabel Flyout Tooltip BBCode Formatting | 2026-09-03 |
 | [`LRN-103`](#lrn-103) | TASK-058 | `UI` | CanvasLayer hierarchy and pause blur | 2026-09-03 |
+| [`LRN-104`](#lrn-104) | TASK-059 | `UI` | HUD header bar cleanup and redundant button removal | 2026-09-03 |
 
 ---
 
@@ -1762,5 +1763,21 @@ CanvasLayer nodes order visual rendering: higher layer numbers render over lower
 
 #### Actionable Guideline for Future Agents
 Always set pause overlays and full-screen modals to layer 20 or higher so that all game world and overlay elements are included in the screen texture.
+
+---
+
+### <a id="lrn-104"></a> LRN-104: HUD header bar cleanup and redundant button removal
+- **Task:** `TASK-059`
+- **Category:** `UI`
+- **Created:** `2026-09-03T14:22:24.801997`
+
+#### Context & Problem
+A bag button and item count badge were in the HUD header bar, which became redundant after Junk Box was integrated into the sidebar.
+
+#### Key Insight & Learning
+Removing redundant HUD buttons frees space in header bars and eliminates unused badge update signal connections on inventory changes.
+
+#### Actionable Guideline for Future Agents
+When an interface panel becomes permanent in a sidebar, remove its transient header bar toggle button and rely on direct sidebar interactions and standard hotkeys.
 
 ---
