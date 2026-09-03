@@ -106,6 +106,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-095`](#lrn-095) | TASK-046 | `ui` | Embedding animated terrain art inside corner cannon widget | 2026-09-03 |
 | [`LRN-096`](#lrn-096) | TASK-045 | `refactoring` | Removal of minion systems and dead combat references | 2026-09-03 |
 | [`LRN-097`](#lrn-097) | TASK-048 | `gameplay_systems` | Relic Pinball Widget Activation Binding and Charge Progress Telemetry | 2026-09-03 |
+| [`LRN-098`](#lrn-098) | TASK-040 | `asset_resources` | Goblin Mood and Reset Hand Sprite Integration | 2026-09-03 |
 
 ---
 
@@ -1660,5 +1661,21 @@ Per-widget hit counts must be accumulated in PolyominoModuleNode and evaluated a
 
 #### Actionable Guideline for Future Agents
 Store activation_requirement, required_widget_type, and activation_threshold in PolyominoModuleData with serialization. Draw dynamic radial arc gauges on interactive widgets during combat simulation. Keep PolyominoModuleNode <= 500 lines by compressing component instantiation match patterns.
+
+---
+
+### <a id="lrn-098"></a> LRN-098: Goblin Mood and Reset Hand Sprite Integration
+- **Task:** `TASK-040`
+- **Category:** `asset_resources`
+- **Created:** `2026-09-03T10:42:06.468547`
+
+#### Context & Problem
+Replacing placeholder goblin art in comic vignette panels and reset effects.
+
+#### Key Insight & Learning
+Preloading Kenney Zombie character poses for mood states and Monster Builder arm sprites for grab effects provides rich visual feedback while retaining procedural draw fallbacks.
+
+#### Actionable Guideline for Future Agents
+Preload character pose textures in UI panels and monster limb sprites in custom effects, updating TextureRect or draw_texture_rect with procedural fallbacks.
 
 ---
