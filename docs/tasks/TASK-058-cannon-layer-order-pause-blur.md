@@ -1,6 +1,6 @@
-﻿# TASK-058: Cannon Layer Order and Pause Blur Hierarchy
+# TASK-058: Cannon Layer Order and Pause Blur Hierarchy
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Visuals
 - **Target Branch:** `feature/cannon-layer-order-pause-blur`
@@ -35,7 +35,7 @@ The cannon sprite and charge bar render unblurred and on top of the pause blur l
 
 ## Acceptance Criteria
 
-- [ ] Modal draft windows and pause blur overlays render above the cannon.
-- [ ] Cannon sprite and charge bar are blurred and dimmed when pause modal is active.
-- [ ] Cannon visuals remain fully visible and correctly layered over sidebar backgrounds during active play.
-- [ ] All unit tests pass in headless mode.
+- [x] Modal draft windows and pause blur overlays render above the cannon.
+- [x] Cannon sprite and charge bar are blurred and dimmed when pause modal is active.
+- [x] Cannon visuals remain fully visible and correctly layered over sidebar backgrounds during active play.
+- [x] All unit tests pass in headless mode.

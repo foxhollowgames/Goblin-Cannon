@@ -8,6 +8,7 @@ func run() -> void:
 	test_debug_menu_top_bar_positioning()
 	test_debug_menu_toggle_and_children()
 	test_cannon_overlay_layer_and_single_cannon()
+	test_modal_and_cannon_layer_hierarchy()
 
 func test_hopper_positioning_below_top_bar() -> void:
 	begin("UILayer exists with layer=10, solid TopHeaderBarBg as child 0, and non-overlapping controls")
@@ -111,4 +112,29 @@ func test_cannon_overlay_layer_and_single_cannon() -> void:
 	assert_eq(widget.get("CANNON_TEXTURE"), null, "Extra CANNON_TEXTURE texture is removed from background widget")
 
 	widget.free()
+	main.free()
+
+func test_modal_and_cannon_layer_hierarchy() -> void:
+	begin("Modal layers (RewardsManager._modal_layer) sit above CannonOverlay")
+	var main_scene: PackedScene = load("res://scenes/main/main.tscn") as PackedScene
+	assert_true(main_scene != null, "main scene loaded")
+	var main: Node2D = main_scene.instantiate() as Node2D
+	assert_true(main != null, "main instance created")
+
+	var ui_layer: CanvasLayer = main.get_node_or_null("UILayer") as CanvasLayer
+	var cannon_overlay: CanvasLayer = main.get_node_or_null("CannonOverlay") as CanvasLayer
+	assert_true(ui_layer != null, "UILayer exists")
+	assert_true(cannon_overlay != null, "CannonOverlay exists")
+	assert_eq(ui_layer.layer, 10, "UILayer layer is 10")
+	assert_eq(cannon_overlay.layer, 15, "CannonOverlay layer is 15")
+
+	var rewards_mgr = main.get_node_or_null("RewardsManager")
+	assert_true(rewards_mgr != null, "RewardsManager exists")
+	if rewards_mgr:
+		rewards_mgr._ready()
+	assert_true(rewards_mgr._modal_layer != null, "RewardsManager._modal_layer exists")
+	assert_eq(rewards_mgr._modal_layer.layer, 20, "RewardsManager._modal_layer is layer 20 (above CannonOverlay)")
+	assert_true(rewards_mgr._modal_layer.layer > cannon_overlay.layer, "Modal layer renders above cannon overlay")
+	assert_true(cannon_overlay.layer > ui_layer.layer, "Cannon overlay renders above UI layer")
+
 	main.free()
