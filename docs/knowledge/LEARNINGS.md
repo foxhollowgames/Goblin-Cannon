@@ -107,6 +107,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-096`](#lrn-096) | TASK-045 | `refactoring` | Removal of minion systems and dead combat references | 2026-09-03 |
 | [`LRN-097`](#lrn-097) | TASK-048 | `gameplay_systems` | Relic Pinball Widget Activation Binding and Charge Progress Telemetry | 2026-09-03 |
 | [`LRN-098`](#lrn-098) | TASK-040 | `asset_resources` | Goblin Mood and Reset Hand Sprite Integration | 2026-09-03 |
+| [`LRN-099`](#lrn-099) | TASK-061 | `tooling` | Dashboard Kanban Drag and Drop Task Progression | 2026-09-03 |
 
 ---
 
@@ -1677,5 +1678,21 @@ Preloading Kenney Zombie character poses for mood states and Monster Builder arm
 
 #### Actionable Guideline for Future Agents
 Preload character pose textures in UI panels and monster limb sprites in custom effects, updating TextureRect or draw_texture_rect with procedural fallbacks.
+
+---
+
+### <a id="lrn-099"></a> LRN-099: Dashboard Kanban Drag and Drop Task Progression
+- **Task:** `TASK-061`
+- **Category:** `tooling`
+- **Created:** `2026-09-03T10:57:54.669944`
+
+#### Context & Problem
+Adding interactive drag-and-drop to the dashboard to update task status in TASK-*.md and README.md
+
+#### Key Insight & Learning
+Using HTML5 drag events on cards with drop zones on Kanban columns connected to a local Python HTTP server allows browser-based task updates with zero dependencies and instant visual feedback.
+
+#### Actionable Guideline for Future Agents
+When adding local file write actions from a web dashboard, provide a lightweight localhost HTTP server with CORS headers so direct file:/// and localhost browser sessions can update project markdown files safely.
 
 ---
