@@ -115,6 +115,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-104`](#lrn-104) | TASK-059 | `UI` | HUD header bar cleanup and redundant button removal | 2026-09-03 |
 | [`LRN-105`](#lrn-105) | TASK-060 | `UI` | Keyword hover consistency and tooltip audit | 2026-09-03 |
 | [`LRN-106`](#lrn-106) | TASK-063 | `UI` | Junk Box relic display equivalence and flyout tooltips | 2026-09-03 |
+| [`LRN-107`](#lrn-107) | TASK-065 | `UI` | UI Wireframe and Screen Layout Redesign | 2026-09-03 |
 
 ---
 
@@ -1813,5 +1814,21 @@ Using PolyominoModuleData.get_solid_edge_segments, internal dividing lines, and 
 
 #### Actionable Guideline for Future Agents
 Inventory displays of game pieces must visually match active gameplay rendering and connect hover events to central tooltip flyouts.
+
+---
+
+### <a id="lrn-107"></a> LRN-107: UI Wireframe and Screen Layout Redesign
+- **Task:** `TASK-065`
+- **Category:** `UI`
+- **Created:** `2026-09-03T14:38:52.733107`
+
+#### Context & Problem
+Screen elements required clear spatial bounding zones and visual hierarchy across core screens on a 1280x720 canvas.
+
+#### Key Insight & Learning
+Partitioning the 1280x720 display canvas into a 960px playfield zone and a 320px right telemetry sidebar enforces clean separation between gameplay interaction and combat monitors. Defining exact coordinate maps and standard 8px/16px padding grids guarantees readability and prevents modal overlap.
+
+#### Actionable Guideline for Future Agents
+Enforce 960px playfield and 320px telemetry sidebar spatial boundaries with standard 8px/16px padding grids across all 1280x720 screen designs.
 
 ---
