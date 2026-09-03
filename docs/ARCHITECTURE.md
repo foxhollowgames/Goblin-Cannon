@@ -481,7 +481,7 @@ The architecture above is designed so that:
 - New cities = new `CityDefinition` + wave/board data; same Hopper/Board/Energy flow.
 - Status system = new nodes/resources and signals (e.g. `status_applied`, `status_tick`) without changing core loop nodes.
 
-**Status effects (GDD)**: Cannon and sidearms do **not** apply status by default. Status comes from **balls** (e.g. ball abilities on peg hit or ball_reached_bottom) or from **upgrades/special sidearms**. MainCannonConfig and SidearmConfig have optional `status_effects_on_fire: Dictionary` (default `{}`); upgrades can set these (e.g. `{ "fire": 1 }`) so that when that weapon fires, the same damage call carries status. BattlefieldView exposes `apply_status_to_frontmost_minion(status_effects)` and `apply_status_to_minions_in_radius(center, radius, status_effects)` for ball abilities or other systems to apply status without dealing damage.
+**Status effects (GDD)**: Cannon and sidearms do **not** apply status by default. Status comes from **balls** (e.g. ball abilities on peg hit or ball_reached_bottom) or from **upgrades/special sidearms**. MainCannonConfig and SidearmConfig have optional `status_effects_on_fire: Dictionary` (default `{}`); upgrades can set these (e.g. `{ "fire": 1 }`) so that when that weapon fires, the same damage call carries status.
 
 ### 8.1 Performance & Caps
 

@@ -561,8 +561,5 @@ static func gameplay_wall_impact_core() -> Color:
 static func gameplay_wall_impact_ring() -> Color:
 	return monsters_also_die_color(MAD_IDX_CREAM).lerp(monsters_also_die_color(MAD_IDX_TAN), 0.35)
 
-static func gameplay_minion_body() -> Color:
-	return monsters_also_die_color(MAD_IDX_MUTED_GREEN).lerp(monsters_also_die_color(MAD_IDX_SLATE), 0.35)
-
 static func gameplay_black_hole_warning_arc() -> Color:
 	return monsters_also_die_color(MAD_IDX_INDIGO).lerp(monsters_also_die_color(MAD_IDX_BG_DEEP), 0.2)
