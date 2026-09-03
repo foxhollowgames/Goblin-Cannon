@@ -1,6 +1,6 @@
 # TASK-040: Asset Pack Sprite Audit and Replacement
 
-- **Status:** BACKLOG
+- **Status:** DONE
 - **Priority:** P2
 - **Category:** Art Production
 - **Target Branch:** `feature/asset-pack-sprite-replacement`
@@ -41,8 +41,8 @@ Available asset resource pools include:
 
 ## Acceptance Criteria
 
-- [ ] Kenney asset packs and `Essentials VFX Spritesheets` audited for goblin, wall, and VFX graphics.
-- [ ] Suitable goblin and creature sprites assigned to character placeholders.
-- [ ] Wall and fortification sprites assigned to battlefield wall nodes.
-- [ ] Particle and impact animations sourced from `Essentials VFX Spritesheets`.
-- [ ] All replaced assets render cleanly in game scenes without scale issues.
+- [x] Kenney asset packs and `Essentials VFX Spritesheets` audited for goblin, wall, and VFX graphics.
+- [x] Suitable goblin and creature sprites assigned to character placeholders.
+- [x] Wall and fortification sprites assigned to battlefield wall nodes.
+- [x] Particle and impact animations sourced from `Essentials VFX Spritesheets`.
+- [x] All replaced assets render cleanly in game scenes without scale issues.
