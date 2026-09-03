@@ -98,6 +98,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-087`](#lrn-087) | TASK-042 | `godot_engine` | hopper_ball_cascade_physics | 2026-09-02 |
 | [`LRN-088`](#lrn-088) | TASK-049 | `godot_engine` | On-Board Relic Tooltip Simplification | 2026-09-02 |
 | [`LRN-089`](#lrn-089) | TASK-054 | `inventory_and_board_systems` | relic_junk_box_return | 2026-09-02 |
+| [`LRN-090`](#lrn-090) | TASK-055 | `machinery` | rotation | 2026-09-02 |
 
 ---
 
@@ -1524,5 +1525,21 @@ Board.unslot_module must unsuppress pegs, clear cell occupancy, remove GameState
 
 #### Actionable Guideline for Future Agents
 Always route board-to-inventory relic returns through Board.return_module_to_junk_box to ensure atomic peg restoration, passive cleanup, and metadata retention without duplicate items.
+
+---
+
+### <a id="lrn-090"></a> LRN-090: rotation
+- **Task:** `TASK-055`
+- **Category:** `machinery`
+- **Created:** `2026-09-02T18:29:46.442226`
+
+#### Context & Problem
+Relic Machinery Rotation and Direction Vector Synchronization
+
+#### Key Insight & Learning
+Internal machinery components like GuideTrack, VerticalUpKicker, OutlaneKickback, ScoopSinkhole, BallLock, and MechanicalDiverter must transform exit offsets and launch vectors matching parent relic rotation.
+
+#### Actionable Guideline for Future Agents
+Always sync internal component direction properties when polyomino modules rotate, updating launch, eject, and offset vectors as well as ghost hover preview chevrons.
 
 ---
