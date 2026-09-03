@@ -38,10 +38,12 @@ def parse_tasks(repo_root):
         branch = m[6].strip()
 
         summary = ""
+        mtime = os.path.getmtime(readme_path)
         for fname in os.listdir(task_dir):
             if fname.startswith(task_id) and fname.endswith(".md"):
                 file_path = os.path.join(task_dir, fname)
                 try:
+                    mtime = os.path.getmtime(file_path)
                     with open(file_path, "r", encoding="utf-8") as tf:
                         tcontent = tf.read()
                         obj_m = re.search(r'##\s*Description\s*\n+([^#\n]+)', tcontent, re.IGNORECASE)
@@ -52,6 +54,9 @@ def parse_tasks(repo_root):
                 except Exception:
                     pass
                 break
+
+        num_match = re.search(r'\d+', task_id)
+        task_num = int(num_match.group()) if num_match else 0
 
         domain = "Gameplay & Systems"
         cat_lower = category.lower()
@@ -66,6 +71,8 @@ def parse_tasks(repo_root):
 
         tasks.append({
             "id": task_id,
+            "num": task_num,
+            "mtime": mtime,
             "title": title,
             "category": category,
             "domain": domain,
@@ -75,6 +82,7 @@ def parse_tasks(repo_root):
             "summary": summary
         })
 
+    tasks.sort(key=lambda t: (t.get("mtime", 0.0), t.get("num", 0)), reverse=True)
     return tasks
 
 def build_html(tasks):
@@ -108,14 +116,29 @@ function getFilteredTasks() {
   const st = document.getElementById('filter-status').value;
   const dom = document.getElementById('filter-domain').value;
   const prio = document.getElementById('filter-priority').value;
+  const sort = document.getElementById('filter-sort') ? document.getElementById('filter-sort').value : 'recent';
 
-  return ALL_TASKS.filter(t => {
+  let list = ALL_TASKS.filter(t => {
     if (st !== 'ALL' && t.status !== st) return false;
     if (dom !== 'ALL' && t.domain !== dom) return false;
     if (prio !== 'ALL' && t.priority !== prio) return false;
     if (query && !(t.id + ' ' + t.title + ' ' + t.category + ' ' + t.branch + ' ' + t.summary).toLowerCase().includes(query)) return false;
     return true;
   });
+
+  if (sort === 'recent') {
+    list.sort((a, b) => (b.mtime || 0) - (a.mtime || 0) || (b.num || 0) - (a.num || 0));
+  } else if (sort === 'oldest') {
+    list.sort((a, b) => (a.mtime || 0) - (b.mtime || 0) || (a.num || 0) - (b.num || 0));
+  } else if (sort === 'id_desc') {
+    list.sort((a, b) => (b.num || 0) - (a.num || 0));
+  } else if (sort === 'id_asc') {
+    list.sort((a, b) => (a.num || 0) - (b.num || 0));
+  } else if (sort === 'priority') {
+    const pMap = {'P0': 0, 'P1': 1, 'P2': 2};
+    list.sort((a, b) => (pMap[a.priority] ?? 9) - (pMap[b.priority] ?? 9) || (b.mtime || 0) - (a.mtime || 0));
+  }
+  return list;
 }
 
 function renderCard(t) {
@@ -217,7 +240,14 @@ render();
           <button id="btn-view-list" onclick="setViewMode('list')" class="px-3 py-1.5 text-xs font-medium rounded-md text-slate-400 hover:text-white cursor-pointer">Detailed List</button>
         </div>
         <div class="flex flex-wrap items-center gap-3">
-          <input type="text" id="input-search" oninput="render()" placeholder="Search title, ID, branch..." class="bg-slate-900/80 border border-slate-700 text-xs rounded-lg px-3 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-48 md:w-64">
+          <input type="text" id="input-search" oninput="render()" placeholder="Search title, ID, branch..." class="bg-slate-900/80 border border-slate-700 text-xs rounded-lg px-3 py-2 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-44 md:w-56">
+          <select id="filter-sort" onchange="render()" class="bg-slate-900/80 border border-slate-700 text-xs rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 font-medium">
+            <option value="recent">Sort: Most Recently Edited (Default)</option>
+            <option value="oldest">Sort: Oldest First</option>
+            <option value="id_desc">Sort: Task ID (High &rarr; Low)</option>
+            <option value="id_asc">Sort: Task ID (Low &rarr; High)</option>
+            <option value="priority">Sort: Priority (P0 &rarr; P2)</option>
+          </select>
           <select id="filter-status" onchange="render()" class="bg-slate-900/80 border border-slate-700 text-xs rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
             <option value="ALL">All Statuses</option><option value="DONE">DONE</option><option value="READY">READY</option><option value="BACKLOG">BACKLOG</option><option value="IN_PROGRESS">IN_PROGRESS</option>
           </select>
@@ -284,12 +314,20 @@ def main():
         f.write(html_content)
     print(f"Generated standalone task dashboard at {out_file}")
 
-    artifact_dir = r"C:\Users\josep\.gemini\antigravity\brain\f5a782f9-f227-4588-9c94-6f1d472a580a"
-    if os.path.exists(artifact_dir):
-        artifact_file = os.path.join(artifact_dir, "task_dashboard.html")
-        with open(artifact_file, "w", encoding="utf-8") as f:
-            f.write(html_content)
-        print(f"Generated conversation artifact dashboard at {artifact_file}")
+    brain_root = r"C:\Users\josep\.gemini\antigravity\brain"
+    if os.path.exists(brain_root):
+        conv_id = os.environ.get("ANTIGRAVITY_CONVERSATION_ID", "")
+        if conv_id and os.path.exists(os.path.join(brain_root, conv_id)):
+            target_dirs = [os.path.join(brain_root, conv_id)]
+        else:
+            dirs = [os.path.join(brain_root, d) for d in os.listdir(brain_root) if os.path.isdir(os.path.join(brain_root, d))]
+            dirs.sort(key=os.path.getmtime, reverse=True)
+            target_dirs = dirs[:1] if dirs else []
+        for tdir in target_dirs:
+            artifact_file = os.path.join(tdir, "task_dashboard.html")
+            with open(artifact_file, "w", encoding="utf-8") as f:
+                f.write(html_content)
+            print(f"Generated conversation artifact dashboard at {artifact_file}")
 
 if __name__ == "__main__":
     main()
