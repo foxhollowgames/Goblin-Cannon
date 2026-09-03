@@ -68,6 +68,7 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/test_circular_cannon_widget.gd",
 	"res://tests/test_cannon_sprite_visuals.gd",
 	"res://tests/test_cannon_scrolling_terrain.gd",
+	"res://tests/test_corner_cannon_terrain.gd",
 	"res://tests/test_pause_game_comic_overlays.gd",
 	"res://tests/test_asset_pack_sprites.gd",
 	"res://tests/test_top_gold_counter_ui.gd",

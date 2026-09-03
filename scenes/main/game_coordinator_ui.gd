@@ -280,6 +280,12 @@ static func create_inventory_ui(coordinator: Node, reward_handler: Node, board: 
 		var cm: Node = main.get_node_or_null("CombatManager")
 		if cm and cm.has_signal("cannon_fired_at_wall") and circular_widget.has_method("trigger_firing_anim"):
 			cm.cannon_fired_at_wall.connect(func(_dmg, _hp, _max): circular_widget.trigger_firing_anim())
+		var bf: Node = main.get_node_or_null("CombatContainer/BattlefieldView")
+		if bf:
+			if bf.has_signal("terrain_advance_started") and circular_widget.has_method("start_advancing"):
+				bf.terrain_advance_started.connect(circular_widget.start_advancing)
+			if bf.has_signal("terrain_advance_stopped") and circular_widget.has_method("stop_advancing"):
+				bf.terrain_advance_stopped.connect(circular_widget.stop_advancing)
 
 	var takeover_script: Script = load("res://scenes/ui/fullscreen_comic_takeover.gd") as Script
 	var takeover_overlay: CanvasLayer = null
