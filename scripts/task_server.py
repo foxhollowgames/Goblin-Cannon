@@ -14,7 +14,7 @@ import sys
 import urllib.parse
 import webbrowser
 
-VALID_STATUSES = ["BACKLOG", "READY", "IN_PROGRESS", "IN_REVIEW", "DONE"]
+VALID_STATUSES = ["PARKED", "BACKLOG", "READY", "IN_PROGRESS", "IN_REVIEW", "DONE"]
 
 
 def get_repo_root():

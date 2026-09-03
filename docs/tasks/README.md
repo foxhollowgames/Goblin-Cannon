@@ -18,6 +18,7 @@ python scripts/generate_task_dashboard.py
 
 ## 1. Task Workflow States
 
+- **PARKED:** Idea or proposal on hold for future review.
 - **BACKLOG:** Task is defined and scheduled for future development.
 - **READY:** Task requirements and acceptance criteria are complete. Ready for implementation.
 - **IN_PROGRESS:** Active development on a dedicated feature branch.
@@ -91,6 +92,8 @@ python scripts/generate_task_dashboard.py
 | [TASK-059](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-059-remove-backpack-button-from-hud.md) | Remove Backpack Button from HUD Header Bar | UI/Cleanup | P1 | READY | `feature/remove-backpack-button-hud` |
 | [TASK-060](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-060-tooltip-rewrite-and-keyword-tag-hover-audit.md) | In-Game Tooltip Rewrite and Keyword Tag Hover Audit | UI/Polish/Design | P1 | READY | `feature/tooltip-rewrite-and-keyword-tag-hover-audit` |
 | [TASK-061](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-061-dashboard-drag-drop-task-status.md) | Visual Task Dashboard Drag-and-Drop Task Status Update | DevOps/Tooling/UI | P1 | DONE | `feature/dashboard-drag-drop-task-status` |
+| [TASK-062](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-062-dashboard-parked-ideas-column.md) | Visual Task Dashboard Parked Ideas Column | DevOps/Tooling/UI | P1 | DONE | `feature/dashboard-parked-ideas-column` |
+
 
 
 
