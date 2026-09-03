@@ -21,22 +21,42 @@ const DARK_INK_BORDER: Color = Color(0.08, 0.05, 0.12, 1.0)
 var hovered_cell: Vector2i = Vector2i(-1, -1)
 var hovered_item: JunkBoxItem = null
 var drag_controller: Node = null
+@export var junk_box_data: JunkBoxData = null
 
 func get_cell_size() -> int:
 	return CELL_SIZE
 
 func get_peg_preview_parameters() -> Dictionary:
+	var data: JunkBoxData = get_junk_box_data()
 	return {
 		"cell_width": float(CELL_WIDTH),
 		"cell_height": float(CELL_HEIGHT),
 		"cell_pad": CELL_PAD,
-		"grid_columns": GameState.junk_box.grid_columns if GameState.junk_box != null else 6
+		"grid_columns": data.grid_columns if data != null else 6
 	}
+
+func get_junk_box_data() -> JunkBoxData:
+	if junk_box_data != null:
+		return junk_box_data
+	if GameState != null and "junk_box" in GameState:
+		return GameState.junk_box
+	return null
+
+func set_junk_box_data(value: JunkBoxData) -> void:
+	var old_data: JunkBoxData = get_junk_box_data()
+	if old_data != null and old_data.inventory_changed.is_connected(_on_inventory_changed):
+		old_data.inventory_changed.disconnect(_on_inventory_changed)
+	junk_box_data = value
+	if junk_box_data != null and not junk_box_data.inventory_changed.is_connected(_on_inventory_changed):
+		junk_box_data.inventory_changed.connect(_on_inventory_changed)
+	update_grid_size()
+	queue_redraw()
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS
-	if GameState.junk_box != null:
-		GameState.junk_box.inventory_changed.connect(_on_inventory_changed)
+	var data: JunkBoxData = get_junk_box_data()
+	if data != null and not data.inventory_changed.is_connected(_on_inventory_changed):
+		data.inventory_changed.connect(_on_inventory_changed)
 	if not mouse_exited.is_connected(_on_mouse_exited):
 		mouse_exited.connect(_on_mouse_exited)
 	update_grid_size()
@@ -56,9 +76,10 @@ func _update_size() -> void:
 	update_grid_size()
 
 func update_grid_size() -> void:
-	if GameState.junk_box == null:
+	var data: JunkBoxData = get_junk_box_data()
+	if data == null:
 		return
-	var max_occ: int = GameState.junk_box.get_max_occupied_row()
+	var max_occ: int = data.get_max_occupied_row()
 	var needed_rows: int = max_occ + 4 if max_occ >= 0 else 4
 
 	var parent_scroll: ScrollContainer = get_parent() as ScrollContainer
@@ -74,12 +95,11 @@ func update_grid_size() -> void:
 	if visible_rows > 0 and needed_rows <= visible_rows:
 		rows = max(needed_rows, visible_rows)
 
-	var cols: int = GameState.junk_box.grid_columns
+	var cols: int = data.grid_columns
 	custom_minimum_size = Vector2(cols * CELL_SIZE, rows * CELL_SIZE)
 	size = custom_minimum_size
 
 	grid_size_changed.emit()
-
 
 func get_cell_at_global_pos(global_pos: Vector2) -> Vector2i:
 	var local_pos: Vector2 = global_pos - global_position
@@ -89,14 +109,16 @@ func get_global_pos_for_cell(cell: Vector2i) -> Vector2:
 	return global_position + Vector2(cell.x * CELL_SIZE, cell.y * CELL_SIZE)
 
 func _gui_input(event: InputEvent) -> void:
+	var is_dragging: bool = (drag_controller != null and drag_controller.dragging_item != null)
 	if event is InputEventMouseMotion:
 		var cell: Vector2i = _pos_to_cell(event.position)
 		if cell != hovered_cell:
 			hovered_cell = cell
-			var item: JunkBoxItem = GameState.junk_box.get_item_at(cell)
+			var data: JunkBoxData = get_junk_box_data()
+			var item: JunkBoxItem = data.get_item_at(cell) if data != null else null
 			if item != hovered_item:
 				hovered_item = item
-				if item != null:
+				if item != null and not is_dragging:
 					item_hovered.emit(item)
 				else:
 					item_unhovered.emit()
@@ -105,12 +127,14 @@ func _gui_input(event: InputEvent) -> void:
 		var mb: InputEventMouseButton = event as InputEventMouseButton
 		if mb.pressed and mb.button_index == MOUSE_BUTTON_LEFT:
 			var cell: Vector2i = _pos_to_cell(event.position)
-			var item: JunkBoxItem = GameState.junk_box.get_item_at(cell)
+			var data: JunkBoxData = get_junk_box_data()
+			var item: JunkBoxItem = data.get_item_at(cell) if data != null else null
 			if item != null:
 				item_clicked.emit(item)
 				if drag_controller:
 					var grab_offset: Vector2i = cell - item.grid_position
 					drag_controller.start_drag(item, 0, item.grid_position, grab_offset) # DragSource.JUNK_BOX = 0
+					queue_redraw()
 			else:
 				cell_clicked.emit(cell)
 
@@ -118,12 +142,12 @@ func _pos_to_cell(pos: Vector2) -> Vector2i:
 	return Vector2i(int(floor(pos.x / CELL_SIZE)), int(floor(pos.y / CELL_SIZE)))
 
 func _draw() -> void:
-	if GameState.junk_box == null:
+	var data: JunkBoxData = get_junk_box_data()
+	if data == null:
 		return
-	var cols: int = GameState.junk_box.grid_columns
+	var cols: int = data.grid_columns
 	var rows: int = maxi(int(size.y / CELL_SIZE), 1)
 
-	
 	var bg_color: Color = Constants.ui_buckets_panel_bg()
 	var border_color: Color = Constants.ui_buckets_panel_border()
 	for y in range(rows):
@@ -133,10 +157,12 @@ func _draw() -> void:
 			draw_rect(rect, border_color, false, 1.0)
 			draw_circle(rect.get_center(), 1.0, Color(border_color.r, border_color.g, border_color.b, 0.5))
 
-	for item in GameState.junk_box.get_all_items():
-		_draw_item(item)
+	var is_dragging: bool = (drag_controller != null and drag_controller.dragging_item != null)
+	for item in data.get_all_items():
+		var being_dragged: bool = (drag_controller != null and drag_controller.dragging_item == item)
+		_draw_item(item, being_dragged)
 
-	if hovered_cell.x >= 0 and hovered_cell.x < cols and hovered_cell.y >= 0 and hovered_cell.y < rows:
+	if not is_dragging and hovered_cell.x >= 0 and hovered_cell.x < cols and hovered_cell.y >= 0 and hovered_cell.y < rows:
 		var highlight_rect: Rect2 = Rect2(hovered_cell.x * CELL_SIZE, hovered_cell.y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
 		if hovered_item != null:
 			for c in hovered_item.get_occupied_cells():
@@ -145,38 +171,43 @@ func _draw() -> void:
 		else:
 			draw_rect(highlight_rect, Color(1.0, 1.0, 1.0, 0.1))
 
-func _draw_item(item: JunkBoxItem) -> void:
+func _draw_item(item: JunkBoxItem, being_dragged: bool = false) -> void:
 	if item == null:
 		return
 	var tier: int = item.module_data.tier if item.module_data != null else 0
 	var color: Color = Constants.shop_rarity_accent_color(tier)
 	var bg_color := Color(color.r, color.g, color.b, 0.25)
 	var wall_highlight: Color = color.lightened(0.2)
-	
+	var ink_border: Color = DARK_INK_BORDER
+
+	if being_dragged:
+		var alpha_mult: float = 0.35
+		bg_color.a *= alpha_mult
+		color.a *= alpha_mult
+		wall_highlight.a *= alpha_mult
+		ink_border.a *= alpha_mult
+
 	var occupied: Array[Vector2i] = item.get_occupied_cells()
 	if occupied.is_empty():
 		return
 
-	# 1. Draw cell backgrounds with rarity accent color and alpha transparency
 	for c in occupied:
 		var rect: Rect2 = Rect2(c.x * CELL_SIZE + CELL_PAD, c.y * CELL_SIZE + CELL_PAD, CELL_SIZE - CELL_PAD * 2, CELL_SIZE - CELL_PAD * 2)
 		draw_rect(rect, bg_color)
 
-	# 2. Draw internal dividing lines between adjacent cells
 	for c in occupied:
 		var cell_origin := Vector2(float(c.x) * float(CELL_SIZE), float(c.y) * float(CELL_SIZE))
 		if occupied.has(Vector2i(c.x + 1, c.y)):
 			var p1 := Vector2(cell_origin.x + float(CELL_SIZE), cell_origin.y)
 			var p2 := Vector2(cell_origin.x + float(CELL_SIZE), cell_origin.y + float(CELL_SIZE))
-			draw_line(p1, p2, DARK_INK_BORDER, 3.0)
-			draw_line(p1, p2, Color(color.r, color.g, color.b, 0.5), 1.5)
+			draw_line(p1, p2, ink_border, 3.0)
+			draw_line(p1, p2, Color(color.r, color.g, color.b, 0.5 * (0.35 if being_dragged else 1.0)), 1.5)
 		if occupied.has(Vector2i(c.x, c.y + 1)):
 			var p1 := Vector2(cell_origin.x, cell_origin.y + float(CELL_SIZE))
 			var p2 := Vector2(cell_origin.x + float(CELL_SIZE), cell_origin.y + float(CELL_SIZE))
-			draw_line(p1, p2, DARK_INK_BORDER, 3.0)
-			draw_line(p1, p2, Color(color.r, color.g, color.b, 0.5), 1.5)
+			draw_line(p1, p2, ink_border, 3.0)
+			draw_line(p1, p2, Color(color.r, color.g, color.b, 0.5 * (0.35 if being_dragged else 1.0)), 1.5)
 
-	# 3. Draw outer perimeter walls using PolyominoModuleData.get_solid_edge_segments
 	if item.module_data != null:
 		var segments: Array[Dictionary] = item.module_data.get_solid_edge_segments(item.rotation_step)
 		var offset: Vector2 = Vector2(item.grid_position) + Vector2(0.5, 0.5)
@@ -187,13 +218,12 @@ func _draw_item(item: JunkBoxItem) -> void:
 			var p2: Vector2 = (p2_l + offset) * float(CELL_SIZE)
 			var is_internal: bool = seg.get("is_internal", false)
 			if is_internal:
-				draw_line(p1, p2, DARK_INK_BORDER, 3.0)
-				draw_line(p1, p2, Color(0.3, 0.8, 1.0, 0.8), 1.5)
+				draw_line(p1, p2, ink_border, 3.0)
+				draw_line(p1, p2, Color(0.3, 0.8, 1.0, 0.8 * (0.35 if being_dragged else 1.0)), 1.5)
 			else:
-				draw_line(p1, p2, DARK_INK_BORDER, 4.0)
+				draw_line(p1, p2, ink_border, 4.0)
 				draw_line(p1, p2, wall_highlight, 2.0)
 
-	# 4. Render kinetic machinery components using standard component glyphs
 	if item.module_data != null:
 		var local_cells: Array[Vector2i] = item.get_local_cells()
 		for i in range(mini(occupied.size(), local_cells.size())):

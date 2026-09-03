@@ -148,7 +148,7 @@ static func create_item_for_relic(relic_id: StringName) -> JunkBoxItem:
 	var mod: PolyominoModuleData = create_module_for_relic(relic_id)
 	if mod == null:
 		return null
-	var item := JunkBoxItem.new(StringName("relic_%s_%d" % [relic_id, Time.get_ticks_usec()]), JunkBoxItem.POLYOMINO_MODULE)
+	var item := JunkBoxItem.new(StringName("relic_%s_%d_%d" % [relic_id, Time.get_ticks_usec(), randi() % 1000000]), JunkBoxItem.POLYOMINO_MODULE)
 	item.display_name = mod.display_name
 	item.module_data = mod
 	item.custom_payload = {

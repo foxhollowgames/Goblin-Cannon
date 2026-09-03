@@ -15,6 +15,7 @@ var current_rotation_step: int = 0
 var drag_origin_cell: Vector2i = Vector2i.ZERO
 var grab_offset_cell: Vector2i = Vector2i.ZERO
 var grabbed_cell_index: int = 0
+var _last_mouse_pos: Vector2 = Vector2.ZERO
 
 var junk_box_data: JunkBoxData
 var junk_box_grid_view: Control
@@ -75,11 +76,20 @@ func start_drag(item: JunkBoxItem, source: int, origin_cell: Vector2i, offset_ce
 	set_process(true)
 	if ghost_preview:
 		ghost_preview.visible = true
+	if junk_box_grid_view != null:
+		junk_box_grid_view.queue_redraw()
 	_update_ghost()
 
 func _input(event: InputEvent) -> void:
 	if dragging_item == null:
 		return
+
+	if event is InputEventMouse:
+		var me := event as InputEventMouse
+		if me.global_position != Vector2.ZERO:
+			_last_mouse_pos = me.global_position
+		else:
+			_last_mouse_pos = me.position
 
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_R:
@@ -110,11 +120,20 @@ func _process(delta: float) -> void:
 	if scroll_container and scroll_container.visible:
 		var mouse_pos: Vector2 = scroll_container.get_local_mouse_position()
 		var container_size: Vector2 = scroll_container.size
+		var scrolled: bool = false
 		if mouse_pos.x >= 0 and mouse_pos.x <= container_size.x:
 			if mouse_pos.y >= 0 and mouse_pos.y < SCROLL_MARGIN:
+				var prev_scroll: int = scroll_container.scroll_vertical
 				scroll_container.scroll_vertical -= int(SCROLL_SPEED * delta)
+				if scroll_container.scroll_vertical != prev_scroll:
+					scrolled = true
 			elif mouse_pos.y > container_size.y - SCROLL_MARGIN and mouse_pos.y <= container_size.y:
+				var prev_scroll: int = scroll_container.scroll_vertical
 				scroll_container.scroll_vertical += int(SCROLL_SPEED * delta)
+				if scroll_container.scroll_vertical != prev_scroll:
+					scrolled = true
+		if scrolled:
+			_update_ghost()
 
 func _rotate_item() -> void:
 	current_rotation_step = (current_rotation_step + 1) % 4
@@ -128,9 +147,33 @@ func get_current_grab_offset() -> Vector2i:
 	return grab_offset_cell
 
 func _get_safe_mouse_position() -> Vector2:
+	if _last_mouse_pos != Vector2.ZERO:
+		return _last_mouse_pos
 	if is_inside_tree() and get_viewport():
 		return get_global_mouse_position()
 	return Vector2.ZERO
+
+func _is_mouse_over_junk_box() -> bool:
+	if junk_box_grid_view and junk_box_grid_view.is_visible_in_tree() and _is_mouse_over(junk_box_grid_view):
+		return true
+	if scroll_container and scroll_container.is_visible_in_tree() and _is_mouse_over(scroll_container):
+		return true
+	return false
+
+func _get_junk_box_cell_size() -> Vector2:
+	var s: float = 46.0
+	if junk_box_grid_view != null and junk_box_grid_view.has_method("get_cell_size"):
+		s = float(junk_box_grid_view.get_cell_size())
+	return Vector2(s, s)
+
+func _get_junk_box_target_cell(mouse_pos: Vector2) -> Vector2i:
+	if junk_box_grid_view == null:
+		return Vector2i.ZERO
+	if junk_box_grid_view.has_method("get_cell_at_global_pos"):
+		return junk_box_grid_view.get_cell_at_global_pos(mouse_pos)
+	var cell_s: float = _get_junk_box_cell_size().x
+	var local_pos: Vector2 = mouse_pos - junk_box_grid_view.global_position
+	return Vector2i(int(floor(local_pos.x / cell_s)), int(floor(local_pos.y / cell_s)))
 
 func _update_ghost() -> void:
 	if not dragging_item or not ghost_preview or not _ghost_visual:
@@ -146,25 +189,21 @@ func _update_ghost() -> void:
 	var tier: int = dragging_item.module_data.tier if dragging_item.module_data != null else 1
 	var cell_types: Dictionary = dragging_item.module_data.cell_types if dragging_item.module_data != null else {}
 
-	if junk_box_grid_view and junk_box_grid_view.is_visible_in_tree() and _is_mouse_over(junk_box_grid_view):
-		var cell_size := Vector2(48.0, 48.0)
-		var target_cell: Vector2i = Vector2i.ZERO
-		if junk_box_grid_view.has_method("get_cell_at_global_pos"):
-			target_cell = junk_box_grid_view.get_cell_at_global_pos(mouse_pos)
-		else:
-			var local_pos: Vector2 = junk_box_grid_view.get_local_mouse_position()
-			target_cell = Vector2i(int(floor(local_pos.x / 48.0)), int(floor(local_pos.y / 48.0)))
-
+	if _is_mouse_over_junk_box():
+		var cell_size: Vector2 = _get_junk_box_cell_size()
+		var target_cell: Vector2i = _get_junk_box_target_cell(mouse_pos)
 		var final_cell: Vector2i = target_cell - get_current_grab_offset()
 		var valid: bool = false
 		if junk_box_data:
 			var ignore_id: StringName = dragging_item.instance_id if drag_source == DragSource.JUNK_BOX else &""
 			valid = junk_box_data.can_place_item(dragging_item, final_cell, current_rotation_step, ignore_id)
 
-		if junk_box_grid_view.has_method("get_global_pos_for_cell"):
+		if junk_box_grid_view and junk_box_grid_view.has_method("get_global_pos_for_cell"):
 			ghost_preview.global_position = junk_box_grid_view.get_global_pos_for_cell(final_cell)
+		elif junk_box_grid_view:
+			ghost_preview.global_position = junk_box_grid_view.global_position + Vector2(float(final_cell.x) * cell_size.x, float(final_cell.y) * cell_size.y)
 		else:
-			ghost_preview.global_position = junk_box_grid_view.global_position + Vector2(final_cell.x * 48.0, final_cell.y * 48.0)
+			ghost_preview.global_position = mouse_pos
 
 		var mod_data: PolyominoModuleData = dragging_item.module_data if dragging_item != null else null
 		_ghost_visual.update_data(cells, mod_data, cell_size, valid, tier, current_rotation_step)
@@ -204,28 +243,36 @@ func _update_ghost() -> void:
 		var mod_data: PolyominoModuleData = dragging_item.module_data if dragging_item != null else null
 		_ghost_visual.update_data(cells, mod_data, cell_size, false, tier, current_rotation_step)
 
+func try_drop_at_junk_box_cell(target_cell: Vector2i) -> bool:
+	if dragging_item == null:
+		return false
+	if junk_box_data == null and GameState != null:
+		junk_box_data = GameState.junk_box
+	if junk_box_data == null:
+		return false
+
+	var final_cell: Vector2i = target_cell - get_current_grab_offset()
+	var ignore_id: StringName = dragging_item.instance_id if drag_source == DragSource.JUNK_BOX else &""
+	var valid: bool = junk_box_data.can_place_item(dragging_item, final_cell, current_rotation_step, ignore_id)
+
+	if valid:
+		if drag_source == DragSource.BOARD:
+			if board and board.has_method("unslot_module"):
+				board.unslot_module(dragging_item.instance_id)
+			junk_box_data.place_item(dragging_item, final_cell, current_rotation_step)
+		else:
+			junk_box_data.move_item(dragging_item.instance_id, final_cell, current_rotation_step)
+		_end_drag()
+		return true
+	return false
+
 func _handle_drop() -> void:
 	var mouse_pos: Vector2 = _get_safe_mouse_position()
 
-	if junk_box_grid_view and junk_box_grid_view.is_visible_in_tree() and _is_mouse_over(junk_box_grid_view):
-		var target_cell: Vector2i = Vector2i.ZERO
-		if junk_box_grid_view.has_method("get_cell_at_global_pos"):
-			target_cell = junk_box_grid_view.get_cell_at_global_pos(mouse_pos)
-		else:
-			var local_pos: Vector2 = junk_box_grid_view.get_local_mouse_position()
-			target_cell = Vector2i(int(floor(local_pos.x / 48.0)), int(floor(local_pos.y / 48.0)))
-
-		var final_cell: Vector2i = target_cell - get_current_grab_offset()
-		var ignore_id: StringName = dragging_item.instance_id if drag_source == DragSource.JUNK_BOX else &""
-		var valid: bool = junk_box_data.can_place_item(dragging_item, final_cell, current_rotation_step, ignore_id) if junk_box_data else false
-
-		if valid:
-			if drag_source == DragSource.BOARD:
-				if board and board.has_method("unslot_module"):
-					board.unslot_module(dragging_item.instance_id)
-				junk_box_data.place_item(dragging_item, final_cell, current_rotation_step)
-			else:
-				junk_box_data.move_item(dragging_item.instance_id, final_cell, current_rotation_step)
+	if _is_mouse_over_junk_box():
+		var target_cell: Vector2i = _get_junk_box_target_cell(mouse_pos)
+		if try_drop_at_junk_box_cell(target_cell):
+			return
 		elif drag_source == DragSource.BOARD and junk_box_data:
 			if junk_box_data.add_item_auto(dragging_item):
 				pass
@@ -268,10 +315,13 @@ func _cancel_drag() -> void:
 
 func _end_drag() -> void:
 	dragging_item = null
+	_last_mouse_pos = Vector2.ZERO
 	set_process_input(false)
 	set_process(false)
 	if ghost_preview:
 		ghost_preview.visible = false
+	if junk_box_grid_view != null:
+		junk_box_grid_view.queue_redraw()
 
 func _is_mouse_over(control: Node) -> bool:
 	if not control is Control or not (is_inside_tree() and get_viewport()):

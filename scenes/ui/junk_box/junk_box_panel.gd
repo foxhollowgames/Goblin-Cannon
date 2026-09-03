@@ -32,6 +32,14 @@ func _ensure_drag_controller_exists() -> void:
 			p.add_child(drag_controller)
 		else:
 			add_child(drag_controller)
+	if GameState and GameState.junk_box != null:
+		drag_controller.junk_box_data = GameState.junk_box
+
+func _exit_tree() -> void:
+	if drag_controller != null and is_instance_valid(drag_controller):
+		if drag_controller.get_parent() != self:
+			drag_controller.queue_free()
+		drag_controller = null
 
 func _ready() -> void:
 	if _sidebar_mode:
