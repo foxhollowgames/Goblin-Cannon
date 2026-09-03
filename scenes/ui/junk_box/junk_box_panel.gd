@@ -153,6 +153,22 @@ func _format_item_tooltip(item: JunkBoxItem) -> String:
 		var shape_name: String = PolyominoRelicDatabase.get_relic_shape_name(relic_id) if relic_id != &"" else ""
 		if not shape_name.is_empty():
 			text += "Shape: [b]%s[/b]\n" % shape_name
+
+		var act_req: String = ""
+		if not item.module_data.activation_requirement.is_empty():
+			act_req = item.module_data.activation_requirement
+		elif relic_id != &"":
+			act_req = PolyominoRelicDatabase.get_relic_activation_requirement(relic_id)
+		if not act_req.is_empty():
+			text += "\n[u]Activation Requirement[/u]\n%s\n" % act_req
+
+		var rew_desc: String = ""
+		if not item.module_data.reward_description.is_empty():
+			rew_desc = item.module_data.reward_description
+		elif relic_id != &"":
+			rew_desc = PolyominoRelicDatabase.get_relic_reward_description(relic_id)
+		if not rew_desc.is_empty():
+			text += "\n[u]Relic Effect[/u]\n%s\n" % rew_desc
 		
 		var desc: String = PolyominoRelicDatabase.get_relic_kinetic_description(relic_id) if relic_id != &"" else ""
 		if not desc.is_empty():

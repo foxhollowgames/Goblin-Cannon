@@ -2776,23 +2776,21 @@ func _update_board_module_hover(mouse_pos: Vector2) -> void:
 
 func _format_module_tooltip_body(item: JunkBoxItem) -> String:
 	var body: String = ""
-	var relic_id: StringName = &""
-	if "custom_payload" in item and item.custom_payload is Dictionary:
-		relic_id = StringName(item.custom_payload.get("relic_id", ""))
-	if relic_id == &"" and item.module_data != null:
-		relic_id = item.module_data.module_id
-
-	var goal_desc: String = PolyominoRelicDatabase.get_relic_goal_description(relic_id) if relic_id != &"" else ""
+	var relic_id: StringName = StringName(item.custom_payload.get("relic_id", "")) if ("custom_payload" in item and item.custom_payload is Dictionary) else (item.module_data.module_id if item.module_data != null else &"")
+	var goal_desc: String = PolyominoRelicDatabase.get_relic_activation_requirement(relic_id) if relic_id != &"" else ""
 	var reward_desc: String = PolyominoRelicDatabase.get_relic_reward_description(relic_id) if relic_id != &"" else ""
-
 	if not goal_desc.is_empty():
 		body += "[u]Activation Requirement[/u]\n%s" % goal_desc
 	if not reward_desc.is_empty():
-		if not body.is_empty():
-			body += "\n\n"
-		body += "[u]Relic Effect[/u]\n%s" % reward_desc
-	if body.is_empty():
-		var desc: String = PolyominoRelicDatabase.get_relic_kinetic_description(relic_id) if relic_id != &"" else ""
+		body += ("\n\n" if not body.is_empty() else "") + "[u]Relic Effect[/u]\n%s" % reward_desc
+	var inst_id: StringName = item.instance_id if "instance_id" in item else &""
+	if _placed_module_nodes.has(inst_id):
+		var node: PolyominoModuleNode = _placed_module_nodes[inst_id] as PolyominoModuleNode
+		var prog: String = node.get_progress_string() if (node and node.has_method("get_progress_string")) else ""
+		if not prog.is_empty():
+			body += "\n\n[u]Charge Progress[/u]: %s" % prog
+	if body.is_empty() and relic_id != &"":
+		var desc: String = PolyominoRelicDatabase.get_relic_kinetic_description(relic_id)
 		if not desc.is_empty():
 			body += "[u]Machinery & Effect[/u]\n%s" % desc
 	return body
