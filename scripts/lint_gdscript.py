@@ -52,7 +52,7 @@ def check_gdlint():
 def check_file_lengths():
     print("Pass 2: Checking file lengths (500 line limit)...", flush=True)
     lint_script = os.path.join(PROJECT_ROOT, "scripts", "lint_file_lengths.py")
-    code, stdout, stderr = run_cmd(f"python {lint_script}", timeout=15)
+    code, stdout, stderr = run_cmd(f'python "{lint_script}"', timeout=15)
     if code == 0:
         print("  [PASS] File length audit passed", flush=True)
         return 0
@@ -148,11 +148,17 @@ def check_custom_rules():
 
 def check_script_parse_smoke():
     print("Pass 5: Checking Godot test suite and script compilation parse smoke test...", flush=True)
-    godot_bin = r"C:\Users\josep\Desktop\Games\Godot_v4.6.1-stable_win64.exe"
-    if not os.path.exists(godot_bin):
-        godot_bin = "godot"
+    candidates = [
+        r"C:\Users\josep\Desktop\Coding Projects\Godot_v4.6.2-stable_win64.exe",
+        r"C:\Users\josep\Desktop\Games\Godot_v4.6.1-stable_win64.exe",
+    ]
+    godot_bin = "godot"
+    for c in candidates:
+        if os.path.exists(c):
+            godot_bin = c
+            break
 
-    cmd = f'cmd.exe /c "{godot_bin} --headless -s tests/run_tests.gd"'
+    cmd = f'cmd.exe /c ""{godot_bin}" --headless -s tests/run_tests.gd"'
     code, stdout, stderr = run_cmd(cmd, timeout=45)
     if code == 0 and "SCRIPT ERROR" not in stdout and "SCRIPT ERROR" not in stderr:
         print("  [PASS] Godot test suite and script parse smoke test passed", flush=True)

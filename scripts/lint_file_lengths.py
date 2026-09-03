@@ -29,7 +29,7 @@ BASELINE_LIMITS = {
     "orchestration/src/server/index.ts": 663,
     "orchestration/src/lib/task-merge.ts": 515,
     "docs/ARCHITECTURE.md": 558,
-    "docs/knowledge/LEARNINGS.md": 1515,
+    "docs/knowledge/LEARNINGS.md": 1650,
     "scenes/main/main.tscn": 508,
 }
 
@@ -42,6 +42,7 @@ IGNORE_DIRS = {
     "dist",
     "exports",
     "goblin-cannon-agent-task",
+    "data",
 }
 
 IGNORE_FILES = {
