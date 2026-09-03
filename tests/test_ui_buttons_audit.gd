@@ -5,7 +5,7 @@ func _init() -> void:
 
 func run() -> void:
 	test_almanac_button_wireup()
-	test_bag_button_wireup()
+	test_top_bar_no_backpack_button()
 	test_debug_tools_column_wireup()
 	test_reward_draft_panel_buttons()
 	test_major_upgrade_draft_panel_buttons()
@@ -26,16 +26,27 @@ func test_almanac_button_wireup() -> void:
 	assert_true(res[0], "callback executed on press")
 	btn.free()
 
-func test_bag_button_wireup() -> void:
-	begin("Bag button has pressed signal connected and triggers callback")
-	var res: Array = [false]
-	var cb: Callable = func() -> void: res[0] = true
-	var btn: Button = GameCoordinatorUI.build_bag_button(cb)
-	assert_true(btn != null, "button created")
-	assert_true(btn.pressed.is_connected(cb), "pressed signal connected")
-	btn.emit_signal("pressed")
-	assert_true(res[0], "callback executed on press")
-	btn.free()
+func test_top_bar_no_backpack_button() -> void:
+	begin("Top HUD header bar does not contain bag/backpack button")
+	var main_scene: PackedScene = load("res://scenes/main/main.tscn") as PackedScene
+	assert_true(main_scene != null, "main scene loaded")
+	var main: Node2D = main_scene.instantiate() as Node2D
+	assert_true(main != null, "main instance created")
+
+	var left_panel: Control = main.get_node_or_null("UILayer/LeftPanel") as Control
+	assert_true(left_panel != null, "LeftPanel exists")
+	var buttons: Array = left_panel.find_children("*", "Button", true, false)
+	for b in buttons:
+		var btn: Button = b as Button
+		if btn:
+			assert_false(btn.tooltip_text.contains("Junk Box (I / B / Esc)"), "No Junk Box bag button in top bar")
+			assert_false(btn.has_node("ItemCountBadge"), "No bag button ItemCountBadge in top bar")
+
+	if GameState.junk_box:
+		GameState.junk_box.inventory_changed.emit()
+		assert_true(true, "Emitting inventory_changed causes no errors")
+
+	main.free()
 
 func test_debug_tools_column_wireup() -> void:
 	begin("All 5 debug tool buttons in debug column have connected pressed handlers and open corresponding modals")

@@ -1,6 +1,6 @@
 # TASK-059: Remove Backpack Button from HUD Header Bar
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Cleanup
 - **Target Branch:** `feature/remove-backpack-button-hud`
@@ -36,7 +36,7 @@ The HUD bag button is redundant and clutters the reserved top bar space.
 
 ## Acceptance Criteria
 
-- [ ] The top HUD header bar does not contain the backpack / bag button.
-- [ ] No errors occur when `GameState.junk_box` emits the `inventory_changed` signal.
-- [ ] Keyboard input keys (`I`, `B`, `Esc`) still toggle the Junk Box.
-- [ ] Automated headless tests pass cleanly without failures.
+- [x] The top HUD header bar does not contain the backpack / bag button.
+- [x] No errors occur when `GameState.junk_box` emits the `inventory_changed` signal.
+- [x] Keyboard input keys (`I`, `B`, `Esc`) still toggle the Junk Box.
+- [x] Automated headless tests pass cleanly without failures.
