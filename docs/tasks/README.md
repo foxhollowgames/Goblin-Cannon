@@ -90,7 +90,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-058](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-058-cannon-layer-order-pause-blur.md) | Cannon Layer Order and Pause Blur Hierarchy | UI/Visuals | P1 | READY | `feature/cannon-layer-order-pause-blur` |
 | [TASK-059](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-059-remove-backpack-button-from-hud.md) | Remove Backpack Button from HUD Header Bar | UI/Cleanup | P1 | READY | `feature/remove-backpack-button-hud` |
 | [TASK-060](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-060-tooltip-rewrite-and-keyword-tag-hover-audit.md) | In-Game Tooltip Rewrite and Keyword Tag Hover Audit | UI/Polish/Design | P1 | READY | `feature/tooltip-rewrite-and-keyword-tag-hover-audit` |
-| [TASK-061](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-061-dashboard-drag-drop-task-status.md) | Visual Task Dashboard Drag-and-Drop Task Status Update | DevOps/Tooling/UI | P1 | IN_PROGRESS | `feature/dashboard-drag-drop-task-status` |
+| [TASK-061](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-061-dashboard-drag-drop-task-status.md) | Visual Task Dashboard Drag-and-Drop Task Status Update | DevOps/Tooling/UI | P1 | DONE | `feature/dashboard-drag-drop-task-status` |
 
 
 

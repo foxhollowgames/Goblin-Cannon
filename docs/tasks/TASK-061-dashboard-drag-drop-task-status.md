@@ -1,6 +1,6 @@
 # TASK-061: Visual Task Dashboard Drag-and-Drop Task Status Update
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** DevOps / Tooling / UI
 - **Target Branch:** `feature/dashboard-drag-drop-task-status`
