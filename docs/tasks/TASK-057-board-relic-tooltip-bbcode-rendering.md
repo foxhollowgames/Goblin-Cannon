@@ -1,6 +1,6 @@
 # TASK-057: Board Relic Tooltip BBCode Formatting and Text Styling
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Polish
 - **Target Branch:** `fix/board-relic-tooltip-bbcode-rendering`

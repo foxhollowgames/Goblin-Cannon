@@ -110,6 +110,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-099`](#lrn-099) | TASK-061 | `tooling` | Dashboard Kanban Drag and Drop Task Progression | 2026-09-03 |
 | [`LRN-100`](#lrn-100) | TASK-062 | `tooling` | Dashboard Parked Ideas Status and Kanban Column | 2026-09-03 |
 | [`LRN-101`](#lrn-101) | TASK-064 | `tooling` | Dashboard Task Card Category Chips and Clutter Reduction | 2026-09-03 |
+| [`LRN-102`](#lrn-102) | TASK-057 | `godot_engine` | RichTextLabel Flyout Tooltip BBCode Formatting | 2026-09-03 |
 
 ---
 
@@ -1728,5 +1729,21 @@ Displaying truncated branch strings on compact cards creates visual clutter with
 
 #### Actionable Guideline for Future Agents
 On compact Kanban cards, omit long technical metadata like branch names that get truncated; use clear color-coded discipline badges and provide detailed technical paths inside an inspection modal.
+
+---
+
+### <a id="lrn-102"></a> LRN-102: RichTextLabel Flyout Tooltip BBCode Formatting
+- **Task:** `TASK-057`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-03T13:48:36.086344`
+
+#### Context & Problem
+KeywordDatabase flyout tooltip used a plain Label for _flyout_body which showed raw [u] and other BBCode markup tags when displaying board relic descriptions.
+
+#### Key Insight & Learning
+RichTextLabel with bbcode_enabled=true and fit_content=true parses BBCode tags like [u] and [b] cleanly while get_parsed_text strips tags for clean string assertion.
+
+#### Actionable Guideline for Future Agents
+Use RichTextLabel with bbcode_enabled=true, fit_content=true, and MOUSE_FILTER_IGNORE for hover tooltip bodies that display formatted headers or highlighted keywords.
 
 ---
