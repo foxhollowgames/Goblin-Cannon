@@ -114,6 +114,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-103`](#lrn-103) | TASK-058 | `UI` | CanvasLayer hierarchy and pause blur | 2026-09-03 |
 | [`LRN-104`](#lrn-104) | TASK-059 | `UI` | HUD header bar cleanup and redundant button removal | 2026-09-03 |
 | [`LRN-105`](#lrn-105) | TASK-060 | `UI` | Keyword hover consistency and tooltip audit | 2026-09-03 |
+| [`LRN-106`](#lrn-106) | TASK-063 | `UI` | Junk Box relic display equivalence and flyout tooltips | 2026-09-03 |
 
 ---
 
@@ -1796,5 +1797,21 @@ Registering all ball ability tags and mechanic terms in KeywordDatabase and wrap
 
 #### Actionable Guideline for Future Agents
 Every new gameplay tag, status effect, or widget term must have a canonical glossary entry in KeywordDatabase (<= 80 chars) and connect hover signals via attach_rich_text_label.
+
+---
+
+### <a id="lrn-106"></a> LRN-106: Junk Box relic display equivalence and flyout tooltips
+- **Task:** `TASK-063`
+- **Category:** `UI`
+- **Created:** `2026-09-03T14:35:36.907411`
+
+#### Context & Problem
+Relics in the Junk Box rendered as flat rectangles with primitive icons and failed to display hover tooltips.
+
+#### Key Insight & Learning
+Using PolyominoModuleData.get_solid_edge_segments, internal dividing lines, and kinetic glyphs creates visual equivalence between the inventory grid and the live board. Connecting item hover to KeywordDatabase.show_flyout_custom restores full item specifications with automatic dismissal on mouse exit and drag start.
+
+#### Actionable Guideline for Future Agents
+Inventory displays of game pieces must visually match active gameplay rendering and connect hover events to central tooltip flyouts.
 
 ---
