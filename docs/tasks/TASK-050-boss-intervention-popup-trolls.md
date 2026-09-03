@@ -1,6 +1,6 @@
 # TASK-050: Boss Intervention Pop-Up Targets
 
-- **Status:** BACKLOG
+- **Status:** PARKED
 - **Priority:** P1
 - **Category:** Systems / Gameplay
 - **Target Branch:** `feature/boss-intervention-popup-trolls`
