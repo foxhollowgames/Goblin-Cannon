@@ -97,6 +97,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-086`](#lrn-086) | TASK-053 | `game_balance` | relic_machinery | 2026-09-02 |
 | [`LRN-087`](#lrn-087) | TASK-042 | `godot_engine` | hopper_ball_cascade_physics | 2026-09-02 |
 | [`LRN-088`](#lrn-088) | TASK-049 | `godot_engine` | On-Board Relic Tooltip Simplification | 2026-09-02 |
+| [`LRN-089`](#lrn-089) | TASK-054 | `inventory_and_board_systems` | relic_junk_box_return | 2026-09-02 |
 
 ---
 
@@ -1507,5 +1508,21 @@ On-board hover tooltips should omit detailed specs like tier, size, and shape pr
 
 #### Actionable Guideline for Future Agents
 Format on-board relic hover tooltips to show only activation requirements and relic effects while preserving full specs in shop and inventory cards.
+
+---
+
+### <a id="lrn-089"></a> LRN-089: relic_junk_box_return
+- **Task:** `TASK-054`
+- **Category:** `inventory_and_board_systems`
+- **Created:** `2026-09-02T18:28:06.182119`
+
+#### Context & Problem
+Returning board polyomino relics to junk box inventory while cleanly clearing grid cells, restoring suppressed pegs, and removing passive effects.
+
+#### Key Insight & Learning
+Board.unslot_module must unsuppress pegs, clear cell occupancy, remove GameState passives, and reuse the original JunkBoxItem instance to retain level metadata.
+
+#### Actionable Guideline for Future Agents
+Always route board-to-inventory relic returns through Board.return_module_to_junk_box to ensure atomic peg restoration, passive cleanup, and metadata retention without duplicate items.
 
 ---
