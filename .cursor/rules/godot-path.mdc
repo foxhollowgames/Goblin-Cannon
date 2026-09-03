@@ -8,11 +8,11 @@ alwaysApply: true
 The Godot engine executable is located at:
 
 ```
-C:\Users\josep\Desktop\Coding Projects\Godot_v4.6.2-stable_win64.exe
+C:\Users\josep\Desktop\Games\Godot_v4.6.1-stable_win64.exe
 ```
 
 When running Godot commands (e.g. tests), execute through cmd.exe to ensure stdout is captured:
 
 ```powershell
-cmd.exe /c "C:\Users\josep\Desktop\Coding Projects\Godot_v4.6.2-stable_win64.exe --headless -s tests/run_tests.gd"
+cmd.exe /c ""C:\Users\josep\Desktop\Games\Godot_v4.6.1-stable_win64.exe" --headless -s tests/run_tests.gd"
 ```
