@@ -15,6 +15,7 @@ const _ALIASES: Dictionary = {
 }
 
 static var _DEFINITIONS: Dictionary = {}
+static var _MULTI_PEG_DEFINITIONS: Dictionary = {}
 
 static func _resolve_id(id: StringName) -> StringName:
 	return _ALIASES.get(id, id)
@@ -25,8 +26,18 @@ static func _get_defs() -> Dictionary:
 	_build_all_definitions()
 	return _DEFINITIONS
 
+static func _get_def(id: StringName) -> Dictionary:
+	var defs := _get_defs()
+	var res_id: StringName = _resolve_id(id)
+	if defs.has(res_id):
+		return defs[res_id]
+	if _MULTI_PEG_DEFINITIONS.has(res_id):
+		return _MULTI_PEG_DEFINITIONS[res_id]
+	return {}
+
 static func has_relic_definition(relic_id: StringName) -> bool:
-	return _get_defs().has(_resolve_id(relic_id))
+	var res_id: StringName = _resolve_id(relic_id)
+	return _get_defs().has(res_id) or _MULTI_PEG_DEFINITIONS.has(res_id)
 
 static func get_all_relic_ids() -> Array[StringName]:
 	var defs := _get_defs()
@@ -36,26 +47,26 @@ static func get_all_relic_ids() -> Array[StringName]:
 	return ids
 
 static func get_relic_tier(relic_id: StringName) -> int:
-	var d = _get_defs().get(_resolve_id(relic_id), null)
-	if d != null:
+	var d = _get_def(relic_id)
+	if not d.is_empty():
 		return int(d.get("tier", 1))
 	return 1
 
 static func get_relic_shape_name(relic_id: StringName) -> String:
-	var d = _get_defs().get(_resolve_id(relic_id), null)
-	if d != null:
+	var d = _get_def(relic_id)
+	if not d.is_empty():
 		return str(d.get("shape_name", ""))
 	return ""
 
 static func get_relic_kinetic_description(relic_id: StringName) -> String:
-	var d = _get_defs().get(_resolve_id(relic_id), null)
-	if d != null:
+	var d = _get_def(relic_id)
+	if not d.is_empty():
 		return str(d.get("machinery_desc", ""))
 	return ""
 
 static func get_relic_display_name(relic_id: StringName) -> String:
-	var d = _get_defs().get(_resolve_id(relic_id), null)
-	if d != null:
+	var d = _get_def(relic_id)
+	if not d.is_empty():
 		return str(d.get("display_name", ""))
 	return ""
 
@@ -79,8 +90,8 @@ static func get_relic_reward_description(relic_id: StringName) -> String:
 
 static func create_module_for_relic(relic_id: StringName) -> PolyominoModuleData:
 	var resolved_id: StringName = _resolve_id(relic_id)
-	var def = _get_defs().get(resolved_id, null)
-	if def == null:
+	var def = _get_def(resolved_id)
+	if def.is_empty():
 		push_warning("PolyominoRelicDatabase: Unknown relic ID '%s'" % relic_id)
 		return null
 	var mod := PolyominoModuleData.new()
@@ -116,6 +127,8 @@ static func create_module_for_relic(relic_id: StringName) -> PolyominoModuleData
 		mod.energy_values[pos] = int(raw_energies[k])
 
 	mod.enclosure_type = int(def.get("enclosure_type", PolyominoModuleData.EnclosureType.OPEN_FRAME))
+	mod.layout_mode = int(def.get("layout_mode", PolyominoModuleData.MachineryLayoutMode.PER_CELL))
+	mod.unified_component_type = int(def.get("unified_component_type", PolyominoModuleData.CellType.EMPTY))
 	var raw_walls: Dictionary = def.get("custom_wall_edges", {})
 	for k in raw_walls:
 		var pos: Vector2i = k if k is Vector2i else _parse_vector2i(str(k))
@@ -280,10 +293,14 @@ static func _get_goal_def(id: StringName) -> Dictionary:
 		&"chest_rubbery_energy": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Elastic Combo", "desc": "Hit elastic bumper + boost roller.", "reward_desc": "+60 Energy Surge to ball", "energy": 60, "required_widget": CellType.SPINNER, "threshold": 1},
 		&"chest_bounce_energy": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Bounce Pair", "desc": "Hit standard bumper + rotary sensor.", "reward_desc": "+50 Energy Surge to ball", "energy": 50, "required_widget": CellType.STANDUP_TARGET, "threshold": 1},
 		&"chest_split_energy": {"type": GoalArchetype.SEQUENCE_ROUTE, "reward": RewardType.MULTIBALL_CASCADE, "title": "Split Chute", "desc": "Hit Fragment Deflector -> Boost Roller.", "reward_desc": "Multiball Cascade (2 balls)", "balls": 2},
+		&"mega_pop_bumper": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Mega Bumper Overcharge", "desc": "Hit mega pop bumper 3 times.", "reward_desc": "+100 Energy Surge to ball", "energy": 100, "required_widget": CellType.POP_BUMPER, "threshold": 3},
+		&"abyssal_maw": {"type": GoalArchetype.SINKHOLE_LOCK, "reward": RewardType.MULTIBALL_CASCADE, "title": "Abyssal Eruption", "desc": "Capture balls in the abyssal maw.", "reward_desc": "Multiball Cascade (3 balls)", "balls": 3},
+		&"golem_effigy": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.GLOBAL_BOARD_KNOCK, "title": "Golem Demolition", "desc": "Shatter the golem effigy.", "reward_desc": "Global Board Knock (All pegs hit once)", "required_widget": CellType.BASH_TOY, "threshold": 1},
+		&"corner_slingshot": {"type": GoalArchetype.TARGET_BANK, "reward": RewardType.ENERGY_SURGE, "title": "Corner Rebound", "desc": "Rebound from corner slingshot 2 times.", "reward_desc": "+75 Energy Surge to ball", "energy": 75, "required_widget": CellType.SLINGSHOT, "threshold": 2},
 	}
 	return defs.get(_resolve_id(id), {})
 
-static func _def(id: StringName, name: String, tier: int, shape_name: String, machinery_desc: String, cells: Array[Vector2i], types: Dictionary = {}, dirs: Dictionary = {}, energies: Dictionary = {}, enclosure: int = PolyominoModuleData.EnclosureType.OPEN_FRAME, walls: Dictionary = {}) -> void:
+static func _def(id: StringName, name: String, tier: int, shape_name: String, machinery_desc: String, cells: Array[Vector2i], types: Dictionary = {}, dirs: Dictionary = {}, energies: Dictionary = {}, enclosure: int = PolyominoModuleData.EnclosureType.OPEN_FRAME, walls: Dictionary = {}, layout_mode: int = PolyominoModuleData.MachineryLayoutMode.PER_CELL, unified_type: int = CellType.EMPTY) -> void:
 	_DEFINITIONS[id] = {
 		"display_name": name,
 		"tier": tier,
@@ -295,15 +312,42 @@ static func _def(id: StringName, name: String, tier: int, shape_name: String, ma
 		"energy_values": energies,
 		"bumper_durability": 0,
 		"enclosure_type": enclosure,
-		"custom_wall_edges": walls
+		"custom_wall_edges": walls,
+		"layout_mode": layout_mode,
+		"unified_component_type": unified_type
+	}
+
+static func _def_multi(id: StringName, name: String, tier: int, shape_name: String, machinery_desc: String, cells: Array[Vector2i], types: Dictionary = {}, dirs: Dictionary = {}, energies: Dictionary = {}, enclosure: int = PolyominoModuleData.EnclosureType.OPEN_FRAME, walls: Dictionary = {}, layout_mode: int = PolyominoModuleData.MachineryLayoutMode.UNIFIED, unified_type: int = CellType.EMPTY) -> void:
+	_MULTI_PEG_DEFINITIONS[id] = {
+		"display_name": name,
+		"tier": tier,
+		"shape_name": shape_name,
+		"machinery_desc": machinery_desc,
+		"cells": cells,
+		"cell_types": types,
+		"cell_directions": dirs,
+		"energy_values": energies,
+		"bumper_durability": 0,
+		"enclosure_type": enclosure,
+		"custom_wall_edges": walls,
+		"layout_mode": layout_mode,
+		"unified_component_type": unified_type
 	}
 
 static func _build_all_definitions() -> void:
 	_DEFINITIONS.clear()
+	_MULTI_PEG_DEFINITIONS.clear()
 	_build_boss_amplifiers()
 	_build_wall_break_cross_links()
 	_build_single_ball_enhancements()
 	_build_treasure_chest_passives()
+	_build_multi_peg_machinery()
+
+static func _build_multi_peg_machinery() -> void:
+	_def_multi(&"mega_pop_bumper", "Mega Pop Bumper", 2, "2x2 Square Block", "Unified 4-Peg Mega Bumper Core (+20 Energy, 650 Impulse)", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {}, {}, {}, PolyominoModuleData.EnclosureType.OPEN_FRAME, {}, PolyominoModuleData.MachineryLayoutMode.UNIFIED, CellType.POP_BUMPER)
+	_def_multi(&"abyssal_maw", "Abyssal Maw", 2, "2x2 Square Well", "Unified 4-Peg Vortex Sinkhole (Multi-Ball Eject Volley)", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {}, {}, {}, PolyominoModuleData.EnclosureType.OPEN_FRAME, {}, PolyominoModuleData.MachineryLayoutMode.UNIFIED, CellType.SCOOP_SINKHOLE)
+	_def_multi(&"golem_effigy", "Golem Effigy", 3, "2x2 Boss Statue", "Unified 4-Peg Heavy Bash Toy (8 Hits, 40 Shatter Bonus)", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {}, {}, {}, PolyominoModuleData.EnclosureType.OPEN_FRAME, {}, PolyominoModuleData.MachineryLayoutMode.UNIFIED, CellType.BASH_TOY)
+	_def_multi(&"corner_slingshot", "Corner Slingshot", 1, "3-Peg Corner L", "Unified Diagonal Corner Slingshot Kicker", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1)], {}, {}, {}, PolyominoModuleData.EnclosureType.OPEN_FRAME, {}, PolyominoModuleData.MachineryLayoutMode.UNIFIED, CellType.SLINGSHOT)
 
 static func _build_boss_amplifiers() -> void:
 	_def(&"cascade_reactor", "Cascade Reactor", 3, "3x3 Solid Block", "4 Corner Boosters + Center Siphon + Rollover Switches", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(1,1), Vector2i(2,1), Vector2i(0,2), Vector2i(1,2), Vector2i(2,2)], {Vector2i(0,0): CellType.ROTARY_BOOSTER, Vector2i(2,0): CellType.ROLLOVER_SWITCH, Vector2i(0,2): CellType.ROLLOVER_SWITCH, Vector2i(2,2): CellType.ROTARY_BOOSTER, Vector2i(1,1): CellType.MANA_SIPHON}, {})

@@ -12,6 +12,12 @@ const MIN_AUDIO_INTERVAL_MSEC: int = 50
 const MIN_PITCH_SCALE: float = 0.95
 const MAX_PITCH_SCALE: float = 1.05
 
+enum ShapeType {
+	CIRCLE = 0,
+	RECTANGLE = 1,
+	SEGMENT = 2
+}
+
 @export var local_cell: Vector2i = Vector2i.ZERO
 @export var cell_type: int = 0
 @export var direction: Vector2 = Vector2.DOWN: set = set_direction
@@ -19,6 +25,11 @@ const MAX_PITCH_SCALE: float = 1.05
 @export var impulse_strength: float = 0.0
 @export var is_permeable: bool = false
 @export var component_radius: float = 18.0
+@export var shape_type: int = ShapeType.CIRCLE
+@export var shape_size: Vector2 = Vector2.ZERO
+@export var segment_p1: Vector2 = Vector2.ZERO
+@export var segment_p2: Vector2 = Vector2.ZERO
+@export var footprint_cells: Array[Vector2i] = []
 
 func set_direction(p_dir: Vector2) -> void:
 	direction = p_dir
@@ -45,14 +56,46 @@ func _setup_collision() -> void:
 		# Mana siphons and pass-through sensors do not physically block balls
 		collision_layer = 0
 		collision_mask = 0
-	else:
-		collision_layer = 1
-		collision_mask = 1
-		var col_shape := CollisionShape2D.new()
-		var circle := CircleShape2D.new()
-		circle.radius = component_radius
-		col_shape.shape = circle
-		add_child(col_shape)
+		return
+	collision_layer = 1
+	collision_mask = 1
+	var col_shape := CollisionShape2D.new()
+	match shape_type:
+		ShapeType.RECTANGLE:
+			var rect := RectangleShape2D.new()
+			rect.size = shape_size if shape_size != Vector2.ZERO else Vector2(component_radius * 2.0, component_radius * 2.0)
+			col_shape.shape = rect
+		ShapeType.SEGMENT:
+			var seg := SegmentShape2D.new()
+			seg.a = segment_p1
+			seg.b = segment_p2
+			col_shape.shape = seg
+		_:
+			var circle := CircleShape2D.new()
+			circle.radius = component_radius
+			col_shape.shape = circle
+	add_child(col_shape)
+
+func is_multi_cell() -> bool:
+	return footprint_cells.size() > 1 or component_radius > 25.0
+
+func check_ball_contact(ball_pos: Vector2, ball_radius: float, base_world_pos: Vector2 = Vector2.ZERO) -> bool:
+	var my_pos: Vector2 = global_position if is_inside_tree() else (base_world_pos + position)
+	match shape_type:
+		ShapeType.SEGMENT:
+			var w1: Vector2 = my_pos + segment_p1
+			var w2: Vector2 = my_pos + segment_p2
+			var closest: Vector2 = Geometry2D.get_closest_point_to_segment(ball_pos, w1, w2)
+			return ball_pos.distance_squared_to(closest) <= ((ball_radius + 4.0) * (ball_radius + 4.0))
+		ShapeType.RECTANGLE:
+			var hw: float = shape_size.x * 0.5
+			var hh: float = shape_size.y * 0.5
+			var local_p: Vector2 = ball_pos - my_pos
+			var clamped := Vector2(clampf(local_p.x, -hw, hw), clampf(local_p.y, -hh, hh))
+			return local_p.distance_squared_to(clamped) <= ((ball_radius + 4.0) * (ball_radius + 4.0))
+		_:
+			var hit_dist: float = component_radius + ball_radius + 4.0
+			return ball_pos.distance_squared_to(my_pos) <= (hit_dist * hit_dist)
 
 func _setup_audio() -> void:
 	if _audio_player != null:

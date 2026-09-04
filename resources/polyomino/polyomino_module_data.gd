@@ -30,6 +30,11 @@ enum CellType {
 	OUTLANE_KICKBACK = 23
 }
 
+enum MachineryLayoutMode {
+	PER_CELL = 0,
+	UNIFIED = 1
+}
+
 enum EnclosureType {
 	OPEN_FRAME = 0,
 	FULL_ENCLOSURE = 1,
@@ -60,6 +65,8 @@ enum RewardType {
 @export var module_id: StringName = &""
 @export var display_name: String = ""
 @export var tier: int = 1
+@export var layout_mode: int = MachineryLayoutMode.PER_CELL
+@export var unified_component_type: int = CellType.EMPTY
 ## Local cell coordinate offsets before rotation (e.g. [(0,0), (1,0)]).
 @export var cells: Array[Vector2i] = []
 ## Map from cell coordinate (Vector2i) to CellType (int).
@@ -118,14 +125,10 @@ func get_rotated_cells(steps: int = 0) -> Array[Vector2i]:
 	var result: Array[Vector2i] = []
 	for c in cells:
 		match s:
-			0:
-				result.append(c)
-			1:  # 90 deg CW: (x, y) -> (-y, x)
-				result.append(Vector2i(-c.y, c.x))
-			2:  # 180 deg CW: (x, y) -> (-x, -y)
-				result.append(Vector2i(-c.x, -c.y))
-			3:  # 270 deg CW: (x, y) -> (y, -x)
-				result.append(Vector2i(c.y, -c.x))
+			1: result.append(Vector2i(-c.y, c.x))
+			2: result.append(Vector2i(-c.x, -c.y))
+			3: result.append(Vector2i(c.y, -c.x))
+			_: result.append(c)
 	return result
 
 ## Returns rotated cells normalized/anchored so top-left min coordinate is (0,0).
@@ -143,6 +146,16 @@ func get_anchored_rotated_cells(steps: int = 0) -> Array[Vector2i]:
 	for c in raw:
 		anchored.append(c - offset)
 	return anchored
+
+## Returns the geometric center offset in local coordinates for anchored cells.
+func get_module_center_offset(steps: int = 0, cell_w: float = 52.0, cell_h: float = 56.0) -> Vector2:
+	var anchored: Array[Vector2i] = get_anchored_rotated_cells(steps)
+	if anchored.is_empty():
+		return Vector2.ZERO
+	var sum := Vector2.ZERO
+	for c in anchored:
+		sum += Vector2(float(c.x) * cell_w, float(c.y) * cell_h)
+	return sum / float(anchored.size())
 
 func get_cell_type_at(cell: Vector2i) -> int:
 	if cell_types.has(cell):
@@ -202,16 +215,11 @@ func get_cell_energy_value(cell: Vector2i) -> int:
 		return int(energy_values[key_str])
 	var t: int = get_cell_type_at(cell)
 	match t:
-		CellType.BUMPER:
-			return 5
-		CellType.MANA_SIPHON:
-			return 8
-		CellType.ACCELERATOR, CellType.ROTARY_BOOSTER:
-			return 3
-		CellType.DIRECTIONAL_DEFLECTOR, CellType.FUNNEL, CellType.GUIDE_RAIL:
-			return 2
-		_:
-			return 0
+		CellType.BUMPER: return 5
+		CellType.MANA_SIPHON: return 8
+		CellType.ACCELERATOR, CellType.ROTARY_BOOSTER: return 3
+		CellType.DIRECTIONAL_DEFLECTOR, CellType.FUNNEL, CellType.GUIDE_RAIL: return 2
+		_: return 0
 
 func set_cell_energy_value(cell: Vector2i, amount: int) -> void:
 	energy_values[cell] = amount
@@ -219,15 +227,10 @@ func set_cell_energy_value(cell: Vector2i, amount: int) -> void:
 static func get_rotated_direction(dir: Vector2, steps: int = 0) -> Vector2:
 	var s: int = posmod(steps, 4)
 	match s:
-		0:
-			return dir
-		1: # 90 deg CW (x, y) -> (-y, x)
-			return Vector2(-dir.y, dir.x)
-		2: # 180 deg CW (x, y) -> (-x, -y)
-			return Vector2(-dir.x, -dir.y)
-		3: # 270 deg CW (x, y) -> (y, -x)
-			return Vector2(dir.y, -dir.x)
-	return dir
+		1: return Vector2(-dir.y, dir.x) # 90 deg CW
+		2: return Vector2(-dir.x, -dir.y) # 180 deg CW
+		3: return Vector2(dir.y, -dir.x) # 270 deg CW
+		_: return dir
 
 static func rotate_side(side: String, steps: int = 0) -> String:
 	var s: int = posmod(steps, 4)
@@ -392,6 +395,8 @@ func serialize() -> Dictionary:
 		"activation_requirement": activation_requirement,
 		"required_widget_type": required_widget_type,
 		"activation_threshold": activation_threshold,
+		"layout_mode": layout_mode,
+		"unified_component_type": unified_component_type,
 	}
 
 func deserialize(dict: Dictionary) -> void:
@@ -401,6 +406,8 @@ func deserialize(dict: Dictionary) -> void:
 	bumper_durability = int(dict.get("bumper_durability", 0))
 	rotation_step = int(dict.get("rotation_step", 0))
 	enclosure_type = int(dict.get("enclosure_type", EnclosureType.OPEN_FRAME))
+	layout_mode = int(dict.get("layout_mode", MachineryLayoutMode.PER_CELL))
+	unified_component_type = int(dict.get("unified_component_type", CellType.EMPTY))
 	goal_type = int(dict.get("goal_type", GoalArchetype.NONE))
 	reward_type = int(dict.get("reward_type", RewardType.NONE))
 	goal_target_count = int(dict.get("goal_target_count", 0))
