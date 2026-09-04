@@ -1,6 +1,6 @@
 # TASK-067: Remove Size, Shape, Components, Machinery & Effect, and Tier from Relic Tooltips
 
-- **Status:** COMPLETED
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Polish
 - **Target Branch:** `feature/remove-relic-tooltip-metadata`
