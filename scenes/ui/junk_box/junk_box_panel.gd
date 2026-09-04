@@ -172,50 +172,25 @@ func _format_item_tooltip(item: JunkBoxItem) -> String:
 	if relic_id == &"" and item.module_data != null:
 		relic_id = item.module_data.module_id
 
-	if item.module_data != null:
-		text += "Tier: [b]%d[/b]\n" % item.module_data.tier
-		text += "Size: [b]%d[/b] Cells\n" % item.module_data.get_cell_count()
-		
-		var shape_name: String = PolyominoRelicDatabase.get_relic_shape_name(relic_id) if relic_id != &"" else ""
-		if not shape_name.is_empty():
-			text += "Shape: [b]%s[/b]\n" % shape_name
-
+	if item.module_data != null or relic_id != &"":
 		var act_req: String = ""
-		if not item.module_data.activation_requirement.is_empty():
+		if item.module_data != null and not item.module_data.activation_requirement.is_empty():
 			act_req = item.module_data.activation_requirement
 		elif relic_id != &"":
 			act_req = PolyominoRelicDatabase.get_relic_activation_requirement(relic_id)
 		if not act_req.is_empty():
-			text += "\n[u]Activation Requirement[/u]\n%s\n" % act_req
+			text += "[u]Activation Requirement[/u]\n%s" % act_req
 
 		var rew_desc: String = ""
-		if not item.module_data.reward_description.is_empty():
+		if item.module_data != null and not item.module_data.reward_description.is_empty():
 			rew_desc = item.module_data.reward_description
 		elif relic_id != &"":
 			rew_desc = PolyominoRelicDatabase.get_relic_reward_description(relic_id)
 		if not rew_desc.is_empty():
-			text += "\n[u]Relic Effect[/u]\n%s\n" % rew_desc
-		
-		var desc: String = PolyominoRelicDatabase.get_relic_kinetic_description(relic_id) if relic_id != &"" else ""
-		if not desc.is_empty():
-			text += "\n[u]Machinery & Effect[/u]\n%s\n" % desc
+			if not text.is_empty():
+				text += "\n\n"
+			text += "[u]Relic Effect[/u]\n%s" % rew_desc
 
-		var b: int = 0
-		var a: int = 0
-		var f: int = 0
-		var r: int = 0
-		for t in item.module_data.cell_types.values():
-			if t == PolyominoModuleData.CellType.BUMPER or t == PolyominoModuleData.CellType.POP_BUMPER: b += 1
-			elif t == PolyominoModuleData.CellType.ACCELERATOR: a += 1
-			elif t == PolyominoModuleData.CellType.FUNNEL: f += 1
-			elif t == PolyominoModuleData.CellType.ROTARY_BOOSTER or t == PolyominoModuleData.CellType.SPINNER: r += 1
-		
-		if b > 0 or a > 0 or f > 0 or r > 0:
-			text += "\n[u]Components[/u]\n"
-			if b > 0: text += "• Bumpers: %d\n" % b
-			if a > 0: text += "• Accelerators: %d\n" % a
-			if f > 0: text += "• Funnels: %d\n" % f
-			if r > 0: text += "• Boosters: %d\n" % r
 	return text.strip_edges()
 
 var _sidebar_mode: bool = false
