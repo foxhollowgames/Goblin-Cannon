@@ -27,7 +27,7 @@ func test_relic_display_equivalence() -> void:
 	assert_gt(occupied.size(), 0, "occupied cells non-empty")
 
 func test_hover_triggers_flyout_tooltip() -> void:
-	begin("Hovering a relic in JunkBoxPanel displays formatted flyout tooltip with full specifications")
+	begin("Hovering a relic in JunkBoxPanel displays formatted flyout tooltip without redundant metadata")
 	var scene: PackedScene = load("res://scenes/ui/junk_box/junk_box_panel.tscn") as PackedScene
 	assert_true(scene != null, "junk_box_panel.tscn loads")
 	var panel: Control = scene.instantiate() as Control
@@ -38,8 +38,11 @@ func test_hover_triggers_flyout_tooltip() -> void:
 	assert_true(KeywordDatabase._flyout_panel.visible, "flyout panel becomes visible on item hover")
 	assert_eq(KeywordDatabase._flyout_title.text, item.display_name, "flyout title matches relic display name")
 	var body: String = KeywordDatabase._flyout_body.text
-	assert_true(body.contains("Tier"), "flyout body shows Tier")
-	assert_true(body.contains("Size"), "flyout body shows Size")
+	assert_false(body.contains("Tier"), "flyout body does not show Tier")
+	assert_false(body.contains("Size"), "flyout body does not show Size")
+	assert_false(body.contains("Shape"), "flyout body does not show Shape")
+	assert_false(body.contains("Components"), "flyout body does not show Components")
+	assert_false(body.contains("Machinery & Effect"), "flyout body does not show Machinery & Effect")
 	assert_true(body.contains("Activation Requirement"), "flyout body shows Activation Requirement")
 	assert_true(body.contains("Relic Effect"), "flyout body shows Relic Effect")
 	panel.free()

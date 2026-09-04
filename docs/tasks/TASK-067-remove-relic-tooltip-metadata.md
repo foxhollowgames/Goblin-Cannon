@@ -1,6 +1,6 @@
 # TASK-067: Remove Size, Shape, Components, Machinery & Effect, and Tier from Relic Tooltips
 
-- **Status:** READY
+- **Status:** COMPLETED
 - **Priority:** P1
 - **Category:** UI / Polish
 - **Target Branch:** `feature/remove-relic-tooltip-metadata`
@@ -41,8 +41,8 @@ Relic tier will be shown visually through styling in [TASK-068](TASK-068-relic-t
 
 ## Acceptance Criteria
 
-- [ ] Relic tooltips omit size, shape, components, and machinery and effect text.
-- [ ] Relic tooltips omit tier text.
-- [ ] Relic tooltips show the relic name, activation requirement, and relic effect.
-- [ ] Unit tests verify the simplified tooltip format.
-- [ ] All modified test and source files remain under 500 lines.
+- [x] Relic tooltips omit size, shape, components, and machinery and effect text.
+- [x] Relic tooltips omit tier text.
+- [x] Relic tooltips show the relic name, activation requirement, and relic effect.
+- [x] Unit tests verify the simplified tooltip format.
+- [x] All modified test and source files remain under 500 lines.

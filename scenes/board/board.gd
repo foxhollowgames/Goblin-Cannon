@@ -2777,8 +2777,8 @@ func _update_board_module_hover(mouse_pos: Vector2) -> void:
 func _format_module_tooltip_body(item: JunkBoxItem) -> String:
 	var body: String = ""
 	var relic_id: StringName = StringName(item.custom_payload.get("relic_id", "")) if ("custom_payload" in item and item.custom_payload is Dictionary) else (item.module_data.module_id if item.module_data != null else &"")
-	var goal_desc: String = PolyominoRelicDatabase.get_relic_activation_requirement(relic_id) if relic_id != &"" else ""
-	var reward_desc: String = PolyominoRelicDatabase.get_relic_reward_description(relic_id) if relic_id != &"" else ""
+	var goal_desc: String = item.module_data.activation_requirement if (item.module_data != null and not item.module_data.activation_requirement.is_empty()) else (PolyominoRelicDatabase.get_relic_activation_requirement(relic_id) if relic_id != &"" else "")
+	var reward_desc: String = item.module_data.reward_description if (item.module_data != null and not item.module_data.reward_description.is_empty()) else (PolyominoRelicDatabase.get_relic_reward_description(relic_id) if relic_id != &"" else "")
 	if not goal_desc.is_empty():
 		body += "[u]Activation Requirement[/u]\n%s" % goal_desc
 	if not reward_desc.is_empty():
@@ -2789,10 +2789,6 @@ func _format_module_tooltip_body(item: JunkBoxItem) -> String:
 		var prog: String = node.get_progress_string() if (node and node.has_method("get_progress_string")) else ""
 		if not prog.is_empty():
 			body += "\n\n[u]Charge Progress[/u]: %s" % prog
-	if body.is_empty() and relic_id != &"":
-		var desc: String = PolyominoRelicDatabase.get_relic_kinetic_description(relic_id)
-		if not desc.is_empty():
-			body += "[u]Machinery & Effect[/u]\n%s" % desc
 	return body
 
 ## Converts a global/board world position into integer board grid coordinates (col, row).

@@ -1,4 +1,4 @@
-﻿extends "res://tests/test_base.gd"
+extends "res://tests/test_base.gd"
 
 const BoardScript = preload("res://scenes/board/board.gd")
 const JunkBoxPanelScript = preload("res://scenes/ui/junk_box/junk_box_panel.gd")
@@ -213,9 +213,9 @@ func test_junk_box_tooltip_exposes_activation_and_effect() -> void:
 	assert_true(tip.contains("Hit all 3 pop bumpers"), "Junk Box contains activation requirement text")
 	assert_true(tip.contains("[u]Relic Effect[/u]"), "Junk Box contains Relic Effect section")
 	assert_true(tip.contains("Multiball Cascade"), "Junk Box contains relic effect text")
-	assert_true(tip.contains("Tier:"), "Junk Box preserves Tier")
-	assert_true(tip.contains("Size:"), "Junk Box preserves Size")
-	assert_true(tip.contains("Shape:"), "Junk Box preserves Shape")
+	assert_false(tip.contains("Tier:"), "Junk Box omits Tier")
+	assert_false(tip.contains("Size:"), "Junk Box omits Size")
+	assert_false(tip.contains("Shape:"), "Junk Box omits Shape")
 
 	panel_inst.free()
 
