@@ -118,6 +118,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-107`](#lrn-107) | TASK-065 | `UI` | UI Wireframe and Screen Layout Redesign | 2026-09-03 |
 | [`LRN-108`](#lrn-108) | TASK-066 | `inventory_and_ui_systems` | Junk Box Manual Relic Placement and Self-Exclusion | 2026-09-03 |
 | [`LRN-109`](#lrn-109) | TASK-066 | `godot_engine` | Junk Box Manual Relic Placement and Controller Lifecycle | 2026-09-03 |
+| [`LRN-110`](#lrn-110) | TASK-067 | `ui_and_tooltips` | Relic Tooltip Simplification and Metadata Removal | 2026-09-03 |
 
 ---
 
@@ -1864,5 +1865,21 @@ JunkBoxDragController must calculate positions from JunkBoxGridView cell size an
 
 #### Actionable Guideline for Future Agents
 Always retrieve cell size from the grid view and free auxiliary controllers during _exit_tree.
+
+---
+
+### <a id="lrn-110"></a> LRN-110: Relic Tooltip Simplification and Metadata Removal
+- **Task:** `TASK-067`
+- **Category:** `ui_and_tooltips`
+- **Created:** `2026-09-03T18:50:32.733551`
+
+#### Context & Problem
+Relic tooltips in Junk Box and on board previously showed redundant metadata text such as tier, size, shape, components, and machinery descriptions.
+
+#### Key Insight & Learning
+Removing redundant technical metadata keeps tooltips clean and focused on essential gameplay details: relic title, activation requirement, and relic effect.
+
+#### Actionable Guideline for Future Agents
+Format relic tooltips to show only the relic title, activation requirement, and relic effect, while delegating tier display to visual styling.
 
 ---
