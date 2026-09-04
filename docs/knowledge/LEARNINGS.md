@@ -120,6 +120,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-109`](#lrn-109) | TASK-066 | `godot_engine` | Junk Box Manual Relic Placement and Controller Lifecycle | 2026-09-03 |
 | [`LRN-110`](#lrn-110) | TASK-067 | `ui_and_tooltips` | Relic Tooltip Simplification and Metadata Removal | 2026-09-03 |
 | [`LRN-111`](#lrn-111) | TASK-069 | `tooling` | in_game_machinery_components_dashboard | 2026-09-03 |
+| [`LRN-112`](#lrn-112) | TASK-070 | `machinery` | pop_bumper_energy_tuning | 2026-09-04 |
 
 ---
 
@@ -1898,5 +1899,21 @@ Pairing in-game vector art illustrations and precise collision and impulse stati
 
 #### Actionable Guideline for Future Agents
 When building research and tooling companion dashboards, maintain consistent visual branding and cross-navigation links while keeping HTML source files strictly under the 500-line project threshold.
+
+---
+
+### <a id="lrn-112"></a> LRN-112: pop_bumper_energy_tuning
+- **Task:** `TASK-070`
+- **Category:** `machinery`
+- **Created:** `2026-09-04T09:25:49.869037`
+
+#### Context & Problem
+The Pop Bumper granted 8 energy upon collision, which was too high for combat balance.
+
+#### Key Insight & Learning
+Setting base_energy in both _init and _ready initializes component properties consistently for in-tree and out-of-tree nodes.
+
+#### Actionable Guideline for Future Agents
+Initialize machinery component base_energy and type properties in both _init and _ready to support all test cases.
 
 ---

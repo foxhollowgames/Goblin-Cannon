@@ -100,6 +100,8 @@ python scripts/generate_task_dashboard.py
 | [TASK-067](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-067-remove-relic-tooltip-metadata.md) | Remove Size, Shape, Components, Machinery & Effect, and Tier from Relic Tooltips | UI/Polish | P1 | DONE | `feature/remove-relic-tooltip-metadata` |
 | [TASK-068](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-068-relic-tier-visual-styling.md) | Visual Representation of Relic Tiers Through Styling | UI/Visuals/Art | P2 | BACKLOG | `feature/relic-tier-visual-styling` |
 | [TASK-069](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-069-in-game-machinery-components-dashboard.md) | In-Game Machinery Components Dashboard | Documentation/UI/Tooling | P1 | DONE | `feature/in-game-components-dashboard` |
+| [TASK-070](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-070-pop-bumper-energy-tuning.md) | Tune Pop Bumper Energy to One Energy | Gameplay/Balance | P1 | DONE | `feature/pop-bumper-one-energy` |
+| [TASK-071](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-071-diegetic-relic-activation-categories.md) | Diegetic Relic Activation Categories and Condition Rules | Design | P1 | BACKLOG | `feature/diegetic-relic-activation-categories` |
 
 
 
