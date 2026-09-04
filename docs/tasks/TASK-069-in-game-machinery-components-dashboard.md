@@ -1,6 +1,6 @@
 # TASK-069: In-Game Machinery Components Dashboard
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Documentation / UI / Tooling
 - **Target Branch:** `feature/in-game-components-dashboard`

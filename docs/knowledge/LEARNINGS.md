@@ -119,6 +119,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-108`](#lrn-108) | TASK-066 | `inventory_and_ui_systems` | Junk Box Manual Relic Placement and Self-Exclusion | 2026-09-03 |
 | [`LRN-109`](#lrn-109) | TASK-066 | `godot_engine` | Junk Box Manual Relic Placement and Controller Lifecycle | 2026-09-03 |
 | [`LRN-110`](#lrn-110) | TASK-067 | `ui_and_tooltips` | Relic Tooltip Simplification and Metadata Removal | 2026-09-03 |
+| [`LRN-111`](#lrn-111) | TASK-069 | `tooling` | in_game_machinery_components_dashboard | 2026-09-03 |
 
 ---
 
@@ -1881,5 +1882,21 @@ Removing redundant technical metadata keeps tooltips clean and focused on essent
 
 #### Actionable Guideline for Future Agents
 Format relic tooltips to show only the relic title, activation requirement, and relic effect, while delegating tier display to visual styling.
+
+---
+
+### <a id="lrn-111"></a> LRN-111: in_game_machinery_components_dashboard
+- **Task:** `TASK-069`
+- **Category:** `tooling`
+- **Created:** `2026-09-03T21:56:46.074981`
+
+#### Context & Problem
+Creating a companion dashboard to the physical pinball research board to document in-game component art and behavioral physics.
+
+#### Key Insight & Learning
+Pairing in-game vector art illustrations and precise collision and impulse statistics with direct links to physical pinball machine counterparts creates an intuitive bridge between design research and gameplay mechanics.
+
+#### Actionable Guideline for Future Agents
+When building research and tooling companion dashboards, maintain consistent visual branding and cross-navigation links while keeping HTML source files strictly under the 500-line project threshold.
 
 ---

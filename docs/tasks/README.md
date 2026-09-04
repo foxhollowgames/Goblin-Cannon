@@ -99,7 +99,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-066](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-066-junk-box-manual-relic-placement.md) | Junk Box Manual Relic Placement and Internal Repositioning | UI/Gameplay/Systems | P1 | DONE | `feature/junk-box-manual-relic-placement` |
 | [TASK-067](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-067-remove-relic-tooltip-metadata.md) | Remove Size, Shape, Components, Machinery & Effect, and Tier from Relic Tooltips | UI/Polish | P1 | DONE | `feature/remove-relic-tooltip-metadata` |
 | [TASK-068](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-068-relic-tier-visual-styling.md) | Visual Representation of Relic Tiers Through Styling | UI/Visuals/Art | P2 | BACKLOG | `feature/relic-tier-visual-styling` |
-| [TASK-069](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-069-in-game-machinery-components-dashboard.md) | In-Game Machinery Components Dashboard | Documentation/UI/Tooling | P1 | IN_PROGRESS | `feature/in-game-components-dashboard` |
+| [TASK-069](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-069-in-game-machinery-components-dashboard.md) | In-Game Machinery Components Dashboard | Documentation/UI/Tooling | P1 | DONE | `feature/in-game-components-dashboard` |
 
 
 
