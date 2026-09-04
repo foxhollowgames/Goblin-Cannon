@@ -23,11 +23,27 @@ var _wobble_offset: Vector2 = Vector2.ZERO
 #endregion
 
 #region Lifecycle Methods
+func configure_footprint(cell_count: int) -> void:
+	if cell_count >= 9:
+		component_radius = 76.0
+		base_energy = 40
+		max_hits = 15
+		impulse_strength = 600.0
+	else:
+		# Enforce minimum 4-peg (2x2) footprint for bash toy centerpiece
+		component_radius = 48.0
+		base_energy = 20
+		max_hits = 8
+		impulse_strength = 480.0
+	queue_redraw()
+
 func _init() -> void:
 	is_permeable = false
 	component_radius = DEFAULT_RADIUS
 	base_energy = DEFAULT_ENERGY
 	impulse_strength = DEFAULT_IMPULSE
+	max_hits = 5
+	cell_type = PolyominoModuleData.CellType.BASH_TOY
 
 func _ready() -> void:
 	set_process(true)

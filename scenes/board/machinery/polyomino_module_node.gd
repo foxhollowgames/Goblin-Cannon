@@ -74,7 +74,6 @@ func setup_module(p_item: Resource, p_grid_pos: Vector2i, p_rotation: int = 0) -
 	var tier: int = module_data.tier
 	_accent_color = Constants.shop_rarity_accent_color(tier)
 	reset_goal_state()
-
 	_rebuild_components()
 	queue_redraw()
 
@@ -101,17 +100,31 @@ func _rebuild_components() -> void:
 	_anchored_cells = module_data.get_anchored_rotated_cells(rotation_step)
 	var orig_cells: Array[Vector2i] = module_data.cells
 
+	if module_data.layout_mode == PolyominoModuleData.MachineryLayoutMode.UNIFIED and module_data.unified_component_type != PolyominoModuleData.CellType.EMPTY:
+		var u_type: int = module_data.unified_component_type
+		var comp: PolyominoMachineryComponent = _create_component_for_type(u_type)
+		if comp != null:
+			comp.cell_type = u_type
+			comp.footprint_cells = _anchored_cells
+			comp.position = module_data.get_module_center_offset(rotation_step, CELL_WIDTH, CELL_HEIGHT)
+			if comp.has_method("configure_footprint"):
+				comp.configure_footprint(_anchored_cells.size())
+			comp.set_accent_color(_accent_color)
+			comp.component_activated.connect(_on_component_activated)
+			add_child(comp)
+			_components.append(comp)
+			for c in _anchored_cells:
+				_components_by_cell[c] = comp
+			return
+
 	for idx in range(_anchored_cells.size()):
 		var local_c: Vector2i = _anchored_cells[idx]
 		var orig_c: Vector2i = orig_cells[idx] if idx < orig_cells.size() else local_c
-
 		var c_type: int = module_data.get_cell_type_at(orig_c)
 		if c_type == PolyominoModuleData.CellType.EMPTY:
 			continue
-		var orig_dir: Vector2 = module_data.get_cell_direction_at(orig_c)
-		var rot_dir: Vector2 = PolyominoModuleData.get_rotated_direction(orig_dir, rotation_step)
+		var rot_dir: Vector2 = PolyominoModuleData.get_rotated_direction(module_data.get_cell_direction_at(orig_c), rotation_step)
 		var energy_val: int = module_data.get_cell_energy_value(orig_c)
-
 		var comp: PolyominoMachineryComponent = _create_component_for_type(c_type)
 		if comp == null:
 			continue
@@ -121,11 +134,8 @@ func _rebuild_components() -> void:
 		if energy_val > 0:
 			comp.base_energy = energy_val
 		comp.set_accent_color(_accent_color)
-
-		# Position component at cell center
 		comp.position = Vector2(float(local_c.x) * CELL_WIDTH, float(local_c.y) * CELL_HEIGHT)
 		comp.component_activated.connect(_on_component_activated)
-
 		add_child(comp)
 		_components.append(comp)
 		_components_by_cell[local_c] = comp
@@ -174,12 +184,9 @@ func _check_rollover_bank_completion(sw: Node) -> void:
 	for comp in _components:
 		if comp and comp.cell_type == PolyominoModuleData.CellType.ROLLOVER_SWITCH and comp.get("bank_id") == b_id:
 			count += 1
-			if not comp.get("is_lit"):
-				all_lit = false
-				break
+			if not comp.get("is_lit"): all_lit = false; break
 	if count > 0 and all_lit:
 		bank_completed.emit(b_id, RewardType.ENERGY_SURGE, 15)
-
 
 func _evaluate_goal_progress(comp: PolyominoMachineryComponent, ball: Node, energy: int) -> void:
 	if module_data == null or is_ghost:
@@ -207,14 +214,10 @@ func _evaluate_goal_progress(comp: PolyominoMachineryComponent, ball: Node, ener
 			if _hit_cells.size() >= _components.size():
 				_hit_cells.clear()
 				_trigger_goal_completion(ball)
-
 		GoalArchetype.SEQUENCE_ROUTE:
-			var target_seq: Array[Vector2i] = []
-			if not module_data.goal_target_sequence.is_empty():
-				target_seq = module_data.goal_target_sequence
-			else:
-				for c in _components:
-					target_seq.append(c.local_cell)
+			var target_seq: Array[Vector2i] = module_data.goal_target_sequence.duplicate()
+			if target_seq.is_empty():
+				for c in _components: target_seq.append(c.local_cell)
 			if not target_seq.is_empty():
 				var expected: Vector2i = target_seq[mini(_sequence_index, target_seq.size() - 1)]
 				if comp.local_cell == expected:
@@ -224,21 +227,16 @@ func _evaluate_goal_progress(comp: PolyominoMachineryComponent, ball: Node, ener
 						_trigger_goal_completion(ball)
 				else:
 					_sequence_index = 1 if comp.local_cell == target_seq[0] else 0
-
 		GoalArchetype.ORBIT_FLOW:
 			_orbit_count += 1
-			var req_orbits: int = maxi(2, module_data.goal_target_count)
-			if _orbit_count >= req_orbits:
+			if _orbit_count >= maxi(2, module_data.goal_target_count):
 				_orbit_count = 0
 				_trigger_goal_completion(ball)
-
 		GoalArchetype.SINKHOLE_LOCK:
 			_lock_count += 1
-			var req_locks: int = maxi(1, module_data.goal_target_count)
-			if _lock_count >= req_locks:
+			if _lock_count >= maxi(1, module_data.goal_target_count):
 				_lock_count = 0
 				_trigger_goal_completion(ball)
-
 		GoalArchetype.JACKPOT_ACCUMULATOR:
 			_jackpot_pool += maxi(5, energy * 2)
 			var payout_target: int = maxi(15, module_data.reward_energy)
@@ -246,7 +244,6 @@ func _evaluate_goal_progress(comp: PolyominoMachineryComponent, ball: Node, ener
 				var final_payout: int = maxi(payout_target, _jackpot_pool)
 				_jackpot_pool = 0
 				_trigger_goal_completion(ball, final_payout)
-
 		GoalArchetype.HURRY_UP_FRENZY:
 			if not _hurry_up_active:
 				_hurry_up_active = true
@@ -255,11 +252,9 @@ func _evaluate_goal_progress(comp: PolyominoMachineryComponent, ball: Node, ener
 				_hurry_up_active = false
 				_hurry_up_timer = 0.0
 				_trigger_goal_completion(ball)
-
 		GoalArchetype.MULTIBALL_RESERVOIR:
 			_lock_count += 1
-			var req_mb: int = maxi(2, module_data.goal_target_count)
-			if _lock_count >= req_mb:
+			if _lock_count >= maxi(2, module_data.goal_target_count):
 				_lock_count = 0
 				_trigger_goal_completion(ball)
 
@@ -299,13 +294,19 @@ func check_ball_collision(ball: Node, sim_tick: int) -> Dictionary:
 
 	var ball_pos: Vector2 = (ball.global_position if ball.is_inside_tree() else ball.position) if "position" in ball else Vector2.ZERO
 	var ball_radius: float = Constants.BALL_RADIUS
+	var module_base_pos: Vector2 = global_position if is_inside_tree() else position
 
 	for comp in _components:
 		if not is_instance_valid(comp):
 			continue
-		var comp_pos: Vector2 = comp.global_position if comp.is_inside_tree() else (position + comp.position)
-		var hit_dist: float = comp.component_radius + ball_radius + 4.0
-		if ball_pos.distance_squared_to(comp_pos) <= (hit_dist * hit_dist):
+		var is_hit: bool = false
+		if comp.has_method("check_ball_contact"):
+			is_hit = comp.check_ball_contact(ball_pos, ball_radius, module_base_pos)
+		else:
+			var comp_pos: Vector2 = comp.global_position if comp.is_inside_tree() else (module_base_pos + comp.position)
+			var hit_dist: float = comp.component_radius + ball_radius + 4.0
+			is_hit = ball_pos.distance_squared_to(comp_pos) <= (hit_dist * hit_dist)
+		if is_hit:
 			var result: Dictionary = comp.trigger_activation(ball, sim_tick)
 			if result.get("activated", false):
 				return result

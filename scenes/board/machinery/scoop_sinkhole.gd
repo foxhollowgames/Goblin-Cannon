@@ -7,8 +7,36 @@ signal ball_ejected(scoop_node: Node, ball: Node)
 @export var hold_duration_sec: float = 0.5
 @export var eject_direction: Vector2 = Vector2.UP
 
-var _captured_ball: Node = null
+var _captured_balls: Array[Node] = []
 var _hold_timer: Timer = null
+
+# Backwards compatibility accessor
+var _captured_ball: Node:
+	get: return _captured_balls[0] if not _captured_balls.is_empty() else null
+	set(val):
+		_captured_balls.clear()
+		if val != null:
+			_captured_balls.append(val)
+
+func configure_footprint(cell_count: int) -> void:
+	if cell_count >= 9:
+		component_radius = 76.0
+		base_energy = 30
+		impulse_strength = 600.0
+		hold_duration_sec = 0.9
+	elif cell_count >= 4:
+		component_radius = 48.0
+		base_energy = 20
+		impulse_strength = 500.0
+		hold_duration_sec = 0.8
+	else:
+		component_radius = 20.0
+		base_energy = 10
+		impulse_strength = 350.0
+		hold_duration_sec = 0.5
+	if _hold_timer:
+		_hold_timer.wait_time = hold_duration_sec
+	queue_redraw()
 
 func _ready() -> void:
 	is_permeable = true
@@ -45,11 +73,10 @@ func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 		ball.add_peg_energy(energy)
 
 	_stop_ball(ball)
-	_captured_ball = ball
+	if not _captured_balls.has(ball):
+		_captured_balls.append(ball)
 	if _hold_timer != null and _hold_timer.is_inside_tree():
 		_hold_timer.start()
-	else:
-		_on_hold_timeout()
 	
 	ball_captured.emit(self, ball)
 	
@@ -66,17 +93,25 @@ func _stop_ball(ball: Node) -> void:
 		ball.linear_velocity = Vector2.ZERO
 
 func _on_hold_timeout() -> void:
-	if _captured_ball != null:
-		var impulse: Vector2 = eject_direction * impulse_strength
-		_apply_ball_impulse(_captured_ball, impulse)
-		
-		ball_ejected.emit(self, _captured_ball)
-		
-		_captured_ball = null
+	var balls_to_eject := _captured_balls.duplicate()
+	_captured_balls.clear()
+	var total: int = balls_to_eject.size()
+	for i in range(total):
+		var b: Node = balls_to_eject[i]
+		if not is_instance_valid(b):
+			continue
+		var spread_angle: float = 0.0
+		if total > 1:
+			spread_angle = lerpf(-0.25, 0.25, float(i) / float(total - 1))
+		var impulse: Vector2 = eject_direction.rotated(spread_angle) * impulse_strength
+		_apply_ball_impulse(b, impulse)
+		ball_ejected.emit(self, b)
 
 func _process(delta: float) -> void:
-	if _captured_ball != null and "position" in _captured_ball:
-		_captured_ball.position = global_position if is_inside_tree() else position
+	var my_p: Vector2 = global_position if is_inside_tree() else position
+	for b in _captured_balls:
+		if is_instance_valid(b) and "position" in b:
+			b.position = my_p
 	
 	var needs_redraw: bool = false
 	if _spring_scale != Vector2.ONE:
