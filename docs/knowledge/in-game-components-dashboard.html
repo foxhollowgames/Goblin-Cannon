@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>In-Game Pinball Machinery Component Analysis & Behavior Guide</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    body { background-color: #090d16; color: #f1f5f9; }
+    .component-card { background-color: #0f172a; border: 1px solid #1e293b; transition: all 0.2s ease-in-out; }
+    .component-card:hover { transform: translateY(-2px); border-color: #38bdf8; box-shadow: 0 4px 20px -2px rgba(56, 189, 248, 0.15); }
+    .table-art { width: 140px; height: 96px; border-radius: 8px; border: 1px solid #334155; cursor: pointer; transition: transform 0.2s ease-in-out; background: #030712; display: flex; align-items: center; justify-content: center; }
+    .table-art:hover { transform: scale(1.05); border-color: #38bdf8; }
+    #lightbox { display: none; }
+    #lightbox.active { display: flex; }
+  </style>
+</head>
+<body class="bg-[#090d16] text-slate-100 antialiased p-6 min-h-screen">
+  <div class="max-w-6xl mx-auto space-y-8">
+    <header class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div>
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 text-cyan-400 text-xs font-semibold uppercase tracking-wider mb-2 border border-cyan-500/20">
+          TASK-069 In-Game Component Roster
+        </div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-white">In-Game Machinery Component Analysis & Behavior Guide</h1>
+        <p class="text-slate-400 text-sm mt-1">In-game art, physics responses, energy values, and collision mechanics in Goblin Cannon.</p>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <a href="pinball-research-dashboard.html" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 text-sm font-semibold rounded-lg border border-slate-700 shadow transition flex items-center gap-1">
+          <span>📋</span> Physical Components Dashboard
+        </a>
+        <a href="../tasks/dashboard.html" class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold rounded-lg shadow-lg transition flex items-center gap-1">
+          <span>📊</span> Task Board
+        </a>
+      </div>
+    </header>
+
+    <div class="flex border-b border-slate-800 gap-6 overflow-x-auto text-sm font-medium">
+      <a href="#in-game-table" class="pb-3 border-b-2 border-cyan-400 text-cyan-400 font-semibold">Component Roster Table</a>
+      <a href="#physics-summary" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Physics & Kinetics</a>
+      <a href="#comparison" class="pb-3 border-b-2 border-transparent hover:border-slate-500 text-slate-400 hover:text-white">Physical vs In-Game Mapping</a>
+    </div>
+
+    <div class="flex flex-col md:flex-row gap-4 items-center justify-between bg-slate-900/60 border border-slate-800 p-4 rounded-xl">
+      <div class="w-full md:w-80">
+        <input type="text" id="component-search" oninput="filterComponents()" placeholder="Search components, mechanics, physics..." class="w-full px-4 py-2 rounded-lg bg-slate-950 border border-slate-800 text-sm text-slate-200 focus:outline-none focus:border-cyan-500">
+      </div>
+      <div class="flex flex-wrap gap-2 text-xs" id="category-filters">
+        <button onclick="setCategory('ALL')" class="cat-btn px-3 py-1.5 rounded-lg bg-cyan-600 text-white font-medium" data-cat="ALL">All (19)</button>
+        <button onclick="setCategory('Active Impulser')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white" data-cat="Active Impulser">Bumpers & Kickers</button>
+        <button onclick="setCategory('Target')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white" data-cat="Target">Targets</button>
+        <button onclick="setCategory('Trap')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white" data-cat="Trap">Traps & Sinks</button>
+        <button onclick="setCategory('Route')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white" data-cat="Route">Rails & Loops</button>
+        <button onclick="setCategory('Sensor')" class="cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white" data-cat="Sensor">Sensors & Gates</button>
+      </div>
+    </div>
+
+    <section id="in-game-table" class="space-y-4">
+      <h2 class="text-2xl font-bold flex items-center gap-2 text-white">
+        <span>⚙️</span> Standardized In-Game Component Roster (Click Art to Enlarge)
+      </h2>
+      <p class="text-slate-300 text-sm">Every component features standardized collision handling, impulse calculations, sound triggers, and energy dispatching.</p>
+
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg overflow-x-auto">
+        <table class="w-full text-left border-collapse text-sm">
+          <thead>
+            <tr class="border-b border-slate-800 text-slate-400">
+              <th class="pb-3 font-semibold w-40">In-Game Art</th>
+              <th class="pb-3 font-semibold w-56">Component Name & ID</th>
+              <th class="pb-3 font-semibold w-48">Classification & Stats</th>
+              <th class="pb-3 font-semibold">In-Game Behavior & Gameplay Physics</th>
+              <th class="pb-3 font-semibold w-44">Physical Counterpart</th>
+            </tr>
+          </thead>
+          <tbody id="component-rows" class="divide-y divide-slate-800/60 text-xs"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="physics-summary" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
+        <div class="text-cyan-400 font-bold flex items-center gap-2"><span>⚡</span> Energy Dispatch Architecture</div>
+        <p class="text-slate-300 text-xs leading-relaxed">Components grant integer energy directly to GameState upon activation. Hit cooldown ticks prevent multiple collisions on consecutive frames.</p>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
+        <div class="text-emerald-400 font-bold flex items-center gap-2"><span>🔄</span> Permeable vs Solid Nodes</div>
+        <p class="text-slate-300 text-xs leading-relaxed">Sensors and siphons set collision mask to 0, allowing free ball passage. Solid nodes apply directional velocity impulses and bounce effects.</p>
+      </div>
+      <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 space-y-3">
+        <div class="text-amber-400 font-bold flex items-center gap-2"><span>🎨</span> Comic-Book Ink Aesthetics</div>
+        <p class="text-slate-300 text-xs leading-relaxed">Vector draw routines execute with dark ink perimeters, dynamic spring compression, and bright spark bursts on collision.</p>
+      </div>
+    </section>
+
+    <section id="comparison" class="bg-slate-900 border border-slate-800 rounded-xl p-6 shadow-lg space-y-4">
+      <h2 class="text-xl font-bold text-white flex items-center gap-2">
+        <span>🔄</span> Direct Physical vs In-Game Architecture Mapping
+      </h2>
+      <p class="text-slate-300 text-xs leading-relaxed">
+        Goblin Cannon adapts physical electromechanical solenoids and coils into deterministic 2D physics nodes mounted inside polyomino relics.
+      </p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+        <div class="p-4 bg-slate-950/60 border border-slate-800 rounded-lg space-y-2">
+          <span class="font-bold text-cyan-300">Physical Pinball Hardware</span>
+          <ul class="list-disc list-inside text-slate-400 space-y-1">
+            <li>High-voltage solenoids fire mechanical plunger pins.</li>
+            <li>Physical leaf switches register electrical contact.</li>
+            <li>Under-board ball troughs hold metal spheres gravitationally.</li>
+            <li>Table tilt angle governs natural downward velocity.</li>
+          </ul>
+        </div>
+        <div class="p-4 bg-slate-950/60 border border-slate-800 rounded-lg space-y-2">
+          <span class="font-bold text-emerald-300">Goblin Cannon Simulation</span>
+          <ul class="list-disc list-inside text-slate-400 space-y-1">
+            <li>PolyominoMachineryComponent calculates vector impulses.</li>
+            <li>Collision shapes fire Godot signals with energy integers.</li>
+            <li>BallLock and ScoopSinkhole pause and relaunch simulated balls.</li>
+            <li>Custom board gravity and peg ricochets drive kinetic flow.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div id="lightbox" class="fixed inset-0 bg-black/85 z-50 items-center justify-center p-4" onclick="closeLightbox()">
+    <div class="bg-slate-900 border border-slate-700 rounded-2xl p-6 max-w-xl w-full shadow-2xl relative space-y-4" onclick="event.stopPropagation()">
+      <div class="flex justify-between items-start">
+        <div>
+          <span id="lb-badge" class="px-2 py-0.5 rounded text-xs font-mono border"></span>
+          <h3 id="lb-title" class="text-2xl font-bold text-white mt-1"></h3>
+        </div>
+        <button onclick="closeLightbox()" class="text-slate-400 hover:text-white text-xl font-bold px-2 py-1">&times;</button>
+      </div>
+      <div id="lb-art" class="w-full h-48 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-center p-4"></div>
+      <div class="space-y-2 text-xs">
+        <div class="text-slate-300 font-semibold">Gameplay Physics & Mechanics:</div>
+        <p id="lb-desc" class="text-slate-200 leading-relaxed bg-slate-950/60 p-3 rounded-lg border border-slate-800/80"></p>
+        <div class="grid grid-cols-2 gap-2 pt-2">
+          <div class="p-2 bg-slate-800/50 rounded border border-slate-800">
+            <span class="text-slate-400 block">Energy Granted:</span>
+            <span id="lb-energy" class="text-cyan-300 font-bold"></span>
+          </div>
+          <div class="p-2 bg-slate-800/50 rounded border border-slate-800">
+            <span class="text-slate-400 block">Impulse Strength:</span>
+            <span id="lb-impulse" class="text-emerald-300 font-bold"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const COMPONENTS = [
+      { id: "POP_BUMPER", name: "Pop Bumper", cat: "Active Impulser", color: "cyan", energy: 8, impulse: "450 px/s (Radial)", phys: "Pop Bumpers (Jet Bumpers)", desc: "Repels steel ball with high velocity in 360-degree radial directions upon collision. Triggers comic spring compression and radial spark bursts. Awards 8 energy to cannon reserves.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><circle cx="50" cy="35" r="28" fill="#083344" stroke="#06b6d4" stroke-width="3"/><circle cx="50" cy="35" r="18" fill="#0f172a" stroke="#22d3ee" stroke-width="2"/><circle cx="50" cy="35" r="8" fill="#facc15"/><line x1="50" y1="3" x2="50" y2="10" stroke="#facc15" stroke-width="2"/><line x1="50" y1="60" x2="50" y2="67" stroke="#facc15" stroke-width="2"/><line x1="18" y1="35" x2="25" y2="35" stroke="#facc15" stroke-width="2"/><line x1="75" y1="35" x2="82" y2="35" stroke="#facc15" stroke-width="2"/></svg>` },
+      { id: "DROP_TARGET", name: "Drop Target", cat: "Target", color: "emerald", energy: 5, impulse: "0 px/s (Retracts)", phys: "Drop Target Banks", desc: "Solid rectangular target plate that retracts flush into board on ball impact. Becomes permeable until entire target bank drops. Clearing full bank resets targets and grants energy bonus.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><rect x="25" y="16" width="50" height="38" rx="4" fill="#064e3b" stroke="#10b981" stroke-width="3"/><rect x="33" y="24" width="34" height="22" rx="2" fill="#ecfdf5"/><path d="M50 28 L50 42 M44 36 L50 42 L56 36" stroke="#065f46" stroke-width="3" stroke-linecap="round"/></svg>` },
+      { id: "STANDUP_TARGET", name: "Standup Target", cat: "Target", color: "slate", energy: 4, impulse: "320 px/s (Rebound)", phys: "Standup Target Banks", desc: "Rigid upright target plate mounted on flexible leaf switch. Resists ball passage and applies sharp rebound velocity backwards. Triggers electrical sound and emits score signals.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><rect x="32" y="12" width="36" height="46" rx="4" fill="#1e293b" stroke="#94a3b8" stroke-width="3"/><rect x="40" y="20" width="20" height="30" rx="2" fill="#e2e8f0"/><circle cx="50" cy="35" r="5" fill="#f59e0b"/></svg>` },
+      { id: "SPINNER", name: "Spinner", cat: "Sensor", color: "amber", energy: "3 per spin", impulse: "0 px/s (Pass-through)", phys: "Spinners (Spinning Targets)", desc: "Hinged axle plate suspended across playfield lane. Balls pass through without stopping, launching spinner into high-rpm rotation. Awards recurring energy ticks until friction halts spin.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><line x1="20" y1="15" x2="20" y2="55" stroke="#64748b" stroke-width="4"/><line x1="80" y1="15" x2="80" y2="55" stroke="#64748b" stroke-width="4"/><line x1="20" y1="35" x2="80" y2="35" stroke="#94a3b8" stroke-width="2"/><ellipse cx="50" cy="35" rx="24" ry="12" fill="#78350f" stroke="#f59e0b" stroke-width="3"/><path d="M38 31 Q50 22 62 31" stroke="#fef3c7" stroke-width="2" fill="none"/></svg>` },
+      { id: "SCOOP_SINKHOLE", name: "Scoop Sinkhole", cat: "Trap", color: "purple", energy: 10, impulse: "420 px/s (Eject)", phys: "Scoops / Sinkholes", desc: "Recessed circular hole bordered by steel rim. Captures ball, stops physics temporarily for 0.85s, charges energy, then violently ejects ball along defined outward trajectory.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><circle cx="50" cy="35" r="26" fill="#3b0764" stroke="#a855f7" stroke-width="3"/><circle cx="50" cy="35" r="16" fill="#030712"/><line x1="50" y1="15" x2="50" y2="55" stroke="#c084fc" stroke-width="2" stroke-dasharray="3,3"/><line x1="30" y1="35" x2="70" y2="35" stroke="#c084fc" stroke-width="2" stroke-dasharray="3,3"/></svg>` },
+      { id: "BALL_LOCK", name: "Ball Lock", cat: "Trap", color: "rose", energy: 12, impulse: "450 px/s (Cascade)", phys: "Physical Ball Locks", desc: "Subterranean mechanical magazine capable of storing up to 3 balls. Traps successive balls from play. Reaching 3 locks activates multiball cascade, releasing all balls at once.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><rect x="20" y="20" width="60" height="30" rx="6" fill="#4c0519" stroke="#f43f5e" stroke-width="3"/><circle cx="34" cy="35" r="8" fill="#fda4af" stroke="#9f1239" stroke-width="2"/><circle cx="50" cy="35" r="8" fill="#fda4af" stroke="#9f1239" stroke-width="2"/><circle cx="66" cy="35" r="8" fill="#9f1239" stroke="#f43f5e" stroke-width="2"/></svg>` },
+      { id: "GUIDE_TRACK", name: "Guide Track", cat: "Route", color: "cyan", energy: 4, impulse: "380 px/s (Constrained)", phys: "Ramps & Habitrails", desc: "Parallel stainless steel wire rails. Constrains incoming balls to linear trajectory, guiding ball toward board targets with zero lateral drift and boosted speed.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><line x1="20" y1="24" x2="80" y2="24" stroke="#38bdf8" stroke-width="4"/><line x1="20" y1="46" x2="80" y2="46" stroke="#38bdf8" stroke-width="4"/><line x1="35" y1="24" x2="35" y2="46" stroke="#0284c7" stroke-width="2"/><line x1="50" y1="24" x2="50" y2="46" stroke="#0284c7" stroke-width="2"/><line x1="65" y1="24" x2="65" y2="46" stroke="#0284c7" stroke-width="2"/><polygon points="72,35 60,30 60,40" fill="#38bdf8"/></svg>` },
+      { id: "ORBIT_LOOP", name: "Orbit Loop", cat: "Route", color: "indigo", energy: 6, impulse: "1.25x Speed Multiplier", phys: "Orbits & Loops", desc: "Curved outer perimeter channel. High-velocity shots enter loop, sweep 180 degrees around outer curve, and exit down opposite lane with 25% amplified kinetic momentum.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><path d="M20 55 C20 15, 80 15, 80 55" fill="none" stroke="#6366f1" stroke-width="6"/><path d="M28 55 C28 25, 72 25, 72 55" fill="none" stroke="#a5b4fc" stroke-width="2"/><polygon points="80,55 74,45 86,45" fill="#6366f1"/></svg>` },
+      { id: "SLINGSHOT", name: "Slingshot Kicker", cat: "Active Impulser", color: "orange", energy: 6, impulse: "420 px/s (Angled)", phys: "Slingshots", desc: "Triangular elastic kicker rubber backed by powerful solenoid arm. Detects lateral contact and kicks ball violently across playfield at sharp rebound angles.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><polygon points="25,55 75,55 25,15" fill="#7c2d12" stroke="#ea580c" stroke-width="3"/><line x1="25" y1="15" x2="75" y2="55" stroke="#fed7aa" stroke-width="4"/><circle cx="25" cy="15" r="4" fill="#fb923c"/><circle cx="75" cy="55" r="4" fill="#fb923c"/><circle cx="25" cy="55" r="4" fill="#fb923c"/></svg>` },
+      { id: "ROLLOVER_SWITCH", name: "Rollover Switch", cat: "Sensor", color: "cyan", energy: 2, impulse: "0 px/s (Pass-through)", phys: "Rollover Lanes", desc: "Recessed wire switch arm extending through floor. Ball rolls over switch without deceleration, registering lane lighting and contributing toward sequence bonus goals.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><rect x="25" y="26" width="50" height="18" rx="4" fill="#0f172a" stroke="#334155" stroke-width="2"/><line x1="32" y1="35" x2="68" y2="35" stroke="#38bdf8" stroke-width="3"/><circle cx="50" cy="35" r="6" fill="#facc15" stroke="#ca8a04" stroke-width="1.5"/></svg>` },
+      { id: "CAPTIVE_BALL", name: "Captive Ball", cat: "Target", color: "slate", energy: 7, impulse: "Momentum Transfer", phys: "Captive Balls / Newton Balls", desc: "Trapped chrome ball confined to short linear track. Ball impacts transfer kinetic energy through trapped sphere, driving it into internal target switch at far end.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><rect x="20" y="24" width="60" height="22" rx="4" fill="#0f172a" stroke="#64748b" stroke-width="2"/><circle cx="42" cy="35" r="9" fill="#e2e8f0" stroke="#94a3b8" stroke-width="2"/><rect x="70" y="26" width="6" height="18" fill="#f59e0b"/></svg>` },
+      { id: "MECHANICAL_DIVERTER", name: "Mechanical Diverter", cat: "Route", color: "pink", energy: 4, impulse: "Directional Deflect", phys: "Mechanical Diverters", desc: "Solenoid-actuated gate flapper situated at track splits. Alternates orientation after every contact, routing successive balls between alternating left and right channels.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><circle cx="30" cy="35" r="6" fill="#64748b"/><line x1="30" y1="35" x2="72" y2="22" stroke="#ec4899" stroke-width="4" stroke-linecap="round"/><path d="M40 45 L55 55 M60 48 L75 58" stroke="#f472b6" stroke-width="2" stroke-linecap="round"/></svg>` },
+      { id: "VERTICAL_UP_KICKER", name: "Vertical Up Kicker", cat: "Active Impulser", color: "indigo", energy: 10, impulse: "520 px/s (Vertical Up)", phys: "Vertical Up Kickers (VUKs)", desc: "Subterranean solenoid cup beneath board. Traps ball from lower level, then launches it straight upward against gravity into upper wire rails or elevated playfields.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><rect x="30" y="25" width="40" height="30" rx="4" fill="#1e1b4b" stroke="#6366f1" stroke-width="3"/><polygon points="50,10 40,24 60,24" fill="#818cf8"/><line x1="50" y1="24" x2="50" y2="45" stroke="#c7d2fe" stroke-width="3"/></svg>` },
+      { id: "BASH_TOY", name: "Bash Toy", cat: "Target", color: "rose", energy: 15, impulse: "350 px/s (Wobble)", phys: "Physical Bash Toys", desc: "Durable mechanical sculpture (Goblin Totem). Takes multiple hits with progressive comic wobble and crack VFX before triggering massive board shockwave and energy burst.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><polygon points="30,55 70,55 80,30 50,15 20,30" fill="#881337" stroke="#f43f5e" stroke-width="3"/><circle cx="40" cy="32" r="4" fill="#facc15"/><circle cx="60" cy="32" r="4" fill="#facc15"/><path d="M38 45 Q50 38 62 45" stroke="#fecdd3" stroke-width="3" fill="none"/></svg>` },
+      { id: "OUTLANE_KICKBACK", name: "Outlane Kickback", cat: "Active Impulser", color: "amber", energy: 8, impulse: "480 px/s (Emergency)", phys: "Outlane Kickbacks", desc: "Emergency solenoid plunger located in bottom gutter outlanes. When primed, explosive spring fires upon ball entry, punching ball back onto main playfield to prevent drain.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><rect x="25" y="45" width="50" height="15" rx="3" fill="#1e293b" stroke="#64748b" stroke-width="2"/><line x1="50" y1="45" x2="50" y2="20" stroke="#f59e0b" stroke-width="5" stroke-linecap="round"/><polygon points="50,12 42,24 58,24" fill="#fbbf24"/></svg>` },
+      { id: "MANA_SIPHON", name: "Mana Siphon", cat: "Sensor", color: "purple", energy: 5, impulse: "0 px/s (Permeable)", phys: "Under-Board Magnets", desc: "Mystical runic energy ring. Balls pass through freely without physical obstruction, charging cannon reserves with raw kinetic conversion mana.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><circle cx="50" cy="35" r="26" fill="none" stroke="#8b5cf6" stroke-width="3" stroke-dasharray="6,3"/><circle cx="50" cy="35" r="16" fill="none" stroke="#c084fc" stroke-width="2"/><circle cx="50" cy="35" r="4" fill="#a855f7"/></svg>` },
+      { id: "WIRE_GATE", name: "Wire Gate", cat: "Sensor", color: "slate", energy: 2, impulse: "One-Way Pass", phys: "One-Way Wire Gates", desc: "Hinged wire gate hanging across ramps. Allows forward passage smoothly, then drops down to prevent backward drainage or reverse gravity rolls.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><rect x="25" y="15" width="50" height="8" rx="2" fill="#475569"/><line x1="35" y1="23" x2="35" y2="52" stroke="#94a3b8" stroke-width="3"/><line x1="50" y1="23" x2="50" y2="52" stroke="#94a3b8" stroke-width="3"/><line x1="65" y1="23" x2="65" y2="52" stroke="#94a3b8" stroke-width="3"/><polygon points="50,42 42,32 58,32" fill="#22c55e"/></svg>` },
+      { id: "DIRECTIONAL_DEFLECTOR", name: "Directional Deflector", cat: "Active Impulser", color: "cyan", energy: 4, impulse: "350 px/s (Fixed Angle)", phys: "Stationary Metal Baffles", desc: "Angled steel wedge baffle. Deflects colliding balls into designated orientation angle regardless of incoming approach vector.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><polygon points="25,55 75,55 75,20" fill="#0e7490" stroke="#06b6d4" stroke-width="3"/><line x1="70" y1="28" x2="35" y2="50" stroke="#a5f3fc" stroke-width="2"/><polygon points="45,30 35,42 50,40" fill="#22d3ee"/></svg>` },
+      { id: "SPEED_BOOST_WHEEL", name: "Speed Boost Wheel", cat: "Active Impulser", color: "amber", energy: 5, impulse: "400 px/s (Accelerate)", phys: "Motorized Accelerators", desc: "Dual motorized flywheels spinning at high RPM. Grips incoming balls and accelerates them along lane with immediate velocity boost.", svg: `<svg viewBox="0 0 100 70" class="w-full h-full"><circle cx="34" cy="35" r="16" fill="#78350f" stroke="#f59e0b" stroke-width="3"/><circle cx="66" cy="35" r="16" fill="#78350f" stroke="#f59e0b" stroke-width="3"/><line x1="42" y1="22" x2="58" y2="22" stroke="#fde68a" stroke-width="2"/><line x1="42" y1="48" x2="58" y2="48" stroke="#fde68a" stroke-width="2"/></svg>` }
+    ];
+
+    let currentCat = 'ALL';
+
+    function renderTable() {
+      const tbody = document.getElementById('component-rows');
+      const query = (document.getElementById('component-search').value || '').toLowerCase();
+      tbody.innerHTML = '';
+
+      COMPONENTS.filter(c => (currentCat === 'ALL' || c.cat === currentCat) && (!query || (c.name + ' ' + c.id + ' ' + c.cat + ' ' + c.desc + ' ' + c.phys).toLowerCase().includes(query))).forEach((c, idx) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/30 transition';
+        tr.innerHTML = `
+          <td class="py-3">
+            <div class="table-art" onclick="openLightbox(${idx})">${c.svg}</div>
+          </td>
+          <td class="py-3">
+            <div class="font-bold text-white text-sm">${c.name}</div>
+            <div class="text-slate-400 font-mono text-[11px]">${c.id}</div>
+          </td>
+          <td class="py-3 space-y-1">
+            <span class="px-2 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wider bg-${c.color}-500/10 text-${c.color}-400 border border-${c.color}-500/30 font-mono block w-max">${c.cat}</span>
+            <div class="text-slate-400 text-[11px]">Energy: <span class="text-cyan-300 font-semibold">+${c.energy}</span></div>
+            <div class="text-slate-400 text-[11px]">Impulse: <span class="text-emerald-300 font-semibold">${c.impulse}</span></div>
+          </td>
+          <td class="py-3 text-slate-200 leading-relaxed pr-4">${c.desc}</td>
+          <td class="py-3">
+            <a href="pinball-research-dashboard.html#physical-table" class="text-cyan-400 hover:text-cyan-300 underline block font-medium">${c.phys}</a>
+            <span class="text-slate-500 text-[10px]">View Physical Analysis ↗</span>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function filterComponents() { renderTable(); }
+    function setCategory(cat) {
+      currentCat = cat;
+      document.querySelectorAll('.cat-btn').forEach(btn => {
+        btn.className = btn.dataset.cat === cat ? 'cat-btn px-3 py-1.5 rounded-lg bg-cyan-600 text-white font-medium' : 'cat-btn px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white';
+      });
+      renderTable();
+    }
+
+    function openLightbox(idx) {
+      const c = COMPONENTS[idx];
+      document.getElementById('lb-title').innerText = c.name + ' (' + c.id + ')';
+      const badge = document.getElementById('lb-badge');
+      badge.innerText = c.cat;
+      badge.className = `px-2 py-0.5 rounded text-xs font-mono border bg-${c.color}-500/10 text-${c.color}-400 border-${c.color}-500/30`;
+      document.getElementById('lb-art').innerHTML = c.svg;
+      document.getElementById('lb-desc').innerText = c.desc;
+      document.getElementById('lb-energy').innerText = '+' + c.energy;
+      document.getElementById('lb-impulse').innerText = c.impulse;
+      document.getElementById('lightbox').classList.add('active');
+    }
+
+    function closeLightbox() { document.getElementById('lightbox').classList.remove('active'); }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+    renderTable();
+  </script>
+</body>
+</html>
