@@ -121,6 +121,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-110`](#lrn-110) | TASK-067 | `ui_and_tooltips` | Relic Tooltip Simplification and Metadata Removal | 2026-09-03 |
 | [`LRN-111`](#lrn-111) | TASK-069 | `tooling` | in_game_machinery_components_dashboard | 2026-09-03 |
 | [`LRN-112`](#lrn-112) | TASK-070 | `machinery` | pop_bumper_energy_tuning | 2026-09-04 |
+| [`LRN-113`](#lrn-113) | TASK-072 | `gameplay` | multi_peg_machinery | 2026-09-04 |
 
 ---
 
@@ -1915,5 +1916,21 @@ Setting base_energy in both _init and _ready initializes component properties co
 
 #### Actionable Guideline for Future Agents
 Initialize machinery component base_energy and type properties in both _init and _ready to support all test cases.
+
+---
+
+### <a id="lrn-113"></a> LRN-113: multi_peg_machinery
+- **Task:** `TASK-072`
+- **Category:** `gameplay`
+- **Created:** `2026-09-04T15:41:54.061619`
+
+#### Context & Problem
+Multi-cell polyomino machinery size variations and unified collision
+
+#### Key Insight & Learning
+Multi-peg pinball machinery uses MachineryLayoutMode.UNIFIED to spawn single centered components with dynamic radius and segment collision shapes.
+
+#### Actionable Guideline for Future Agents
+When configuring multi-peg machinery, scale impulse and visual radii according to cell counts while keeping PolyominoModuleNode under the 500-line limit.
 
 ---

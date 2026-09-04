@@ -1,6 +1,9 @@
 # TASK-072: Multi-Peg Machinery and Component Size Variations
 
-- **Status:** IN PROGRESS
+- **Status:** DONE
+- **Assigned To:** Antigravity Orchestrator
+- **Creation Date:** 2026-09-04
+- **Completion Date:** 2026-09-04
 - **Priority:** P1
 - **Category:** Gameplay / Systems
 - **Target Branch:** feature/multi-peg-machinery-size-variations
