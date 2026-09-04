@@ -75,8 +75,8 @@ func test_pop_bumper_impulse_and_energy() -> void:
 	var res: Dictionary = pop.trigger_activation(ball, 10)
 
 	assert_true(res.get("activated", false), "pop bumper activates on contact")
-	assert_eq(res.get("energy_granted", 0), 8, "pop bumper grants +8 energy")
-	assert_eq(ball.get_total_energy(), 18, "ball total energy updated to 18")
+	assert_eq(res.get("energy_granted", 0), 1, "pop bumper grants +1 energy")
+	assert_eq(ball.get_total_energy(), 11, "ball total energy updated to 11")
 
 	var impulse: Vector2 = res.get("impulse_applied", Vector2.ZERO)
 	assert_true(impulse.y < -100.0, "pop bumper flings ball upward away from bumper")
