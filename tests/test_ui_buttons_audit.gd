@@ -65,7 +65,7 @@ func test_debug_tools_column_wireup() -> void:
 	var col: Control = gc_debug.build_debug_tools_column()
 	assert_true(col != null, "debug tools column created")
 	var buttons: Array = col.find_children("*", "Button", true, false)
-	assert_eq(buttons.size(), 6, "6 buttons (toggle + 5 tools) created")
+	assert_eq(buttons.size(), 7, "7 buttons (toggle + 6 tools) created")
 	for child in buttons:
 		var btn: Button = child as Button
 		assert_true(btn != null, "child is Button: " + str(child.name))
@@ -85,6 +85,8 @@ func test_debug_tools_column_wireup() -> void:
 			var m: Control = modals.get("city_jump_modal", null) as Control
 			assert_true(m != null and m.visible, "City jump modal is visible after click")
 		elif btn.text == "Merchant":
+			btn.emit_signal("pressed")
+		elif btn.text == "All Machinery":
 			btn.emit_signal("pressed")
 
 	col.free()

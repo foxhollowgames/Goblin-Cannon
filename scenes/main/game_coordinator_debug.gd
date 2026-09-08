@@ -97,6 +97,7 @@ func build_debug_tools_column() -> Control:
 	v_box.add_child(_build_tool_button("Events", "Spawn board event", "open_debug_event_spawn_modal"))
 	v_box.add_child(_build_tool_button("Full store", "Open item catalog", "open_debug_store_modal"))
 	v_box.add_child(_build_tool_button("Go to city…", "Jump to city/wall", "open_debug_city_jump_modal"))
+	v_box.add_child(_build_tool_button("All Machinery", "Place all relic machinery permutations on board", "_on_showcase_machinery_pressed"))
 
 	# Add VBoxContainer to DebugMenuPanel
 	debug_menu_panel.add_child(v_box)
@@ -142,6 +143,10 @@ func _on_add_gold_pressed() -> void:
 func _on_shop_pressed() -> void:
 	if _coordinator_root and _coordinator_root.has_method("debug_trigger_milestone_shop"):
 		_coordinator_root.debug_trigger_milestone_shop()
+
+func _on_showcase_machinery_pressed() -> void:
+	if _coordinator_root and _coordinator_root.has_method("debug_setup_machinery_showcase_board"):
+		_coordinator_root.debug_setup_machinery_showcase_board()
 #endregion
 
 #region Debug Modal UI Creation
