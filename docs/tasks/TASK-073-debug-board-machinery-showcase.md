@@ -1,6 +1,6 @@
 # TASK-073: Debug Menu Option to Showcase All Relic Machinery Permutations and Sizes on Board
 
-- **Status:** IN_REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Gameplay / Tooling / Debug
 - **Target Branch:** `feature/debug-board-machinery-showcase`

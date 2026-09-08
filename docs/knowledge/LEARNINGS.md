@@ -122,6 +122,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-111`](#lrn-111) | TASK-069 | `tooling` | in_game_machinery_components_dashboard | 2026-09-03 |
 | [`LRN-112`](#lrn-112) | TASK-070 | `machinery` | pop_bumper_energy_tuning | 2026-09-04 |
 | [`LRN-113`](#lrn-113) | TASK-072 | `gameplay` | multi_peg_machinery | 2026-09-04 |
+| [`LRN-114`](#lrn-114) | TASK-073 | `tooling` | debug_board_machinery_showcase | 2026-09-08 |
 
 ---
 
@@ -1932,5 +1933,21 @@ Multi-peg pinball machinery uses MachineryLayoutMode.UNIFIED to spawn single cen
 
 #### Actionable Guideline for Future Agents
 When configuring multi-peg machinery, scale impulse and visual radii according to cell counts while keeping PolyominoModuleNode under the 500-line limit.
+
+---
+
+### <a id="lrn-114"></a> LRN-114: debug_board_machinery_showcase
+- **Task:** `TASK-073`
+- **Category:** `tooling`
+- **Created:** `2026-09-08T13:06:57.019031`
+
+#### Context & Problem
+Showcase all 33 machinery variants and permutations on the 15x8 board grid with detailed tooltips without bloating board.gd or leaking debug metadata to campaign relics.
+
+#### Key Insight & Learning
+Extracting showcase definitions, layout calculation, and tooltip formatting into an isolated helper class (BoardMachineryShowcase) isolates debug inspection logic and keeps board.gd well under baseline limits.
+
+#### Actionable Guideline for Future Agents
+Use dedicated showcase helper classes to build debug playfield configurations and format specialized inspection tooltips without modifying core game logic or leaking metadata to standard campaign items.
 
 ---
