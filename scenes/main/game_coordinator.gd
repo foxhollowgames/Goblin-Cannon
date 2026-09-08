@@ -406,6 +406,12 @@ func debug_trigger_wall_break_reward() -> void:
 func debug_trigger_boss_reward() -> void:
 	GameCoordinatorDebug.debug_trigger_boss_reward(self)
 
+## Debug: Clears board and populates all relic machinery permutations and sizes for inspection.
+func debug_setup_machinery_showcase_board() -> int:
+	if _board and _board.has_method("setup_machinery_showcase"):
+		return int(_board.setup_machinery_showcase())
+	return 0
+
 func _on_debug_full_store_pressed() -> void:
 	if not _game_over and not _victory and _debug_full_store_modal and _debug_full_store_modal.has_method("show_modal"):
 		_debug_full_store_modal.show_modal()

@@ -102,14 +102,9 @@ python scripts/generate_task_dashboard.py
 | [TASK-069](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-069-in-game-machinery-components-dashboard.md) | In-Game Machinery Components Dashboard | Documentation/UI/Tooling | P1 | DONE | `feature/in-game-components-dashboard` |
 | [TASK-070](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-070-pop-bumper-energy-tuning.md) | Tune Pop Bumper Energy to One Energy | Gameplay/Balance | P1 | DONE | `feature/pop-bumper-one-energy` |
 | [TASK-071](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-071-diegetic-relic-activation-categories.md) | Diegetic Relic Activation Categories and Condition Rules | Design | P1 | BACKLOG | `feature/diegetic-relic-activation-categories` |
-
-
-
-
-
-
-
-
+| [TASK-072](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-072-multi-peg-machinery-and-size-variations.md) | Multi-Peg Machinery and Component Size Variations | Gameplay / Systems | P1 | DONE | `feature/multi-peg-machinery-size-variations` |
+| [TASK-073](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-073-debug-board-machinery-showcase.md) | Debug Menu Option to Showcase All Relic Machinery Permutations and Sizes on Board | Gameplay / Tooling / Debug | P1 | IN_REVIEW | `feature/debug-board-machinery-showcase` |
+| [TASK-074](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-074-relic-machinery-trigger-safeguards-and-debounce.md) | Relic Machinery Trigger Safeguards and Debounce | Gameplay / Balance | P1 | DONE | `feature/relic-machinery-trigger-safeguards` |
 
 ---
 

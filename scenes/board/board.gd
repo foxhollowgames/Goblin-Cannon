@@ -20,13 +20,13 @@ const PolyominoModuleNode = preload("res://scenes/board/machinery/polyomino_modu
 const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
 const PolyominoGoalRewardHandler = preload("res://scenes/board/machinery/polyomino_goal_reward_handler.gd")
 const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
+const BoardMachineryShowcase = preload("res://scenes/board/machinery/board_machinery_showcase.gd")
 const BOARD_GRID_COLS: int = 15
 const BOARD_GRID_ROWS: int = 8
 const BOARD_GRID_START_X: float = 116.0
 const BOARD_GRID_START_Y: float = 200.0
 const BOARD_GRID_COL_SPACING: float = 52.0
 const BOARD_GRID_ROW_SPACING: float = 56.0
-
 const BALL_RESET_REASON_GOBLIN_GRAB: StringName = &"goblin_grab"
 const BALL_RESET_REASON_FRAGMENT_ECHO: StringName = &"fragment_echo"
 const BALL_RESET_REASON_BUFFET_FEAST: StringName = &"buffet_feast"
@@ -2775,6 +2775,8 @@ func _update_board_module_hover(mouse_pos: Vector2) -> void:
 			KeywordDatabase.hide_flyout()
 
 func _format_module_tooltip_body(item: JunkBoxItem) -> String:
+	if item != null and "custom_payload" in item and item.custom_payload is Dictionary and item.custom_payload.get("is_debug_showcase", false):
+		return BoardMachineryShowcase.format_tooltip(item)
 	var body: String = ""
 	var relic_id: StringName = StringName(item.custom_payload.get("relic_id", "")) if ("custom_payload" in item and item.custom_payload is Dictionary) else (item.module_data.module_id if item.module_data != null else &"")
 	var goal_desc: String = item.module_data.activation_requirement if (item.module_data != null and not item.module_data.activation_requirement.is_empty()) else (PolyominoRelicDatabase.get_relic_activation_requirement(relic_id) if relic_id != &"" else "")
@@ -3029,13 +3031,11 @@ func return_module_to_junk_box(instance_id: StringName, junk_box: JunkBoxData = 
 	var orig_rot: int = item.rotation_step if "rotation_step" in item else 0
 
 	unslot_module(instance_id)
-
 	var success: bool = false
 	if target_cell.x >= 0 and target_cell.y >= 0:
 		success = jb.place_item(item, target_cell, orig_rot)
 	if not success:
 		success = jb.add_item_auto(item)
-
 	if not success:
 		place_module(item, orig_grid_pos, orig_rot)
 		return false
@@ -3061,6 +3061,11 @@ func clear_all_placed_modules() -> void:
 		unslot_module(inst_id)
 	_occupied_board_cells.clear()
 	_ghost_placed_modules.clear()
+
+## Clears current board modules and populates all relic machinery permutations and sizes for inspection.
+func setup_machinery_showcase() -> int:
+	var s: GDScript = load("res://scenes/board/machinery/board_machinery_showcase.gd") as GDScript
+	return int(s.populate_showcase_on_board(self)) if s else 0
 
 ## Toggles the ghost state of a placed module.
 func set_module_ghost_state(instance_id: StringName, ghost: bool) -> void:

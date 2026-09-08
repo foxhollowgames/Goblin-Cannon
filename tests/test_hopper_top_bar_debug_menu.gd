@@ -75,11 +75,11 @@ func test_debug_menu_toggle_and_children() -> void:
 	toggle_btn.emit_signal("pressed")
 	assert_true(menu_panel.visible, "DebugMenuPanel opens (visible) after pressing toggle button")
 
-	# Verify 5 tool buttons exist inside DebugMenuPanel
+	# Verify 6 tool buttons exist inside DebugMenuPanel
 	var buttons: Array = menu_panel.find_children("*", "Button", true, false)
-	assert_eq(buttons.size(), 5, "5 debug tool buttons exist inside DebugMenuPanel")
+	assert_eq(buttons.size(), 6, "6 debug tool buttons exist inside DebugMenuPanel")
 
-	var expected_texts: Array = ["+100 Gold", "Merchant", "Events", "Full store", "Go to city…"]
+	var expected_texts: Array = ["+100 Gold", "Merchant", "Events", "Full store", "Go to city…", "All Machinery"]
 	for text in expected_texts:
 		var found: bool = false
 		for btn in buttons:
