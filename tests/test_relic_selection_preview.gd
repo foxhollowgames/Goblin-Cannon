@@ -67,15 +67,15 @@ func test_kinetic_glyph_types_and_directions() -> void:
 	begin("Kinetic glyph types and directional flow definitions")
 	var preview: RelicLayoutPreview = RelicLayoutPreview.new()
 
-	# Test Standup Target component relic
+	# Test Drop Target component relic
 	preview.setup_for_relic(&"supernova_peg")
 	var mod_bumper: PolyominoModuleData = preview.get_module_data()
 	assert_true(mod_bumper != null, "supernova_peg module exists")
 	var has_bumper: bool = false
 	for c in mod_bumper.cells:
-		if mod_bumper.get_cell_type_at(c) == PolyominoModuleData.CellType.STANDUP_TARGET:
+		if mod_bumper.get_cell_type_at(c) == PolyominoModuleData.CellType.DROP_TARGET:
 			has_bumper = true
-	assert_true(has_bumper, "supernova_peg contains standup target cell")
+	assert_true(has_bumper, "supernova_peg contains drop target cell")
 
 	# Test Spinner component relic with directional vector
 	preview.setup_for_relic(&"hyper_elastic")

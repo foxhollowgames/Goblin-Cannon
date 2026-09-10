@@ -19,18 +19,17 @@ func _assert(condition: bool, message: String) -> void:
 		errors.append(message)
 
 func run() -> void:
-	test_all_15_widgets_represented()
+	test_all_widgets_represented()
 	test_bash_toy_exclusive_to_tier_3()
 	test_even_widget_distribution()
 
-func test_all_15_widgets_represented() -> void:
+func test_all_widgets_represented() -> void:
 	var ids: Array[StringName] = PolyominoRelicDatabase.get_all_relic_ids()
 	var widget_counts: Dictionary = {}
 
 	var target_cell_types: Array[int] = [
 		CellType.POP_BUMPER,
 		CellType.DROP_TARGET,
-		CellType.STANDUP_TARGET,
 		CellType.SPINNER,
 		CellType.SCOOP_SINKHOLE,
 		CellType.BALL_LOCK,

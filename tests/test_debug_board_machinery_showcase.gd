@@ -21,7 +21,7 @@ func test_showcase_definitions_catalog() -> void:
 	begin("BoardMachineryShowcase defines complete catalog of machinery permutations")
 	var defs: Array[Dictionary] = BoardMachineryShowcase.get_all_showcase_definitions()
 	assert_gt(defs.size(), 20, "Catalog has at least 20 machinery definitions")
-	assert_eq(defs.size(), 33, "Catalog has exactly 33 machinery permutations and sizes")
+	assert_eq(defs.size(), 32, "Catalog has exactly 32 machinery permutations and sizes")
 
 	for def in defs:
 		assert_true(def.has("id"), "Definition has 'id'")
@@ -56,10 +56,10 @@ func test_showcase_board_population_and_components() -> void:
 	begin("Board.setup_machinery_showcase places all items and instantiates nodes")
 	var board: Node = BoardScript.new()
 	var placed_count: int = board.setup_machinery_showcase()
-	assert_eq(placed_count, 33, "All 33 showcase items successfully placed on board")
+	assert_eq(placed_count, 32, "All 32 showcase items successfully placed on board")
 
 	var all_placed: Array = board.get_all_placed_modules()
-	assert_eq(all_placed.size(), 33, "Board reports 33 placed modules")
+	assert_eq(all_placed.size(), 32, "Board reports 32 placed modules")
 
 	var giga_item = board.get_module_at_cell(Vector2i(0, 0))
 	assert_true(giga_item != null, "Giga Pop Bumper placed at (0,0)")

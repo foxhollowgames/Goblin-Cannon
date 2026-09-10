@@ -1,4 +1,4 @@
-﻿@tool
+@tool
 extends RefCounted
 class_name PolyominoMachineryVisuals
 ## Renders authentic pinball kinetic machinery components on CanvasItem nodes.
@@ -27,8 +27,6 @@ static func draw_component(canvas: CanvasItem, type: int, center: Vector2, dir: 
 			_draw_mana_siphon(canvas, center, r, col, alpha_mult)
 		CellType.DROP_TARGET:
 			_draw_drop_target(canvas, center, r, col, ink, alpha_mult)
-		CellType.STANDUP_TARGET:
-			_draw_standup_target(canvas, center, r, col, ink, alpha_mult)
 		CellType.SPINNER:
 			_draw_spinner(canvas, center, r, col, ink, alpha_mult)
 		CellType.ROLLOVER_SWITCH:
@@ -107,13 +105,6 @@ static func _draw_drop_target(canvas: CanvasItem, center: Vector2, r: float, col
 	canvas.draw_rect(rect.grow(-1.5), col)
 	canvas.draw_rect(rect.grow(-3.5), Color(0.92, 0.92, 0.92, a))
 	canvas.draw_rect(Rect2(center.x - r * 0.25, center.y - r * 0.25, r * 0.5, r * 0.5), col.darkened(0.2))
-
-static func _draw_standup_target(canvas: CanvasItem, center: Vector2, r: float, col: Color, ink: Color, a: float) -> void:
-	var rect := Rect2(center.x - r * 0.8, center.y - r * 0.45, r * 1.6, r * 0.9)
-	canvas.draw_rect(rect, ink)
-	canvas.draw_rect(rect.grow(-1.5), col)
-	canvas.draw_rect(rect.grow(-3.0), Color(0.95, 0.95, 0.95, a))
-	canvas.draw_circle(center, r * 0.22, col.darkened(0.3))
 
 static func _draw_spinner(canvas: CanvasItem, center: Vector2, r: float, col: Color, ink: Color, a: float) -> void:
 	canvas.draw_line(center + Vector2(-r, -r * 0.45), center + Vector2(-r, r * 0.45), ink, 3.5)

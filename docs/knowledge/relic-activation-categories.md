@@ -1,4 +1,4 @@
-﻿# Diegetic Relic Activation Categories and Physical Machinery System
+# Diegetic Relic Activation Categories and Physical Machinery System
 
 ## 1. Overview
 
@@ -24,7 +24,6 @@ The table below lists the twelve pinball mini-mission categories and their diege
 | **Tactical Rebound** | `TACTICAL_REBOUND` | Slingshot (`SLINGSHOT`), Outlane Kickback (`OUTLANE_KICKBACK`) | Solenoid arm illuminates with charged spring tension. |
 | **Launch Ramp Pot** | `LAUNCH_RAMP` | Vertical Up Kicker (`VERTICAL_UP_KICKER`) | Launch cup pot pulses with vertical trajectory arrow. |
 | **Diverter Switch** | `DIVERTER_SWITCH` | Mechanical Diverter (`MECHANICAL_DIVERTER`) | Diverter gate arm physically snaps into the opposite channel. |
-| **Standup Target Bank** | `STANDUP_BANK` | Standup Target (`STANDUP_TARGET`) | Standup faceplate glows with steady contact illumination. |
 | **Hurry-Up Frenzy** | `HURRY_UP_FRENZY` | Any Component | Module perimeter border flashes red with countdown pulse. |
 
 ---
