@@ -1,6 +1,6 @@
-﻿# TASK-086: Audit Energy Calculation and Reset Ball Energy State
+# TASK-086: Audit Energy Calculation and Reset Ball Energy State
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay
 - **Target Branch:** `feature/audit-energy-calculation-and-ball-reset`
@@ -46,8 +46,8 @@ This task audits the energy pipeline and resets ball energy state upon each cycl
 
 ## Acceptance Criteria
 
-- [ ] The energy state on each ball resets to base energy before a new drop.
-- [ ] Balls returned to the hopper do not carry over previously gained energy.
-- [ ] Energy calculation matches specified formulas without compounding accumulation.
-- [ ] Automated tests verify ball energy reset across repeated cycles.
-- [ ] All headless unit tests pass cleanly.
+- [x] The energy state on each ball resets to base energy before a new drop.
+- [x] Balls returned to the hopper do not carry over previously gained energy.
+- [x] Energy calculation matches specified formulas without compounding accumulation.
+- [x] Automated tests verify ball energy reset across repeated cycles.
+- [x] All headless unit tests pass cleanly.

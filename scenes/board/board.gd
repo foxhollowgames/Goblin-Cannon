@@ -202,6 +202,8 @@ func spawn_ball_at_start(ball: Node) -> void:
 	_ball_hit_count_this_visit[bid] = 0
 	_phantom_pegs_visited[bid] = 0
 	_splitter_triggered_this_visit[bid] = false
+	if ball.has_method("reset_energy_to_base"):
+		ball.reset_energy_to_base()
 	if ball.get_parent() == _balls_container:
 		if ball.has_method("reset_split_for_new_visit"):
 			ball.reset_split_for_new_visit()
@@ -1162,6 +1164,8 @@ func flush_tick(sim_tick: int) -> void:
 			_phantom_pegs_visited.erase(ball_id)
 			_ball_energized_pegs_hit.erase(ball_id)
 			_splitter_triggered_this_visit.erase(ball_id)
+			if b.has_method("reset_energy_to_base"):
+				b.reset_energy_to_base()
 			ball_exited_board.emit(b, REASON_BOTTOM)
 		elif pos.y > OFF_SCREEN_Y or pos.x < OFF_SCREEN_X_LEFT or pos.x > OFF_SCREEN_X_RIGHT:
 			var ball_id: int = b.get_ball_id() if b.has_method("get_ball_id") else 0
@@ -1170,6 +1174,8 @@ func flush_tick(sim_tick: int) -> void:
 			_phantom_pegs_visited.erase(ball_id)
 			_ball_energized_pegs_hit.erase(ball_id)
 			_splitter_triggered_this_visit.erase(ball_id)
+			if b.has_method("reset_energy_to_base"):
+				b.reset_energy_to_base()
 			ball_exited_board.emit(b, REASON_OFF_SCREEN)
 	_update_constellation_laser_visual_state()
 

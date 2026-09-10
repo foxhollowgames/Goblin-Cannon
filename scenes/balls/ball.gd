@@ -46,7 +46,7 @@ static var _volatile_glow_white_tex: ImageTexture
 const PHANTOM_TRAIL_MIN_SPEED_PX: float = 30.0
 
 func _ready() -> void:
-	_total_energy_display = Constants.legacy_display_energy_to_current(20)
+	reset_energy_to_base()
 	contact_monitor = true
 	max_contacts_reported = 8
 	_board_material = PhysicsMaterial.new()
@@ -147,6 +147,23 @@ func set_total_energy_display(amount: int) -> void:
 func get_total_energy() -> int:
 	return _total_energy_display
 
+func get_base_energy() -> int:
+	if _definition is BallDefinition:
+		return (_definition as BallDefinition).base_energy
+	return Constants.legacy_display_energy_to_current(20)
+
+func reset_energy_to_base() -> void:
+	_total_energy_display = get_base_energy()
+	_consecutive_vertical_bounces = 0
+	_was_in_vertical_bounce = false
+	if _split_spin_elapsed >= 0.0:
+		_split_spin_elapsed = -1.0
+		angular_velocity = 0.0
+		rotation = 0.0
+		lock_rotation = true
+	reset_gas_buff_state_for_board_visit()
+	queue_redraw()
+
 func get_definition() -> Resource:
 	return _definition
 
@@ -173,7 +190,7 @@ func set_definition(def: Resource) -> void:
 		_free_phantom_trail_particles()
 	elif _phantom_trail_particles == null:
 		_create_phantom_trail_particles()
-	reset_gas_buff_state_for_board_visit()
+	reset_energy_to_base()
 	if _is_phantom:
 		collision_mask = 2
 		modulate = Color(1.0, 1.0, 1.0, 0.7)
