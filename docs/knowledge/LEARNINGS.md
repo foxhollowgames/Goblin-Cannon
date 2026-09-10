@@ -133,6 +133,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-122`](#lrn-122) | TASK-076 | `ui` | Relic Tooltip Formatting | 2026-09-09 |
 | [`LRN-123`](#lrn-123) | TASK-068 | `ui` | Relic Tier Visual Styling Architecture | 2026-09-09 |
 | [`LRN-124`](#lrn-124) | TASK-082 | `UI` | Relic Tooltip Headers and Phrasing | 2026-09-10 |
+| [`LRN-125`](#lrn-125) | TASK-083 | `machinery` | wire gate holding cup | 2026-09-10 |
 
 ---
 
@@ -2119,5 +2120,21 @@ Direct terms like Trigger and Effect provide cleaner player communication, and n
 
 #### Actionable Guideline for Future Agents
 Always format relic tooltips with Trigger and Effect headers, and avoid narrative jargon in mechanical descriptions.
+
+---
+
+### <a id="lrn-125"></a> LRN-125: wire gate holding cup
+- **Task:** `TASK-083`
+- **Category:** `machinery`
+- **Created:** `2026-09-10T13:55:12.014912`
+
+#### Context & Problem
+Reworking wire gate to serve as component holding cup with activation requirement gate control
+
+#### Key Insight & Learning
+Connecting wire gate release directly to module activation requirements allows multi-cell components to store balls safely during play without pinning them to a single point, then cascade release upon goal satisfaction
+
+#### Actionable Guideline for Future Agents
+Always constrain retained balls using soft boundary checks rather than fixing coordinates to a single point, and link gate opening to module goal completion
 
 ---
