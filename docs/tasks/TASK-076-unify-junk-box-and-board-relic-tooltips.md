@@ -1,6 +1,6 @@
 # TASK-076: Unify Junk Box and Board Relic Hover Tooltips
 
-- **Status:** REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Systems
 - **Target Branch:** `feature/unify-junk-box-and-board-relic-tooltips`

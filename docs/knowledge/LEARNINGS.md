@@ -130,6 +130,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-119`](#lrn-119) | TASK-081 | `systems` | Directional Deflector Machinery Removal | 2026-09-09 |
 | [`LRN-120`](#lrn-120) | TASK-080 | `machinery` | Wire Gate Downward Retention and Cascade Release | 2026-09-09 |
 | [`LRN-121`](#lrn-121) | TASK-075 | `ui_and_tooltips` | Campaign 1 Relic Hover Tooltips Audit | 2026-09-09 |
+| [`LRN-122`](#lrn-122) | TASK-076 | `ui` | Relic Tooltip Formatting | 2026-09-09 |
 
 ---
 
@@ -2068,5 +2069,21 @@ Ensuring consistent activation language and verifying all relics via automated i
 
 #### Actionable Guideline for Future Agents
 Always audit relic tooltips with comprehensive test loops that assert non-empty, component-aligned activation text across all database items.
+
+---
+
+### <a id="lrn-122"></a> LRN-122: Relic Tooltip Formatting
+- **Task:** `TASK-076`
+- **Category:** `ui`
+- **Created:** `2026-09-09T19:07:19.771281`
+
+#### Context & Problem
+Unifying hover tooltips between board modules and the Junk Box inventory
+
+#### Key Insight & Learning
+Using a shared formatter in PolyominoRelicDatabase guarantees identical styling and content without code duplication.
+
+#### Actionable Guideline for Future Agents
+Format relic tooltips through PolyominoRelicDatabase.format_relic_tooltip to maintain UI consistency across panels.
 
 ---
