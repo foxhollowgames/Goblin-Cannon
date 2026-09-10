@@ -1,6 +1,6 @@
 # TASK-083: Rework Wire Gate for Component Holding Cups
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay
 - **Target Branch:** `feature/wire-gate-component-holding-cup`
@@ -53,10 +53,10 @@ When the component meets the activation requirements, the wire gate opens and re
 
 ## Acceptance Criteria
 
-- [ ] Wire gates attach to the exit boundaries of multi-cell component cups.
-- [ ] Balls collect inside the component cup without pinning to a single peg.
-- [ ] The wire gate prevents balls from leaving until the component meets its activation requirements.
-- [ ] The wire gate opens and releases all trapped balls when the component meets its requirements.
-- [ ] Clear visual indicators show the closed and open gate states.
-- [ ] Automated headless unit tests pass cleanly.
-- [ ] All modified source files remain under the 500-line project threshold.
+- [x] Wire gates attach to the exit boundaries of multi-cell component cups.
+- [x] Balls collect inside the component cup without pinning to a single peg.
+- [x] The wire gate prevents balls from leaving until the component meets its activation requirements.
+- [x] The wire gate opens and releases all trapped balls when the component meets its requirements.
+- [x] Clear visual indicators show the closed and open gate states.
+- [x] Automated headless unit tests pass cleanly.
+- [x] All modified source files remain under the 500-line project threshold.
