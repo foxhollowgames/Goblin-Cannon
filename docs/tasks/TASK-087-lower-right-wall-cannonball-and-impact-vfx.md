@@ -1,6 +1,6 @@
 # TASK-087: Lower Right Battlefield Wall Sprite, Cannonball Projectile, and Impact VFX
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Visuals / VFX
 - **Target Branch:** `feature/lower-right-wall-cannonball-impact-vfx`
@@ -52,10 +52,10 @@ When the cannonball hits the wall, an impact effect plays and damages the wall.
 
 ## Acceptance Criteria
 
-- [ ] A wall sprite displays opposite the cannon in the lower right battlefield panel.
-- [ ] The cannonball uses a sprite texture asset instead of procedural code drawing.
-- [ ] The cannonball travels horizontally from the cannon muzzle to the wall.
-- [ ] Impact VFX play when the cannonball collides with the wall.
-- [ ] Wall hit flash and damage reactions trigger in sync with projectile impact.
-- [ ] Automated headless unit tests verify visual instantiation and event flow.
-- [ ] Source files remain under the 500-line project limit.
+- [x] A wall sprite displays opposite the cannon in the lower right battlefield panel.
+- [x] The cannonball uses a sprite texture asset instead of procedural code drawing.
+- [x] The cannonball travels horizontally from the cannon muzzle to the wall.
+- [x] Impact VFX play when the cannonball collides with the wall.
+- [x] Wall hit flash and damage reactions trigger in sync with projectile impact.
+- [x] Automated headless unit tests verify visual instantiation and event flow.
+- [x] Source files remain under the 500-line project limit.
