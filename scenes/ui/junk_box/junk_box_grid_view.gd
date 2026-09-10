@@ -6,6 +6,7 @@ const PolyominoMachineryVisuals = preload("res://scenes/board/machinery/polyomin
 const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 const JunkBoxData = preload("res://resources/inventory/junk_box_data.gd")
 const JunkBoxDragController = preload("res://scenes/ui/junk_box/junk_box_drag_controller.gd")
+const RelicTierVisuals = preload("res://scenes/ui/relic_tier_visuals.gd")
 
 signal cell_clicked(cell_pos: Vector2i)
 signal item_clicked(item: JunkBoxItem)
@@ -175,55 +176,20 @@ func _draw() -> void:
 func _draw_item(item: JunkBoxItem, being_dragged: bool = false) -> void:
 	if item == null:
 		return
-	var tier: int = item.module_data.tier if item.module_data != null else 0
-	var color: Color = Constants.shop_rarity_accent_color(tier)
-	var bg_color := Color(color.r, color.g, color.b, 0.25)
-	var wall_highlight: Color = color.lightened(0.2)
-	var ink_border: Color = DARK_INK_BORDER
-
-	if being_dragged:
-		var alpha_mult: float = 0.35
-		bg_color.a *= alpha_mult
-		color.a *= alpha_mult
-		wall_highlight.a *= alpha_mult
-		ink_border.a *= alpha_mult
-
+	var tier: int = item.module_data.tier if item.module_data != null else 1
+	var color: Color = RelicTierVisuals.get_tier_color(tier)
 	var occupied: Array[Vector2i] = item.get_occupied_cells()
 	if occupied.is_empty():
 		return
 
-	for c in occupied:
-		var rect: Rect2 = Rect2(c.x * CELL_SIZE + CELL_PAD, c.y * CELL_SIZE + CELL_PAD, CELL_SIZE - CELL_PAD * 2, CELL_SIZE - CELL_PAD * 2)
-		draw_rect(rect, bg_color)
-
-	for c in occupied:
-		var cell_origin := Vector2(float(c.x) * float(CELL_SIZE), float(c.y) * float(CELL_SIZE))
-		if occupied.has(Vector2i(c.x + 1, c.y)):
-			var p1 := Vector2(cell_origin.x + float(CELL_SIZE), cell_origin.y)
-			var p2 := Vector2(cell_origin.x + float(CELL_SIZE), cell_origin.y + float(CELL_SIZE))
-			draw_line(p1, p2, ink_border, 3.0)
-			draw_line(p1, p2, Color(color.r, color.g, color.b, 0.5 * (0.35 if being_dragged else 1.0)), 1.5)
-		if occupied.has(Vector2i(c.x, c.y + 1)):
-			var p1 := Vector2(cell_origin.x, cell_origin.y + float(CELL_SIZE))
-			var p2 := Vector2(cell_origin.x + float(CELL_SIZE), cell_origin.y + float(CELL_SIZE))
-			draw_line(p1, p2, ink_border, 3.0)
-			draw_line(p1, p2, Color(color.r, color.g, color.b, 0.5 * (0.35 if being_dragged else 1.0)), 1.5)
+	var cell_sz := Vector2(float(CELL_SIZE), float(CELL_SIZE))
+	RelicTierVisuals.draw_cell_backgrounds(self, occupied, cell_sz, Vector2.ZERO, tier, being_dragged)
 
 	if item.module_data != null:
 		var segments: Array[Dictionary] = item.module_data.get_solid_edge_segments(item.rotation_step)
-		var offset: Vector2 = Vector2(item.grid_position) + Vector2(0.5, 0.5)
-		for seg in segments:
-			var p1_l: Vector2 = seg["p1"]
-			var p2_l: Vector2 = seg["p2"]
-			var p1: Vector2 = (p1_l + offset) * float(CELL_SIZE)
-			var p2: Vector2 = (p2_l + offset) * float(CELL_SIZE)
-			var is_internal: bool = seg.get("is_internal", false)
-			if is_internal:
-				draw_line(p1, p2, ink_border, 3.0)
-				draw_line(p1, p2, Color(0.3, 0.8, 1.0, 0.8 * (0.35 if being_dragged else 1.0)), 1.5)
-			else:
-				draw_line(p1, p2, ink_border, 4.0)
-				draw_line(p1, p2, wall_highlight, 2.0)
+		var offset_px: Vector2 = (Vector2(item.grid_position) + Vector2(0.5, 0.5)) * float(CELL_SIZE)
+		RelicTierVisuals.draw_tier_frame(self, segments, cell_sz, offset_px, tier, being_dragged)
+		RelicTierVisuals.draw_tier_corner_accents(self, occupied, cell_sz, Vector2.ZERO, tier, being_dragged)
 
 	if item.module_data != null:
 		var alpha_m: float = 0.35 if being_dragged else 1.0

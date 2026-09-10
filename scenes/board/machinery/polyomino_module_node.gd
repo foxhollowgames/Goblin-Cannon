@@ -25,6 +25,7 @@ const CaptiveBallScript = preload("res://scenes/board/machinery/captive_ball.gd"
 const MechanicalDiverterScript = preload("res://scenes/board/machinery/mechanical_diverter.gd")
 const VerticalUpKickerScript = preload("res://scenes/board/machinery/vertical_up_kicker.gd")
 const BashToyScript = preload("res://scenes/board/machinery/bash_toy.gd")
+const RelicTierVisuals = preload("res://scenes/ui/relic_tier_visuals.gd")
 
 const GoalArchetype = PolyominoModuleData.GoalArchetype
 const RewardType = PolyominoModuleData.RewardType
@@ -68,7 +69,7 @@ func setup_module(p_item: Resource, p_grid_pos: Vector2i, p_rotation: int = 0) -
 		module_data.cells = [Vector2i.ZERO]
 
 	var tier: int = module_data.tier
-	_accent_color = Constants.shop_rarity_accent_color(tier)
+	_accent_color = RelicTierVisuals.get_tier_color(tier)
 	reset_goal_state()
 	_rebuild_components()
 	queue_redraw()
@@ -412,45 +413,30 @@ func _draw() -> void:
 	if _anchored_cells.is_empty():
 		return
 
-	var half_w: float = CELL_WIDTH * 0.5
-	var half_h: float = CELL_HEIGHT * 0.5
+	var tier: int = module_data.tier if module_data != null else 1
+	var cell_sz := Vector2(CELL_WIDTH, CELL_HEIGHT)
+	var origin_offset := Vector2(-CELL_WIDTH * 0.5, -CELL_HEIGHT * 0.5)
 
-	# Base background color or flashing goal aura
-	var bg_col := Color(_accent_color.r, _accent_color.g, _accent_color.b, 0.15)
+	var bg_override := Color(0, 0, 0, 0)
 	if _goal_flash_timer > 0.0:
 		var flash_alpha: float = (_goal_flash_timer / 0.6) * 0.45
-		bg_col = Color(1.0, 0.85, 0.2, flash_alpha)
+		bg_override = Color(1.0, 0.85, 0.2, flash_alpha)
 	elif _hurry_up_active:
 		var pulse: float = 0.15 + 0.15 * sin(Time.get_ticks_msec() * 0.012)
-		bg_col = Color(1.0, 0.3, 0.2, pulse)
+		bg_override = Color(1.0, 0.3, 0.2, pulse)
 
-	var wall_ink_col := Color(0.08, 0.05, 0.12, 0.95)
-	var wall_highlight_col := _accent_color.lightened(0.2)
+	var wall_highlight_override := Color(0, 0, 0, 0)
 	if _goal_flash_timer > 0.0:
-		wall_highlight_col = Color(1.0, 0.95, 0.5, 1.0)
+		wall_highlight_override = Color(1.0, 0.95, 0.5, 1.0)
 
-	# 1. Draw transparent background for all cells
-	for c in _anchored_cells:
-		var center := Vector2(float(c.x) * CELL_WIDTH, float(c.y) * CELL_HEIGHT)
-		var cell_rect := Rect2(center.x - half_w, center.y - half_h, CELL_WIDTH, CELL_HEIGHT)
-		draw_rect(cell_rect, bg_col)
+	# 1. Draw cell backgrounds with tier tint
+	RelicTierVisuals.draw_cell_backgrounds(self, _anchored_cells, cell_sz, origin_offset, tier, false, bg_override)
 
-	# 2. Draw wall enclosures and internal dividing lines
+	# 2. Draw wall enclosures and corner accents with tier styling
 	if module_data != null:
 		var segments: Array[Dictionary] = module_data.get_solid_edge_segments(rotation_step)
-		for seg in segments:
-			var p1_l: Vector2 = seg["p1"]
-			var p2_l: Vector2 = seg["p2"]
-			var p1_px := Vector2(p1_l.x * CELL_WIDTH, p1_l.y * CELL_HEIGHT)
-			var p2_px := Vector2(p2_l.x * CELL_WIDTH, p2_l.y * CELL_HEIGHT)
-			var is_internal: bool = seg.get("is_internal", false)
-
-			if is_internal:
-				draw_line(p1_px, p2_px, wall_ink_col, 3.0)
-				draw_line(p1_px, p2_px, Color(0.3, 0.8, 1.0, 0.8), 1.5)
-			else:
-				draw_line(p1_px, p2_px, wall_ink_col, 4.0)
-				draw_line(p1_px, p2_px, wall_highlight_col, 2.0)
+		RelicTierVisuals.draw_tier_frame(self, segments, cell_sz, Vector2.ZERO, tier, false, wall_highlight_override)
+		RelicTierVisuals.draw_tier_corner_accents(self, _anchored_cells, cell_sz, origin_offset, tier, false)
 	# 3. Draw live charge indicators and goal status markers on components
 	if module_data != null and not is_ghost:
 		var th: int = get_activation_threshold()

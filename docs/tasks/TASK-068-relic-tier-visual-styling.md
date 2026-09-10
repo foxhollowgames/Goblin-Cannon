@@ -1,6 +1,6 @@
 # TASK-068: Visual Representation of Relic Tiers Through Styling
 
-- **Status:** READY
+- **Status:** IN_REVIEW
 - **Priority:** P2
 - **Category:** UI / Visuals / Art
 - **Target Branch:** `feature/relic-tier-visual-styling`
@@ -33,8 +33,8 @@ Each relic tier must have distinct visual styling.
 
 ## Acceptance Criteria
 
-- [ ] Visual styling rules are defined for each relic tier.
-- [ ] Relic modules display tier styling on the board and in the Junk Box.
-- [ ] Relic draft cards and shop views reflect the tier styling.
-- [ ] Unit tests verify tier style mapping for relic data resources.
-- [ ] All modified source files remain under 500 lines.
+- [x] Visual styling rules are defined for each relic tier.
+- [x] Relic modules display tier styling on the board and in the Junk Box.
+- [x] Relic draft cards and shop views reflect the tier styling.
+- [x] Unit tests verify tier style mapping for relic data resources.
+- [x] All modified source files remain under 500 lines.

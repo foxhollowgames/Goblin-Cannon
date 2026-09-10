@@ -6,6 +6,8 @@ signal draft_skipped
 
 const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
 const RelicLayoutPreview = preload("res://scenes/rewards/relic_layout_preview.gd")
+const RelicTierVisuals = preload("res://scenes/ui/relic_tier_visuals.gd")
+const RarityShapeMarker = preload("res://scenes/rewards/rarity_shape_marker.gd")
 
 var _picks: Array = []
 var _show_skip: bool = false
@@ -176,6 +178,11 @@ func show_draft(picks: Array) -> bool:
 func _make_card(pick: Resource, index: int) -> Control:
 	var name_str: String = pick.get("display_name") if pick else "Upgrade"
 	var desc_str: String = pick.get("description") if pick else ""
+	var upgrade_id: StringName = StringName(pick.get("upgrade_id")) if (pick and "upgrade_id" in pick) else &""
+	var is_relic: bool = PolyominoRelicDatabase.has_relic_definition(upgrade_id)
+	var tier: int = PolyominoRelicDatabase.get_relic_tier(upgrade_id) if is_relic else 1
+	var style_info: Dictionary = RelicTierVisuals.get_tier_style(tier)
+
 	var panel: PanelContainer = PanelContainer.new()
 	panel.custom_minimum_size = Vector2(210, 290)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -183,11 +190,12 @@ func _make_card(pick: Resource, index: int) -> Control:
 	panel.mouse_filter = Control.MOUSE_FILTER_STOP
 	var style: StyleBoxFlat = StyleBoxFlat.new()
 	style.bg_color = Color(0.1, 0.06, 0.14, 1)
-	style.border_width_left = 3
-	style.border_width_right = 3
-	style.border_width_top = 3
-	style.border_width_bottom = 3
-	style.border_color = Color(0.7, 0.4, 0.2, 1)
+	var border_w: int = int(round(style_info["border_width"])) if is_relic else 3
+	style.border_width_left = border_w
+	style.border_width_right = border_w
+	style.border_width_top = border_w
+	style.border_width_bottom = border_w
+	style.border_color = style_info["accent_color"] if is_relic else Color(0.7, 0.4, 0.2, 1)
 	style.corner_radius_top_left = 6
 	style.corner_radius_top_right = 6
 	style.corner_radius_bottom_left = 6
@@ -198,15 +206,25 @@ func _make_card(pick: Resource, index: int) -> Control:
 	card_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	card_vbox.add_theme_constant_override("separation", 10)
 	panel.add_child(card_vbox)
+
+	if is_relic:
+		var marker: RarityShapeMarker = RarityShapeMarker.new()
+		marker.custom_minimum_size = Vector2(16, 16)
+		marker.set_rarity(int(style_info["badge_shape"]))
+		marker.shape_color = style_info["accent_color"]
+		marker.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var marker_center := CenterContainer.new()
+		marker_center.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		marker_center.add_child(marker)
+		card_vbox.add_child(marker_center)
+
 	var name_label: Label = Label.new()
 	name_label.text = name_str
 	name_label.add_theme_font_size_override("font_size", 20)
-	name_label.add_theme_color_override("font_color", Color(0.95, 0.75, 0.4, 1))
+	name_label.add_theme_color_override("font_color", style_info["highlight_color"] if is_relic else Color(0.95, 0.75, 0.4, 1))
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	card_vbox.add_child(name_label)
-
-	var upgrade_id: StringName = StringName(pick.get("upgrade_id")) if (pick and "upgrade_id" in pick) else &""
 	if PolyominoRelicDatabase.has_relic_definition(upgrade_id):
 		var preview: RelicLayoutPreview = RelicLayoutPreview.new()
 		preview.setup_for_relic(upgrade_id)
