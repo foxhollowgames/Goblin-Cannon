@@ -6,6 +6,8 @@ class_name PolyominoDiegeticRenderer
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
 const DropTargetScript = preload("res://scenes/board/machinery/drop_target.gd")
 const RolloverSwitchScript = preload("res://scenes/board/machinery/rollover_switch.gd")
+const WireGateScript = preload("res://scenes/board/machinery/wire_gate.gd")
+
 
 const GoalArchetype = PolyominoModuleData.GoalArchetype
 
@@ -114,6 +116,21 @@ static func draw_module(canvas: CanvasItem, module_node: Node2D, module_data: Po
 					if module_node._lock_count > 0:
 						canvas.draw_circle(c_pos, 7.0, Color(0.85, 0.95, 1.0, 0.95))
 						canvas.draw_arc(c_pos, 9.0, 0, TAU, 16, Color(0.3, 0.8, 1.0, 0.9), 2.0)
+
+				PolyominoModuleData.CellType.WIRE_GATE:
+					if comp_item is WireGateScript:
+						var gate_ref = comp_item
+						var cap: int = gate_ref.max_capacity
+						var filled: int = gate_ref.retained_balls.size()
+						for p_idx in range(cap):
+							var pip_ang: float = -PI * 0.5 + TAU * (float(p_idx) / float(cap))
+							var pip_p: Vector2 = c_pos + Vector2(cos(pip_ang), sin(pip_ang)) * (c_rad + 4.0)
+							if p_idx < filled:
+								canvas.draw_circle(pip_p, 3.0, Color(1.0, 0.9, 0.2, 0.95))
+							else:
+								canvas.draw_circle(pip_p, 2.0, Color(0.3, 0.35, 0.4, 0.6))
+						if gate_ref.is_open:
+							canvas.draw_arc(c_pos, c_rad + 3.0, 0, TAU, 16, Color(0.3, 0.95, 0.4, 0.8), 2.0)
 
 		# Sequential route specific pulsing guidance
 		if module_data.goal_type == GoalArchetype.SEQUENCE_ROUTE:

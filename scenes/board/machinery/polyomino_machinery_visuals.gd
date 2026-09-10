@@ -49,6 +49,8 @@ static func draw_component(canvas: CanvasItem, type: int, center: Vector2, dir: 
 			_draw_diverter(canvas, center, dir, r, col, ink, alpha_mult)
 		CellType.VERTICAL_UP_KICKER:
 			_draw_vuk(canvas, center, dir, r, col, ink, alpha_mult)
+		CellType.WIRE_GATE:
+			_draw_wire_gate(canvas, center, dir, r, col, ink, alpha_mult)
 		_:
 			canvas.draw_circle(center, r * 0.5, ink)
 			canvas.draw_circle(center, r * 0.35, col)
@@ -221,4 +223,20 @@ static func _draw_vuk(canvas: CanvasItem, center: Vector2, dir: Vector2, r: floa
 	var dir_norm: Vector2 = dir.normalized() if dir != Vector2.ZERO else Vector2.UP
 	canvas.draw_line(center, center + dir_norm * (r * 1.2), ink, 4.5)
 	canvas.draw_line(center, center + dir_norm * (r * 1.2), col.lightened(0.3), 2.5)
+
+static func _draw_wire_gate(canvas: CanvasItem, center: Vector2, dir: Vector2, r: float, col: Color, ink: Color, a: float) -> void:
+	canvas.draw_circle(center, r, ink)
+	canvas.draw_circle(center, r - 1.5, col.darkened(0.5))
+	canvas.draw_arc(center, r, 0, TAU, 24, col, 2.0)
+	var gate_dir: Vector2 = dir.normalized() if dir != Vector2.ZERO else Vector2.DOWN
+	var perp: Vector2 = Vector2(-gate_dir.y, gate_dir.x)
+	var post_a: Vector2 = center + perp * (r * 0.75)
+	var post_b: Vector2 = center - perp * (r * 0.75)
+	canvas.draw_circle(post_a, 3.5, ink)
+	canvas.draw_circle(post_a, 2.5, Color(0.85, 0.85, 0.9, a))
+	canvas.draw_circle(post_b, 3.5, ink)
+	canvas.draw_circle(post_b, 2.5, Color(0.85, 0.85, 0.9, a))
+	canvas.draw_line(post_a, post_b, ink, 4.0)
+	canvas.draw_line(post_a, post_b, Color(1.0, 0.85, 0.2, a), 2.5)
+
 

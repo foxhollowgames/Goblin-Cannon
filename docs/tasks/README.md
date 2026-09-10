@@ -110,7 +110,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-077](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-077-remove-standup-target-machinery.md) | Remove Standup Target Machinery Component from the Game | Systems / Cleanup | P1 | DONE | `feature/remove-standup-target-machinery` |
 | [TASK-078](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-078-remove-outlane-kickback-machinery.md) | Remove Outlane Kickback Machinery Component from the Game | Systems / Cleanup | P1 | DONE | `feature/remove-outlane-kickback-machinery` |
 | [TASK-079](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-079-remove-mana-siphon-component.md) | Remove Mana Siphon as a Standard Machinery Component | Systems / Cleanup | P1 | DONE | `feature/remove-mana-siphon-component` |
-| [TASK-080](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-080-rework-wire-gate-ball-retention.md) | Rework Wire Gate to Retain Downward Falling Balls and Support Retentive Holding Cups | Systems / Gameplay | P1 | READY | `feature/rework-wire-gate-ball-retention` |
+| [TASK-080](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-080-rework-wire-gate-ball-retention.md) | Rework Wire Gate to Retain Downward Falling Balls and Support Retentive Holding Cups | Systems / Gameplay | P1 | REVIEW | `feature/rework-wire-gate-ball-retention` |
 | [TASK-081](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-081-remove-directional-deflector-machinery.md) | Remove Directional Deflector Machinery Component from the Game | Systems / Cleanup | P1 | DONE | `feature/remove-directional-deflector-machinery` |
 
 ---
