@@ -134,6 +134,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-123`](#lrn-123) | TASK-068 | `ui` | Relic Tier Visual Styling Architecture | 2026-09-09 |
 | [`LRN-124`](#lrn-124) | TASK-082 | `UI` | Relic Tooltip Headers and Phrasing | 2026-09-10 |
 | [`LRN-125`](#lrn-125) | TASK-083 | `machinery` | wire gate holding cup | 2026-09-10 |
+| [`LRN-126`](#lrn-126) | TASK-084 | `Systems` | Rename Scoop Sinkhole to Ball Trap | 2026-09-10 |
 
 ---
 
@@ -2136,5 +2137,21 @@ Connecting wire gate release directly to module activation requirements allows m
 
 #### Actionable Guideline for Future Agents
 Always constrain retained balls using soft boundary checks rather than fixing coordinates to a single point, and link gate opening to module goal completion
+
+---
+
+### <a id="lrn-126"></a> LRN-126: Rename Scoop Sinkhole to Ball Trap
+- **Task:** `TASK-084`
+- **Category:** `Systems`
+- **Created:** `2026-09-10T14:03:29.011804`
+
+#### Context & Problem
+Renamed ScoopSinkhole machinery to BallTrap to simplify pinball terminology for players
+
+#### Key Insight & Learning
+When renaming a global Godot class with class_name, update .godot/global_script_class_cache.cfg or use script preloads to prevent parse errors across test runners
+
+#### Actionable Guideline for Future Agents
+Keep backwards compatibility aliases when renaming CellType enum members or machinery classes
 
 ---
