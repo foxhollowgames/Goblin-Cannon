@@ -3,7 +3,6 @@ extends "res://tests/test_base.gd"
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
 const CellType = PolyominoModuleData.CellType
 
-const StandupTargetScript = preload("res://scenes/board/machinery/standup_target.gd")
 const SpinnerScript = preload("res://scenes/board/machinery/spinner.gd")
 const OrbitLoopScript = preload("res://scenes/board/machinery/orbit_loop.gd")
 const CaptiveBallScript = preload("res://scenes/board/machinery/captive_ball.gd")
@@ -23,7 +22,6 @@ func _init() -> void:
 
 func run() -> void:
 	test_component_instantiation()
-	test_standup_target_activation()
 	test_spinner_activation()
 	test_orbit_loop_activation()
 	test_captive_ball_activation()
@@ -35,11 +33,6 @@ func run() -> void:
 
 func test_component_instantiation() -> void:
 	begin("component_instantiation")
-	var standup: Node2D = StandupTargetScript.new() as Node2D
-	autofree(standup)
-	assert_not_null_val(standup, "StandupTarget instantiated")
-	assert_false(standup.get("is_permeable"), "StandupTarget is solid / non-permeable")
-
 	var spinner: Node2D = SpinnerScript.new() as Node2D
 	autofree(spinner)
 	assert_not_null_val(spinner, "Spinner instantiated")
@@ -59,23 +52,6 @@ func test_component_instantiation() -> void:
 	autofree(bash)
 	assert_not_null_val(bash, "BashToy instantiated")
 	assert_false(bash.get("is_permeable"), "BashToy is solid")
-
-func test_standup_target_activation() -> void:
-	begin("standup_target_activation")
-	var target: Node2D = StandupTargetScript.new() as Node2D
-	autofree(target)
-	var hit_emitted: Array = [false]
-	target.connect("target_hit", func(_n: Node, _b: Node): hit_emitted[0] = true)
-
-	var dummy_ball: MockBall = MockBall.new()
-	autofree(dummy_ball)
-	dummy_ball.position = Vector2(0, -10)
-
-	var res: Dictionary = target.trigger_activation(dummy_ball, 1)
-	assert_true(res.get("activated", false), "Standup target activated")
-	assert_true(hit_emitted[0], "target_hit signal emitted")
-	assert_eq(target.get("hit_count"), 1, "hit_count incremented to 1")
-	assert_gt(dummy_ball.peg_energy, 0, "Ball received energy from standup target")
 
 func test_spinner_activation() -> void:
 	begin("spinner_activation")
@@ -178,7 +154,7 @@ func test_spring_and_spark_process_decay() -> void:
 
 func test_cooldown_suppression() -> void:
 	begin("cooldown_suppression")
-	var target: Node2D = StandupTargetScript.new() as Node2D
+	var target: Node2D = SpinnerScript.new() as Node2D
 	autofree(target)
 	var dummy_ball: MockBall = MockBall.new()
 	autofree(dummy_ball)
@@ -194,11 +170,6 @@ func test_polyomino_module_node_factory() -> void:
 	begin("polyomino_module_node_factory")
 	var node: PolyominoModuleNode = PolyominoModuleNodeScript.new() as PolyominoModuleNode
 	autofree(node)
-
-	var standup = node._create_component_for_type(CellType.STANDUP_TARGET)
-	autofree(standup)
-	assert_not_null_val(standup, "Factory produces standup target")
-	assert_true(is_instance_of(standup, StandupTargetScript), "Standup target matches StandupTargetScript")
 
 	var spinner = node._create_component_for_type(CellType.SPINNER)
 	autofree(spinner)

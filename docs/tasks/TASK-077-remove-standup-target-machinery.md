@@ -1,6 +1,6 @@
 # TASK-077: Remove Standup Target Machinery Component from the Game
 
-- **Status:** READY
+- **Status:** REVIEW
 - **Priority:** P1
 - **Category:** Systems / Cleanup
 - **Target Branch:** `feature/remove-standup-target-machinery`
@@ -38,9 +38,9 @@ Replace existing standup target relics with clearer top-down physical components
 
 ## Acceptance Criteria
 
-- [ ] `standup_target.gd` is removed from the codebase.
-- [ ] Standup targets no longer appear in the machinery showcase or relics.
-- [ ] All relics using standup targets migrate to other physical machinery components.
-- [ ] Visual rendering and diegetic code no longer reference standup targets.
-- [ ] Headless unit tests pass cleanly.
-- [ ] All modified source files remain under 500 lines.
+- [x] `standup_target.gd` is removed from the codebase.
+- [x] Standup targets no longer appear in the machinery showcase or relics.
+- [x] All relics using standup targets migrate to other physical machinery components.
+- [x] Visual rendering and diegetic code no longer reference standup targets.
+- [x] Headless unit tests pass cleanly.
+- [x] All modified source files remain under 500 lines.

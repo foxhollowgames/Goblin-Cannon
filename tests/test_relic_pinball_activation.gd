@@ -18,7 +18,6 @@ func run() -> void:
 	test_all_database_relics_expose_activation_requirements()
 	test_pop_bumper_hit_accumulation_and_trigger()
 	test_drop_target_hit_accumulation_and_trigger()
-	test_standup_target_hit_accumulation()
 	test_spinner_hit_accumulation()
 	test_rollover_switch_hit_accumulation()
 	test_junk_box_tooltip_exposes_activation_and_effect()
@@ -126,30 +125,6 @@ func test_drop_target_hit_accumulation_and_trigger() -> void:
 
 	dummy_ball.free()
 	node.free()
-
-func test_standup_target_hit_accumulation() -> void:
-	begin("Standup Target hit counter tracks accurately")
-	_ensure_clean_state()
-
-	var item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(&"supernova_peg")
-	var node: PolyominoModuleNode = PolyominoModuleNode.new()
-	node.setup_module(item, Vector2i.ZERO, 0)
-
-	var standup: PolyominoMachineryComponent = null
-	for comp in node.get_all_components():
-		if comp.cell_type == CellType.STANDUP_TARGET:
-			standup = comp
-			break
-	assert_true(standup != null, "supernova_peg has standup target")
-
-	var dummy_ball: Node2D = Node2D.new()
-	standup.trigger_activation(dummy_ball, 1)
-	assert_eq(node.get_widget_hit_count(CellType.STANDUP_TARGET), 1, "standup hit count == 1")
-	assert_eq(node.get_progress_string(), "1 / 2", "progress string is 1 / 2")
-
-	dummy_ball.free()
-	node.free()
-
 func test_spinner_hit_accumulation() -> void:
 	begin("Spinner hit counter increments on ball collision")
 	_ensure_clean_state()

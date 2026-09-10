@@ -1,4 +1,4 @@
-﻿@tool
+@tool
 extends RefCounted
 class_name PolyominoDiegeticRenderer
 ## Renders diegetic physical pinball visual indicators and widget states directly on the board.
@@ -114,10 +114,6 @@ static func draw_module(canvas: CanvasItem, module_node: Node2D, module_data: Po
 					if module_node._lock_count > 0:
 						canvas.draw_circle(c_pos, 7.0, Color(0.85, 0.95, 1.0, 0.95))
 						canvas.draw_arc(c_pos, 9.0, 0, TAU, 16, Color(0.3, 0.8, 1.0, 0.9), 2.0)
-
-				PolyominoModuleData.CellType.STANDUP_TARGET:
-					if module_node._standup_hits.has(comp_item.local_cell):
-						canvas.draw_arc(c_pos, c_rad + 3.0, 0, TAU, 16, Color(1.0, 0.85, 0.2, 0.9), 2.5)
 
 		# Sequential route specific pulsing guidance
 		if module_data.goal_type == GoalArchetype.SEQUENCE_ROUTE:

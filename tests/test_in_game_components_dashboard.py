@@ -35,10 +35,10 @@ def test_components_data_integrity():
     raw_json = match.group(1)
     # Sanitize js keys for json parsing if needed
     items = re.findall(r'\{\s*id:\s*"([^"]+)",\s*name:\s*"([^"]+)",\s*cat:\s*"([^"]+)"', raw_json)
-    assert len(items) >= 15, f"Expected at least 15 components, got {len(items)}"
+    assert len(items) >= 14, f"Expected at least 14 components, got {len(items)}"
 
     expected_ids = [
-        "POP_BUMPER", "DROP_TARGET", "STANDUP_TARGET", "SPINNER",
+        "POP_BUMPER", "DROP_TARGET", "SPINNER",
         "SCOOP_SINKHOLE", "BALL_LOCK", "GUIDE_TRACK", "ORBIT_LOOP",
         "SLINGSHOT", "ROLLOVER_SWITCH", "CAPTIVE_BALL", "MECHANICAL_DIVERTER",
         "VERTICAL_UP_KICKER", "BASH_TOY", "OUTLANE_KICKBACK"
