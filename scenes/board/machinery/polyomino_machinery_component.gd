@@ -30,6 +30,8 @@ enum ShapeType {
 @export var segment_p1: Vector2 = Vector2.ZERO
 @export var segment_p2: Vector2 = Vector2.ZERO
 @export var footprint_cells: Array[Vector2i] = []
+@export var exit_cooldown_ticks: int = 0
+@export var hit_cooldown_ticks: int = HIT_COOLDOWN_TICKS
 
 func set_direction(p_dir: Vector2) -> void:
 	direction = p_dir
@@ -40,6 +42,9 @@ func _update_direction() -> void:
 	pass
 
 var _last_hit_tick_by_ball: Dictionary = {}  # ball_id (int) -> int (sim_tick)
+var _last_exit_tick_by_ball: Dictionary = {}  # ball_id (int) -> int (sim_tick)
+var _balls_in_contact: Dictionary = {}  # ball_id (int) -> bool
+var _current_sim_tick: int = 0
 var _spring_scale: Vector2 = Vector2.ONE
 var _spark_progress: float = 1.0  # 1.0 = idle, 0.0 = burst start
 var _audio_player: AudioStreamPlayer2D = null
@@ -123,12 +128,34 @@ func set_accent_color(col: Color) -> void:
 	_accent_color = col
 	queue_redraw()
 
+func is_ball_contacting(ball_id: int) -> bool:
+	return _balls_in_contact.get(ball_id, false)
+
+func set_ball_contact(ball_id: int, in_contact: bool, sim_tick: int = -1) -> void:
+	if sim_tick >= 0:
+		_current_sim_tick = sim_tick
+	var was_contacting: bool = _balls_in_contact.get(ball_id, false)
+	_balls_in_contact[ball_id] = in_contact
+	if was_contacting and not in_contact:
+		_last_exit_tick_by_ball[ball_id] = sim_tick if sim_tick >= 0 else _current_sim_tick
+
+func record_ball_exit(ball_id: int, sim_tick: int) -> void:
+	_current_sim_tick = sim_tick
+	_balls_in_contact[ball_id] = false
+	_last_exit_tick_by_ball[ball_id] = sim_tick
+
 func can_activate_for_ball(ball_id: int, sim_tick: int) -> bool:
-	if not _last_hit_tick_by_ball.has(ball_id):
-		return true
-	return (sim_tick - _last_hit_tick_by_ball[ball_id]) >= HIT_COOLDOWN_TICKS
+	_current_sim_tick = sim_tick
+	if _last_hit_tick_by_ball.has(ball_id):
+		if (sim_tick - _last_hit_tick_by_ball[ball_id]) < hit_cooldown_ticks:
+			return false
+	if exit_cooldown_ticks > 0 and _last_exit_tick_by_ball.has(ball_id):
+		if (sim_tick - _last_exit_tick_by_ball[ball_id]) < exit_cooldown_ticks:
+			return false
+	return true
 
 func record_activation(ball_id: int, sim_tick: int) -> void:
+	_current_sim_tick = sim_tick
 	_last_hit_tick_by_ball[ball_id] = sim_tick
 
 ## Virtual activation method. Override in subclasses for bespoke kinetics.

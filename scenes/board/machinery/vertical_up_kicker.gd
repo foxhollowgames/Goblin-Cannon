@@ -6,11 +6,24 @@ signal vuk_launched(vuk_node: Node, ball: Node)
 
 @export var launch_direction: Vector2 = Vector2.UP
 
+const VUK_LAUNCH_COOLDOWN_TICKS: int = 45
+
+func _init() -> void:
+	is_permeable = true
+	component_radius = 20.0
+	base_energy = 12
+	impulse_strength = 480.0
+	exit_cooldown_ticks = VUK_LAUNCH_COOLDOWN_TICKS
+	hit_cooldown_ticks = VUK_LAUNCH_COOLDOWN_TICKS
+	cell_type = PolyominoModuleData.CellType.VERTICAL_UP_KICKER
+
 func _ready() -> void:
 	is_permeable = true
 	component_radius = 20.0
 	base_energy = 12
 	impulse_strength = 480.0
+	exit_cooldown_ticks = VUK_LAUNCH_COOLDOWN_TICKS
+	hit_cooldown_ticks = VUK_LAUNCH_COOLDOWN_TICKS
 	_update_direction()
 	_setup_collision()
 	_setup_audio()
@@ -41,6 +54,7 @@ func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 	if impulse != Vector2.ZERO and "linear_velocity" in ball:
 		_apply_ball_impulse(ball, impulse)
 		vuk_launched.emit(self, ball)
+		record_ball_exit(bid, sim_tick)
 
 	component_activated.emit(self, ball, energy, impulse)
 	return {

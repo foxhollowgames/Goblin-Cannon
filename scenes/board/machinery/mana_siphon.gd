@@ -12,6 +12,8 @@ func _init() -> void:
 	impulse_strength = 0.0
 	component_radius = 18.0
 	is_permeable = true
+	exit_cooldown_ticks = 30
+	hit_cooldown_ticks = 30
 	_accent_color = Color(0.2, 0.95, 0.45) # Emerald / Siphon Green
 	_audio_stream = load("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/New Platformer Pack/Sounds/sfx_gem.ogg") as AudioStream
 

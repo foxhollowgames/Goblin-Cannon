@@ -7,12 +7,24 @@ signal track_exited(track_node: Node, ball: Node)
 @export var exit_offset: Vector2 = Vector2(0, -80)
 @export var speed_multiplier: float = 1.25
 
+const TRACK_REENTRY_COOLDOWN_TICKS: int = 75
+
 var _guided_balls: Dictionary = {}  # ball_id (int) -> Node (ball)
+
+func _init() -> void:
+	is_permeable = true
+	component_radius = 24.0
+	base_energy = 8
+	exit_cooldown_ticks = TRACK_REENTRY_COOLDOWN_TICKS
+	hit_cooldown_ticks = TRACK_REENTRY_COOLDOWN_TICKS
+	cell_type = PolyominoModuleData.CellType.GUIDE_TRACK
 
 func _ready() -> void:
 	is_permeable = true
 	component_radius = 24.0
 	base_energy = 8
+	exit_cooldown_ticks = TRACK_REENTRY_COOLDOWN_TICKS
+	hit_cooldown_ticks = TRACK_REENTRY_COOLDOWN_TICKS
 	_update_direction()
 	_setup_collision()
 	_setup_audio()
@@ -21,6 +33,15 @@ func _ready() -> void:
 func _update_direction() -> void:
 	if direction != Vector2.ZERO:
 		exit_offset = direction.normalized() * 80.0
+
+func can_activate_for_ball(ball_id: int, sim_tick: int) -> bool:
+	if _guided_balls.has(ball_id):
+		return false
+	return super.can_activate_for_ball(ball_id, sim_tick)
+
+func record_ball_exit(ball_id: int, sim_tick: int) -> void:
+	super.record_ball_exit(ball_id, sim_tick)
+	_guided_balls.erase(ball_id)
 
 func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else ball.get_instance_id()
@@ -58,6 +79,7 @@ func _process(delta: float) -> void:
 		var ball_pos: Vector2 = ball.global_position if "global_position" in ball else ball.position
 		var dist: float = ball_pos.distance_to(target_pos)
 		if dist < 10.0:
+			record_ball_exit(bid, _current_sim_tick)
 			if "linear_velocity" in ball:
 				ball.linear_velocity = exit_offset.normalized() * (300.0 * speed_multiplier)
 			track_exited.emit(self, ball)

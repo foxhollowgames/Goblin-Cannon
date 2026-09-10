@@ -284,33 +284,38 @@ func set_ghost_state(p_ghost: bool) -> void:
 	modulate.a = 0.5 if is_ghost else 1.0
 	queue_redraw()
 
-func is_ghost_state_active() -> bool:
-	return is_ghost
+func is_ghost_state_active() -> bool: return is_ghost
 
 ## Checks and triggers interaction if a ball contacts any machinery component or wall enclosure in this module.
 func check_ball_collision(ball: Node, sim_tick: int) -> Dictionary:
 	if is_ghost or not is_instance_valid(ball):
 		return { "activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO }
-
 	var ball_pos: Vector2 = (ball.global_position if ball.is_inside_tree() else ball.position) if "position" in ball else Vector2.ZERO
 	var ball_radius: float = Constants.BALL_RADIUS
 	var module_base_pos: Vector2 = global_position if is_inside_tree() else position
+	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else ball.get_instance_id()
+	var act_res: Dictionary = {}
 
 	for comp in _components:
-		if not is_instance_valid(comp):
-			continue
+		if not is_instance_valid(comp): continue
 		var is_hit: bool = false
 		if comp.has_method("check_ball_contact"):
 			is_hit = comp.check_ball_contact(ball_pos, ball_radius, module_base_pos)
 		else:
-			var comp_pos: Vector2 = comp.global_position if comp.is_inside_tree() else (module_base_pos + comp.position)
-			var hit_dist: float = comp.component_radius + ball_radius + 4.0
-			is_hit = ball_pos.distance_squared_to(comp_pos) <= (hit_dist * hit_dist)
+			var cp: Vector2 = comp.global_position if comp.is_inside_tree() else (module_base_pos + comp.position)
+			var hr: float = comp.component_radius + ball_radius + 4.0
+			is_hit = ball_pos.distance_squared_to(cp) <= (hr * hr)
 		if is_hit:
-			var result: Dictionary = comp.trigger_activation(ball, sim_tick)
-			if result.get("activated", false):
-				return result
+			if not comp.is_ball_contacting(bid):
+				comp.set_ball_contact(bid, true, sim_tick)
+				if act_res.is_empty():
+					var res: Dictionary = comp.trigger_activation(ball, sim_tick)
+					if res.get("activated", false): act_res = res
+		elif comp.is_ball_contacting(bid):
+			comp.set_ball_contact(bid, false, sim_tick)
 
+	if not act_res.is_empty():
+		return act_res
 	return _check_wall_segment_collision(ball)
 
 func _check_wall_segment_collision(ball: Node) -> Dictionary:
@@ -355,14 +360,9 @@ func is_area_clear_of_balls(active_balls: Array, ball_radius: float = Constants.
 			if check_rect.has_point(b_pos): return false
 	return true
 
-func get_all_components() -> Array[PolyominoMachineryComponent]:
-	return _components
-
-func get_component_at_local_cell(cell: Vector2i) -> PolyominoMachineryComponent:
-	return _components_by_cell.get(cell, null)
-
-func get_widget_hit_count(w_type: int) -> int:
-	return _widget_hit_counts.get(w_type, 0)
+func get_all_components() -> Array[PolyominoMachineryComponent]: return _components
+func get_component_at_local_cell(cell: Vector2i) -> PolyominoMachineryComponent: return _components_by_cell.get(cell, null)
+func get_widget_hit_count(w_type: int) -> int: return _widget_hit_counts.get(w_type, 0)
 
 func get_current_hit_count() -> int:
 	if module_data and module_data.required_widget_type != PolyominoModuleData.CellType.EMPTY:

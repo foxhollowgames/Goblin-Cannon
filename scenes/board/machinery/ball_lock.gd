@@ -7,7 +7,17 @@ signal multiball_released(lock_node: Node, released_balls: Array)
 @export var max_capacity: int = 3
 @export var eject_impulse_strength: float = 400.0
 
+const LOCK_RELEASE_COOLDOWN_TICKS: int = 45
+
 var locked_balls: Array = []
+
+func _init() -> void:
+	is_permeable = true
+	component_radius = 22.0
+	base_energy = 15
+	exit_cooldown_ticks = LOCK_RELEASE_COOLDOWN_TICKS
+	hit_cooldown_ticks = LOCK_RELEASE_COOLDOWN_TICKS
+	cell_type = PolyominoModuleData.CellType.BALL_LOCK
 
 func _compute_impulse(_ball: Node) -> Vector2:
 	var dir_norm: Vector2 = direction.normalized() if direction != Vector2.ZERO else Vector2.UP
@@ -17,9 +27,28 @@ func _ready() -> void:
 	is_permeable = true
 	component_radius = 22.0
 	base_energy = 15
+	exit_cooldown_ticks = LOCK_RELEASE_COOLDOWN_TICKS
+	hit_cooldown_ticks = LOCK_RELEASE_COOLDOWN_TICKS
 	_setup_collision()
 	_setup_audio()
 	set_process(true)
+
+func can_activate_for_ball(ball_id: int, sim_tick: int) -> bool:
+	for b in locked_balls:
+		if is_instance_valid(b):
+			var bid: int = b.get_ball_id() if b.has_method("get_ball_id") else b.get_instance_id()
+			if bid == ball_id:
+				return false
+	return super.can_activate_for_ball(ball_id, sim_tick)
+
+func record_ball_exit(ball_id: int, sim_tick: int) -> void:
+	super.record_ball_exit(ball_id, sim_tick)
+	for i in range(locked_balls.size() - 1, -1, -1):
+		var b: Node = locked_balls[i]
+		if is_instance_valid(b):
+			var bid: int = b.get_ball_id() if b.has_method("get_ball_id") else b.get_instance_id()
+			if bid == ball_id:
+				locked_balls.remove_at(i)
 
 func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else ball.get_instance_id()
@@ -50,6 +79,8 @@ func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 func release_all_balls() -> void:
 	var released_balls: Array = []
 	for ball in locked_balls:
+		var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else ball.get_instance_id()
+		record_ball_exit(bid, _current_sim_tick)
 		var impulse: Vector2 = _compute_impulse(ball)
 		if impulse != Vector2.ZERO and "linear_velocity" in ball:
 			ball.linear_velocity += impulse

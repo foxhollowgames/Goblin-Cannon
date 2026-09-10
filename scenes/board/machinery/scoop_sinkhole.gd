@@ -7,6 +7,8 @@ signal ball_ejected(scoop_node: Node, ball: Node)
 @export var hold_duration_sec: float = 0.5
 @export var eject_direction: Vector2 = Vector2.UP
 
+const SINKHOLE_EJECT_COOLDOWN_TICKS: int = 45
+
 var _captured_balls: Array[Node] = []
 var _hold_timer: Timer = null
 
@@ -17,6 +19,15 @@ var _captured_ball: Node:
 		_captured_balls.clear()
 		if val != null:
 			_captured_balls.append(val)
+
+func _init() -> void:
+	is_permeable = true
+	component_radius = 20.0
+	base_energy = 10
+	impulse_strength = 350.0
+	exit_cooldown_ticks = SINKHOLE_EJECT_COOLDOWN_TICKS
+	hit_cooldown_ticks = SINKHOLE_EJECT_COOLDOWN_TICKS
+	cell_type = PolyominoModuleData.CellType.SCOOP_SINKHOLE
 
 func configure_footprint(cell_count: int) -> void:
 	if cell_count >= 9:
@@ -34,6 +45,8 @@ func configure_footprint(cell_count: int) -> void:
 		base_energy = 10
 		impulse_strength = 350.0
 		hold_duration_sec = 0.5
+	exit_cooldown_ticks = SINKHOLE_EJECT_COOLDOWN_TICKS
+	hit_cooldown_ticks = SINKHOLE_EJECT_COOLDOWN_TICKS
 	if _hold_timer:
 		_hold_timer.wait_time = hold_duration_sec
 	queue_redraw()
@@ -43,6 +56,8 @@ func _ready() -> void:
 	component_radius = 20.0
 	base_energy = 10
 	impulse_strength = 350.0
+	exit_cooldown_ticks = SINKHOLE_EJECT_COOLDOWN_TICKS
+	hit_cooldown_ticks = SINKHOLE_EJECT_COOLDOWN_TICKS
 	_update_direction()
 	
 	_hold_timer = Timer.new()
@@ -58,6 +73,23 @@ func _ready() -> void:
 func _update_direction() -> void:
 	if direction != Vector2.ZERO:
 		eject_direction = direction.normalized()
+
+func can_activate_for_ball(ball_id: int, sim_tick: int) -> bool:
+	for b in _captured_balls:
+		if is_instance_valid(b):
+			var bid: int = b.get_ball_id() if b.has_method("get_ball_id") else b.get_instance_id()
+			if bid == ball_id:
+				return false
+	return super.can_activate_for_ball(ball_id, sim_tick)
+
+func record_ball_exit(ball_id: int, sim_tick: int) -> void:
+	super.record_ball_exit(ball_id, sim_tick)
+	for i in range(_captured_balls.size() - 1, -1, -1):
+		var b: Node = _captured_balls[i]
+		if is_instance_valid(b):
+			var bid: int = b.get_ball_id() if b.has_method("get_ball_id") else b.get_instance_id()
+			if bid == ball_id:
+				_captured_balls.remove_at(i)
 
 func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else ball.get_instance_id()
@@ -100,6 +132,8 @@ func _on_hold_timeout() -> void:
 		var b: Node = balls_to_eject[i]
 		if not is_instance_valid(b):
 			continue
+		var bid: int = b.get_ball_id() if b.has_method("get_ball_id") else b.get_instance_id()
+		record_ball_exit(bid, _current_sim_tick)
 		var spread_angle: float = 0.0
 		if total > 1:
 			spread_angle = lerpf(-0.25, 0.25, float(i) / float(total - 1))

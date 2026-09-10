@@ -5,6 +5,7 @@ class_name RelicLayoutPreview
 
 const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
+const PolyominoMachineryVisuals = preload("res://scenes/board/machinery/polyomino_machinery_visuals.gd")
 const CellType = PolyominoModuleData.CellType
 
 const DEFAULT_CELL_SIZE: float = 22.0
@@ -133,77 +134,28 @@ func _draw() -> void:
 			draw_line(top_r, bot_r, DARK_INK_BORDER, 3.0)
 			draw_line(top_r, bot_r, wall_highlight, 1.5)
 
-	# 3. Render internal kinetic machinery glyphs only on occupied machine cells
-	for c in module_data.cells:
-		var c_type: int = module_data.get_cell_type_at(c)
-		if c_type == CellType.EMPTY:
-			continue
-		var cell_pos := Vector2(origin_x + float(c.x) * cell_size, origin_y + float(c.y) * cell_size)
-		var cell_center := cell_pos + Vector2(cell_size * 0.5, cell_size * 0.5)
-		var c_dir: Vector2 = module_data.get_cell_direction_at(c)
-		_draw_kinetic_glyph(cell_center, c_type, c_dir, (cell_size - cell_pad * 2.0) * 0.5)
-
-func _draw_kinetic_glyph(center: Vector2, type: int, dir: Vector2, radius: float) -> void:
-	if type == CellType.EMPTY:
-		return
-	var s: float = radius
-	match type:
-		CellType.BUMPER:
-			# Circular bumper with high-contrast inner ring
-			draw_circle(center, s * 0.65, DARK_INK_BORDER)
-			draw_circle(center, s * 0.5, Color.WHITE)
-			draw_circle(center, s * 0.25, accent_color.darkened(0.5))
-		CellType.ACCELERATOR:
-			# Directional wedge pointing along boost direction
-			var dir_norm: Vector2 = dir.normalized() if dir.length_squared() > 0.001 else Vector2.DOWN
-			var tip: Vector2 = center + dir_norm * (s * 0.7)
-			var perp := Vector2(-dir_norm.y, dir_norm.x) * (s * 0.5)
-			var base_p: Vector2 = center - dir_norm * (s * 0.4)
-			var poly_ink := PackedVector2Array([tip + dir_norm * 1.5, base_p + perp * 1.25, base_p - perp * 1.25])
-			var poly_white := PackedVector2Array([tip, base_p + perp, base_p - perp])
-			draw_colored_polygon(poly_ink, DARK_INK_BORDER)
-			draw_colored_polygon(poly_white, Color.WHITE)
-		CellType.FUNNEL:
-			# Converging guide rails pointing toward exit slot
-			var dir_norm: Vector2 = dir.normalized() if dir.length_squared() > 0.001 else Vector2.DOWN
-			var perp := Vector2(-dir_norm.y, dir_norm.x)
-			var left_start: Vector2 = center - dir_norm * (s * 0.55) + perp * (s * 0.55)
-			var left_end: Vector2 = center + dir_norm * (s * 0.45) + perp * (s * 0.15)
-			var right_start: Vector2 = center - dir_norm * (s * 0.55) - perp * (s * 0.55)
-			var right_end: Vector2 = center + dir_norm * (s * 0.45) - perp * (s * 0.15)
-			draw_line(left_start, left_end, DARK_INK_BORDER, 3.5)
-			draw_line(left_start, left_end, Color.WHITE, 2.0)
-			draw_line(right_start, right_end, DARK_INK_BORDER, 3.5)
-			draw_line(right_start, right_end, Color.WHITE, 2.0)
-			draw_circle(center + dir_norm * (s * 0.45), s * 0.15, Color.WHITE)
-		CellType.ROTARY_BOOSTER:
-			# Circular arc spinner with rotational tick marks
-			draw_arc(center, s * 0.55, 0.2, TAU * 0.85, 16, DARK_INK_BORDER, 3.5)
-			draw_arc(center, s * 0.55, 0.2, TAU * 0.85, 16, Color.WHITE, 2.0)
-			for i in range(3):
-				var ang: float = 0.2 + float(i) * (TAU * 0.28)
-				var p1: Vector2 = center + Vector2.from_angle(ang) * (s * 0.35)
-				var p2: Vector2 = center + Vector2.from_angle(ang) * (s * 0.7)
-				draw_line(p1, p2, Color.WHITE, 1.5)
-			draw_circle(center, s * 0.2, Color.WHITE)
-		CellType.MANA_SIPHON:
-			# Swirling vortex concentric arc rings
-			draw_arc(center, s * 0.6, 0.0, PI * 1.2, 12, accent_color.lightened(0.4), 2.0)
-			draw_arc(center, s * 0.35, PI * 0.8, PI * 2.0, 10, Color.WHITE, 1.8)
-			draw_circle(center, s * 0.18, Color.WHITE)
-		CellType.DIRECTIONAL_DEFLECTOR:
-			# Angled guide rails and directional pointer arrow
-			var dir_norm: Vector2 = dir.normalized() if dir.length_squared() > 0.001 else Vector2(1, 1).normalized()
-			var perp := Vector2(-dir_norm.y, dir_norm.x)
-			var bar_p1: Vector2 = center - perp * (s * 0.5) - dir_norm * (s * 0.2)
-			var bar_p2: Vector2 = center + perp * (s * 0.5) - dir_norm * (s * 0.2)
-			draw_line(bar_p1, bar_p2, DARK_INK_BORDER, 4.0)
-			draw_line(bar_p1, bar_p2, Color.WHITE, 2.2)
-			draw_line(center, center + dir_norm * (s * 0.6), accent_color.lightened(0.4), 2.0)
-		CellType.GUIDE_RAIL:
-			# Parallel guide bars
-			draw_line(center + Vector2(-s * 0.5, -s * 0.25), center + Vector2(s * 0.5, -s * 0.25), Color.WHITE, 1.8)
-			draw_line(center + Vector2(-s * 0.5, s * 0.25), center + Vector2(s * 0.5, s * 0.25), Color.WHITE, 1.8)
-		_:
-			# Default indicator dot
-			draw_circle(center, s * 0.2, accent_color.darkened(0.2))
+	# 3. Render internal kinetic machinery components
+	if module_data.layout_mode == PolyominoModuleData.MachineryLayoutMode.UNIFIED and module_data.unified_component_type != CellType.EMPTY:
+		var u_type: int = module_data.unified_component_type
+		var center_sum := Vector2.ZERO
+		for c in module_data.cells:
+			var cell_pos := Vector2(origin_x + float(c.x) * cell_size, origin_y + float(c.y) * cell_size)
+			center_sum += cell_pos + Vector2(cell_size * 0.5, cell_size * 0.5)
+		var center: Vector2 = center_sum / float(module_data.cells.size())
+		var cell_cnt: int = module_data.cells.size()
+		var radius: float = (cell_size - cell_pad * 2.0) * 0.45
+		if cell_cnt >= 9:
+			radius = cell_size * 1.35
+		elif cell_cnt >= 4:
+			radius = cell_size * 0.85
+		PolyominoMachineryVisuals.draw_component(self, u_type, center, Vector2.DOWN, radius, accent_color, cell_cnt)
+	else:
+		for c in module_data.cells:
+			var c_type: int = module_data.get_cell_type_at(c)
+			if c_type == CellType.EMPTY:
+				continue
+			var cell_pos := Vector2(origin_x + float(c.x) * cell_size, origin_y + float(c.y) * cell_size)
+			var cell_center := cell_pos + Vector2(cell_size * 0.5, cell_size * 0.5)
+			var c_dir: Vector2 = module_data.get_cell_direction_at(c)
+			var radius: float = (cell_size - cell_pad * 2.0) * 0.45
+			PolyominoMachineryVisuals.draw_component(self, c_type, cell_center, c_dir, radius, accent_color, 1)
