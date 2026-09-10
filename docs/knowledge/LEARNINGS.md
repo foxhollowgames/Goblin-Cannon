@@ -135,6 +135,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-124`](#lrn-124) | TASK-082 | `UI` | Relic Tooltip Headers and Phrasing | 2026-09-10 |
 | [`LRN-125`](#lrn-125) | TASK-083 | `machinery` | wire gate holding cup | 2026-09-10 |
 | [`LRN-126`](#lrn-126) | TASK-084 | `Systems` | Rename Scoop Sinkhole to Ball Trap | 2026-09-10 |
+| [`LRN-127`](#lrn-127) | TASK-085 | `Systems` | Multi-Peg Orbit Loop Turnaround Physics | 2026-09-10 |
 
 ---
 
@@ -2153,5 +2154,21 @@ When renaming a global Godot class with class_name, update .godot/global_script_
 
 #### Actionable Guideline for Future Agents
 Keep backwards compatibility aliases when renaming CellType enum members or machinery classes
+
+---
+
+### <a id="lrn-127"></a> LRN-127: Multi-Peg Orbit Loop Turnaround Physics
+- **Task:** `TASK-085`
+- **Category:** `Systems`
+- **Created:** `2026-09-10T14:34:02.357181`
+
+#### Context & Problem
+Reworking single-peg Orbit Loop component into multi-peg turnaround shapes (3-peg V, 5-peg U, 7-peg U)
+
+#### Key Insight & Learning
+Multi-cell orbit loops require waypoints connected across adjacent cells to guide balls along custom turnaround tracks. Bidirectional ports must track travel directions and apply exit impulse along the opposite port direction.
+
+#### Actionable Guideline for Future Agents
+When configuring multi-cell machinery trajectories, build ordered waypoints from adjacency graphs and ensure entry at Port A exits with Port B orientation, and entry at Port B exits with Port A orientation.
 
 ---
