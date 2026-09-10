@@ -1,6 +1,6 @@
 # TASK-082: Simplify Relic Tooltip Terminology and Section Headers
 
-- **Status:** IN_REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Polish
 - **Target Branch:** `feature/simplify-relic-tooltip-terminology`

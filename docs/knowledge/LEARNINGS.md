@@ -132,6 +132,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-121`](#lrn-121) | TASK-075 | `ui_and_tooltips` | Campaign 1 Relic Hover Tooltips Audit | 2026-09-09 |
 | [`LRN-122`](#lrn-122) | TASK-076 | `ui` | Relic Tooltip Formatting | 2026-09-09 |
 | [`LRN-123`](#lrn-123) | TASK-068 | `ui` | Relic Tier Visual Styling Architecture | 2026-09-09 |
+| [`LRN-124`](#lrn-124) | TASK-082 | `UI` | Relic Tooltip Headers and Phrasing | 2026-09-10 |
 
 ---
 
@@ -2102,5 +2103,21 @@ Centralizing tier styling into RelicTierVisuals provides consistent ink borders,
 
 #### Actionable Guideline for Future Agents
 Always route polyomino module and reward card tier styling through RelicTierVisuals to guarantee visual consistency and preserve hover color states.
+
+---
+
+### <a id="lrn-124"></a> LRN-124: Relic Tooltip Headers and Phrasing
+- **Task:** `TASK-082`
+- **Category:** `UI`
+- **Created:** `2026-09-10T07:50:26.185335`
+
+#### Context & Problem
+Relic hover tooltips used Activation Requirement and Relic Effect headers and ambiguous terms like Concussive Overdrive Blast.
+
+#### Key Insight & Learning
+Direct terms like Trigger and Effect provide cleaner player communication, and numeric energy descriptors prevent confusion.
+
+#### Actionable Guideline for Future Agents
+Always format relic tooltips with Trigger and Effect headers, and avoid narrative jargon in mechanical descriptions.
 
 ---
