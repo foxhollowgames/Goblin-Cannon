@@ -7,7 +7,7 @@ const PolyominoModuleNodeScript = preload("res://scenes/board/machinery/polyomin
 const PinballBumperScript = preload("res://scenes/board/machinery/pinball_bumper.gd")
 const PopBumperScript = preload("res://scenes/board/machinery/pop_bumper.gd")
 const SpeedBoostWheelScript = preload("res://scenes/board/machinery/speed_boost_wheel.gd")
-const DirectionalDeflectorScript = preload("res://scenes/board/machinery/directional_deflector.gd")
+const SlingshotKickerScript = preload("res://scenes/board/machinery/slingshot_kicker.gd")
 const BallScript = preload("res://scenes/balls/ball.gd")
 
 func _init() -> void:
@@ -16,7 +16,7 @@ func _init() -> void:
 func run() -> void:
 	test_pinball_bumper_physics_and_energy()
 	test_speed_boost_wheel_acceleration_and_direction()
-	test_directional_deflector_funneling()
+	test_slingshot_kicker_physics_and_energy()
 	test_compound_module_assembly_and_scaling()
 	test_compound_module_rotation_and_vectors()
 	test_board_machinery_collision_and_lifecycle()
@@ -77,37 +77,34 @@ func test_speed_boost_wheel_acceleration_and_direction() -> void:
 	ball.free()
 	wheel.free()
 
-func test_directional_deflector_funneling() -> void:
-	begin("Directional Deflector funneling and ball velocity redirection")
-	var deflector: DirectionalDeflector = DirectionalDeflectorScript.new()
-	deflector.position = Vector2(150, 250)
-	deflector.direction = Vector2(1, 1).normalized() # Down-Right diagonal
-	deflector.base_energy = 2
+func test_slingshot_kicker_physics_and_energy() -> void:
+	begin("Slingshot kicker impulse and energy grant")
+	var slingshot: SlingshotKicker = SlingshotKickerScript.new()
+	slingshot.position = Vector2(150, 250)
+	slingshot.direction = Vector2(1, 1).normalized() # Down-Right diagonal
+	slingshot.base_energy = 6
 
 	var ball := _create_mock_ball(Vector2(150, 250), Vector2(-100, 150), 10)
 
-	var res: Dictionary = deflector.trigger_activation(ball, 75)
-	assert_true(res.get("activated", false), "deflector activates on contact")
-	assert_eq(res.get("energy_granted", 0), 2, "deflector grants +2 energy")
-
-	# Ball should be steered into the down-right direction (positive x and positive y)
-	assert_gt(ball.linear_velocity.x, 0.0, "steered velocity x > 0")
-	assert_gt(ball.linear_velocity.y, 0.0, "steered velocity y > 0")
+	var res: Dictionary = slingshot.trigger_activation(ball, 75)
+	assert_true(res.get("activated", false), "slingshot activates on contact")
+	assert_eq(res.get("energy_granted", 0), 6, "slingshot grants +6 energy")
+	assert_eq(ball.get_total_energy(), 16, "ball energy increased to 16")
 
 	ball.free()
-	deflector.free()
+	slingshot.free()
 
 func test_compound_module_assembly_and_scaling() -> void:
 	begin("Compound PolyominoModuleNode multi-cell assembly and spatial layout")
 	var mod_data := PolyominoModuleData.new()
 	mod_data.module_id = &"synergy_t_module"
 	mod_data.tier = 2
-	# 4 cells: (0,0)=BUMPER, (1,0)=ACCELERATOR, (2,0)=POP_BUMPER, (1,1)=DIRECTIONAL_DEFLECTOR
+	# 4 cells: (0,0)=BUMPER, (1,0)=ACCELERATOR, (2,0)=POP_BUMPER, (1,1)=SLINGSHOT
 	mod_data.cells = [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(1, 1)]
 	mod_data.set_cell_type_at(Vector2i(0, 0), PolyominoModuleData.CellType.BUMPER)
 	mod_data.set_cell_type_at(Vector2i(1, 0), PolyominoModuleData.CellType.ACCELERATOR)
 	mod_data.set_cell_type_at(Vector2i(2, 0), PolyominoModuleData.CellType.POP_BUMPER)
-	mod_data.set_cell_type_at(Vector2i(1, 1), PolyominoModuleData.CellType.DIRECTIONAL_DEFLECTOR)
+	mod_data.set_cell_type_at(Vector2i(1, 1), PolyominoModuleData.CellType.SLINGSHOT)
 
 	var item := JunkBoxItem.new(&"item_t", JunkBoxItem.POLYOMINO_MODULE)
 	item.module_data = mod_data
@@ -134,7 +131,7 @@ func test_compound_module_assembly_and_scaling() -> void:
 
 	var c3: PolyominoMachineryComponent = module_node.get_component_at_local_cell(Vector2i(1, 1))
 	assert_true(c3 != null, "component at (1,1) exists")
-	assert_true(c3 is DirectionalDeflectorScript, "component at (1,1) is DirectionalDeflector")
+	assert_true(c3 is SlingshotKickerScript, "component at (1,1) is SlingshotKicker")
 	assert_eq(c3.position, Vector2(module_node.CELL_WIDTH, module_node.CELL_HEIGHT), "c3 scaled by width & height")
 
 	module_node.free()

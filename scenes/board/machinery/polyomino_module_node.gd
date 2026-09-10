@@ -11,7 +11,6 @@ const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_
 const PolyominoMachineryComponentScript = preload("res://scenes/board/machinery/polyomino_machinery_component.gd")
 const PinballBumperScript = preload("res://scenes/board/machinery/pinball_bumper.gd")
 const SpeedBoostWheelScript = preload("res://scenes/board/machinery/speed_boost_wheel.gd")
-const DirectionalDeflectorScript = preload("res://scenes/board/machinery/directional_deflector.gd")
 const RolloverSwitchScript = preload("res://scenes/board/machinery/rollover_switch.gd")
 const PopBumperScript = preload("res://scenes/board/machinery/pop_bumper.gd")
 const DropTargetScript = preload("res://scenes/board/machinery/drop_target.gd")
@@ -142,7 +141,7 @@ func _create_component_for_type(c_type: int) -> PolyominoMachineryComponent:
 		PolyominoModuleData.CellType.EMPTY: return null
 		PolyominoModuleData.CellType.BUMPER: return PinballBumperScript.new()
 		PolyominoModuleData.CellType.ACCELERATOR, PolyominoModuleData.CellType.ROTARY_BOOSTER: return SpeedBoostWheelScript.new()
-		PolyominoModuleData.CellType.DIRECTIONAL_DEFLECTOR, PolyominoModuleData.CellType.FUNNEL, PolyominoModuleData.CellType.GUIDE_RAIL: return DirectionalDeflectorScript.new()
+		PolyominoModuleData.CellType.FUNNEL, PolyominoModuleData.CellType.GUIDE_RAIL: return GuideTrackScript.new()
 		PolyominoModuleData.CellType.ROLLOVER_SWITCH: return RolloverSwitchScript.new()
 		PolyominoModuleData.CellType.POP_BUMPER: return PopBumperScript.new()
 		PolyominoModuleData.CellType.DROP_TARGET: return DropTargetScript.new()
