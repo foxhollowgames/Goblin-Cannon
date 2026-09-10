@@ -12,6 +12,7 @@ func run() -> void:
 	test_on_board_relic_tooltip_includes_activation_and_effect()
 	test_junk_box_inventory_tooltip_omits_metadata()
 	test_all_relics_have_valid_activation_and_effect_tooltips()
+	test_board_and_junk_box_tooltips_match_exactly()
 
 func test_on_board_relic_tooltip_omits_tier_size_shape() -> void:
 	begin("Board._format_module_tooltip_body omits tier, size, and shape properties")
@@ -71,3 +72,16 @@ func test_all_relics_have_valid_activation_and_effect_tooltips() -> void:
 		var rew_desc: String = PolyominoRelicDatabase.get_relic_reward_description(r_id)
 		assert_false(rew_desc.strip_edges().is_empty(), "%s reward_description is not empty" % str(r_id))
 	board_inst.free()
+
+func test_board_and_junk_box_tooltips_match_exactly() -> void:
+	begin("Board and Junk Box inventory generate identical tooltips for unplaced relics")
+	var board_inst = BoardScript.new()
+	var panel_inst = JunkBoxPanelScript.new()
+	var relic_ids: Array[StringName] = PolyominoRelicDatabase.get_all_relic_ids()
+	for r_id in relic_ids:
+		var item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(r_id)
+		var board_tooltip: String = board_inst._format_module_tooltip_body(item)
+		var panel_tooltip: String = panel_inst._format_item_tooltip(item)
+		assert_eq(board_tooltip, panel_tooltip, "Tooltip matches exactly between board and Junk Box for %s" % str(r_id))
+	board_inst.free()
+	panel_inst.free()

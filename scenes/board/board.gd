@@ -2775,23 +2775,14 @@ func _update_board_module_hover(mouse_pos: Vector2) -> void:
 			KeywordDatabase.hide_flyout()
 
 func _format_module_tooltip_body(item: JunkBoxItem) -> String:
-	if item != null and "custom_payload" in item and item.custom_payload is Dictionary and item.custom_payload.get("is_debug_showcase", false):
-		return BoardMachineryShowcase.format_tooltip(item)
-	var body: String = ""
-	var relic_id: StringName = StringName(item.custom_payload.get("relic_id", "")) if ("custom_payload" in item and item.custom_payload is Dictionary) else (item.module_data.module_id if item.module_data != null else &"")
-	var goal_desc: String = item.module_data.activation_requirement if (item.module_data != null and not item.module_data.activation_requirement.is_empty()) else (PolyominoRelicDatabase.get_relic_activation_requirement(relic_id) if relic_id != &"" else "")
-	var reward_desc: String = item.module_data.reward_description if (item.module_data != null and not item.module_data.reward_description.is_empty()) else (PolyominoRelicDatabase.get_relic_reward_description(relic_id) if relic_id != &"" else "")
-	if not goal_desc.is_empty():
-		body += "[u]Activation Requirement[/u]\n%s" % goal_desc
-	if not reward_desc.is_empty():
-		body += ("\n\n" if not body.is_empty() else "") + "[u]Relic Effect[/u]\n%s" % reward_desc
-	var inst_id: StringName = item.instance_id if "instance_id" in item else &""
+	var prog: String = ""
+	var inst_id: StringName = item.instance_id if item != null and "instance_id" in item else &""
 	if _placed_module_nodes.has(inst_id):
 		var node: PolyominoModuleNode = _placed_module_nodes[inst_id] as PolyominoModuleNode
-		var prog: String = node.get_progress_string() if (node and node.has_method("get_progress_string")) else ""
-		if not prog.is_empty():
-			body += "\n\n[u]Charge Progress[/u]: %s" % prog
-	return body
+		if node and node.has_method("get_progress_string"):
+			prog = node.get_progress_string()
+	return PolyominoRelicDatabase.format_relic_tooltip(item, prog)
+
 
 ## Converts a global/board world position into integer board grid coordinates (col, row).
 func world_to_board_cell(world_pos: Vector2) -> Vector2i:
