@@ -102,6 +102,7 @@
 | `test_relic_pinball_activation.gd` | `RelicPinballActivation` | [tests/test_relic_pinball_activation.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_pinball_activation.gd) |
 | `test_relic_pinball_goals.gd` | `RelicPinballGoals` | [tests/test_relic_pinball_goals.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_pinball_goals.gd) |
 | `test_relic_selection_preview.gd` | `RelicSelectionPreview` | [tests/test_relic_selection_preview.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_selection_preview.gd) |
+| `test_relic_tier_visual_styling.gd` | `RelicTierVisualStyling` | [tests/test_relic_tier_visual_styling.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_tier_visual_styling.gd) |
 | `test_relic_widget_distribution.gd` | `RelicWidgetDistribution` | [tests/test_relic_widget_distribution.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_widget_distribution.gd) |
 | `test_reward_generation.gd` | `RewardGeneration` | [tests/test_reward_generation.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_reward_generation.gd) |
 | `test_reward_handler.gd` | `RewardHandler` | [tests/test_reward_handler.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_reward_handler.gd) |

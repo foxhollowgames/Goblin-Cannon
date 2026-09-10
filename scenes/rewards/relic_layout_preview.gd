@@ -7,6 +7,7 @@ const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_reli
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
 const PolyominoMachineryVisuals = preload("res://scenes/board/machinery/polyomino_machinery_visuals.gd")
 const CellType = PolyominoModuleData.CellType
+const RelicTierVisuals = preload("res://scenes/ui/relic_tier_visuals.gd")
 
 const DEFAULT_CELL_SIZE: float = 22.0
 const DEFAULT_CELL_PAD: float = 1.5
@@ -33,7 +34,7 @@ func setup_for_relic(p_relic_id: StringName) -> bool:
 
 	module_data = PolyominoRelicDatabase.create_module_for_relic(p_relic_id)
 	if module_data != null:
-		accent_color = Constants.shop_rarity_accent_color(module_data.tier)
+		accent_color = RelicTierVisuals.get_tier_color(module_data.tier)
 	queue_redraw()
 	return true
 
@@ -41,7 +42,7 @@ func setup_for_module(data: PolyominoModuleData) -> void:
 	module_data = data
 	if module_data != null:
 		relic_id = module_data.module_id
-		accent_color = Constants.shop_rarity_accent_color(module_data.tier)
+		accent_color = RelicTierVisuals.get_tier_color(module_data.tier)
 	queue_redraw()
 
 func clear() -> void:
@@ -97,42 +98,19 @@ func _draw() -> void:
 	var total_h: float = float(rows) * cell_size
 	var origin_x: float = (size.x - total_w) * 0.5 - float(min_x) * cell_size
 	var origin_y: float = (size.y - total_h) * 0.5 - float(min_y) * cell_size
-	var bg_col := Color(accent_color.r, accent_color.g, accent_color.b, 0.2)
-	var wall_highlight := accent_color.lightened(0.2)
+	var tier: int = module_data.tier if module_data != null else 1
+	var cell_sz := Vector2(cell_size, cell_size)
+	var origin_px := Vector2(origin_x, origin_y)
+	var style: Dictionary = RelicTierVisuals.get_tier_style(tier)
 
 	# 1. Draw unified transparent background for all cells
-	for c in module_data.cells:
-		var cell_pos := Vector2(origin_x + float(c.x) * cell_size, origin_y + float(c.y) * cell_size)
-		var rect := Rect2(cell_pos, Vector2(cell_size, cell_size))
-		draw_rect(rect, bg_col)
+	RelicTierVisuals.draw_cell_backgrounds(self, module_data.cells, cell_sz, origin_px, tier)
 
-	# 2. Draw outer perimeter walls ONLY where boundary edges actually exist
-	for c in module_data.cells:
-		var cell_pos := Vector2(origin_x + float(c.x) * cell_size, origin_y + float(c.y) * cell_size)
-		var top_l := cell_pos
-		var top_r := Vector2(cell_pos.x + cell_size, cell_pos.y)
-		var bot_l := Vector2(cell_pos.x, cell_pos.y + cell_size)
-		var bot_r := Vector2(cell_pos.x + cell_size, cell_pos.y + cell_size)
-
-		# Top edge
-		if not module_data.cells.has(Vector2i(c.x, c.y - 1)):
-			draw_line(top_l, top_r, DARK_INK_BORDER, 3.0)
-			draw_line(top_l, top_r, wall_highlight, 1.5)
-
-		# Bottom edge
-		if not module_data.cells.has(Vector2i(c.x, c.y + 1)):
-			draw_line(bot_l, bot_r, DARK_INK_BORDER, 3.0)
-			draw_line(bot_l, bot_r, wall_highlight, 1.5)
-
-		# Left edge
-		if not module_data.cells.has(Vector2i(c.x - 1, c.y)):
-			draw_line(top_l, bot_l, DARK_INK_BORDER, 3.0)
-			draw_line(top_l, bot_l, wall_highlight, 1.5)
-
-		# Right edge
-		if not module_data.cells.has(Vector2i(c.x + 1, c.y)):
-			draw_line(top_r, bot_r, DARK_INK_BORDER, 3.0)
-			draw_line(top_r, bot_r, wall_highlight, 1.5)
+	# 2. Draw wall enclosures and internal dividers with tier styling
+	var segments: Array[Dictionary] = module_data.get_solid_edge_segments(0)
+	var offset_px: Vector2 = origin_px + Vector2(0.5 * cell_size, 0.5 * cell_size)
+	RelicTierVisuals.draw_tier_frame(self, segments, cell_sz, offset_px, tier)
+	RelicTierVisuals.draw_tier_corner_accents(self, module_data.cells, cell_sz, origin_px, tier)
 
 	# 3. Render internal kinetic machinery components
 	if module_data.layout_mode == PolyominoModuleData.MachineryLayoutMode.UNIFIED and module_data.unified_component_type != CellType.EMPTY:
