@@ -11,6 +11,7 @@ func run() -> void:
 	test_on_board_relic_tooltip_omits_tier_size_shape()
 	test_on_board_relic_tooltip_includes_activation_and_effect()
 	test_junk_box_inventory_tooltip_omits_metadata()
+	test_all_relics_have_valid_activation_and_effect_tooltips()
 
 func test_on_board_relic_tooltip_omits_tier_size_shape() -> void:
 	begin("Board._format_module_tooltip_body omits tier, size, and shape properties")
@@ -53,3 +54,20 @@ func test_junk_box_inventory_tooltip_omits_metadata() -> void:
 	assert_true(tooltip.contains("[u]Activation Requirement[/u]"), "Junk Box tooltip contains activation requirement")
 	assert_true(tooltip.contains("[u]Relic Effect[/u]"), "Junk Box tooltip contains relic effect")
 	panel_inst.free()
+
+func test_all_relics_have_valid_activation_and_effect_tooltips() -> void:
+	begin("All Campaign 1 relics produce non-empty activation and effect in tooltips")
+	var board_inst = BoardScript.new()
+	var relic_ids: Array[StringName] = PolyominoRelicDatabase.get_all_relic_ids()
+	assert_gt(relic_ids.size(), 0, "Relic database contains registered relics")
+	for r_id in relic_ids:
+		var item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(r_id)
+		assert_true(item != null, "Item created for %s" % str(r_id))
+		var body: String = board_inst._format_module_tooltip_body(item)
+		assert_true(body.contains("[u]Activation Requirement[/u]"), "%s tooltip has Activation Requirement" % str(r_id))
+		assert_true(body.contains("[u]Relic Effect[/u]"), "%s tooltip has Relic Effect" % str(r_id))
+		var act_req: String = PolyominoRelicDatabase.get_relic_activation_requirement(r_id)
+		assert_false(act_req.strip_edges().is_empty(), "%s activation_requirement is not empty" % str(r_id))
+		var rew_desc: String = PolyominoRelicDatabase.get_relic_reward_description(r_id)
+		assert_false(rew_desc.strip_edges().is_empty(), "%s reward_description is not empty" % str(r_id))
+	board_inst.free()

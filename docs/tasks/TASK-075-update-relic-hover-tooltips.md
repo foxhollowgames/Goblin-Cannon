@@ -1,6 +1,6 @@
 # TASK-075: Update All Relic Hover Tooltips
 
-- **Status:** READY
+- **Status:** REVIEW
 - **Priority:** P1
 - **Category:** UI / Polish
 - **Target Branch:** `feature/update-relic-hover-tooltips`
@@ -40,8 +40,9 @@ Align the tooltip text with physical machinery archetypes and diegetic board cue
 
 ## Acceptance Criteria
 
-- [ ] All Campaign 1 relics have updated hover tooltip text.
-- [ ] Tooltips accurately describe physical activation requirements.
-- [ ] Tooltips clearly describe relic rewards and effects.
-- [ ] Headless unit tests pass.
-- [ ] All modified source files remain under 500 lines.
+- [x] All Campaign 1 relics have updated hover tooltip text.
+- [x] Tooltips accurately describe physical activation requirements.
+- [x] Tooltips clearly describe relic rewards and effects.
+- [x] Headless unit tests pass.
+- [x] All modified source files remain under 500 lines.
+
