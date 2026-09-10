@@ -3,7 +3,7 @@ extends "res://tests/test_base.gd"
 const PolyominoMachineryComponentScript = preload("res://scenes/board/machinery/polyomino_machinery_component.gd")
 const PinballBumperScript = preload("res://scenes/board/machinery/pinball_bumper.gd")
 const SpeedBoostWheelScript = preload("res://scenes/board/machinery/speed_boost_wheel.gd")
-const ManaSiphonScript = preload("res://scenes/board/machinery/mana_siphon.gd")
+const PopBumperScript = preload("res://scenes/board/machinery/pop_bumper.gd")
 const DirectionalDeflectorScript = preload("res://scenes/board/machinery/directional_deflector.gd")
 
 func _init() -> void:
@@ -19,11 +19,11 @@ func test_default_machinery_volume_levels() -> void:
 	begin("Relic machinery base volume levels are below -12.0 dB and within [-18.0 dB, -14.0 dB]")
 	
 	var bumper = PinballBumperScript.new()
-	var siphon = ManaSiphonScript.new()
+	var pop_bumper = PopBumperScript.new()
 	var booster = SpeedBoostWheelScript.new()
 	var deflector = DirectionalDeflectorScript.new()
 	
-	var components: Array = [bumper, siphon, booster, deflector]
+	var components: Array = [bumper, pop_bumper, booster, deflector]
 	for comp in components:
 		var player: AudioStreamPlayer2D = comp.get_audio_player()
 		assert_true(player != null, "audio player exists for component")
@@ -35,11 +35,11 @@ func test_dedicated_audio_bus_routing() -> void:
 	begin("Relic machinery audio players route to dedicated Machinery bus")
 	
 	var bumper = PinballBumperScript.new()
-	var siphon = ManaSiphonScript.new()
+	var pop_bumper = PopBumperScript.new()
 	var booster = SpeedBoostWheelScript.new()
 	var deflector = DirectionalDeflectorScript.new()
 	
-	var components: Array = [bumper, siphon, booster, deflector]
+	var components: Array = [bumper, pop_bumper, booster, deflector]
 	for comp in components:
 		var player: AudioStreamPlayer2D = comp.get_audio_player()
 		assert_true(player != null, "audio player exists for component")

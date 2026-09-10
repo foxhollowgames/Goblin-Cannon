@@ -23,8 +23,6 @@ static func draw_component(canvas: CanvasItem, type: int, center: Vector2, dir: 
 			_draw_pinball_bumper(canvas, center, r, col, ink, alpha_mult)
 		CellType.ACCELERATOR, CellType.ROTARY_BOOSTER:
 			_draw_speed_boost_wheel(canvas, center, dir, r, col, ink, alpha_mult)
-		CellType.MANA_SIPHON:
-			_draw_mana_siphon(canvas, center, r, col, alpha_mult)
 		CellType.DROP_TARGET:
 			_draw_drop_target(canvas, center, r, col, ink, alpha_mult)
 		CellType.SPINNER:
@@ -87,15 +85,6 @@ static func _draw_speed_boost_wheel(canvas: CanvasItem, center: Vector2, dir: Ve
 	var perp := Vector2(-dir_norm.y, dir_norm.x) * (r * 0.35)
 	canvas.draw_line(center - dir_norm * (r * 0.2) + perp, tip, Color(1.0, 1.0, 1.0, a), 2.2)
 	canvas.draw_line(center - dir_norm * (r * 0.2) - perp, tip, Color(1.0, 1.0, 1.0, a), 2.2)
-
-static func _draw_mana_siphon(canvas: CanvasItem, center: Vector2, r: float, col: Color, a: float) -> void:
-	canvas.draw_circle(center, r, Color(col.r, col.g, col.b, 0.25 * a))
-	canvas.draw_arc(center, r, 0, TAU, 24, col, 1.5)
-	for i in range(3):
-		var ring_r: float = r * (0.35 + 0.25 * float(i))
-		var ang: float = float(i) * 1.2
-		canvas.draw_arc(center, ring_r, ang, ang + PI * 0.8, 12, col.lightened(0.3), 2.0)
-	canvas.draw_circle(center, r * 0.22, Color(1.0, 1.0, 1.0, a))
 
 static func _draw_drop_target(canvas: CanvasItem, center: Vector2, r: float, col: Color, ink: Color, a: float) -> void:
 	var rect := Rect2(center.x - r * 0.75, center.y - r * 0.75, r * 1.5, r * 1.5)

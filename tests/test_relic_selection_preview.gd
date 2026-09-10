@@ -111,15 +111,15 @@ func test_kinetic_glyph_types_and_directions() -> void:
 			has_booster = true
 	assert_true(has_booster, "storm_of_fragments contains rotary booster cell")
 
-	# Test Mana Siphon component relic
+	# Test Pop Bumper component relic
 	preview.setup_for_relic(&"blood_tithe")
 	var mod_siphon: PolyominoModuleData = preview.get_module_data()
 	assert_true(mod_siphon != null, "blood_tithe module exists")
-	var has_siphon: bool = false
+	var has_pop_bumper: bool = false
 	for c in mod_siphon.cells:
-		if mod_siphon.get_cell_type_at(c) == PolyominoModuleData.CellType.MANA_SIPHON:
-			has_siphon = true
-	assert_true(has_siphon, "blood_tithe contains mana siphon cell")
+		if mod_siphon.get_cell_type_at(c) == PolyominoModuleData.CellType.POP_BUMPER:
+			has_pop_bumper = true
+	assert_true(has_pop_bumper, "blood_tithe contains pop bumper cell")
 
 	# Test Mechanical Diverter component relic
 	preview.setup_for_relic(&"shrapnel_split")

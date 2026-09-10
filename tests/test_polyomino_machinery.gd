@@ -5,8 +5,8 @@ const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 const BoardScript = preload("res://scenes/board/board.gd")
 const PolyominoModuleNodeScript = preload("res://scenes/board/machinery/polyomino_module_node.gd")
 const PinballBumperScript = preload("res://scenes/board/machinery/pinball_bumper.gd")
+const PopBumperScript = preload("res://scenes/board/machinery/pop_bumper.gd")
 const SpeedBoostWheelScript = preload("res://scenes/board/machinery/speed_boost_wheel.gd")
-const ManaSiphonScript = preload("res://scenes/board/machinery/mana_siphon.gd")
 const DirectionalDeflectorScript = preload("res://scenes/board/machinery/directional_deflector.gd")
 const BallScript = preload("res://scenes/balls/ball.gd")
 
@@ -16,7 +16,6 @@ func _init() -> void:
 func run() -> void:
 	test_pinball_bumper_physics_and_energy()
 	test_speed_boost_wheel_acceleration_and_direction()
-	test_mana_siphon_permeability_and_energy()
 	test_directional_deflector_funneling()
 	test_compound_module_assembly_and_scaling()
 	test_compound_module_rotation_and_vectors()
@@ -78,29 +77,6 @@ func test_speed_boost_wheel_acceleration_and_direction() -> void:
 	ball.free()
 	wheel.free()
 
-func test_mana_siphon_permeability_and_energy() -> void:
-	begin("Mana Siphon permeable pass-through and bonus energy without deflection")
-	var siphon: ManaSiphon = ManaSiphonScript.new()
-	siphon.position = Vector2(300, 300)
-	siphon.base_energy = 8
-
-	assert_true(siphon.is_permeable, "mana siphon is marked permeable")
-
-	var initial_vel := Vector2(120, 250)
-	var ball := _create_mock_ball(Vector2(300, 300), initial_vel, 15)
-
-	var res: Dictionary = siphon.trigger_activation(ball, 50)
-	assert_true(res.get("activated", false), "mana siphon activates on ball pass")
-	assert_eq(res.get("energy_granted", 0), 8, "mana siphon grants +8 energy")
-	assert_eq(ball.get_total_energy(), 23, "ball total energy updated to 23")
-
-	# Trajectory must NOT be deflected
-	assert_eq(res.get("impulse_applied", Vector2.ONE), Vector2.ZERO, "impulse applied is Vector2.ZERO")
-	assert_eq(ball.linear_velocity, initial_vel, "ball velocity is completely unchanged")
-
-	ball.free()
-	siphon.free()
-
 func test_directional_deflector_funneling() -> void:
 	begin("Directional Deflector funneling and ball velocity redirection")
 	var deflector: DirectionalDeflector = DirectionalDeflectorScript.new()
@@ -126,11 +102,11 @@ func test_compound_module_assembly_and_scaling() -> void:
 	var mod_data := PolyominoModuleData.new()
 	mod_data.module_id = &"synergy_t_module"
 	mod_data.tier = 2
-	# 4 cells: (0,0)=BUMPER, (1,0)=ACCELERATOR, (2,0)=MANA_SIPHON, (1,1)=DIRECTIONAL_DEFLECTOR
+	# 4 cells: (0,0)=BUMPER, (1,0)=ACCELERATOR, (2,0)=POP_BUMPER, (1,1)=DIRECTIONAL_DEFLECTOR
 	mod_data.cells = [Vector2i(0, 0), Vector2i(1, 0), Vector2i(2, 0), Vector2i(1, 1)]
 	mod_data.set_cell_type_at(Vector2i(0, 0), PolyominoModuleData.CellType.BUMPER)
 	mod_data.set_cell_type_at(Vector2i(1, 0), PolyominoModuleData.CellType.ACCELERATOR)
-	mod_data.set_cell_type_at(Vector2i(2, 0), PolyominoModuleData.CellType.MANA_SIPHON)
+	mod_data.set_cell_type_at(Vector2i(2, 0), PolyominoModuleData.CellType.POP_BUMPER)
 	mod_data.set_cell_type_at(Vector2i(1, 1), PolyominoModuleData.CellType.DIRECTIONAL_DEFLECTOR)
 
 	var item := JunkBoxItem.new(&"item_t", JunkBoxItem.POLYOMINO_MODULE)
@@ -154,7 +130,7 @@ func test_compound_module_assembly_and_scaling() -> void:
 
 	var c2: PolyominoMachineryComponent = module_node.get_component_at_local_cell(Vector2i(2, 0))
 	assert_true(c2 != null, "component at (2,0) exists")
-	assert_true(c2 is ManaSiphonScript, "component at (2,0) is ManaSiphon")
+	assert_true(c2 is PopBumperScript, "component at (2,0) is PopBumper")
 
 	var c3: PolyominoMachineryComponent = module_node.get_component_at_local_cell(Vector2i(1, 1))
 	assert_true(c3 != null, "component at (1,1) exists")
