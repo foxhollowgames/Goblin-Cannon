@@ -18,14 +18,14 @@ func test_ball_base_energy_initialization() -> void:
 	begin("Ball initializes with default base energy (3) and updates when BallDefinition is assigned")
 	var ball: RigidBody2D = BallScene.instantiate() as RigidBody2D
 	ball._ready()
-	assert_eq(ball.get_total_energy(), 3, "Default ball energy should be 3")
-	assert_eq(ball.get_base_energy(), 3, "Default base energy should be 3")
+	assert_eq(ball.get_total_energy(), 3, "Default ball energy is 3")
+	assert_eq(ball.get_base_energy(), 3, "Default base energy is 3")
 	
 	var def: BallDefinition = BallDefinition.new()
 	def.base_energy = 5
 	ball.set_definition(def)
-	assert_eq(ball.get_total_energy(), 5, "Ball energy should match definition base energy")
-	assert_eq(ball.get_base_energy(), 5, "Ball base energy should be 5")
+	assert_eq(ball.get_total_energy(), 5, "Ball energy matches definition base energy")
+	assert_eq(ball.get_base_energy(), 5, "Ball base energy is 5")
 	ball.free()
 
 func test_ball_accumulated_energy_reset() -> void:
@@ -79,7 +79,7 @@ func test_hopper_return_ball_resets_energy() -> void:
 	assert_eq(ball.get_total_energy(), 22, "Energy before hopper return is 22")
 	
 	hopper.return_ball(ball)
-	assert_eq(ball.get_total_energy(), 4, "Energy after hopper return should be base energy 4")
+	assert_eq(ball.get_total_energy(), 4, "Energy after hopper return must be base energy 4")
 	
 	parent_node.free()
 
@@ -102,7 +102,7 @@ func test_board_spawn_ball_resets_energy() -> void:
 	assert_eq(ball.get_total_energy(), 20, "Energy before spawn is 20")
 	
 	board.spawn_ball_at_start(ball)
-	assert_eq(ball.get_total_energy(), 6, "Energy after spawn_ball_at_start should be base energy 6")
+	assert_eq(ball.get_total_energy(), 6, "Energy after spawn_ball_at_start must be base energy 6")
 	
 	board.free()
 

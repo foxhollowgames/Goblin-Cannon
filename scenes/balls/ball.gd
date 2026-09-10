@@ -147,11 +147,13 @@ func set_total_energy_display(amount: int) -> void:
 func get_total_energy() -> int:
 	return _total_energy_display
 
+## Returns the base energy for this ball from definition or default.
 func get_base_energy() -> int:
 	if _definition is BallDefinition:
 		return (_definition as BallDefinition).base_energy
 	return Constants.legacy_display_energy_to_current(20)
 
+## Resets ball energy to its base value and clears temporary board buffs and state.
 func reset_energy_to_base() -> void:
 	_total_energy_display = get_base_energy()
 	_consecutive_vertical_bounces = 0
