@@ -106,6 +106,8 @@ func _rebuild_components() -> void:
 			comp.position = module_data.get_module_center_offset(rotation_step, CELL_WIDTH, CELL_HEIGHT)
 			if comp.has_method("configure_footprint"):
 				comp.configure_footprint(_anchored_cells.size())
+			if comp is WireGateScript and (module_data.activation_threshold > 0 or module_data.goal_type != GoalArchetype.NONE):
+				comp.requires_external_activation = true
 			comp.set_accent_color(_accent_color)
 			comp.component_activated.connect(_on_component_activated)
 			add_child(comp)
@@ -130,6 +132,8 @@ func _rebuild_components() -> void:
 		comp.direction = rot_dir
 		if energy_val > 0:
 			comp.base_energy = energy_val
+		if comp is WireGateScript and (module_data.activation_threshold > 0 or module_data.goal_type != GoalArchetype.NONE):
+			comp.requires_external_activation = true
 		comp.set_accent_color(_accent_color)
 		comp.position = Vector2(float(local_c.x) * CELL_WIDTH, float(local_c.y) * CELL_HEIGHT)
 		comp.component_activated.connect(_on_component_activated)
@@ -266,6 +270,9 @@ func _trigger_goal_completion(ball: Node, bonus_energy: int = 0) -> void:
 		"global_position": global_position
 	}
 	goal_completed.emit(self, module_data.goal_type, module_data.reward_type, ball, reward_data)
+	for comp in _components:
+		if is_instance_valid(comp) and comp.has_method("satisfy_activation_requirement"):
+			comp.satisfy_activation_requirement()
 	_goal_flash_timer = 0.6
 	_floating_banner_text = module_data.goal_title.to_upper() if not module_data.goal_title.is_empty() else "GOAL COMPLETE!"
 	_floating_banner_timer = 1.2
