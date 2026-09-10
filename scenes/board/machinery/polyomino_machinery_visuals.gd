@@ -42,7 +42,7 @@ static func draw_component(canvas: CanvasItem, type: int, center: Vector2, dir: 
 		CellType.GUIDE_TRACK, CellType.GUIDE_RAIL:
 			_draw_guide_track(canvas, center, dir, r, col, ink, alpha_mult)
 		CellType.ORBIT_LOOP:
-			_draw_orbit_loop(canvas, center, dir, r, col, ink, alpha_mult)
+			_draw_orbit_loop(canvas, center, dir, r, col, ink, alpha_mult, footprint_count)
 		CellType.CAPTIVE_BALL:
 			_draw_captive_ball(canvas, center, dir, r, col, ink, alpha_mult)
 		CellType.MECHANICAL_DIVERTER:
@@ -189,14 +189,16 @@ static func _draw_guide_track(canvas: CanvasItem, center: Vector2, dir: Vector2,
 	canvas.draw_line(r2_start, r2_end, ink, 3.5)
 	canvas.draw_line(r2_start, r2_end, Color(0.8, 0.8, 0.85, a), 2.0)
 
-static func _draw_orbit_loop(canvas: CanvasItem, center: Vector2, dir: Vector2, r: float, col: Color, ink: Color, a: float) -> void:
+static func _draw_orbit_loop(canvas: CanvasItem, center: Vector2, dir: Vector2, r: float, col: Color, ink: Color, a: float, footprint_count: int = 1) -> void:
 	var dir_norm: Vector2 = dir.normalized() if dir != Vector2.ZERO else Vector2.UP
 	var angle: float = dir_norm.angle()
-	canvas.draw_arc(center, r, angle - PI * 0.4, angle + PI * 0.4, 16, ink, 3.5)
-	canvas.draw_arc(center, r, angle - PI * 0.4, angle + PI * 0.4, 16, Color(0.7, 0.7, 0.75, a), 2.0)
-	canvas.draw_arc(center, r * 0.65, angle - PI * 0.4, angle + PI * 0.4, 16, ink, 3.0)
-	canvas.draw_arc(center, r * 0.65, angle - PI * 0.4, angle + PI * 0.4, 16, Color(0.5, 0.5, 0.55, a), 1.5)
-	canvas.draw_line(center + dir_norm * (r * 0.3), center + dir_norm * (r * 0.8), col, 2.2)
+	var scale_mult: float = 1.6 if footprint_count >= 5 else (1.3 if footprint_count >= 3 else 1.0)
+	var scaled_r: float = r * scale_mult
+	canvas.draw_arc(center, scaled_r, angle - PI * 0.45, angle + PI * 0.45, 16, ink, 3.5)
+	canvas.draw_arc(center, scaled_r, angle - PI * 0.45, angle + PI * 0.45, 16, Color(0.7, 0.7, 0.75, a), 2.0)
+	canvas.draw_arc(center, scaled_r * 0.65, angle - PI * 0.45, angle + PI * 0.45, 16, ink, 3.0)
+	canvas.draw_arc(center, scaled_r * 0.65, angle - PI * 0.45, angle + PI * 0.45, 16, Color(0.5, 0.5, 0.55, a), 1.5)
+	canvas.draw_line(center + dir_norm * (scaled_r * 0.3), center + dir_norm * (scaled_r * 0.8), col, 2.2)
 
 static func _draw_captive_ball(canvas: CanvasItem, center: Vector2, dir: Vector2, r: float, col: Color, ink: Color, a: float) -> void:
 	var rect := Rect2(center.x - r * 0.8, center.y - r * 0.9, r * 1.6, r * 1.8)
