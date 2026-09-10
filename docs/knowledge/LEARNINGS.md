@@ -126,6 +126,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-115`](#lrn-115) | TASK-074 | `Machinery / Physics` | relic-machinery-contact-debounce | 2026-09-09 |
 | [`LRN-116`](#lrn-116) | TASK-077 | `systems` | Standup Target Machinery Removal | 2026-09-09 |
 | [`LRN-117`](#lrn-117) | TASK-078 | `systems` | Outlane Kickback Machinery Removal | 2026-09-09 |
+| [`LRN-118`](#lrn-118) | TASK-079 | `systems` | Mana Siphon Machinery Component Removal | 2026-09-09 |
 
 ---
 
@@ -2000,5 +2001,21 @@ Removing outlane kickbacks required migrating tactical rebound relics to slingsh
 
 #### Actionable Guideline for Future Agents
 When removing directional impulser components, update rotation test suites and migrate affected relics to tactile rebound kickers.
+
+---
+
+### <a id="lrn-118"></a> LRN-118: Mana Siphon Machinery Component Removal
+- **Task:** `TASK-079`
+- **Category:** `systems`
+- **Created:** `2026-09-09T18:50:22.980497`
+
+#### Context & Problem
+Mana siphons lacked physical kinetic impact in pinball gameplay.
+
+#### Key Insight & Learning
+Removing permeable sensors required migrating relics to active physical widgets and updating showcase and preview unit tests.
+
+#### Actionable Guideline for Future Agents
+When removing passive permeable components, verify all preview, audio, showcase, and placement tests update to active pinball machinery.
 
 ---

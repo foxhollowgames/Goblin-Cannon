@@ -1,6 +1,6 @@
 # TASK-079: Remove Mana Siphon as a Standard Machinery Component
 
-- **Status:** REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Cleanup
 - **Target Branch:** `feature/remove-mana-siphon-component`
