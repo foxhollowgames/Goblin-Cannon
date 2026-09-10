@@ -128,6 +128,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-117`](#lrn-117) | TASK-078 | `systems` | Outlane Kickback Machinery Removal | 2026-09-09 |
 | [`LRN-118`](#lrn-118) | TASK-079 | `systems` | Mana Siphon Machinery Component Removal | 2026-09-09 |
 | [`LRN-119`](#lrn-119) | TASK-081 | `systems` | Directional Deflector Machinery Removal | 2026-09-09 |
+| [`LRN-120`](#lrn-120) | TASK-080 | `machinery` | Wire Gate Downward Retention and Cascade Release | 2026-09-09 |
 
 ---
 
@@ -2034,5 +2035,21 @@ Removing directional deflectors required migrating relics to natural kinetic kic
 
 #### Actionable Guideline for Future Agents
 When removing rigid directional override components, replace them with reactive physical kickers or bumpers and verify all test counts update cleanly.
+
+---
+
+### <a id="lrn-120"></a> LRN-120: Wire Gate Downward Retention and Cascade Release
+- **Task:** `TASK-080`
+- **Category:** `machinery`
+- **Created:** `2026-09-09T18:59:56.351894`
+
+#### Context & Problem
+TASK-080 required changing the wire gate from a one-way backflow blocker into a retentive holding barrier with cascade release.
+
+#### Key Insight & Learning
+Holding cup components require continuous position anchoring during physics process and explicit exit debounce ticks.
+
+#### Actionable Guideline for Future Agents
+When building retentive holding machinery, hold trapped ball positions explicitly in process and clear exit records on cascade release.
 
 ---

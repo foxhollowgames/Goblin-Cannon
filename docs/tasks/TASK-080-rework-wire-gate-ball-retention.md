@@ -1,6 +1,6 @@
 # TASK-080: Rework Wire Gate to Retain Downward Falling Balls and Support Retentive Holding Cups
 
-- **Status:** REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay
 - **Target Branch:** `feature/rework-wire-gate-ball-retention`
