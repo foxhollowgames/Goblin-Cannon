@@ -98,7 +98,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-065](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-065-ui-wireframe-redesign.md) | UI Wireframe and Screen Layout Redesign | UI/Layout/Design | P1 | BACKLOG | `feature/ui-wireframe-redesign` |
 | [TASK-066](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-066-junk-box-manual-relic-placement.md) | Junk Box Manual Relic Placement and Internal Repositioning | UI/Gameplay/Systems | P1 | DONE | `feature/junk-box-manual-relic-placement` |
 | [TASK-067](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-067-remove-relic-tooltip-metadata.md) | Remove Size, Shape, Components, Machinery & Effect, and Tier from Relic Tooltips | UI/Polish | P1 | DONE | `feature/remove-relic-tooltip-metadata` |
-| [TASK-068](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-068-relic-tier-visual-styling.md) | Visual Representation of Relic Tiers Through Styling | UI/Visuals/Art | P2 | BACKLOG | `feature/relic-tier-visual-styling` |
+| [TASK-068](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-068-relic-tier-visual-styling.md) | Visual Representation of Relic Tiers Through Styling | UI/Visuals/Art | P2 | READY | `feature/relic-tier-visual-styling` |
 | [TASK-069](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-069-in-game-machinery-components-dashboard.md) | In-Game Machinery Components Dashboard | Documentation/UI/Tooling | P1 | DONE | `feature/in-game-components-dashboard` |
 | [TASK-070](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-070-pop-bumper-energy-tuning.md) | Tune Pop Bumper Energy to One Energy | Gameplay/Balance | P1 | DONE | `feature/pop-bumper-one-energy` |
 | [TASK-071](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-071-diegetic-relic-activation-categories.md) | Diegetic Relic Activation Categories and Condition Rules | Design | P1 | DONE | `feature/diegetic-relic-activation-categories` |
@@ -112,6 +112,14 @@ python scripts/generate_task_dashboard.py
 | [TASK-079](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-079-remove-mana-siphon-component.md) | Remove Mana Siphon as a Standard Machinery Component | Systems / Cleanup | P1 | DONE | `feature/remove-mana-siphon-component` |
 | [TASK-080](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-080-rework-wire-gate-ball-retention.md) | Rework Wire Gate to Retain Downward Falling Balls and Support Retentive Holding Cups | Systems / Gameplay | P1 | DONE | `feature/rework-wire-gate-ball-retention` |
 | [TASK-081](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-081-remove-directional-deflector-machinery.md) | Remove Directional Deflector Machinery Component from the Game | Systems / Cleanup | P1 | DONE | `feature/remove-directional-deflector-machinery` |
+| [TASK-082](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-082-simplify-relic-tooltip-terminology.md) | Simplify Relic Tooltip Terminology and Section Headers | UI / Polish | P1 | READY | `feature/simplify-relic-tooltip-terminology` |
+| [TASK-083](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-083-rework-wire-gate-component-holding-cup.md) | Rework Wire Gate for Component Holding Cups | Systems / Gameplay | P1 | READY | `feature/wire-gate-component-holding-cup` |
+| [TASK-084](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-084-rename-scoop-sinkhole-to-ball-trap.md) | Rename Scoop Sinkhole to Ball Trap | Systems / Cleanup | P1 | READY | `feature/rename-scoop-sinkhole-to-ball-trap` |
+| [TASK-085](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-085-rework-orbit-loop-v-and-u-shapes.md) | Rework Orbit Loop for Multi-Peg V and U Shapes | Systems / Gameplay | P1 | READY | `feature/rework-orbit-loop-v-and-u-shapes` |
+| [TASK-086](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-086-audit-energy-calculation-and-reset-ball-energy-state.md) | Audit Energy Calculation and Reset Ball Energy State | Systems / Gameplay | P1 | READY | `feature/audit-energy-calculation-and-ball-reset` |
+| [TASK-087](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-087-lower-right-wall-cannonball-and-impact-vfx.md) | Lower Right Battlefield Wall Sprite, Cannonball Projectile, and Impact VFX | UI / Visuals / VFX | P1 | READY | `feature/lower-right-wall-cannonball-impact-vfx` |
+| [TASK-088](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-088-rework-intervention-visual-effects.md) | Rework Intervention Visual Effects and Peg Presentation | UI / Visuals / VFX | P1 | READY | `feature/rework-intervention-visual-effects` |
+
 
 ---
 

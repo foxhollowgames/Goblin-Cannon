@@ -1,6 +1,6 @@
 # TASK-068: Visual Representation of Relic Tiers Through Styling
 
-- **Status:** BACKLOG
+- **Status:** READY
 - **Priority:** P2
 - **Category:** UI / Visuals / Art
 - **Target Branch:** `feature/relic-tier-visual-styling`
