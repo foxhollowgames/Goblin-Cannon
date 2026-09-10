@@ -1,6 +1,6 @@
 # TASK-085: Rework Orbit Loop for Multi-Peg V and U Shapes
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay
 - **Target Branch:** `feature/rework-orbit-loop-v-and-u-shapes`
@@ -53,9 +53,9 @@ Incoming balls enter one lane, travel around the curved apex, and exit through t
 
 ## Acceptance Criteria
 
-- [ ] The orbit loop supports 3-cell V-shape turnaround layouts.
-- [ ] The orbit loop supports 5-cell and 7-cell U-shape turnaround layouts.
-- [ ] Balls enter one leg of the shape and exit the opposite leg with acceleration.
-- [ ] Visual guide rails and directional arrows render across the full multi-cell footprint.
-- [ ] Automated headless tests verify traversal through both shape variations.
-- [ ] All modified source files remain under the 500-line project threshold.
+- [x] The orbit loop supports 3-cell V-shape turnaround layouts.
+- [x] The orbit loop supports 5-cell and 7-cell U-shape turnaround layouts.
+- [x] Balls enter one leg of the shape and exit the opposite leg with acceleration.
+- [x] Visual guide rails and directional arrows render across the full multi-cell footprint.
+- [x] Automated headless tests verify traversal through both shape variations.
+- [x] All modified source files remain under the 500-line project threshold.
