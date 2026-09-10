@@ -136,6 +136,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-125`](#lrn-125) | TASK-083 | `machinery` | wire gate holding cup | 2026-09-10 |
 | [`LRN-126`](#lrn-126) | TASK-084 | `Systems` | Rename Scoop Sinkhole to Ball Trap | 2026-09-10 |
 | [`LRN-127`](#lrn-127) | TASK-085 | `Systems` | Multi-Peg Orbit Loop Turnaround Physics | 2026-09-10 |
+| [`LRN-128`](#lrn-128) | TASK-086 | `gameplay` | ball_energy_reset_lifecycle | 2026-09-10 |
 
 ---
 
@@ -2170,5 +2171,21 @@ Multi-cell orbit loops require waypoints connected across adjacent cells to guid
 
 #### Actionable Guideline for Future Agents
 When configuring multi-cell machinery trajectories, build ordered waypoints from adjacency graphs and ensure entry at Port A exits with Port B orientation, and entry at Port B exits with Port A orientation.
+
+---
+
+### <a id="lrn-128"></a> LRN-128: ball_energy_reset_lifecycle
+- **Task:** `TASK-086`
+- **Category:** `gameplay`
+- **Created:** `2026-09-10T14:48:44.001328`
+
+#### Context & Problem
+Balls returned to the hopper or recycled through the board retained accumulated peg hit energy across runs, leading to compounding exponential energy growth.
+
+#### Key Insight & Learning
+RigidBody2D ball instances must wipe accumulated hit energy back to base energy whenever a ball reaches the bottom of the board, exits offscreen, returns to the hopper, or enters the board for a new drop.
+
+#### Actionable Guideline for Future Agents
+Always invoke ball.reset_energy_to_base() upon board entry, board exit, and hopper recycling to prevent accumulated energy carryover across runs.
 
 ---
