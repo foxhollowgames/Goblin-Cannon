@@ -179,15 +179,15 @@ func test_rollover_switch_hit_accumulation() -> void:
 	node.free()
 
 func test_junk_box_tooltip_exposes_activation_and_effect() -> void:
-	begin("JunkBoxPanel._format_item_tooltip exposes activation requirement and relic effect")
+	begin("JunkBoxPanel._format_item_tooltip exposes trigger and effect")
 	var panel_inst = JunkBoxPanelScript.new()
 	var item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(&"storm_of_fragments")
 
 	var tip: String = panel_inst._format_item_tooltip(item)
-	assert_true(tip.contains("[u]Activation Requirement[/u]"), "Junk Box contains Activation Requirement section")
-	assert_true(tip.contains("Hit all 3 pop bumpers"), "Junk Box contains activation requirement text")
-	assert_true(tip.contains("[u]Relic Effect[/u]"), "Junk Box contains Relic Effect section")
-	assert_true(tip.contains("Multiball Cascade"), "Junk Box contains relic effect text")
+	assert_true(tip.contains("[u]Trigger[/u]"), "Junk Box contains Trigger section")
+	assert_true(tip.contains("Hit all 3 pop bumpers"), "Junk Box contains trigger text")
+	assert_true(tip.contains("[u]Effect[/u]"), "Junk Box contains Effect section")
+	assert_true(tip.contains("Multiball Cascade"), "Junk Box contains effect text")
 	assert_false(tip.contains("Tier:"), "Junk Box omits Tier")
 	assert_false(tip.contains("Size:"), "Junk Box omits Size")
 	assert_false(tip.contains("Shape:"), "Junk Box omits Shape")
@@ -203,7 +203,7 @@ func test_on_board_tooltip_exposes_live_charge_progress() -> void:
 	board_inst.place_module(item, Vector2i(2, 2), 0)
 
 	var tip_before: String = board_inst._format_module_tooltip_body(item)
-	assert_true(tip_before.contains("[u]Activation Requirement[/u]"), "Contains Activation Requirement")
+	assert_true(tip_before.contains("[u]Trigger[/u]"), "Contains Trigger")
 	assert_true(tip_before.contains("[u]Charge Progress[/u]: 0 / 3"), "Shows 0 / 3 initial charge")
 
 	var mod_node: PolyominoModuleNode = board_inst._placed_module_nodes.get(item.instance_id)

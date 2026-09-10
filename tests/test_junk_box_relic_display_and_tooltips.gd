@@ -81,9 +81,8 @@ func test_hover_triggers_flyout_tooltip() -> void:
 	assert_false(body.contains("Size"), "flyout body does not show Size")
 	assert_false(body.contains("Shape"), "flyout body does not show Shape")
 	assert_false(body.contains("Components"), "flyout body does not show Components")
-	assert_false(body.contains("Machinery & Effect"), "flyout body does not show Machinery & Effect")
-	assert_true(body.contains("Activation Requirement"), "flyout body shows Activation Requirement")
-	assert_true(body.contains("Relic Effect"), "flyout body shows Relic Effect")
+	assert_true(body.contains("Trigger"), "flyout body shows Trigger")
+	assert_true(body.contains("Effect"), "flyout body shows Effect")
 	panel.free()
 
 func test_unhover_and_mouse_exit_dismisses_tooltip() -> void:
