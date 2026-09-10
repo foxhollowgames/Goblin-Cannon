@@ -125,6 +125,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-114`](#lrn-114) | TASK-073 | `tooling` | debug_board_machinery_showcase | 2026-09-08 |
 | [`LRN-115`](#lrn-115) | TASK-074 | `Machinery / Physics` | relic-machinery-contact-debounce | 2026-09-09 |
 | [`LRN-116`](#lrn-116) | TASK-077 | `systems` | Standup Target Machinery Removal | 2026-09-09 |
+| [`LRN-117`](#lrn-117) | TASK-078 | `systems` | Outlane Kickback Machinery Removal | 2026-09-09 |
 
 ---
 
@@ -1983,5 +1984,21 @@ Removing standup targets required migrating relics to drop targets or bumpers an
 
 #### Actionable Guideline for Future Agents
 When removing machinery types, migrate relics to readable top-down components and update showcase test catalog counts.
+
+---
+
+### <a id="lrn-117"></a> LRN-117: Outlane Kickback Machinery Removal
+- **Task:** `TASK-078`
+- **Category:** `systems`
+- **Created:** `2026-09-09T18:44:03.525039`
+
+#### Context & Problem
+Outlane kickback solenoids did not fit a top-down 2D pinball pegboard.
+
+#### Key Insight & Learning
+Removing outlane kickbacks required migrating tactical rebound relics to slingshots and updating rotation unit tests.
+
+#### Actionable Guideline for Future Agents
+When removing directional impulser components, update rotation test suites and migrate affected relics to tactile rebound kickers.
 
 ---
