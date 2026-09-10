@@ -131,6 +131,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-120`](#lrn-120) | TASK-080 | `machinery` | Wire Gate Downward Retention and Cascade Release | 2026-09-09 |
 | [`LRN-121`](#lrn-121) | TASK-075 | `ui_and_tooltips` | Campaign 1 Relic Hover Tooltips Audit | 2026-09-09 |
 | [`LRN-122`](#lrn-122) | TASK-076 | `ui` | Relic Tooltip Formatting | 2026-09-09 |
+| [`LRN-123`](#lrn-123) | TASK-068 | `ui` | Relic Tier Visual Styling Architecture | 2026-09-09 |
 
 ---
 
@@ -2085,5 +2086,21 @@ Using a shared formatter in PolyominoRelicDatabase guarantees identical styling 
 
 #### Actionable Guideline for Future Agents
 Format relic tooltips through PolyominoRelicDatabase.format_relic_tooltip to maintain UI consistency across panels.
+
+---
+
+### <a id="lrn-123"></a> LRN-123: Relic Tier Visual Styling Architecture
+- **Task:** `TASK-068`
+- **Category:** `ui`
+- **Created:** `2026-09-09T21:25:20.791693`
+
+#### Context & Problem
+Relic tier indicators were removed from tooltips, requiring intuitive graphic styling across board modules, inventory grid, and reward draft cards.
+
+#### Key Insight & Learning
+Centralizing tier styling into RelicTierVisuals provides consistent ink borders, corner accents, outer glows, and badge shapes across all rendering contexts while keeping node scripts under the 500-line limit.
+
+#### Actionable Guideline for Future Agents
+Always route polyomino module and reward card tier styling through RelicTierVisuals to guarantee visual consistency and preserve hover color states.
 
 ---
