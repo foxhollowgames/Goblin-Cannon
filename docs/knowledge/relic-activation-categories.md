@@ -21,7 +21,7 @@ The table below lists the twelve pinball mini-mission categories and their diege
 | **Spinner Tachometer** | `SPINNER_RPM` | Spinner (`SPINNER`) | Arc tachometer fill needle charges clockwise around spinner axle. |
 | **Bash Toy Demolition** | `BASH_DEMOLITION` | Bash Toy (`BASH_TOY`), Captive Ball (`CAPTIVE_BALL`) | Impact pip or crack fracture pips fill around perimeter. |
 | **Super Jets Cluster** | `SUPER_JETS` | Pop Bumper (`POP_BUMPER`) | Jet bumper skirts flash with colored high-voltage aura. |
-| **Tactical Rebound** | `TACTICAL_REBOUND` | Slingshot (`SLINGSHOT`), Outlane Kickback (`OUTLANE_KICKBACK`) | Solenoid arm illuminates with charged spring tension. |
+| **Tactical Rebound** | `TACTICAL_REBOUND` | Slingshot (`SLINGSHOT`) | Solenoid arm illuminates with charged spring tension. |
 | **Launch Ramp Pot** | `LAUNCH_RAMP` | Vertical Up Kicker (`VERTICAL_UP_KICKER`) | Launch cup pot pulses with vertical trajectory arrow. |
 | **Diverter Switch** | `DIVERTER_SWITCH` | Mechanical Diverter (`MECHANICAL_DIVERTER`) | Diverter gate arm physically snaps into the opposite channel. |
 | **Hurry-Up Frenzy** | `HURRY_UP_FRENZY` | Any Component | Module perimeter border flashes red with countdown pulse. |

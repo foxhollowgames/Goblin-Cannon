@@ -27,7 +27,6 @@ const CaptiveBallScript = preload("res://scenes/board/machinery/captive_ball.gd"
 const MechanicalDiverterScript = preload("res://scenes/board/machinery/mechanical_diverter.gd")
 const VerticalUpKickerScript = preload("res://scenes/board/machinery/vertical_up_kicker.gd")
 const BashToyScript = preload("res://scenes/board/machinery/bash_toy.gd")
-const OutlaneKickbackScript = preload("res://scenes/board/machinery/outlane_kickback.gd")
 
 const GoalArchetype = PolyominoModuleData.GoalArchetype
 const RewardType = PolyominoModuleData.RewardType
@@ -160,7 +159,6 @@ func _create_component_for_type(c_type: int) -> PolyominoMachineryComponent:
 		PolyominoModuleData.CellType.MECHANICAL_DIVERTER: return MechanicalDiverterScript.new()
 		PolyominoModuleData.CellType.VERTICAL_UP_KICKER: return VerticalUpKickerScript.new()
 		PolyominoModuleData.CellType.BASH_TOY: return BashToyScript.new()
-		PolyominoModuleData.CellType.OUTLANE_KICKBACK: return OutlaneKickbackScript.new()
 		_: return PinballBumperScript.new()
 
 func _on_component_activated(comp: PolyominoMachineryComponent, ball: Node, energy: int, impulse: Vector2) -> void:

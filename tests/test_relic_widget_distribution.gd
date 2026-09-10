@@ -40,8 +40,7 @@ func test_all_widgets_represented() -> void:
 		CellType.CAPTIVE_BALL,
 		CellType.MECHANICAL_DIVERTER,
 		CellType.VERTICAL_UP_KICKER,
-		CellType.BASH_TOY,
-		CellType.OUTLANE_KICKBACK
+		CellType.BASH_TOY
 	]
 
 	for t in target_cell_types:
