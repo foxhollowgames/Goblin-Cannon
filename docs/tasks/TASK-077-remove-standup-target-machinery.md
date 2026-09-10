@@ -1,6 +1,6 @@
 # TASK-077: Remove Standup Target Machinery Component from the Game
 
-- **Status:** REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Cleanup
 - **Target Branch:** `feature/remove-standup-target-machinery`

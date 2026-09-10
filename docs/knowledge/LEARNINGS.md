@@ -124,6 +124,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-113`](#lrn-113) | TASK-072 | `gameplay` | multi_peg_machinery | 2026-09-04 |
 | [`LRN-114`](#lrn-114) | TASK-073 | `tooling` | debug_board_machinery_showcase | 2026-09-08 |
 | [`LRN-115`](#lrn-115) | TASK-074 | `Machinery / Physics` | relic-machinery-contact-debounce | 2026-09-09 |
+| [`LRN-116`](#lrn-116) | TASK-077 | `systems` | Standup Target Machinery Removal | 2026-09-09 |
 
 ---
 
@@ -1966,5 +1967,21 @@ PolyominoMachineryComponent now maintains ball contact state and exit ticks. Pol
 
 #### Actionable Guideline for Future Agents
 Always enforce contact debounce and exit cooldowns on continuous physical ball contact with pinball machinery components.
+
+---
+
+### <a id="lrn-116"></a> LRN-116: Standup Target Machinery Removal
+- **Task:** `TASK-077`
+- **Category:** `systems`
+- **Created:** `2026-09-09T18:38:58.901626`
+
+#### Context & Problem
+Standup target components had poor visual clarity on a top-down 2D pinball board.
+
+#### Key Insight & Learning
+Removing standup targets required migrating relics to drop targets or bumpers and updating test suite widget assertions.
+
+#### Actionable Guideline for Future Agents
+When removing machinery types, migrate relics to readable top-down components and update showcase test catalog counts.
 
 ---
