@@ -4,7 +4,7 @@ const PolyominoMachineryComponentScript = preload("res://scenes/board/machinery/
 const PinballBumperScript = preload("res://scenes/board/machinery/pinball_bumper.gd")
 const SpeedBoostWheelScript = preload("res://scenes/board/machinery/speed_boost_wheel.gd")
 const PopBumperScript = preload("res://scenes/board/machinery/pop_bumper.gd")
-const DirectionalDeflectorScript = preload("res://scenes/board/machinery/directional_deflector.gd")
+const SlingshotKickerScript = preload("res://scenes/board/machinery/slingshot_kicker.gd")
 
 func _init() -> void:
 	suite_name = "RelicAudioLevels"
@@ -21,9 +21,9 @@ func test_default_machinery_volume_levels() -> void:
 	var bumper = PinballBumperScript.new()
 	var pop_bumper = PopBumperScript.new()
 	var booster = SpeedBoostWheelScript.new()
-	var deflector = DirectionalDeflectorScript.new()
+	var slingshot = SlingshotKickerScript.new()
 	
-	var components: Array = [bumper, pop_bumper, booster, deflector]
+	var components: Array = [bumper, pop_bumper, booster, slingshot]
 	for comp in components:
 		var player: AudioStreamPlayer2D = comp.get_audio_player()
 		assert_true(player != null, "audio player exists for component")
@@ -37,9 +37,9 @@ func test_dedicated_audio_bus_routing() -> void:
 	var bumper = PinballBumperScript.new()
 	var pop_bumper = PopBumperScript.new()
 	var booster = SpeedBoostWheelScript.new()
-	var deflector = DirectionalDeflectorScript.new()
+	var slingshot = SlingshotKickerScript.new()
 	
-	var components: Array = [bumper, pop_bumper, booster, deflector]
+	var components: Array = [bumper, pop_bumper, booster, slingshot]
 	for comp in components:
 		var player: AudioStreamPlayer2D = comp.get_audio_player()
 		assert_true(player != null, "audio player exists for component")

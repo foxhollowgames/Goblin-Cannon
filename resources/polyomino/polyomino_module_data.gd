@@ -10,7 +10,6 @@ enum CellType {
 	BUMPER = 3,
 	ACCELERATOR = 4,
 	ROTARY_BOOSTER = 5,
-	DIRECTIONAL_DEFLECTOR = 7,
 	ROLLOVER_SWITCH = 8,
 	POP_BUMPER = 9,
 	DROP_TARGET = 10,
@@ -221,7 +220,7 @@ func get_cell_energy_value(cell: Vector2i) -> int:
 	match t:
 		CellType.BUMPER: return 5
 		CellType.ACCELERATOR, CellType.ROTARY_BOOSTER: return 3
-		CellType.DIRECTIONAL_DEFLECTOR, CellType.FUNNEL, CellType.GUIDE_RAIL: return 2
+		CellType.FUNNEL, CellType.GUIDE_RAIL: return 2
 		_: return 0
 
 func set_cell_energy_value(cell: Vector2i, amount: int) -> void:

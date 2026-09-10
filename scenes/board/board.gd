@@ -3254,7 +3254,7 @@ func _on_module_machinery_triggered(comp: Node, ball: Node, energy: int, impulse
 				match comp.cell_type:
 					PolyominoModuleData.CellType.ACCELERATOR, PolyominoModuleData.CellType.ROTARY_BOOSTER:
 						eff_type = BallHitEffect.EffectType.LIGHTNING
-					PolyominoModuleData.CellType.DIRECTIONAL_DEFLECTOR, PolyominoModuleData.CellType.FUNNEL, PolyominoModuleData.CellType.GUIDE_RAIL:
+					PolyominoModuleData.CellType.FUNNEL, PolyominoModuleData.CellType.GUIDE_RAIL:
 						eff_type = BallHitEffect.EffectType.RUBBERY
 					_:
 						eff_type = BallHitEffect.EffectType.EXPLOSIVE

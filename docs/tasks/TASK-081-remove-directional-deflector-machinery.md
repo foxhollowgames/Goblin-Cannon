@@ -1,6 +1,6 @@
 # TASK-081: Remove Directional Deflector Machinery Component from the Game
 
-- **Status:** READY
+- **Status:** REVIEW
 - **Priority:** P1
 - **Category:** Systems / Cleanup
 - **Target Branch:** `feature/remove-directional-deflector-machinery`
@@ -36,9 +36,9 @@ Replace directional deflectors with natural kinetic components like slingshots, 
 
 ## Acceptance Criteria
 
-- [ ] `directional_deflector.gd` is removed from the codebase.
-- [ ] Directional deflectors no longer appear in the machinery showcase or relics.
-- [ ] Relics with directional deflectors migrate to natural kinetic components.
-- [ ] Visual rendering and module node code no longer reference directional deflectors.
-- [ ] Headless unit tests pass cleanly.
-- [ ] All modified source files remain under 500 lines.
+- [x] `directional_deflector.gd` is removed from the codebase.
+- [x] Directional deflectors no longer appear in the machinery showcase or relics.
+- [x] Relics with directional deflectors migrate to natural kinetic components.
+- [x] Visual rendering and module node code no longer reference directional deflectors.
+- [x] Headless unit tests pass cleanly.
+- [x] All modified source files remain under 500 lines.

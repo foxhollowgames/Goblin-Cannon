@@ -29,8 +29,8 @@ static func draw_component(canvas: CanvasItem, type: int, center: Vector2, dir: 
 			_draw_spinner(canvas, center, r, col, ink, alpha_mult)
 		CellType.ROLLOVER_SWITCH:
 			_draw_rollover_switch(canvas, center, r, col, alpha_mult)
-		CellType.DIRECTIONAL_DEFLECTOR, CellType.FUNNEL:
-			_draw_directional_deflector(canvas, center, dir, r, col, ink, alpha_mult)
+		CellType.FUNNEL:
+			_draw_funnel(canvas, center, dir, r, col, ink, alpha_mult)
 		CellType.SLINGSHOT:
 			_draw_slingshot(canvas, center, dir, r, col, ink, alpha_mult)
 		CellType.BASH_TOY:
@@ -110,7 +110,7 @@ static func _draw_rollover_switch(canvas: CanvasItem, center: Vector2, r: float,
 	canvas.draw_circle(center, r * 0.6, Color(1.0, 0.85, 0.2, a))
 	canvas.draw_circle(center, r * 0.22, Color(1.0, 1.0, 1.0, a))
 
-static func _draw_directional_deflector(canvas: CanvasItem, center: Vector2, dir: Vector2, r: float, col: Color, ink: Color, a: float) -> void:
+static func _draw_funnel(canvas: CanvasItem, center: Vector2, dir: Vector2, r: float, col: Color, ink: Color, a: float) -> void:
 	canvas.draw_circle(center, r, ink)
 	canvas.draw_circle(center, r - 1.5, col.darkened(0.6))
 	canvas.draw_arc(center, r, 0, TAU, 24, col, 2.0)
