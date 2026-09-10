@@ -20,10 +20,14 @@ func run() -> void:
 	test_wire_gate_directional_passage()
 	test_slingshot_kicker_impulse()
 
+var _mock_ball_counter: int = 1
+
 func _create_mock_ball(pos: Vector2 = Vector2.ZERO, vel: Vector2 = Vector2.ZERO, start_energy: int = 10) -> RigidBody2D:
 	var ball := RigidBody2D.new()
 	ball.set_script(BallScript)
 	ball._ready()
+	ball.set_ball_id(_mock_ball_counter)
+	_mock_ball_counter += 1
 	ball.position = pos
 	ball.linear_velocity = vel
 	ball.set_total_energy_display(start_energy)
@@ -110,24 +114,51 @@ func test_drop_target_registration_and_reset() -> void:
 	target.free()
 
 func test_wire_gate_directional_passage() -> void:
-	begin("One-way wire gate allows forward passage and deflects reverse motion")
+	begin("Wire gate retains downward falling balls and releases cascade at max capacity")
 	var gate: Node = WireGateScript.new()
 	gate._ready()
 	gate.position = Vector2(100, 100)
 	gate.direction = Vector2.DOWN
+	gate.max_capacity = 3
 
+	# 1. First downward falling ball is retained in the cup
 	var ball1 := _create_mock_ball(Vector2(100, 100), Vector2(0, 100), 10)
 	var res1: Dictionary = gate.trigger_activation(ball1, 10)
-	assert_true(res1.get("activated", false), "wire gate allows forward ball passage")
-	assert_gt(ball1.linear_velocity.y, 0.0, "forward ball continues downward")
+	assert_true(res1.get("activated", false), "wire gate activates on downward ball")
+	assert_eq(gate.retained_balls.size(), 1, "holding cup retains 1 ball")
+	assert_false(gate.is_open, "gate remains closed after 1 ball")
+	assert_eq(ball1.linear_velocity, Vector2.ZERO, "retained ball velocity is stopped")
 
-	var ball2 := _create_mock_ball(Vector2(100, 100), Vector2(0, -100), 10)
+	# 2. Second downward falling ball is retained
+	var ball2 := _create_mock_ball(Vector2(100, 100), Vector2(0, 80), 10)
 	var res2: Dictionary = gate.trigger_activation(ball2, 20)
-	assert_true(res2.get("activated", false), "wire gate interacts with reverse ball")
-	assert_gt(ball2.linear_velocity.y, 0.0, "reverse ball is bounced back downward")
+	assert_true(res2.get("activated", false), "wire gate activates on second ball")
+	assert_eq(gate.retained_balls.size(), 2, "holding cup retains 2 balls")
+	assert_false(gate.is_open, "gate remains closed after 2 balls")
+
+	# 3. Third downward falling ball reaches max capacity (3) and triggers cascade release
+	var cascade_emitted: Array = [false]
+	gate.cascade_released.connect(func(_g, _balls): cascade_emitted[0] = true)
+
+	var ball3 := _create_mock_ball(Vector2(100, 100), Vector2(0, 90), 10)
+	var res3: Dictionary = gate.trigger_activation(ball3, 30)
+	assert_true(res3.get("activated", false), "wire gate activates on third ball")
+	assert_true(cascade_emitted[0], "cascade_released signal emitted at full capacity")
+	assert_true(gate.is_open, "wire gate opens on cascade release")
+	assert_eq(gate.retained_balls.size(), 0, "holding cup empties all retained balls")
+	assert_gt(res3.get("impulse_applied", Vector2.ZERO).y, 0.0, "downward impulse applied on release")
+
+	# 4. Reverse motion ball interaction when closed
+	gate.close_gate()
+	var ball4 := _create_mock_ball(Vector2(100, 100), Vector2(0, -100), 10)
+	var res4: Dictionary = gate.trigger_activation(ball4, 40)
+	assert_true(res4.get("activated", false), "wire gate interacts with reverse upward ball")
+	assert_gt(ball4.linear_velocity.y, 0.0, "reverse ball is bounced downward")
 
 	ball1.free()
 	ball2.free()
+	ball3.free()
+	ball4.free()
 	gate.free()
 
 func test_slingshot_kicker_impulse() -> void:

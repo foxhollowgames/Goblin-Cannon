@@ -1,6 +1,6 @@
 # TASK-080: Rework Wire Gate to Retain Downward Falling Balls and Support Retentive Holding Cups
 
-- **Status:** READY
+- **Status:** REVIEW
 - **Priority:** P1
 - **Category:** Systems / Gameplay
 - **Target Branch:** `feature/rework-wire-gate-ball-retention`
@@ -42,9 +42,10 @@ Allow components to trap balls in a cup until full, then release all balls as a 
 
 ## Acceptance Criteria
 
-- [ ] Wire gates prevent downward ball drops while in the closed state.
-- [ ] Retentive holding cup mechanics track accumulated balls.
-- [ ] The gate opens and releases all trapped balls when capacity is reached.
-- [ ] Visual indicators show open, closed, and fill states.
-- [ ] Headless unit tests pass cleanly.
-- [ ] All modified source files remain under 500 lines.
+- [x] Wire gates prevent downward ball drops while in the closed state.
+- [x] Retentive holding cup mechanics track accumulated balls.
+- [x] The gate opens and releases all trapped balls when capacity is reached.
+- [x] Visual indicators show open, closed, and fill states.
+- [x] Headless unit tests pass cleanly.
+- [x] All modified source files remain under 500 lines.
+
