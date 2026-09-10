@@ -127,6 +127,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-116`](#lrn-116) | TASK-077 | `systems` | Standup Target Machinery Removal | 2026-09-09 |
 | [`LRN-117`](#lrn-117) | TASK-078 | `systems` | Outlane Kickback Machinery Removal | 2026-09-09 |
 | [`LRN-118`](#lrn-118) | TASK-079 | `systems` | Mana Siphon Machinery Component Removal | 2026-09-09 |
+| [`LRN-119`](#lrn-119) | TASK-081 | `systems` | Directional Deflector Machinery Removal | 2026-09-09 |
 
 ---
 
@@ -2017,5 +2018,21 @@ Removing permeable sensors required migrating relics to active physical widgets 
 
 #### Actionable Guideline for Future Agents
 When removing passive permeable components, verify all preview, audio, showcase, and placement tests update to active pinball machinery.
+
+---
+
+### <a id="lrn-119"></a> LRN-119: Directional Deflector Machinery Removal
+- **Task:** `TASK-081`
+- **Category:** `systems`
+- **Created:** `2026-09-09T18:55:21.866995`
+
+#### Context & Problem
+Directional deflector baffles imposed rigid unnatural trajectories that clashed with pegboard ball physics.
+
+#### Key Insight & Learning
+Removing directional deflectors required migrating relics to natural kinetic kickers and bumpers and updating showcase test catalog counts.
+
+#### Actionable Guideline for Future Agents
+When removing rigid directional override components, replace them with reactive physical kickers or bumpers and verify all test counts update cleanly.
 
 ---

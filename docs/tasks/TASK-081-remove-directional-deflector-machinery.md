@@ -1,6 +1,6 @@
 # TASK-081: Remove Directional Deflector Machinery Component from the Game
 
-- **Status:** REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Cleanup
 - **Target Branch:** `feature/remove-directional-deflector-machinery`
