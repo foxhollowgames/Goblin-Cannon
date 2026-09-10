@@ -51,8 +51,6 @@ static func draw_component(canvas: CanvasItem, type: int, center: Vector2, dir: 
 			_draw_diverter(canvas, center, dir, r, col, ink, alpha_mult)
 		CellType.VERTICAL_UP_KICKER:
 			_draw_vuk(canvas, center, dir, r, col, ink, alpha_mult)
-		CellType.OUTLANE_KICKBACK:
-			_draw_outlane_kickback(canvas, center, dir, r, col, ink, alpha_mult)
 		_:
 			canvas.draw_circle(center, r * 0.5, ink)
 			canvas.draw_circle(center, r * 0.35, col)
@@ -235,12 +233,3 @@ static func _draw_vuk(canvas: CanvasItem, center: Vector2, dir: Vector2, r: floa
 	canvas.draw_line(center, center + dir_norm * (r * 1.2), ink, 4.5)
 	canvas.draw_line(center, center + dir_norm * (r * 1.2), col.lightened(0.3), 2.5)
 
-static func _draw_outlane_kickback(canvas: CanvasItem, center: Vector2, dir: Vector2, r: float, col: Color, ink: Color, a: float) -> void:
-	canvas.draw_circle(center, r, ink)
-	canvas.draw_circle(center, r - 1.5, col.darkened(0.4))
-	canvas.draw_arc(center, r, 0, TAU, 24, col, 2.0)
-	var dir_norm: Vector2 = dir.normalized() if dir != Vector2.ZERO else Vector2.UP
-	var pin_start: Vector2 = center - dir_norm * (r * 1.4)
-	var pin_end: Vector2 = center - dir_norm * (r * 0.25)
-	canvas.draw_line(pin_start, pin_end, ink, maxf(5.0, r * 0.35))
-	canvas.draw_line(pin_start, pin_end, col.lightened(0.3), maxf(3.0, r * 0.22))

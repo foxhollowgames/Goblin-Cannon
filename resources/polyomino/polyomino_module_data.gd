@@ -25,8 +25,7 @@ enum CellType {
 	CAPTIVE_BALL = 19,
 	MECHANICAL_DIVERTER = 20,
 	VERTICAL_UP_KICKER = 21,
-	BASH_TOY = 22,
-	OUTLANE_KICKBACK = 23
+	BASH_TOY = 22
 }
 
 enum MachineryLayoutMode {

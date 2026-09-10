@@ -1,6 +1,6 @@
 # TASK-078: Remove Outlane Kickback Machinery Component from the Game
 
-- **Status:** READY
+- **Status:** REVIEW
 - **Priority:** P1
 - **Category:** Systems / Cleanup
 - **Target Branch:** `feature/remove-outlane-kickback-machinery`
@@ -38,9 +38,9 @@ Replace existing outlane kickback relics with standard pinball components like s
 
 ## Acceptance Criteria
 
-- [ ] `outlane_kickback.gd` is removed from the codebase.
-- [ ] Outlane kickbacks no longer appear in the machinery showcase or relics.
-- [ ] Relics with outlane kickbacks migrate to active physical components.
-- [ ] Visual rendering and diegetic code no longer reference outlane kickbacks.
-- [ ] Headless unit tests pass cleanly.
-- [ ] All modified source files remain under 500 lines.
+- [x] `outlane_kickback.gd` is removed from the codebase.
+- [x] Outlane kickbacks no longer appear in the machinery showcase or relics.
+- [x] Relics with outlane kickbacks migrate to active physical components.
+- [x] Visual rendering and diegetic code no longer reference outlane kickbacks.
+- [x] Headless unit tests pass cleanly.
+- [x] All modified source files remain under 500 lines.

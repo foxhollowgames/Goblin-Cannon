@@ -3,7 +3,6 @@ extends "res://tests/test_base.gd"
 const PolyominoModuleNodeScript = preload("res://scenes/board/machinery/polyomino_module_node.gd")
 const GuideTrackScript = preload("res://scenes/board/machinery/guide_track.gd")
 const VerticalUpKickerScript = preload("res://scenes/board/machinery/vertical_up_kicker.gd")
-const OutlaneKickbackScript = preload("res://scenes/board/machinery/outlane_kickback.gd")
 const ScoopSinkholeScript = preload("res://scenes/board/machinery/scoop_sinkhole.gd")
 const BallLockScript = preload("res://scenes/board/machinery/ball_lock.gd")
 const MechanicalDiverterScript = preload("res://scenes/board/machinery/mechanical_diverter.gd")
@@ -16,7 +15,6 @@ func _init() -> void:
 func run() -> void:
 	test_guide_track_rotation()
 	test_kicker_rotation()
-	test_outlane_kickback_rotation()
 	test_scoop_sinkhole_rotation()
 	test_ball_lock_rotation()
 	test_mechanical_diverter_rotation()
@@ -48,17 +46,6 @@ func test_kicker_rotation() -> void:
 		assert_eq(kicker.launch_direction, d, "Launch direction matches component direction %s" % str(d))
 		var impulse: Vector2 = kicker._compute_impulse(null)
 		assert_eq(impulse, d * kicker.impulse_strength, "Impulse vector matches rotated direction")
-
-func test_outlane_kickback_rotation() -> void:
-	begin("OutlaneKickback impulse vector transforms across 0, 90, 180, and 270 degree rotation steps")
-	var kickback = autofree(OutlaneKickbackScript.new()) as OutlaneKickback
-	
-	var dirs: Array[Vector2] = [Vector2(0, -1), Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0)]
-	for d in dirs:
-		kickback.direction = d
-		var impulse: Vector2 = kickback._compute_impulse(null)
-		assert_eq(impulse, d * kickback.impulse_strength, "Outlane kickback impulse matches rotated direction %s" % str(d))
-
 func test_scoop_sinkhole_rotation() -> void:
 	begin("ScoopSinkhole eject_direction transforms across rotation steps")
 	var scoop = autofree(ScoopSinkholeScript.new()) as ScoopSinkhole
