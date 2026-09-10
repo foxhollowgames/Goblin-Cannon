@@ -39,7 +39,7 @@ def test_components_data_integrity():
 
     expected_ids = [
         "POP_BUMPER", "DROP_TARGET", "SPINNER",
-        "SCOOP_SINKHOLE", "BALL_LOCK", "GUIDE_TRACK", "ORBIT_LOOP",
+        "BALL_TRAP", "BALL_LOCK", "GUIDE_TRACK", "ORBIT_LOOP",
         "SLINGSHOT", "ROLLOVER_SWITCH", "CAPTIVE_BALL", "MECHANICAL_DIVERTER",
         "VERTICAL_UP_KICKER", "BASH_TOY"
     ]

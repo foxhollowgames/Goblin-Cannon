@@ -3,7 +3,8 @@ extends "res://tests/test_base.gd"
 const PolyominoModuleNodeScript = preload("res://scenes/board/machinery/polyomino_module_node.gd")
 const GuideTrackScript = preload("res://scenes/board/machinery/guide_track.gd")
 const VerticalUpKickerScript = preload("res://scenes/board/machinery/vertical_up_kicker.gd")
-const ScoopSinkholeScript = preload("res://scenes/board/machinery/scoop_sinkhole.gd")
+const BallTrapScript = preload("res://scenes/board/machinery/ball_trap.gd")
+const ScoopSinkholeScript = BallTrapScript
 const BallLockScript = preload("res://scenes/board/machinery/ball_lock.gd")
 const MechanicalDiverterScript = preload("res://scenes/board/machinery/mechanical_diverter.gd")
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
@@ -15,7 +16,7 @@ func _init() -> void:
 func run() -> void:
 	test_guide_track_rotation()
 	test_kicker_rotation()
-	test_scoop_sinkhole_rotation()
+	test_ball_trap_rotation()
 	test_ball_lock_rotation()
 	test_mechanical_diverter_rotation()
 	test_polyomino_module_node_rebuild_rotations()
@@ -46,14 +47,14 @@ func test_kicker_rotation() -> void:
 		assert_eq(kicker.launch_direction, d, "Launch direction matches component direction %s" % str(d))
 		var impulse: Vector2 = kicker._compute_impulse(null)
 		assert_eq(impulse, d * kicker.impulse_strength, "Impulse vector matches rotated direction")
-func test_scoop_sinkhole_rotation() -> void:
-	begin("ScoopSinkhole eject_direction transforms across rotation steps")
-	var scoop = autofree(ScoopSinkholeScript.new()) as ScoopSinkhole
+func test_ball_trap_rotation() -> void:
+	begin("BallTrap eject_direction transforms across rotation steps")
+	var trap = autofree(BallTrapScript.new()) as BallTrap
 	
 	var dirs: Array[Vector2] = [Vector2(0, -1), Vector2(1, 0), Vector2(0, 1), Vector2(-1, 0)]
 	for d in dirs:
-		scoop.direction = d
-		assert_eq(scoop.eject_direction, d, "Eject direction matches rotated direction %s" % str(d))
+		trap.direction = d
+		assert_eq(trap.eject_direction, d, "Eject direction matches rotated direction %s" % str(d))
 
 func test_ball_lock_rotation() -> void:
 	begin("BallLock impulse vector transforms across rotation steps")

@@ -112,7 +112,7 @@ static func draw_module(canvas: CanvasItem, module_node: Node2D, module_data: Po
 						else:
 							canvas.draw_circle(pip_pos, 2.5, Color(0.7, 0.7, 0.4, 0.7))
 
-				PolyominoModuleData.CellType.BALL_LOCK, PolyominoModuleData.CellType.SCOOP_SINKHOLE:
+				PolyominoModuleData.CellType.BALL_LOCK, PolyominoModuleData.CellType.BALL_TRAP, PolyominoModuleData.CellType.SCOOP_SINKHOLE:
 					if module_node._lock_count > 0:
 						canvas.draw_circle(c_pos, 7.0, Color(0.85, 0.95, 1.0, 0.95))
 						canvas.draw_arc(c_pos, 9.0, 0, TAU, 16, Color(0.3, 0.8, 1.0, 0.9), 2.0)

@@ -1,12 +1,13 @@
 extends PolyominoMachineryComponent
-class_name ScoopSinkhole
+class_name BallTrap
 
-signal ball_captured(scoop_node: Node, ball: Node)
-signal ball_ejected(scoop_node: Node, ball: Node)
+signal ball_captured(trap_node: Node, ball: Node)
+signal ball_ejected(trap_node: Node, ball: Node)
 
 @export var hold_duration_sec: float = 0.5
 @export var eject_direction: Vector2 = Vector2.UP
 
+const BALL_TRAP_EJECT_COOLDOWN_TICKS: int = 45
 const SINKHOLE_EJECT_COOLDOWN_TICKS: int = 45
 
 var _captured_balls: Array[Node] = []
@@ -25,9 +26,9 @@ func _init() -> void:
 	component_radius = 20.0
 	base_energy = 10
 	impulse_strength = 350.0
-	exit_cooldown_ticks = SINKHOLE_EJECT_COOLDOWN_TICKS
-	hit_cooldown_ticks = SINKHOLE_EJECT_COOLDOWN_TICKS
-	cell_type = PolyominoModuleData.CellType.SCOOP_SINKHOLE
+	exit_cooldown_ticks = BALL_TRAP_EJECT_COOLDOWN_TICKS
+	hit_cooldown_ticks = BALL_TRAP_EJECT_COOLDOWN_TICKS
+	cell_type = PolyominoModuleData.CellType.BALL_TRAP
 
 func configure_footprint(cell_count: int) -> void:
 	if cell_count >= 9:
@@ -162,7 +163,7 @@ func _draw_component_body() -> void:
 	draw_circle(Vector2.ZERO, r, _accent_color.darkened(0.4))
 	draw_arc(Vector2.ZERO, r, 0, TAU, 24, _accent_color, 2.0)
 	
-	# Draw dark sinkhole cutout
+	# Draw dark ball trap cutout
 	var cutout_r: float = component_radius * 0.8
 	var cutout_col := Color(0.0, 0.0, 0.0, 0.5)
 	draw_circle(Vector2.ZERO, cutout_r, cutout_col)

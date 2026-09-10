@@ -35,8 +35,8 @@ static func draw_component(canvas: CanvasItem, type: int, center: Vector2, dir: 
 			_draw_slingshot(canvas, center, dir, r, col, ink, alpha_mult)
 		CellType.BASH_TOY:
 			_draw_bash_toy(canvas, center, r, col, ink, footprint_count, alpha_mult)
-		CellType.SCOOP_SINKHOLE:
-			_draw_scoop_sinkhole(canvas, center, r, col, ink, alpha_mult)
+		CellType.BALL_TRAP, CellType.SCOOP_SINKHOLE:
+			_draw_ball_trap(canvas, center, r, col, ink, alpha_mult)
 		CellType.BALL_LOCK:
 			_draw_ball_lock(canvas, center, dir, r, col, ink, alpha_mult)
 		CellType.GUIDE_TRACK, CellType.GUIDE_RAIL:
@@ -153,12 +153,15 @@ static func _draw_bash_toy(canvas: CanvasItem, center: Vector2, r: float, col: C
 	canvas.draw_circle(center, r * 0.35, col)
 	canvas.draw_circle(center, r * 0.18, Color(1.0, 1.0, 1.0, a))
 
-static func _draw_scoop_sinkhole(canvas: CanvasItem, center: Vector2, r: float, col: Color, ink: Color, a: float) -> void:
+static func _draw_ball_trap(canvas: CanvasItem, center: Vector2, r: float, col: Color, ink: Color, a: float) -> void:
 	canvas.draw_circle(center, r, ink)
 	canvas.draw_circle(center, r - 1.5, col.darkened(0.4))
 	canvas.draw_arc(center, r, 0, TAU, 24, col, 2.0)
 	canvas.draw_circle(center, r * 0.75, Color(0.0, 0.0, 0.0, 0.8 * a))
 	canvas.draw_arc(center, r * 0.75, 0, TAU, 20, col.lightened(0.2), 1.5)
+
+static func _draw_scoop_sinkhole(canvas: CanvasItem, center: Vector2, r: float, col: Color, ink: Color, a: float) -> void:
+	_draw_ball_trap(canvas, center, r, col, ink, a)
 
 static func _draw_ball_lock(canvas: CanvasItem, center: Vector2, dir: Vector2, r: float, col: Color, ink: Color, a: float) -> void:
 	canvas.draw_circle(center, r, ink)

@@ -31,7 +31,7 @@ func test_all_widgets_represented() -> void:
 		CellType.POP_BUMPER,
 		CellType.DROP_TARGET,
 		CellType.SPINNER,
-		CellType.SCOOP_SINKHOLE,
+		CellType.BALL_TRAP,
 		CellType.BALL_LOCK,
 		CellType.GUIDE_TRACK,
 		CellType.ORBIT_LOOP,
