@@ -123,6 +123,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-112`](#lrn-112) | TASK-070 | `machinery` | pop_bumper_energy_tuning | 2026-09-04 |
 | [`LRN-113`](#lrn-113) | TASK-072 | `gameplay` | multi_peg_machinery | 2026-09-04 |
 | [`LRN-114`](#lrn-114) | TASK-073 | `tooling` | debug_board_machinery_showcase | 2026-09-08 |
+| [`LRN-115`](#lrn-115) | TASK-074 | `Machinery / Physics` | relic-machinery-contact-debounce | 2026-09-09 |
 
 ---
 
@@ -1949,5 +1950,21 @@ Extracting showcase definitions, layout calculation, and tooltip formatting into
 
 #### Actionable Guideline for Future Agents
 Use dedicated showcase helper classes to build debug playfield configurations and format specialized inspection tooltips without modifying core game logic or leaking metadata to standard campaign items.
+
+---
+
+### <a id="lrn-115"></a> LRN-115: relic-machinery-contact-debounce
+- **Task:** `TASK-074`
+- **Category:** `Machinery / Physics`
+- **Created:** `2026-09-09T18:32:35.469849`
+
+#### Context & Problem
+Continuous ball contact across physics ticks caused repeated activations on machinery components.
+
+#### Key Insight & Learning
+PolyominoMachineryComponent now maintains ball contact state and exit ticks. PolyominoModuleNode.check_ball_collision gates activation on initial contact entry and clears contact on exit.
+
+#### Actionable Guideline for Future Agents
+Always enforce contact debounce and exit cooldowns on continuous physical ball contact with pinball machinery components.
 
 ---
