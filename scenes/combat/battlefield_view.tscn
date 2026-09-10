@@ -14,7 +14,7 @@ script = ExtResource("1_bf")
 script = ExtResource("2_terrain")
 
 [node name="WallVisual" type="Node2D" parent="."]
-position = Vector2(0, 0)
+position = Vector2(265, 628)
 script = ExtResource("3_wall")
 
 [node name="Fortification1" parent="WallVisual" instance=ExtResource("5_fort")]

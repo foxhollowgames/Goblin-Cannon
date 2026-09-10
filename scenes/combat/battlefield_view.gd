@@ -12,12 +12,12 @@ signal terrain_advance_stopped(duration: float)
 #region Constants
 const BATTLEFIELD_WIDTH: float = 320.0
 const BATTLEFIELD_HEIGHT: float = 720.0
-const WALL_HEIGHT: float = 72.0
+const WALL_HEIGHT: float = 100.0
 const CANNON_OVERLAY_OFFSET_Y: float = 0.0
 const CANNON_ZONE_TOP: float = 600.0 + CANNON_OVERLAY_OFFSET_Y
-const CANNON_MUZZLE_POS: Vector2 = Vector2(160.0, 616.0 + CANNON_OVERLAY_OFFSET_Y)
-const WALL_IMPACT_POS: Vector2 = Vector2(160.0, 36.0)
-const CANNON_BLAST_CENTER: Vector2 = Vector2(160.0, 640.0 + CANNON_OVERLAY_OFFSET_Y)
+const CANNON_MUZZLE_POS: Vector2 = Vector2(72.0, 628.0)
+const WALL_IMPACT_POS: Vector2 = Vector2(265.0, 628.0)
+const CANNON_BLAST_CENTER: Vector2 = Vector2(72.0, 628.0)
 
 const CANNON_ROLL_DISTANCE: float = 200.0
 const CANNON_ROLL_FORWARD_DURATION: float = 1.4
@@ -38,6 +38,7 @@ var _wall_impact_scene: PackedScene = null
 var _muzzle_blast_scene: PackedScene = null
 var _vfx_container: Node2D = null
 var _cannon_overlay_local_pos: Vector2 = Vector2.ZERO
+var _wall_overlay_local_pos: Vector2 = Vector2.ZERO
 var _cannon_roll_offset_y: float = 0.0
 var _roll_tween: Tween = null
 #endregion
@@ -49,12 +50,19 @@ func _ready() -> void:
 	_load_vfx_scenes()
 
 func _process(_delta: float) -> void:
+	var target_offset := Vector2(0.0, CANNON_OVERLAY_OFFSET_Y + _cannon_roll_offset_y)
 	if _cannon_visual:
-		var target_offset := Vector2(0.0, CANNON_OVERLAY_OFFSET_Y + _cannon_roll_offset_y)
 		if _cannon_visual.get_parent() != self:
 			_cannon_visual.global_position = global_position + _cannon_overlay_local_pos + target_offset
 		else:
 			_cannon_visual.position = _cannon_overlay_local_pos + target_offset
+	if _wall_visual:
+		if _wall_visual.get_parent() != self:
+			_wall_visual.global_position = global_position + _wall_overlay_local_pos
+		else:
+			_wall_visual.position = _wall_overlay_local_pos
+	if _vfx_container and _vfx_container.get_parent() != self:
+		_vfx_container.global_position = global_position
 
 func _exit_tree() -> void:
 	if _main_cannon and _main_cannon.has_signal("main_fired") and _main_cannon.main_fired.is_connected(_on_main_fired):
@@ -125,14 +133,16 @@ func _init_terrain() -> void:
 func _init_wall_and_cannon() -> void:
 	_wall_visual = get_node_or_null("WallVisual") as Node2D
 	_cannon_visual = get_node_or_null("CannonVisual") as Node2D
+	var main: Node = get_tree().current_scene if is_inside_tree() and get_tree() else null
+	var overlay: CanvasLayer = main.get_node_or_null("CannonOverlay") as CanvasLayer if main else null
 	if _cannon_visual:
 		_cannon_overlay_local_pos = _cannon_visual.position
-		var main: Node = get_tree().current_scene if get_tree() else null
-		if main:
-			var overlay: CanvasLayer = main.get_node_or_null("CannonOverlay") as CanvasLayer
-			if overlay:
-				_cannon_visual.reparent(overlay)
+		if overlay:
+			_cannon_visual.reparent(overlay)
 	if _wall_visual:
+		_wall_overlay_local_pos = _wall_visual.position
+		if overlay:
+			_wall_visual.reparent(overlay)
 		for child in _wall_visual.get_children():
 			if child.name.begins_with("Fortification"):
 				child.visible = false
@@ -147,9 +157,16 @@ func _load_vfx_scenes() -> void:
 	if _vfx_container == null:
 		_vfx_container = Node2D.new()
 		_vfx_container.name = "VFXContainer"
-		add_child(_vfx_container)
+		var main: Node = get_tree().current_scene if is_inside_tree() and get_tree() else null
+		var overlay: CanvasLayer = main.get_node_or_null("CannonOverlay") as CanvasLayer if main else null
+		if overlay:
+			overlay.add_child(_vfx_container)
+			_vfx_container.global_position = global_position
+		else:
+			add_child(_vfx_container)
 
-func _on_main_fired(_damage: int) -> void:
+## Triggers firing sequence with horizontal projectile flight and wall impact.
+func fire_cannon_shot(start_pos: Vector2 = CANNON_MUZZLE_POS, end_pos: Vector2 = WALL_IMPACT_POS) -> void:
 	if _cannon_visual and _cannon_visual.has_method("trigger_firing_anim"):
 		_cannon_visual.trigger_firing_anim()
 	if _terrain and _terrain.has_method("trigger_recoil_rumble"):
@@ -162,10 +179,15 @@ func _on_main_fired(_damage: int) -> void:
 	if _cannon_shot_scene and _wall_impact_scene and _vfx_container:
 		var shot: Node2D = _cannon_shot_scene.instantiate() as Node2D
 		if shot and shot.has_method("setup"):
-			shot.setup(CANNON_MUZZLE_POS, WALL_IMPACT_POS, _spawn_wall_impact)
+			shot.setup(start_pos, end_pos, _spawn_wall_impact)
 			_vfx_container.add_child(shot)
 
+func _on_main_fired(_damage: int) -> void:
+	fire_cannon_shot(CANNON_MUZZLE_POS, WALL_IMPACT_POS)
+
 func _spawn_wall_impact(impact_pos: Vector2) -> void:
+	if _wall_visual and _wall_visual.has_method("trigger_hit_reaction"):
+		_wall_visual.trigger_hit_reaction()
 	if _wall_impact_scene and _vfx_container:
 		var impact: Node2D = _wall_impact_scene.instantiate() as Node2D
 		if impact and impact.has_method("setup"):
