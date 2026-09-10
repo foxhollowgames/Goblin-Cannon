@@ -2,6 +2,7 @@ extends Control
 class_name JunkBoxGridView
 
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
+const PolyominoMachineryVisuals = preload("res://scenes/board/machinery/polyomino_machinery_visuals.gd")
 const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 const JunkBoxData = preload("res://resources/inventory/junk_box_data.gd")
 const JunkBoxDragController = preload("res://scenes/ui/junk_box/junk_box_drag_controller.gd")
@@ -225,77 +226,31 @@ func _draw_item(item: JunkBoxItem, being_dragged: bool = false) -> void:
 				draw_line(p1, p2, wall_highlight, 2.0)
 
 	if item.module_data != null:
-		var local_cells: Array[Vector2i] = item.get_local_cells()
-		for i in range(mini(occupied.size(), local_cells.size())):
-			var occ_c: Vector2i = occupied[i]
-			var orig_idx: int = item.module_data._find_orig_cell_index_for_anchored(local_cells[i], item.rotation_step)
-			if orig_idx >= 0 and orig_idx < item.module_data.cells.size():
-				var orig_c: Vector2i = item.module_data.cells[orig_idx]
-				var c_type: int = item.module_data.get_cell_type_at(orig_c)
-				if c_type != PolyominoModuleData.CellType.EMPTY:
-					var orig_dir: Vector2 = item.module_data.get_cell_direction_at(orig_c)
-					var rotated_dir: Vector2 = PolyominoModuleData.get_rotated_direction(orig_dir, item.rotation_step)
-					var center := Vector2((float(occ_c.x) + 0.5) * float(CELL_SIZE), (float(occ_c.y) + 0.5) * float(CELL_SIZE))
-					_draw_kinetic_glyph(center, c_type, rotated_dir, (float(CELL_SIZE) - float(CELL_PAD) * 2.0) * 0.5, color)
-
-func _draw_kinetic_glyph(center: Vector2, type: int, dir: Vector2, radius: float, accent_color: Color) -> void:
-	if type == PolyominoModuleData.CellType.EMPTY:
-		return
-	var s: float = radius
-	match type:
-		PolyominoModuleData.CellType.BUMPER, PolyominoModuleData.CellType.POP_BUMPER:
-			draw_circle(center, s * 0.65, DARK_INK_BORDER)
-			draw_circle(center, s * 0.5, Color.WHITE)
-			draw_circle(center, s * 0.25, accent_color.darkened(0.5))
-		PolyominoModuleData.CellType.ACCELERATOR:
-			var dir_norm: Vector2 = dir.normalized() if dir.length_squared() > 0.001 else Vector2.DOWN
-			var tip: Vector2 = center + dir_norm * (s * 0.7)
-			var perp := Vector2(-dir_norm.y, dir_norm.x) * (s * 0.5)
-			var base_p: Vector2 = center - dir_norm * (s * 0.4)
-			var poly_ink := PackedVector2Array([tip + dir_norm * 1.5, base_p + perp * 1.25, base_p - perp * 1.25])
-			var poly_white := PackedVector2Array([tip, base_p + perp, base_p - perp])
-			draw_colored_polygon(poly_ink, DARK_INK_BORDER)
-			draw_colored_polygon(poly_white, Color.WHITE)
-		PolyominoModuleData.CellType.FUNNEL, PolyominoModuleData.CellType.SCOOP_SINKHOLE, PolyominoModuleData.CellType.BALL_LOCK:
-			var dir_norm: Vector2 = dir.normalized() if dir.length_squared() > 0.001 else Vector2.DOWN
-			var perp := Vector2(-dir_norm.y, dir_norm.x)
-			var left_start: Vector2 = center - dir_norm * (s * 0.55) + perp * (s * 0.55)
-			var left_end: Vector2 = center + dir_norm * (s * 0.45) + perp * (s * 0.15)
-			var right_start: Vector2 = center - dir_norm * (s * 0.55) - perp * (s * 0.55)
-			var right_end: Vector2 = center + dir_norm * (s * 0.45) - perp * (s * 0.15)
-			draw_line(left_start, left_end, DARK_INK_BORDER, 3.5)
-			draw_line(left_start, left_end, Color.WHITE, 2.0)
-			draw_line(right_start, right_end, DARK_INK_BORDER, 3.5)
-			draw_line(right_start, right_end, Color.WHITE, 2.0)
-			draw_circle(center + dir_norm * (s * 0.45), s * 0.15, Color.WHITE)
-		PolyominoModuleData.CellType.ROTARY_BOOSTER, PolyominoModuleData.CellType.SPINNER:
-			draw_arc(center, s * 0.55, 0.2, TAU * 0.85, 16, DARK_INK_BORDER, 3.5)
-			draw_arc(center, s * 0.55, 0.2, TAU * 0.85, 16, Color.WHITE, 2.0)
-			for i in range(3):
-				var ang: float = 0.2 + float(i) * (TAU * 0.28)
-				var p1: Vector2 = center + Vector2.from_angle(ang) * (s * 0.35)
-				var p2: Vector2 = center + Vector2.from_angle(ang) * (s * 0.7)
-				draw_line(p1, p2, Color.WHITE, 1.5)
-			draw_circle(center, s * 0.2, Color.WHITE)
-		PolyominoModuleData.CellType.MANA_SIPHON:
-			draw_arc(center, s * 0.6, 0.0, PI * 1.2, 12, accent_color.lightened(0.4), 2.0)
-			draw_arc(center, s * 0.35, PI * 0.8, PI * 2.0, 10, Color.WHITE, 1.8)
-			draw_circle(center, s * 0.18, Color.WHITE)
-		PolyominoModuleData.CellType.DIRECTIONAL_DEFLECTOR, PolyominoModuleData.CellType.SLINGSHOT:
-			var dir_norm: Vector2 = dir.normalized() if dir.length_squared() > 0.001 else Vector2(1, 1).normalized()
-			var perp := Vector2(-dir_norm.y, dir_norm.x)
-			var bar_p1: Vector2 = center - perp * (s * 0.5) - dir_norm * (s * 0.2)
-			var bar_p2: Vector2 = center + perp * (s * 0.5) - dir_norm * (s * 0.2)
-			draw_line(bar_p1, bar_p2, DARK_INK_BORDER, 4.0)
-			draw_line(bar_p1, bar_p2, Color.WHITE, 2.2)
-			draw_line(center, center + dir_norm * (s * 0.6), accent_color.lightened(0.4), 2.0)
-		PolyominoModuleData.CellType.DROP_TARGET, PolyominoModuleData.CellType.STANDUP_TARGET:
-			var target_rect: Rect2 = Rect2(center.x - s * 0.45, center.y - s * 0.45, s * 0.9, s * 0.9)
-			draw_rect(target_rect, DARK_INK_BORDER)
-			draw_rect(target_rect.grow(-2.0), Color.WHITE)
-			draw_rect(target_rect.grow(-4.0), accent_color)
-		PolyominoModuleData.CellType.GUIDE_RAIL, PolyominoModuleData.CellType.GUIDE_TRACK:
-			draw_line(center + Vector2(-s * 0.5, -s * 0.25), center + Vector2(s * 0.5, -s * 0.25), Color.WHITE, 1.8)
-			draw_line(center + Vector2(-s * 0.5, s * 0.25), center + Vector2(s * 0.5, s * 0.25), Color.WHITE, 1.8)
-		_:
-			draw_circle(center, s * 0.2, accent_color.darkened(0.2))
+		var alpha_m: float = 0.35 if being_dragged else 1.0
+		if item.module_data.layout_mode == PolyominoModuleData.MachineryLayoutMode.UNIFIED and item.module_data.unified_component_type != PolyominoModuleData.CellType.EMPTY:
+			var u_type: int = item.module_data.unified_component_type
+			var item_center := Vector2.ZERO
+			for c in occupied:
+				item_center += Vector2((float(c.x) + 0.5) * float(CELL_SIZE), (float(c.y) + 0.5) * float(CELL_SIZE))
+			item_center /= float(occupied.size())
+			var cell_cnt: int = occupied.size()
+			var radius: float = (float(CELL_SIZE) - float(CELL_PAD) * 2.0) * 0.45
+			if cell_cnt >= 9:
+				radius = float(CELL_SIZE) * 1.35
+			elif cell_cnt >= 4:
+				radius = float(CELL_SIZE) * 0.85
+			PolyominoMachineryVisuals.draw_component(self, u_type, item_center, Vector2.DOWN, radius, color, cell_cnt, alpha_m)
+		else:
+			var local_cells: Array[Vector2i] = item.get_local_cells()
+			for i in range(mini(occupied.size(), local_cells.size())):
+				var occ_c: Vector2i = occupied[i]
+				var orig_idx: int = item.module_data._find_orig_cell_index_for_anchored(local_cells[i], item.rotation_step)
+				if orig_idx >= 0 and orig_idx < item.module_data.cells.size():
+					var orig_c: Vector2i = item.module_data.cells[orig_idx]
+					var c_type: int = item.module_data.get_cell_type_at(orig_c)
+					if c_type != PolyominoModuleData.CellType.EMPTY:
+						var orig_dir: Vector2 = item.module_data.get_cell_direction_at(orig_c)
+						var rotated_dir: Vector2 = PolyominoModuleData.get_rotated_direction(orig_dir, item.rotation_step)
+						var center := Vector2((float(occ_c.x) + 0.5) * float(CELL_SIZE), (float(occ_c.y) + 0.5) * float(CELL_SIZE))
+						var radius: float = (float(CELL_SIZE) - float(CELL_PAD) * 2.0) * 0.45
+						PolyominoMachineryVisuals.draw_component(self, c_type, center, rotated_dir, radius, color, 1, alpha_m)

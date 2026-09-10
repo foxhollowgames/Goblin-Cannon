@@ -22,6 +22,9 @@ func _init() -> void:
 	component_radius = DEFAULT_RADIUS
 	base_energy = DEFAULT_ENERGY
 	impulse_strength = DEFAULT_IMPULSE
+	exit_cooldown_ticks = 45
+	hit_cooldown_ticks = 45
+	cell_type = PolyominoModuleData.CellType.ORBIT_LOOP
 
 func _ready() -> void:
 	super._ready()

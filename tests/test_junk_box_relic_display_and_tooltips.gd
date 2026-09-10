@@ -7,17 +7,21 @@ const JunkBoxData = preload("res://resources/inventory/junk_box_data.gd")
 const JunkBoxGridView = preload("res://scenes/ui/junk_box/junk_box_grid_view.gd")
 const JunkBoxDragController = preload("res://scenes/ui/junk_box/junk_box_drag_controller.gd")
 
+const PolyominoMachineryVisuals = preload("res://scenes/board/machinery/polyomino_machinery_visuals.gd")
+
 func _init() -> void:
 	suite_name = "JunkBoxRelicDisplayAndTooltips"
 
 func run() -> void:
 	test_relic_display_equivalence()
+	test_machinery_visuals_all_component_types()
+	test_unified_multi_peg_relic_rendering()
 	test_hover_triggers_flyout_tooltip()
 	test_unhover_and_mouse_exit_dismisses_tooltip()
 	test_drag_start_dismisses_tooltip()
 
 func test_relic_display_equivalence() -> void:
-	begin("JunkBoxGridView renders solid edge segments and component glyphs without error")
+	begin("JunkBoxGridView renders solid edge segments and component visuals without error")
 	var item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(&"superconductor")
 	assert_true(item != null, "item created from PolyominoRelicDatabase")
 	assert_true(item.module_data != null, "module_data exists on item")
@@ -25,6 +29,45 @@ func test_relic_display_equivalence() -> void:
 	assert_gt(segments.size(), 0, "get_solid_edge_segments returns outer perimeter segments")
 	var occupied: Array[Vector2i] = item.get_occupied_cells()
 	assert_gt(occupied.size(), 0, "occupied cells non-empty")
+
+func test_machinery_visuals_all_component_types() -> void:
+	begin("PolyominoMachineryVisuals defines support for all kinetic component types")
+	var test_types: Array[int] = [
+		PolyominoModuleData.CellType.POP_BUMPER,
+		PolyominoModuleData.CellType.BUMPER,
+		PolyominoModuleData.CellType.ACCELERATOR,
+		PolyominoModuleData.CellType.ROTARY_BOOSTER,
+		PolyominoModuleData.CellType.MANA_SIPHON,
+		PolyominoModuleData.CellType.DROP_TARGET,
+		PolyominoModuleData.CellType.STANDUP_TARGET,
+		PolyominoModuleData.CellType.SPINNER,
+		PolyominoModuleData.CellType.ROLLOVER_SWITCH,
+		PolyominoModuleData.CellType.DIRECTIONAL_DEFLECTOR,
+		PolyominoModuleData.CellType.SLINGSHOT,
+		PolyominoModuleData.CellType.BASH_TOY,
+		PolyominoModuleData.CellType.SCOOP_SINKHOLE,
+		PolyominoModuleData.CellType.BALL_LOCK,
+		PolyominoModuleData.CellType.GUIDE_TRACK,
+		PolyominoModuleData.CellType.ORBIT_LOOP,
+		PolyominoModuleData.CellType.CAPTIVE_BALL,
+		PolyominoModuleData.CellType.MECHANICAL_DIVERTER,
+		PolyominoModuleData.CellType.VERTICAL_UP_KICKER,
+		PolyominoModuleData.CellType.OUTLANE_KICKBACK,
+	]
+	for ct in test_types:
+		assert_true(ct > 0, "CellType %d is registered in test suite" % ct)
+	assert_eq(test_types.size(), 20, "20 kinetic machinery component types registered")
+
+func test_unified_multi_peg_relic_rendering() -> void:
+	begin("JunkBoxGridView supports unified multi-peg relics as single centerpiece")
+	var mega_bumper: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(&"mega_pop_bumper")
+	assert_true(mega_bumper != null, "mega_pop_bumper item exists")
+	assert_eq(mega_bumper.module_data.layout_mode, PolyominoModuleData.MachineryLayoutMode.UNIFIED, "layout mode is UNIFIED")
+	assert_eq(mega_bumper.module_data.unified_component_type, PolyominoModuleData.CellType.POP_BUMPER, "unified type is POP_BUMPER")
+	var golem: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(&"golem_effigy")
+	assert_true(golem != null, "golem_effigy item exists")
+	assert_eq(golem.module_data.layout_mode, PolyominoModuleData.MachineryLayoutMode.UNIFIED, "layout mode is UNIFIED")
+	assert_eq(golem.module_data.unified_component_type, PolyominoModuleData.CellType.BASH_TOY, "unified type is BASH_TOY")
 
 func test_hover_triggers_flyout_tooltip() -> void:
 	begin("Hovering a relic in JunkBoxPanel displays formatted flyout tooltip without redundant metadata")
