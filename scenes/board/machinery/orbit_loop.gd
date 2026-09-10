@@ -293,16 +293,16 @@ func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 		var dist_b: float = local_b.distance_to(port_b)
 
 		if dist_b < dist_a:
-			# Entered at Port B, traveling toward Port A
+			# Entered at Port B, traveling toward Port A (exits at Port A)
 			travel_dir = -1
 			start_idx = waypoints.size() - 1
-			exit_dir = port_b_dir if port_b_dir != Vector2.ZERO else port_a_dir
+			exit_dir = port_a_dir if port_a_dir != Vector2.ZERO else port_b_dir
 			port_id = 1
 		else:
-			# Entered at Port A, traveling toward Port B
+			# Entered at Port A, traveling toward Port B (exits at Port B)
 			travel_dir = 1
 			start_idx = 0
-			exit_dir = port_a_dir if port_a_dir != Vector2.ZERO else port_b_dir
+			exit_dir = port_b_dir if port_b_dir != Vector2.ZERO else port_a_dir
 			port_id = 0
 
 	orbit_entered.emit(self, ball, port_id)
