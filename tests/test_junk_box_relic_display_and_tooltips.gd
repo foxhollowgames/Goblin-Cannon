@@ -42,7 +42,7 @@ func test_machinery_visuals_all_component_types() -> void:
 		PolyominoModuleData.CellType.ROLLOVER_SWITCH,
 		PolyominoModuleData.CellType.SLINGSHOT,
 		PolyominoModuleData.CellType.BASH_TOY,
-		PolyominoModuleData.CellType.SCOOP_SINKHOLE,
+		PolyominoModuleData.CellType.BALL_TRAP,
 		PolyominoModuleData.CellType.BALL_LOCK,
 		PolyominoModuleData.CellType.GUIDE_TRACK,
 		PolyominoModuleData.CellType.ORBIT_LOOP,

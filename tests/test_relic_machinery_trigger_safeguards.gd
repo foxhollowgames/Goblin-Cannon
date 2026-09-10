@@ -4,7 +4,8 @@ const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_
 const CellType = PolyominoModuleData.CellType
 const PolyominoModuleNodeScript = preload("res://scenes/board/machinery/polyomino_module_node.gd")
 const GuideTrackScript = preload("res://scenes/board/machinery/guide_track.gd")
-const ScoopSinkholeScript = preload("res://scenes/board/machinery/scoop_sinkhole.gd")
+const BallTrapScript = preload("res://scenes/board/machinery/ball_trap.gd")
+const ScoopSinkholeScript = BallTrapScript
 const BallLockScript = preload("res://scenes/board/machinery/ball_lock.gd")
 const PopBumperScript = preload("res://scenes/board/machinery/pop_bumper.gd")
 const BallScript = preload("res://scenes/balls/ball.gd")
@@ -17,7 +18,7 @@ func run() -> void:
 	test_continuous_contact_debounce_in_module_node()
 	test_guide_track_active_guiding_suppression()
 	test_guide_track_reentry_cooldown_on_fall_down()
-	test_scoop_sinkhole_capture_and_ejection_debounce()
+	test_ball_trap_capture_and_ejection_debounce()
 	test_ball_lock_held_suppression_and_release_debounce()
 	test_contact_exit_and_cooldown_allows_subsequent_hit()
 
@@ -110,32 +111,32 @@ func test_guide_track_reentry_cooldown_on_fall_down() -> void:
 	var res_later: Dictionary = track.trigger_activation(ball, 110)
 	assert_true(res_later.get("activated", false), "Ball can re-enter track after exit cooldown expires")
 
-func test_scoop_sinkhole_capture_and_ejection_debounce() -> void:
-	begin("ScoopSinkhole suppresses repeat activations while ball is captured")
-	var sinkhole: ScoopSinkhole = autofree(ScoopSinkholeScript.new())
-	sinkhole.position = Vector2(0, 0)
+func test_ball_trap_capture_and_ejection_debounce() -> void:
+	begin("BallTrap suppresses repeat activations while ball is captured")
+	var trap: BallTrap = autofree(BallTrapScript.new())
+	trap.position = Vector2(0, 0)
 	var ball := autofree(_create_mock_ball(Vector2(0, 0), Vector2.ZERO, 0))
 	var bid: int = ball.get_ball_id()
 
-	var res1: Dictionary = sinkhole.trigger_activation(ball, 10)
-	assert_true(res1.get("activated", false), "Sinkhole captures ball at tick 10")
+	var res1: Dictionary = trap.trigger_activation(ball, 10)
+	assert_true(res1.get("activated", false), "BallTrap captures ball at tick 10")
 
-	# While held in sinkhole at tick 15 and tick 25
-	var res2: Dictionary = sinkhole.trigger_activation(ball, 15)
-	assert_false(res2.get("activated", false), "Sinkhole blocks tick 15 while held")
+	# While held in trap at tick 15 and tick 25
+	var res2: Dictionary = trap.trigger_activation(ball, 15)
+	assert_false(res2.get("activated", false), "BallTrap blocks tick 15 while held")
 
-	var res3: Dictionary = sinkhole.trigger_activation(ball, 25)
-	assert_false(res3.get("activated", false), "Sinkhole blocks tick 25 while held")
+	var res3: Dictionary = trap.trigger_activation(ball, 25)
+	assert_false(res3.get("activated", false), "BallTrap blocks tick 25 while held")
 
 	# Eject ball and record exit at tick 40
-	sinkhole.record_ball_exit(bid, 40)
+	trap.record_ball_exit(bid, 40)
 
 	# Immediate re-entry attempt at tick 50 (diff = 10 < 45)
-	var res_reentry: Dictionary = sinkhole.trigger_activation(ball, 50)
+	var res_reentry: Dictionary = trap.trigger_activation(ball, 50)
 	assert_false(res_reentry.get("activated", false), "Immediate re-entry after ejection is blocked")
 
 	# After cooldown at tick 90 (diff = 50 > 45)
-	var res_after: Dictionary = sinkhole.trigger_activation(ball, 90)
+	var res_after: Dictionary = trap.trigger_activation(ball, 90)
 	assert_true(res_after.get("activated", false), "Re-capture accepted after cooldown expires")
 
 func test_ball_lock_held_suppression_and_release_debounce() -> void:

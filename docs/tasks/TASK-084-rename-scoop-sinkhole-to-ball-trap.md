@@ -1,6 +1,6 @@
 # TASK-084: Rename Scoop Sinkhole to Ball Trap
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Cleanup
 - **Target Branch:** `feature/rename-scoop-sinkhole-to-ball-trap`
@@ -50,10 +50,10 @@ This change updates the data models, scenes, visuals, tooltips, test scripts, an
 
 ## Acceptance Criteria
 
-- [ ] `CellType` defines `BALL_TRAP` for the component.
-- [ ] `scenes/board/machinery/ball_trap.gd` replaces `scoop_sinkhole.gd`.
-- [ ] Relic compositions and tooltips show "Ball Trap" instead of "Scoop Sinkhole".
-- [ ] The debug showcase displays "Ball Trap".
-- [ ] Component documentation and dashboards show "Ball Trap".
-- [ ] All automated tests pass cleanly.
-- [ ] All modified source files remain under the 500-line project threshold.
+- [x] `CellType` defines `BALL_TRAP` for the component.
+- [x] `scenes/board/machinery/ball_trap.gd` replaces `scoop_sinkhole.gd`.
+- [x] Relic compositions and tooltips show "Ball Trap" instead of "Scoop Sinkhole".
+- [x] The debug showcase displays "Ball Trap".
+- [x] Component documentation and dashboards show "Ball Trap".
+- [x] All automated tests pass cleanly.
+- [x] All modified source files remain under the 500-line project threshold.

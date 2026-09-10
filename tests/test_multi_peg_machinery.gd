@@ -5,8 +5,8 @@ const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 const PolyominoModuleNodeScript = preload("res://scenes/board/machinery/polyomino_module_node.gd")
 const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
 const PolyominoMachineryComponentScript = preload("res://scenes/board/machinery/polyomino_machinery_component.gd")
-const PopBumperScript = preload("res://scenes/board/machinery/pop_bumper.gd")
-const ScoopSinkholeScript = preload("res://scenes/board/machinery/scoop_sinkhole.gd")
+const BallTrapScript = preload("res://scenes/board/machinery/ball_trap.gd")
+const ScoopSinkholeScript = BallTrapScript
 const BashToyScript = preload("res://scenes/board/machinery/bash_toy.gd")
 const SlingshotKickerScript = preload("res://scenes/board/machinery/slingshot_kicker.gd")
 const BallScript = preload("res://scenes/balls/ball.gd")
@@ -97,7 +97,7 @@ func test_abyssal_maw_multiball_capture_and_ejection() -> void:
 	module_node.setup_module(item, Vector2i(0, 0), 0)
 
 	var comp = module_node.get_all_components()[0]
-	assert_true(comp is ScoopSinkhole, "Component is ScoopSinkhole")
+	assert_true(comp is BallTrap, "Component is BallTrap")
 	assert_eq(comp.component_radius, 48.0, "Radius is 48px")
 
 	var ball1 := _create_mock_ball(Vector2(26.0, 28.0), Vector2(0, 100), 10)

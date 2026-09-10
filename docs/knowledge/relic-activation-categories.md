@@ -17,7 +17,7 @@ The table below lists the twelve pinball mini-mission categories and their diege
 | **Drop Target Bank** | `TARGET_BANK` | Drop Target (`DROP_TARGET`) | Target physically recesses into the playfield board slot. |
 | **Rollover Spellout** | `ROLLOVER_SPELL` | Rollover Switch (`ROLLOVER_SWITCH`) | In-line rune lamp illuminates with glowing yellow aura. |
 | **Orbit Loop Flow** | `ORBIT_FLOW` | Orbit Loop (`ORBIT_LOOP`) | Directional rail chevron lamps illuminate sequentially. |
-| **Scoop Sinkhole Lock** | `SINKHOLE_LOCK` | Scoop Sinkhole (`SCOOP_SINKHOLE`), Ball Lock (`BALL_LOCK`) | Captured metallic balls appear inside scoop cup rim. |
+| **Ball Trap Lock** | `SINKHOLE_LOCK` | Ball Trap (`BALL_TRAP`), Ball Lock (`BALL_LOCK`) | Captured metallic balls appear inside trap cup rim. |
 | **Spinner Tachometer** | `SPINNER_RPM` | Spinner (`SPINNER`) | Arc tachometer fill needle charges clockwise around spinner axle. |
 | **Bash Toy Demolition** | `BASH_DEMOLITION` | Bash Toy (`BASH_TOY`), Captive Ball (`CAPTIVE_BALL`) | Impact pip or crack fracture pips fill around perimeter. |
 | **Super Jets Cluster** | `SUPER_JETS` | Pop Bumper (`POP_BUMPER`) | Jet bumper skirts flash with colored high-voltage aura. |
