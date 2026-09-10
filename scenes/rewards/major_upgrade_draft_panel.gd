@@ -277,13 +277,15 @@ func _make_card(pick: Resource, index: int) -> Control:
 	btn.pressed.connect(_on_pick_pressed.bind(index))
 	card_vbox.add_child(btn)
 
+	var default_border_color: Color = style.border_color
+	var default_bg_color: Color = style.bg_color
 	panel.mouse_entered.connect(func() -> void:
 		style.border_color = Color(1.0, 0.85, 0.35, 1.0)
 		style.bg_color = Color(0.16, 0.1, 0.22, 1.0)
 	)
 	panel.mouse_exited.connect(func() -> void:
-		style.border_color = Color(0.7, 0.4, 0.2, 1.0)
-		style.bg_color = Color(0.1, 0.06, 0.14, 1.0)
+		style.border_color = default_border_color
+		style.bg_color = default_bg_color
 	)
 	return panel
 

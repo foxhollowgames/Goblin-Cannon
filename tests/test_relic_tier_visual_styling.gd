@@ -3,8 +3,10 @@ extends "res://tests/test_base.gd"
 const RelicTierVisuals = preload("res://scenes/ui/relic_tier_visuals.gd")
 const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
+const PolyominoModuleNode = preload("res://scenes/board/machinery/polyomino_module_node.gd")
 const RelicLayoutPreview = preload("res://scenes/rewards/relic_layout_preview.gd")
 const MajorUpgradeDefinition = preload("res://resources/rewards/major_upgrade_definition.gd")
+const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 
 func _init() -> void:
 	suite_name = "RelicTierVisualStyling"
@@ -14,6 +16,8 @@ func run() -> void:
 	test_all_database_relics_map_to_valid_tier_styles()
 	test_relic_layout_preview_tier_styling()
 	test_draft_card_tier_styling_and_marker()
+	test_draft_card_hover_restores_tier_border()
+	test_polyomino_module_node_and_junk_box_tier_propagation()
 
 func test_tier_colors_and_styles() -> void:
 	begin("RelicTierVisuals defines distinct colors and styles for tiers 1 through 5")
@@ -123,3 +127,48 @@ func test_draft_card_tier_styling_and_marker() -> void:
 
 	card.free()
 	panel.free()
+
+func test_draft_card_hover_restores_tier_border() -> void:
+	begin("Draft card mouse_exited restores relic tier border color")
+
+	var panel_scene: PackedScene = load("res://scenes/rewards/major_upgrade_draft_panel.tscn") as PackedScene
+	var panel: Control = panel_scene.instantiate() as Control
+
+	var relic_upgrade: MajorUpgradeDefinition = MajorUpgradeDefinition.new()
+	relic_upgrade.upgrade_id = &"cascade_reactor"
+	relic_upgrade.display_name = "Cascade Reactor"
+
+	var card: Control = panel._make_card(relic_upgrade, 0)
+	var style: StyleBoxFlat = card.get_theme_stylebox("panel") as StyleBoxFlat
+	var expected_col: Color = RelicTierVisuals.get_tier_color(3)
+	assert_eq(style.border_color, expected_col, "Initial border color matches Tier 3")
+
+	card.mouse_entered.emit()
+	assert_eq(style.border_color, Color(1.0, 0.85, 0.35, 1.0), "Hover sets gold border highlight")
+
+	card.mouse_exited.emit()
+	assert_eq(style.border_color, expected_col, "Mouse exit restores Tier 3 border color")
+
+	card.free()
+	panel.free()
+
+func test_polyomino_module_node_and_junk_box_tier_propagation() -> void:
+	begin("PolyominoModuleNode and JunkBoxItem propagate tier color on setup")
+
+	var t1_item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(&"overdrive_hits")
+	assert_true(t1_item != null, "Created JunkBoxItem for overdrive_hits")
+	assert_eq(t1_item.module_data.tier, 1, "overdrive_hits is Tier 1")
+
+	var node1: PolyominoModuleNode = PolyominoModuleNode.new()
+	node1.setup_module(t1_item, Vector2i(2, 2), 0)
+	assert_eq(node1._accent_color, RelicTierVisuals.get_tier_color(1), "PolyominoModuleNode has Tier 1 accent color")
+	node1.free()
+
+	var t3_item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(&"cascade_reactor")
+	assert_true(t3_item != null, "Created JunkBoxItem for cascade_reactor")
+	assert_eq(t3_item.module_data.tier, 3, "cascade_reactor is Tier 3")
+
+	var node3: PolyominoModuleNode = PolyominoModuleNode.new()
+	node3.setup_module(t3_item, Vector2i(4, 4), 0)
+	assert_eq(node3._accent_color, RelicTierVisuals.get_tier_color(3), "PolyominoModuleNode has Tier 3 accent color")
+	node3.free()

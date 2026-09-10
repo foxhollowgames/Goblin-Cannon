@@ -106,49 +106,10 @@ func _draw() -> void:
 	# 1. Draw unified transparent background for all cells
 	RelicTierVisuals.draw_cell_backgrounds(self, module_data.cells, cell_sz, origin_px, tier)
 
-	# 2. Draw outer perimeter walls with tier styling
-	var ink_col: Color = DARK_INK_BORDER
-	var wall_highlight: Color = style["highlight_color"]
-	var ink_w: float = float(style["ink_border_width"])
-	var hi_w: float = float(style["border_width"])
-	var has_glow: bool = bool(style["has_outer_glow"])
-	var glow_col: Color = style["glow_color"]
-
-	for c in module_data.cells:
-		var cell_pos := Vector2(origin_x + float(c.x) * cell_size, origin_y + float(c.y) * cell_size)
-		var top_l := cell_pos
-		var top_r := Vector2(cell_pos.x + cell_size, cell_pos.y)
-		var bot_l := Vector2(cell_pos.x, cell_pos.y + cell_size)
-		var bot_r := Vector2(cell_pos.x + cell_size, cell_pos.y + cell_size)
-
-		# Top edge
-		if not module_data.cells.has(Vector2i(c.x, c.y - 1)):
-			if has_glow:
-				draw_line(top_l, top_r, glow_col, ink_w + 3.0)
-			draw_line(top_l, top_r, ink_col, ink_w)
-			draw_line(top_l, top_r, wall_highlight, hi_w)
-
-		# Bottom edge
-		if not module_data.cells.has(Vector2i(c.x, c.y + 1)):
-			if has_glow:
-				draw_line(bot_l, bot_r, glow_col, ink_w + 3.0)
-			draw_line(bot_l, bot_r, ink_col, ink_w)
-			draw_line(bot_l, bot_r, wall_highlight, hi_w)
-
-		# Left edge
-		if not module_data.cells.has(Vector2i(c.x - 1, c.y)):
-			if has_glow:
-				draw_line(top_l, bot_l, glow_col, ink_w + 3.0)
-			draw_line(top_l, bot_l, ink_col, ink_w)
-			draw_line(top_l, bot_l, wall_highlight, hi_w)
-
-		# Right edge
-		if not module_data.cells.has(Vector2i(c.x + 1, c.y)):
-			if has_glow:
-				draw_line(top_r, bot_r, glow_col, ink_w + 3.0)
-			draw_line(top_r, bot_r, ink_col, ink_w)
-			draw_line(top_r, bot_r, wall_highlight, hi_w)
-
+	# 2. Draw wall enclosures and internal dividers with tier styling
+	var segments: Array[Dictionary] = module_data.get_solid_edge_segments(0)
+	var offset_px: Vector2 = origin_px + Vector2(0.5 * cell_size, 0.5 * cell_size)
+	RelicTierVisuals.draw_tier_frame(self, segments, cell_sz, offset_px, tier)
 	RelicTierVisuals.draw_tier_corner_accents(self, module_data.cells, cell_sz, origin_px, tier)
 
 	# 3. Render internal kinetic machinery components
