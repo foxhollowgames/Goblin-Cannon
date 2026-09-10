@@ -1,6 +1,6 @@
 # TASK-082: Simplify Relic Tooltip Terminology and Section Headers
 
-- **Status:** READY
+- **Status:** IN_REVIEW
 - **Priority:** P1
 - **Category:** UI / Polish
 - **Target Branch:** `feature/simplify-relic-tooltip-terminology`
@@ -43,9 +43,9 @@ Rename the tooltip section headers from "Activation Requirement" to "Trigger", a
 
 ## Acceptance Criteria
 
-- [ ] Relic tooltips show the header "[u]Trigger[/u]" instead of "[u]Activation Requirement[/u]".
-- [ ] Relic tooltips show the header "[u]Effect[/u]" instead of "[u]Relic Effect[/u]".
-- [ ] Meaningless jargon such as "Concussive Overdrive Blast" is removed from relic descriptions.
-- [ ] Activation language is simplified across all Campaign 1 relics (such as "Knock down targets").
-- [ ] All unit tests pass cleanly without errors.
-- [ ] All modified source files remain under 500 lines.
+- [x] Relic tooltips show the header "[u]Trigger[/u]" instead of "[u]Activation Requirement[/u]".
+- [x] Relic tooltips show the header "[u]Effect[/u]" instead of "[u]Relic Effect[/u]".
+- [x] Meaningless jargon such as "Concussive Overdrive Blast" is removed from relic descriptions.
+- [x] Activation language is simplified across all Campaign 1 relics (such as "Knock down targets").
+- [x] All unit tests pass cleanly without errors.
+- [x] All modified source files remain under 500 lines.

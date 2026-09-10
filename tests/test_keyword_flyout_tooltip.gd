@@ -23,7 +23,7 @@ func test_flyout_body_is_rich_text_label_with_bbcode() -> void:
 
 func test_flyout_custom_renders_bbcode_formatting() -> void:
 	begin("KeywordDatabase.show_flyout_custom sets BBCode text cleanly")
-	var raw_markup: String = "[u]Activation Requirement[/u]\nTrigger kinetic rollover."
+	var raw_markup: String = "[u]Trigger[/u]\nTrigger kinetic rollover."
 	KeywordDatabase.show_flyout_custom("Test Title", raw_markup, Vector2(150, 150))
 	assert_true(KeywordDatabase._flyout_panel.visible, "Flyout panel is visible")
 	assert_eq(KeywordDatabase._flyout_title.text, "Test Title", "Flyout title matches")
@@ -32,7 +32,7 @@ func test_flyout_custom_renders_bbcode_formatting() -> void:
 	var parsed: String = rtl.get_parsed_text()
 	assert_false(parsed.contains("[u]"), "Parsed text does not contain raw [u] opening tag")
 	assert_false(parsed.contains("[/u]"), "Parsed text does not contain raw [/u] closing tag")
-	assert_true(parsed.contains("Activation Requirement"), "Parsed text contains clean header text")
+	assert_true(parsed.contains("Trigger"), "Parsed text contains clean header text")
 	KeywordDatabase.hide_flyout()
 	assert_false(KeywordDatabase._flyout_panel.visible, "Flyout panel is hidden after hide_flyout")
 
@@ -43,16 +43,16 @@ func test_board_relic_tooltip_bbcode_headers() -> void:
 	assert_true(item != null, "Cascade Reactor created successfully")
 
 	var body_text: String = board_inst._format_module_tooltip_body(item)
-	assert_true(body_text.contains("[u]Activation Requirement[/u]"), "Contains activation header with underline tag")
-	assert_true(body_text.contains("[u]Relic Effect[/u]"), "Contains relic effect header with underline tag")
+	assert_true(body_text.contains("[u]Trigger[/u]"), "Contains trigger header with underline tag")
+	assert_true(body_text.contains("[u]Effect[/u]"), "Contains effect header with underline tag")
 
 	KeywordDatabase.show_flyout_custom(item.display_name, body_text, Vector2(200, 200))
 	var rtl: RichTextLabel = KeywordDatabase._flyout_body as RichTextLabel
 	var parsed_body: String = rtl.get_parsed_text()
 	assert_false(parsed_body.contains("[u]"), "Parsed body text strips raw [u] tags")
 	assert_false(parsed_body.contains("[/u]"), "Parsed body text strips raw [/u] tags")
-	assert_true(parsed_body.contains("Activation Requirement"), "Parsed body displays Activation Requirement")
-	assert_true(parsed_body.contains("Relic Effect"), "Parsed body displays Relic Effect")
+	assert_true(parsed_body.contains("Trigger"), "Parsed body displays Trigger")
+	assert_true(parsed_body.contains("Effect"), "Parsed body displays Effect")
 
 	KeywordDatabase.hide_flyout()
 	board_inst.free()

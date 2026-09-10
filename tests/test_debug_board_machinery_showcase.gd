@@ -103,8 +103,8 @@ func test_campaign_relic_tooltip_regression() -> void:
 	var relic_item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(&"cascade_reactor")
 	var body: String = board._format_module_tooltip_body(relic_item)
 
-	assert_true(body.contains("[u]Activation Requirement[/u]"), "Contains Activation Requirement")
-	assert_true(body.contains("[u]Relic Effect[/u]"), "Contains Relic Effect")
+	assert_true(body.contains("[u]Trigger[/u]"), "Contains Trigger")
+	assert_true(body.contains("[u]Effect[/u]"), "Contains Effect")
 	assert_false(body.contains("[u]Stats[/u]"), "Does not contain Stats header")
 	assert_false(body.contains("[u]Behavior[/u]"), "Does not contain Behavior header")
 
