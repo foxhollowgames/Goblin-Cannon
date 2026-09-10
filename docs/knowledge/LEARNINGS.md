@@ -129,6 +129,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-118`](#lrn-118) | TASK-079 | `systems` | Mana Siphon Machinery Component Removal | 2026-09-09 |
 | [`LRN-119`](#lrn-119) | TASK-081 | `systems` | Directional Deflector Machinery Removal | 2026-09-09 |
 | [`LRN-120`](#lrn-120) | TASK-080 | `machinery` | Wire Gate Downward Retention and Cascade Release | 2026-09-09 |
+| [`LRN-121`](#lrn-121) | TASK-075 | `ui_and_tooltips` | Campaign 1 Relic Hover Tooltips Audit | 2026-09-09 |
 
 ---
 
@@ -2051,5 +2052,21 @@ Holding cup components require continuous position anchoring during physics proc
 
 #### Actionable Guideline for Future Agents
 When building retentive holding machinery, hold trapped ball positions explicitly in process and clear exit records on cascade release.
+
+---
+
+### <a id="lrn-121"></a> LRN-121: Campaign 1 Relic Hover Tooltips Audit
+- **Task:** `TASK-075`
+- **Category:** `ui_and_tooltips`
+- **Created:** `2026-09-09T19:03:56.954198`
+
+#### Context & Problem
+TASK-075 required auditing and refining all relic activation requirements and effects in PolyominoRelicDatabase.
+
+#### Key Insight & Learning
+Ensuring consistent activation language and verifying all relics via automated iteration catches inconsistencies with component configurations early.
+
+#### Actionable Guideline for Future Agents
+Always audit relic tooltips with comprehensive test loops that assert non-empty, component-aligned activation text across all database items.
 
 ---

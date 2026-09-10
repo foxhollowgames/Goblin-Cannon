@@ -1,6 +1,6 @@
 # TASK-075: Update All Relic Hover Tooltips
 
-- **Status:** REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Polish
 - **Target Branch:** `feature/update-relic-hover-tooltips`
