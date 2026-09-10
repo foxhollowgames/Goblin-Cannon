@@ -282,6 +282,8 @@ static func on_ball_exited_board(c: Node, ball: Node, reason: int) -> void:
 		return
 	var gate_open: bool = c._hopper.is_gate_open() if c._hopper and c._hopper.has_method("is_gate_open") else false
 	if not gate_open and c._hopper and c._hopper.has_method("return_ball"):
+		if ball.has_method("reset_energy_to_base"):
+			ball.reset_energy_to_base()
 		c._hopper.return_ball(ball)
 		return
 	var plain: BallDefinition = plain_ball_def(Constants.ALIGNMENT_MAIN)

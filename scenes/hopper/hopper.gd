@@ -251,6 +251,8 @@ func clear_stored_balls() -> void:
 func return_ball(ball: Node) -> void:
 	if not ball or not _main_balls_container:
 		return
+	if ball.has_method("reset_energy_to_base"):
+		ball.reset_energy_to_base()
 	_stored_balls.erase(ball)
 	_outside_bin_frames.erase(ball)
 	var parent: Node = ball.get_parent()

@@ -90,6 +90,7 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/test_relic_tier_visual_styling.gd",
 	"res://tests/test_wire_gate_component_cup.gd",
 	"res://tests/test_orbit_loop_shapes.gd",
+	"res://tests/test_ball_energy_reset.gd",
 	"res://tests/test_file_lengths.gd",
 ]
 
