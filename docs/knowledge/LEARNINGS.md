@@ -136,7 +136,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-125`](#lrn-125) | TASK-083 | `machinery` | wire gate holding cup | 2026-09-10 |
 | [`LRN-126`](#lrn-126) | TASK-084 | `Systems` | Rename Scoop Sinkhole to Ball Trap | 2026-09-10 |
 | [`LRN-127`](#lrn-127) | TASK-085 | `Systems` | Multi-Peg Orbit Loop Turnaround Physics | 2026-09-10 |
-| [`LRN-128`](#lrn-128) | TASK-086 | `gameplay` | ball_energy_reset_lifecycle | 2026-09-10 |
+| [`LRN-128`](#lrn-128) | TASK-087 | `Visuals` | Lower right battlefield wall, cannonball projectile, and impact VFX | 2026-09-10 |
 
 ---
 
@@ -2174,18 +2174,18 @@ When configuring multi-cell machinery trajectories, build ordered waypoints from
 
 ---
 
-### <a id="lrn-128"></a> LRN-128: ball_energy_reset_lifecycle
-- **Task:** `TASK-086`
-- **Category:** `gameplay`
-- **Created:** `2026-09-10T14:48:44.001328`
+### <a id="lrn-128"></a> LRN-128: Lower right battlefield wall, cannonball projectile, and impact VFX
+- **Task:** `TASK-087`
+- **Category:** `Visuals`
+- **Created:** `2026-09-10T14:59:31.227672`
 
 #### Context & Problem
-Balls returned to the hopper or recycled through the board retained accumulated peg hit energy across runs, leading to compounding exponential energy growth.
+Added horizontal projectile flight and wall visual opposite cannon in BattlefieldView
 
 #### Key Insight & Learning
-RigidBody2D ball instances must wipe accumulated hit energy back to base energy whenever a ball reaches the bottom of the board, exits offscreen, returns to the hopper, or enters the board for a new drop.
+Aligning lower right wall and cannon muzzle at y=628.0 creates clear horizontal combat visual. Guarding get_tree() with is_inside_tree() prevents headless test engine crashes when scripts are tested outside scene tree.
 
 #### Actionable Guideline for Future Agents
-Always invoke ball.reset_energy_to_base() upon board entry, board exit, and hopper recycling to prevent accumulated energy carryover across runs.
+Always guard get_tree() access with is_inside_tree() in view scripts that can be instantiated directly by unit tests. Keep battlefield projectile travel paths aligned along horizontal target axis.
 
 ---
