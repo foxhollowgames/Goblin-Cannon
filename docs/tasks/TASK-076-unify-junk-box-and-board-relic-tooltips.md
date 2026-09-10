@@ -1,6 +1,6 @@
 # TASK-076: Unify Junk Box and Board Relic Hover Tooltips
 
-- **Status:** READY
+- **Status:** REVIEW
 - **Priority:** P1
 - **Category:** UI / Systems
 - **Target Branch:** `feature/unify-junk-box-and-board-relic-tooltips`
@@ -40,9 +40,9 @@ Both locations must show identical formatting, layout, and content.
 
 ## Acceptance Criteria
 
-- [ ] A shared formatter generates relic hover tooltips for both the Junk Box and the board.
-- [ ] Junk Box tooltips match the board tooltip format exactly.
-- [ ] Duplicate tooltip formatting logic is removed from `junk_box_panel.gd`.
-- [ ] Board-specific dynamic progress continues to show for placed relics.
-- [ ] Headless unit tests pass.
-- [ ] All modified source files remain under 500 lines.
+- [x] A shared formatter generates relic hover tooltips for both the Junk Box and the board.
+- [x] Junk Box tooltips match the board tooltip format exactly.
+- [x] Duplicate tooltip formatting logic is removed from `junk_box_panel.gd`.
+- [x] Board-specific dynamic progress continues to show for placed relics.
+- [x] Headless unit tests pass.
+- [x] All modified source files remain under 500 lines.

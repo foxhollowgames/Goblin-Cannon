@@ -176,6 +176,34 @@ static func create_item_for_relic(relic_id: StringName) -> JunkBoxItem:
 	}
 	return item
 
+## Formats standard relic hover tooltip body for both board and Junk Box inventory views.
+## Returns unified BBCode text containing title, activation requirement, and relic effect.
+## Optionally appends board-specific charge progress if progress_string is non-empty.
+static func format_relic_tooltip(item: JunkBoxItem, progress_string: String = "") -> String:
+	if item == null:
+		return ""
+	if "custom_payload" in item and item.custom_payload is Dictionary and item.custom_payload.get("is_debug_showcase", false):
+		var showcase_script = load("res://scenes/board/machinery/board_machinery_showcase.gd")
+		if showcase_script and showcase_script.has_method("format_tooltip"):
+			return showcase_script.format_tooltip(item)
+
+	var text: String = ""
+	var relic_id: StringName = StringName(item.custom_payload.get("relic_id", "")) if ("custom_payload" in item and item.custom_payload is Dictionary) else (item.module_data.module_id if item.module_data != null else &"")
+
+	var act_req: String = item.module_data.activation_requirement if (item.module_data != null and not item.module_data.activation_requirement.is_empty()) else (get_relic_activation_requirement(relic_id) if relic_id != &"" else "")
+	var rew_desc: String = item.module_data.reward_description if (item.module_data != null and not item.module_data.reward_description.is_empty()) else (get_relic_reward_description(relic_id) if relic_id != &"" else "")
+
+	if not act_req.is_empty():
+		text += "[u]Activation Requirement[/u]\n%s" % act_req
+	if not rew_desc.is_empty():
+		if not text.is_empty():
+			text += "\n\n"
+		text += "[u]Relic Effect[/u]\n%s" % rew_desc
+	if not progress_string.is_empty():
+		text += "\n\n[u]Charge Progress[/u]: %s" % progress_string
+
+	return text.strip_edges()
+
 ## Applies board slotting registry to GameState when a relic module is slotted onto the board.
 static func apply_relic_effects_to_game_state(relic_id: StringName) -> void:
 	if not Engine.has_singleton("GameState") and not ClassDB.class_exists("GameState"):

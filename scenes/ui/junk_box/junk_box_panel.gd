@@ -163,35 +163,8 @@ func _get_tooltip_lbl() -> RichTextLabel:
 	return null
 
 func _format_item_tooltip(item: JunkBoxItem) -> String:
-	if item == null:
-		return ""
-	var text: String = ""
-	var relic_id: StringName = &""
-	if "custom_payload" in item and item.custom_payload is Dictionary:
-		relic_id = StringName(item.custom_payload.get("relic_id", ""))
-	if relic_id == &"" and item.module_data != null:
-		relic_id = item.module_data.module_id
+	return PolyominoRelicDatabase.format_relic_tooltip(item)
 
-	if item.module_data != null or relic_id != &"":
-		var act_req: String = ""
-		if item.module_data != null and not item.module_data.activation_requirement.is_empty():
-			act_req = item.module_data.activation_requirement
-		elif relic_id != &"":
-			act_req = PolyominoRelicDatabase.get_relic_activation_requirement(relic_id)
-		if not act_req.is_empty():
-			text += "[u]Activation Requirement[/u]\n%s" % act_req
-
-		var rew_desc: String = ""
-		if item.module_data != null and not item.module_data.reward_description.is_empty():
-			rew_desc = item.module_data.reward_description
-		elif relic_id != &"":
-			rew_desc = PolyominoRelicDatabase.get_relic_reward_description(relic_id)
-		if not rew_desc.is_empty():
-			if not text.is_empty():
-				text += "\n\n"
-			text += "[u]Relic Effect[/u]\n%s" % rew_desc
-
-	return text.strip_edges()
 
 var _sidebar_mode: bool = false
 
