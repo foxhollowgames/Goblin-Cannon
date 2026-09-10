@@ -37,7 +37,6 @@ func test_machinery_visuals_all_component_types() -> void:
 		PolyominoModuleData.CellType.BUMPER,
 		PolyominoModuleData.CellType.ACCELERATOR,
 		PolyominoModuleData.CellType.ROTARY_BOOSTER,
-		PolyominoModuleData.CellType.MANA_SIPHON,
 		PolyominoModuleData.CellType.DROP_TARGET,
 		PolyominoModuleData.CellType.SPINNER,
 		PolyominoModuleData.CellType.ROLLOVER_SWITCH,
@@ -54,7 +53,7 @@ func test_machinery_visuals_all_component_types() -> void:
 	]
 	for ct in test_types:
 		assert_true(ct > 0, "CellType %d is registered in test suite" % ct)
-	assert_eq(test_types.size(), 18, "18 kinetic machinery component types registered")
+	assert_eq(test_types.size(), 17, "17 kinetic machinery component types registered")
 
 func test_unified_multi_peg_relic_rendering() -> void:
 	begin("JunkBoxGridView supports unified multi-peg relics as single centerpiece")

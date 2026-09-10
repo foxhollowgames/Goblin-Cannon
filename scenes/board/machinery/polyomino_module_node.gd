@@ -11,7 +11,6 @@ const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_
 const PolyominoMachineryComponentScript = preload("res://scenes/board/machinery/polyomino_machinery_component.gd")
 const PinballBumperScript = preload("res://scenes/board/machinery/pinball_bumper.gd")
 const SpeedBoostWheelScript = preload("res://scenes/board/machinery/speed_boost_wheel.gd")
-const ManaSiphonScript = preload("res://scenes/board/machinery/mana_siphon.gd")
 const DirectionalDeflectorScript = preload("res://scenes/board/machinery/directional_deflector.gd")
 const RolloverSwitchScript = preload("res://scenes/board/machinery/rollover_switch.gd")
 const PopBumperScript = preload("res://scenes/board/machinery/pop_bumper.gd")
@@ -143,7 +142,6 @@ func _create_component_for_type(c_type: int) -> PolyominoMachineryComponent:
 		PolyominoModuleData.CellType.EMPTY: return null
 		PolyominoModuleData.CellType.BUMPER: return PinballBumperScript.new()
 		PolyominoModuleData.CellType.ACCELERATOR, PolyominoModuleData.CellType.ROTARY_BOOSTER: return SpeedBoostWheelScript.new()
-		PolyominoModuleData.CellType.MANA_SIPHON: return ManaSiphonScript.new()
 		PolyominoModuleData.CellType.DIRECTIONAL_DEFLECTOR, PolyominoModuleData.CellType.FUNNEL, PolyominoModuleData.CellType.GUIDE_RAIL: return DirectionalDeflectorScript.new()
 		PolyominoModuleData.CellType.ROLLOVER_SWITCH: return RolloverSwitchScript.new()
 		PolyominoModuleData.CellType.POP_BUMPER: return PopBumperScript.new()
@@ -236,7 +234,7 @@ func _evaluate_goal_progress(comp: PolyominoMachineryComponent, ball: Node, ener
 		GoalArchetype.JACKPOT_ACCUMULATOR:
 			_jackpot_pool += maxi(5, energy * 2)
 			var payout_target: int = maxi(15, module_data.reward_energy)
-			if comp.cell_type == PolyominoModuleData.CellType.ROTARY_BOOSTER or comp.cell_type == PolyominoModuleData.CellType.MANA_SIPHON or _components.size() <= 1:
+			if comp.cell_type == PolyominoModuleData.CellType.ROTARY_BOOSTER or _components.size() <= 1:
 				var final_payout: int = maxi(payout_target, _jackpot_pool)
 				_jackpot_pool = 0
 				_trigger_goal_completion(ball, final_payout)

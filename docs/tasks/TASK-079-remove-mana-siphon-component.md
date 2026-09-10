@@ -1,6 +1,6 @@
 # TASK-079: Remove Mana Siphon as a Standard Machinery Component
 
-- **Status:** READY
+- **Status:** REVIEW
 - **Priority:** P1
 - **Category:** Systems / Cleanup
 - **Target Branch:** `feature/remove-mana-siphon-component`
@@ -38,9 +38,9 @@ Replace Mana Siphons across relics with active or reactive physical pinball mach
 
 ## Acceptance Criteria
 
-- [ ] `mana_siphon.gd` is removed from the codebase.
-- [ ] Mana Siphons no longer appear in the machinery showcase or relics.
-- [ ] Relics with Mana Siphons migrate to tactile physical components.
-- [ ] Visual rendering and diegetic code no longer reference Mana Siphons.
-- [ ] Headless unit tests pass cleanly.
-- [ ] All modified source files remain under 500 lines.
+- [x] `mana_siphon.gd` is removed from the codebase.
+- [x] Mana Siphons no longer appear in the machinery showcase or relics.
+- [x] Relics with Mana Siphons migrate to tactile physical components.
+- [x] Visual rendering and diegetic code no longer reference Mana Siphons.
+- [x] Headless unit tests pass cleanly.
+- [x] All modified source files remain under 500 lines.
