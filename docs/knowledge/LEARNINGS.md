@@ -137,6 +137,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-126`](#lrn-126) | TASK-084 | `Systems` | Rename Scoop Sinkhole to Ball Trap | 2026-09-10 |
 | [`LRN-127`](#lrn-127) | TASK-085 | `Systems` | Multi-Peg Orbit Loop Turnaround Physics | 2026-09-10 |
 | [`LRN-128`](#lrn-128) | TASK-087 | `Visuals` | Lower right battlefield wall, cannonball projectile, and impact VFX | 2026-09-10 |
+| [`LRN-129`](#lrn-129) | TASK-088 | `Visual Effects` | Intervention Visuals | 2026-09-10 |
 
 ---
 
@@ -2187,5 +2188,21 @@ Aligning lower right wall and cannon muzzle at y=628.0 creates clear horizontal 
 
 #### Actionable Guideline for Future Agents
 Always guard get_tree() access with is_inside_tree() in view scripts that can be instantiated directly by unit tests. Keep battlefield projectile travel paths aligned along horizontal target axis.
+
+---
+
+### <a id="lrn-129"></a> LRN-129: Intervention Visuals
+- **Task:** `TASK-088`
+- **Category:** `Visual Effects`
+- **Created:** `2026-09-10T21:03:52.278228`
+
+#### Context & Problem
+Replacing procedural graphics on event pegs with high-quality sprites and animated spritesheets
+
+#### Key Insight & Learning
+Preload dedicated asset sprites and spritesheets in preview and break effect nodes. Delegate complex peg draw routines to PegKindDrawing to keep peg.gd and board.gd below line limits.
+
+#### Actionable Guideline for Future Agents
+Keep visual effect scenes self-contained with explicit type annotations, and manage memory with queue_free on timers.
 
 ---
