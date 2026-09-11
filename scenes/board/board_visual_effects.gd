@@ -5,6 +5,7 @@ extends Node2D
 @export var energy_popup_scene: PackedScene = preload("res://scenes/board/energy_popup.tscn")
 @export var ball_hit_effect_scene: PackedScene = preload("res://scenes/board/ball_hit_effect.tscn")
 @export var treasure_chest_break_effect_scene: PackedScene = preload("res://scenes/board/treasure_chest_break_effect.tscn")
+@export var coin_burst_vfx_scene: PackedScene = preload("res://scenes/board/coin_burst_vfx.tscn")
 @export var chain_lightning_arc_effect_scene: PackedScene = preload("res://scenes/board/chain_lightning_arc_effect.tscn")
 
 var _energy_popup_pool_idle: Array[Node2D] = []
@@ -117,6 +118,19 @@ func spawn_treasure_chest_break_effect(world_pos: Vector2) -> void:
 	if effect:
 		add_child(effect)
 		effect.global_position = world_pos
+		effect.visible = true
+
+## Spawns a coin burst visual effect at the specified position.
+func spawn_coin_burst_vfx(world_pos: Vector2) -> void:
+	if not coin_burst_vfx_scene:
+		return
+	var effect: Node2D = coin_burst_vfx_scene.instantiate() as Node2D
+	if effect:
+		add_child(effect)
+		if effect.has_method("setup"):
+			effect.setup(world_pos)
+		else:
+			effect.global_position = world_pos
 		effect.visible = true
 
 ## Retrieves a popup instance from the pool or creates a new one.

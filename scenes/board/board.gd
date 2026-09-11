@@ -76,6 +76,7 @@ const LEECH_VISUAL_BUDGET_PER_TICK: int = 64
 var _energy_popup_pool_idle: Array[Node2D] = []
 var _hit_effect_scene: PackedScene
 var _treasure_chest_break_scene: PackedScene
+var _coin_burst_scene: PackedScene
 var _chain_lightning_arc_scene: PackedScene
 var _ball_scene: PackedScene
 var _next_split_ball_id: int = 100000
@@ -156,6 +157,7 @@ func _ready() -> void:
 	_energy_popup_scene = load("res://scenes/board/energy_popup.tscn") as PackedScene
 	_hit_effect_scene = load("res://scenes/board/ball_hit_effect.tscn") as PackedScene
 	_treasure_chest_break_scene = load("res://scenes/board/treasure_chest_break_effect.tscn") as PackedScene
+	_coin_burst_scene = load("res://scenes/board/coin_burst_vfx.tscn") as PackedScene
 	_chain_lightning_arc_scene = load("res://scenes/board/chain_lightning_arc_effect.tscn") as PackedScene
 	_ball_scene = load("res://scenes/balls/ball.tscn") as PackedScene
 	_goblin_grab_scene = load("res://scenes/board/goblin_grab_effect.gd") as GDScript
@@ -348,7 +350,10 @@ func _complete_milestone_event_peg(peg_id: int, grant_reward: bool) -> void:
 	var peg: Node = _peg_by_id[peg_id]
 	if str(peg.get("peg_extra_kind")) != "milestone_event":
 		return
+	var break_pos: Vector2 = peg.global_position if peg and peg.get("global_position") else global_position
 	_peg_by_id.erase(peg_id)
+	if grant_reward:
+		_spawn_coin_burst_vfx(break_pos)
 	if peg and is_instance_valid(peg):
 		peg.queue_free()
 	if grant_reward and _game_coordinator and _game_coordinator.has_method("notify_milestone_reward_from_board"):
@@ -2074,38 +2079,25 @@ func _spawn_hit_effect(world_pos: Vector2, status_effects: Dictionary, ability_n
 		return
 	var key: String = str(ability_name).strip_edges()
 	var effect_type: int = BallHitEffect.EffectType.FIRE
-	if key == "Energize":
-		effect_type = BallHitEffect.EffectType.ENERGIZE
-	elif key == "Split" and allow_split_effect:
-		effect_type = BallHitEffect.EffectType.SPLIT
-	elif key == "Split":
-		return
-	elif key == "Explosive":
-		effect_type = BallHitEffect.EffectType.EXPLOSIVE
-	elif key == "Chain Lightning":
-		effect_type = BallHitEffect.EffectType.CHAIN_LIGHTNING
-	elif key == "Leech":
-		effect_type = BallHitEffect.EffectType.LEECH
-	elif key == "Rubbery":
-		effect_type = BallHitEffect.EffectType.RUBBERY
-	elif key == "Phantom":
-		effect_type = BallHitEffect.EffectType.PHANTOM
-	elif key == "Volatile":
-		effect_type = BallHitEffect.EffectType.VOLATILE
-	elif key == "Constellation":
-		effect_type = BallHitEffect.EffectType.CONSTELLATION
-	elif key == "Binary":
-		effect_type = BallHitEffect.EffectType.BINARY
-	elif key == "Bloom":
-		effect_type = BallHitEffect.EffectType.BLOOM
-	elif status_effects.get(Constants.STATUS_FROZEN, 0) > 0 or status_effects.get("frozen", 0) > 0:
-		effect_type = BallHitEffect.EffectType.ICE
-	elif status_effects.get(Constants.STATUS_LIGHTNING, 0) > 0 or status_effects.get("lightning", 0) > 0:
-		effect_type = BallHitEffect.EffectType.LIGHTNING
-	elif status_effects.get(Constants.STATUS_FIRE, 0) > 0 or status_effects.get("fire", 0) > 0:
-		effect_type = BallHitEffect.EffectType.FIRE
-	else:
-		return
+	match key:
+		"Energize": effect_type = BallHitEffect.EffectType.ENERGIZE
+		"Split":
+			if not allow_split_effect: return
+			effect_type = BallHitEffect.EffectType.SPLIT
+		"Explosive": effect_type = BallHitEffect.EffectType.EXPLOSIVE
+		"Chain Lightning": effect_type = BallHitEffect.EffectType.CHAIN_LIGHTNING
+		"Leech": effect_type = BallHitEffect.EffectType.LEECH
+		"Rubbery": effect_type = BallHitEffect.EffectType.RUBBERY
+		"Phantom": effect_type = BallHitEffect.EffectType.PHANTOM
+		"Volatile": effect_type = BallHitEffect.EffectType.VOLATILE
+		"Constellation": effect_type = BallHitEffect.EffectType.CONSTELLATION
+		"Binary": effect_type = BallHitEffect.EffectType.BINARY
+		"Bloom": effect_type = BallHitEffect.EffectType.BLOOM
+		_:
+			if status_effects.get(Constants.STATUS_FROZEN, 0) > 0 or status_effects.get("frozen", 0) > 0: effect_type = BallHitEffect.EffectType.ICE
+			elif status_effects.get(Constants.STATUS_LIGHTNING, 0) > 0 or status_effects.get("lightning", 0) > 0: effect_type = BallHitEffect.EffectType.LIGHTNING
+			elif status_effects.get(Constants.STATUS_FIRE, 0) > 0 or status_effects.get("fire", 0) > 0: effect_type = BallHitEffect.EffectType.FIRE
+			else: return
 	var effect: Node2D = _hit_effect_scene.instantiate() as Node2D
 	if not effect or not effect is BallHitEffect:
 		return
@@ -2121,6 +2113,18 @@ func _spawn_treasure_chest_break_effect(world_pos: Vector2) -> void:
 	if not effect:
 		return
 	effect.global_position = world_pos
+	get_parent().add_child(effect)
+
+func _spawn_coin_burst_vfx(world_pos: Vector2) -> void:
+	if not _coin_burst_scene:
+		return
+	var effect: Node2D = _coin_burst_scene.instantiate() as Node2D
+	if not effect:
+		return
+	if effect.has_method("setup"):
+		effect.setup(world_pos)
+	else:
+		effect.global_position = world_pos
 	get_parent().add_child(effect)
 
 func _spawn_explosive_effect_at_ball(ball_world_pos: Vector2, explosive_radius_px: float = -1.0) -> void:

@@ -1,6 +1,6 @@
 # TASK-088: Rework Intervention Visual Effects and Peg Presentation
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Visuals / VFX
 - **Target Branch:** `feature/rework-intervention-visual-effects`
@@ -50,10 +50,10 @@ This task upgrades the spawn previews, peg sprites, and break visual effects wit
 
 ## Acceptance Criteria
 
-- [ ] The merchant peg uses dedicated sprite assets instead of procedural lines.
-- [ ] The merchant spawn preview uses an animated VFX spritesheet.
-- [ ] The buffet table uses food and table sprite assets.
-- [ ] The buffet table break effect uses asset pack particle bursts.
-- [ ] Treasure chest, sticky slime, and black hole interventions use asset pack graphics.
-- [ ] Automated headless unit tests verify visual node instantiation and texture loading.
-- [ ] All modified source files remain under the 500-line project limit.
+- [x] The merchant peg uses dedicated sprite assets instead of procedural lines.
+- [x] The merchant spawn preview uses an animated VFX spritesheet.
+- [x] The buffet table uses food and table sprite assets.
+- [x] The buffet table break effect uses asset pack particle bursts.
+- [x] Treasure chest, sticky slime, and black hole interventions use asset pack graphics.
+- [x] Automated headless unit tests verify visual node instantiation and texture loading.
+- [x] All modified source files remain under the 500-line project limit.

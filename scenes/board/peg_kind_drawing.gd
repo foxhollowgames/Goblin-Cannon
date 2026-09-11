@@ -3,6 +3,11 @@ extends RefCounted
 ## Static drawing helpers for special peg kinds. All methods accept a CanvasItem for draw calls.
 ## Keeps peg.gd under 500 lines by extracting per-kind draw routines.
 
+const CHEST_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Cartography Pack/PNG/Default/chest.png")
+const BAG_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Generic Items/PNG/White/genericItem_white_138.png")
+const FOOD_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Pixel Platformer Food Expansion/Tiles/tile_0070.png")
+const SPLAT_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Splat Pack/PNG/Default (256px)/splat20.png")
+
 #region Helpers
 ## Computes peg luminance from durability ratio and vibrancy scale.
 static func compute_luminance(recovery: int, max_dur: int, dur: int, vibrancy: float, dim: float = 0.25) -> float:
@@ -169,18 +174,21 @@ static func draw_treasure_chest(ci: CanvasItem, r: float, max_dur: int, dur: int
 	var t: float = float(Time.get_ticks_msec()) * 0.006
 	var pulse: float = 0.78 + 0.22 * sin(t * 2.0)
 	var alpha: float = clampf(0.45 + 0.55 * urgency, 0.35, 1.0) * pulse
-	var wood := Color(0.38, 0.24, 0.12, alpha)
-	var trim := Color(0.9, 0.72, 0.2, alpha)
 	var glow := Color(0.95, 0.55, 0.15, 0.28 * alpha * ratio)
 	ci.draw_circle(Vector2.ZERO, r + 5.0, glow)
-	var bw: float = r * 1.35
-	var bh: float = r * 1.25
-	ci.draw_rect(Rect2(-bw * 0.5, -bh * 0.5, bw, bh * 0.52), wood)
-	ci.draw_rect(Rect2(-bw * 0.5, bh * 0.02, bw, bh * 0.48), wood.darkened(0.1))
-	ci.draw_line(Vector2(-bw * 0.5, bh * 0.02), Vector2(bw * 0.5, bh * 0.02), trim, 2.5)
-	ci.draw_arc(Vector2(0, -bh * 0.5), bw * 0.48, PI, TAU, 18, trim, 2.5, true)
-	ci.draw_circle(Vector2(0, 0), 4.5, trim.lightened(0.05))
-	ci.draw_arc(Vector2.ZERO, r + 2.0, 0.0, TAU, 28, Color(trim.r, trim.g, trim.b, alpha * 0.85), 2.0)
+	if CHEST_TEXTURE:
+		var c_size: float = r * 2.1
+		var c_rect := Rect2(-c_size * 0.5, -c_size * 0.5, c_size, c_size)
+		ci.draw_texture_rect(CHEST_TEXTURE, c_rect, false, Color(1, 1, 1, alpha))
+	else:
+		var wood := Color(0.38, 0.24, 0.12, alpha)
+		var trim := Color(0.9, 0.72, 0.2, alpha)
+		var bw: float = r * 1.35
+		var bh: float = r * 1.25
+		ci.draw_rect(Rect2(-bw * 0.5, -bh * 0.5, bw, bh * 0.52), wood)
+		ci.draw_rect(Rect2(-bw * 0.5, bh * 0.02, bw, bh * 0.48), wood.darkened(0.1))
+		ci.draw_line(Vector2(-bw * 0.5, bh * 0.02), Vector2(bw * 0.5, bh * 0.02), trim, 2.5)
+	ci.draw_arc(Vector2.ZERO, r + 2.0, 0.0, TAU, 28, Color(0.9, 0.72, 0.2, alpha * 0.85), 2.0)
 
 ## Draws the buffet table peg.
 static func draw_buffet_table(ci: CanvasItem, r: float, urgency: float) -> void:
@@ -189,7 +197,6 @@ static func draw_buffet_table(ci: CanvasItem, r: float, urgency: float) -> void:
 	var alpha: float = clampf(0.4 + 0.6 * urgency, 0.35, 1.0) * pulse
 	var cloth := Color(0.78, 0.62, 0.42, alpha)
 	var trim := Color(0.55, 0.38, 0.22, alpha)
-	var plate := Color(0.96, 0.94, 0.9, alpha)
 	var steam := Color(0.88, 0.92, 0.95, 0.22 * alpha)
 	ci.draw_circle(Vector2.ZERO, r + 4.0, steam)
 	var tw: float = r * 2.45
@@ -197,26 +204,28 @@ static func draw_buffet_table(ci: CanvasItem, r: float, urgency: float) -> void:
 	ci.draw_rect(Rect2(-tw * 0.5, -th * 0.5, tw, th * 0.55), cloth)
 	ci.draw_rect(Rect2(-tw * 0.5, th * 0.02, tw, th * 0.48), cloth.darkened(0.08))
 	ci.draw_line(Vector2(-tw * 0.5, th * 0.02), Vector2(tw * 0.5, th * 0.02), trim, 2.0)
-	for px in [-r * 0.65, r * 0.65]:
-		ci.draw_circle(Vector2(px, -r * 0.15), r * 0.42, plate)
-		ci.draw_arc(Vector2(px, -r * 0.15), r * 0.42, 0.0, TAU, 20, trim.darkened(0.1), 1.5)
-	ci.draw_arc(Vector2(0, -r * 0.35), r * 0.5, PI * 1.05, TAU * 0.95, 14, Color(0.7, 0.75, 0.78, 0.55 * alpha), 2.0)
+	if FOOD_TEXTURE:
+		var f_size: float = r * 1.6
+		var f_rect := Rect2(-f_size * 0.5, -f_size * 0.75, f_size, f_size)
+		ci.draw_texture_rect(FOOD_TEXTURE, f_rect, false, Color(1, 1, 1, alpha))
+	else:
+		for px in [-r * 0.65, r * 0.65]:
+			ci.draw_circle(Vector2(px, -r * 0.15), r * 0.42, Color(0.96, 0.94, 0.9, alpha))
 	ci.draw_arc(Vector2.ZERO, r + 2.0, 0.0, TAU, 28, Color(trim.r, trim.g, trim.b, alpha * 0.85), 2.0)
 
 ## Draws the sticky slime overlay peg.
 static func draw_sticky_slime(ci: CanvasItem, r: float, urgency: float, phase: float) -> void:
 	var pulse: float = 0.72 + 0.28 * sin(phase)
 	var alpha: float = clampf(0.42 + 0.58 * urgency, 0.35, 1.0) * pulse
-	var slime := Color(0.25, 0.72, 0.38, alpha)
 	var slime_dark := Color(0.12, 0.45, 0.22, alpha * 0.92)
-	var drip := Color(0.35, 0.85, 0.5, 0.55 * alpha)
 	ci.draw_circle(Vector2.ZERO, r + 3.5, slime_dark)
-	ci.draw_circle(Vector2.ZERO, r + 1.0, slime)
-	for i in range(5):
-		var ang: float = phase * 0.8 + float(i) * TAU / 5.0
-		var drip_len: float = 4.0 + 3.0 * sin(phase + float(i))
-		var outer: Vector2 = Vector2(cos(ang), sin(ang)) * (r + 1.5)
-		ci.draw_line(outer, outer + Vector2(0, drip_len), drip, 2.2)
+	if SPLAT_TEXTURE:
+		var s_size: float = r * 2.4
+		var s_rect := Rect2(-s_size * 0.5, -s_size * 0.5, s_size, s_size)
+		ci.draw_texture_rect(SPLAT_TEXTURE, s_rect, false, Color(0.3, 0.9, 0.45, alpha))
+	else:
+		var slime := Color(0.25, 0.72, 0.38, alpha)
+		ci.draw_circle(Vector2.ZERO, r + 1.0, slime)
 	ci.draw_arc(Vector2.ZERO, r + 2.5, 0.0, TAU, 28, Color(0.5, 1.0, 0.65, alpha * 0.35), 2.0)
 
 ## Draws the milestone event peg (gold bag).
@@ -229,10 +238,15 @@ static func draw_milestone_event(ci: CanvasItem, r: float, urgency: float) -> vo
 	ci.draw_circle(Vector2.ZERO, r + 3.0, Color(0.45, 0.25, 0.95, 0.35 * alpha))
 	ci.draw_circle(Vector2.ZERO, r, gold)
 	ci.draw_arc(Vector2.ZERO, r + 1.0, 0.0, TAU, 32, rim, 2.5)
-	var bw: float = r * 1.1
-	var bh: float = r * 1.15
-	ci.draw_rect(Rect2(-bw * 0.45, -bh * 0.35, bw * 0.9, bh * 0.7), Color(0.35, 0.28, 0.08, alpha * 0.9))
-	ci.draw_arc(Vector2(0, -bh * 0.35), bw * 0.45, PI, TAU, 14, gold.darkened(0.15), 2.0, true)
+	if BAG_TEXTURE:
+		var b_size: float = r * 1.8
+		var b_rect := Rect2(-b_size * 0.5, -b_size * 0.5, b_size, b_size)
+		ci.draw_texture_rect(BAG_TEXTURE, b_rect, false, Color(0.4, 0.28, 0.08, alpha))
+	else:
+		var bw: float = r * 1.1
+		var bh: float = r * 1.15
+		ci.draw_rect(Rect2(-bw * 0.45, -bh * 0.35, bw * 0.9, bh * 0.7), Color(0.35, 0.28, 0.08, alpha * 0.9))
+		ci.draw_arc(Vector2(0, -bh * 0.35), bw * 0.45, PI, TAU, 14, gold.darkened(0.15), 2.0, true)
 #endregion
 
 #region Leech and Energize

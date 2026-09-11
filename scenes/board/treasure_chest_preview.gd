@@ -1,5 +1,8 @@
 extends Node2D
-## Preview VFX before a treasure chest peg spawns (gold sparks + chest silhouette).
+## Preview VFX before a treasure chest peg spawns (gold sparks + chest sprite asset).
+
+const CHEST_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Cartography Pack/PNG/Default/chest.png")
+const SPARKLE_VFX_TEXTURE: Texture2D = preload("res://assets/VFX/Essentials VFX Spritesheets/Star_ColorBurst_V1_A_spritesheet.png")
 
 var _phase: float = 0.0
 
@@ -12,21 +15,35 @@ func _process(delta: float) -> void:
 	queue_redraw()
 
 func _draw() -> void:
-	var t: float = float(Time.get_ticks_msec()) * 0.004
 	var pulse: float = 0.82 + 0.18 * sin(_phase * 2.0)
-	# Spark arcs
-	for i in range(4):
-		var a0: float = t + float(i) * TAU / 4.0
-		var a1: float = a0 + TAU * 0.28
-		var col := Color(0.95, 0.72, 0.2, 0.4 - float(i) * 0.07)
-		draw_arc(Vector2.ZERO, 26.0 + float(i) * 6.0, a0, a1, 14, col, 2.5)
-	# Chest body
-	var w: float = 26.0
-	var h: float = 20.0
-	var wood := Color(0.42, 0.28, 0.14, pulse)
-	var trim := Color(0.92, 0.75, 0.22, pulse)
-	draw_rect(Rect2(-w * 0.5, -h * 0.5, w, h * 0.55), wood)
-	draw_rect(Rect2(-w * 0.5, -h * 0.5 + h * 0.45, w, h * 0.55), wood.darkened(0.12))
-	draw_line(Vector2(-w * 0.5, -h * 0.5 + h * 0.45), Vector2(w * 0.5, -h * 0.5 + h * 0.45), trim, 2.5)
-	draw_arc(Vector2(0, -h * 0.5), w * 0.48, PI, TAU, 14, trim, 2.0, true)
-	draw_circle(Vector2(0, 0), 4.5 * pulse, trim.lightened(0.05))
+
+	# Sparkle spritesheet burst
+	if SPARKLE_VFX_TEXTURE:
+		var frame_idx: int = int(_phase * 6.0) % 16
+		var col: int = frame_idx % 4
+		var row: int = frame_idx / 4
+		var src_rect := Rect2(col * 512, row * 512, 512, 512)
+		var spark_rect := Rect2(-30.0, -30.0, 60.0, 60.0)
+		draw_texture_rect_region(SPARKLE_VFX_TEXTURE, spark_rect, src_rect, Color(1.0, 0.85, 0.3, 0.55 * pulse))
+	else:
+		var t: float = float(Time.get_ticks_msec()) * 0.004
+		for i in range(4):
+			var a0: float = t + float(i) * TAU / 4.0
+			var a1: float = a0 + TAU * 0.28
+			var col := Color(0.95, 0.72, 0.2, 0.4 - float(i) * 0.07)
+			draw_arc(Vector2.ZERO, 26.0 + float(i) * 6.0, a0, a1, 14, col, 2.5)
+
+	# Chest sprite
+	if CHEST_TEXTURE:
+		var c_rect := Rect2(-14.0, -14.0, 28.0, 28.0)
+		draw_texture_rect(CHEST_TEXTURE, c_rect, false, Color(1, 1, 1, pulse))
+	else:
+		var w: float = 26.0
+		var h: float = 20.0
+		var wood := Color(0.42, 0.28, 0.14, pulse)
+		var trim := Color(0.92, 0.75, 0.22, pulse)
+		draw_rect(Rect2(-w * 0.5, -h * 0.5, w, h * 0.55), wood)
+		draw_rect(Rect2(-w * 0.5, -h * 0.5 + h * 0.45, w, h * 0.55), wood.darkened(0.12))
+		draw_line(Vector2(-w * 0.5, -h * 0.5 + h * 0.45), Vector2(w * 0.5, -h * 0.5 + h * 0.45), trim, 2.5)
+		draw_arc(Vector2(0, -h * 0.5), w * 0.48, PI, TAU, 14, trim, 2.0, true)
+		draw_circle(Vector2(0, 0), 4.5 * pulse, trim.lightened(0.05))

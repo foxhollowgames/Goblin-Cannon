@@ -5,6 +5,9 @@ const DURATION_SEC: float = 0.72
 const BURST_COUNT: int = 28
 const CRUMB_MAX: float = 78.0
 
+const FOOD_BURST_TEXTURE: Texture2D = preload("res://assets/Kenney Game Assets All-in-1 3.4.0/2D assets/Pixel Platformer Food Expansion/Tiles/tile_0070.png")
+const STEAM_BURST_VFX: Texture2D = preload("res://assets/VFX/Essentials VFX Spritesheets/Smoke_Cloud_Burst_v1_A_spritesheet.png")
+
 var _elapsed: float = 0.0
 var _angles: Array[float] = []
 
@@ -24,12 +27,20 @@ func _draw() -> void:
 	var ease: float = 1.0 - pow(1.0 - t, 2.4)
 	var fade: float = (1.0 - t) * (1.0 - t * 0.25)
 
-	# Steam cloud
-	var steam_a: float = (1.0 - clampf(_elapsed / 0.35, 0.0, 1.0)) * 0.55
-	if steam_a > 0.02:
-		for s in range(5):
-			var sr: float = lerpf(16.0, 42.0, float(s) / 4.0) * (0.85 + 0.15 * sin(_elapsed * 12.0 + float(s)))
-			draw_circle(Vector2(sin(_elapsed * 8.0 + s) * 6.0, -12.0 - float(s) * 5.0), sr * 0.45, Color(0.92, 0.95, 0.98, steam_a * (0.35 - float(s) * 0.05)))
+	# Steam puff spritesheet
+	if STEAM_BURST_VFX:
+		var frame_idx: int = int(t * 15.0) % 16
+		var col: int = frame_idx % 4
+		var row: int = frame_idx / 4
+		var src_rect := Rect2(col * 512, row * 512, 512, 512)
+		var dest_rect := Rect2(-30.0, -38.0, 60.0, 60.0)
+		draw_texture_rect_region(STEAM_BURST_VFX, dest_rect, src_rect, Color(0.95, 0.95, 1.0, fade * 0.6))
+	else:
+		var steam_a: float = (1.0 - clampf(_elapsed / 0.35, 0.0, 1.0)) * 0.55
+		if steam_a > 0.02:
+			for s in range(5):
+				var sr: float = lerpf(16.0, 42.0, float(s) / 4.0) * (0.85 + 0.15 * sin(_elapsed * 12.0 + float(s)))
+				draw_circle(Vector2(sin(_elapsed * 8.0 + s) * 6.0, -12.0 - float(s) * 5.0), sr * 0.45, Color(0.92, 0.95, 0.98, steam_a * (0.35 - float(s) * 0.05)))
 
 	# Soft pop
 	var flash_t: float = clampf(_elapsed / 0.14, 0.0, 1.0)
