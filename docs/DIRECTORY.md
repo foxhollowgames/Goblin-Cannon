@@ -67,6 +67,7 @@
 | `test_hopper_ball_cascade.gd` | `HopperBallCascade` | [tests/test_hopper_ball_cascade.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_hopper_ball_cascade.gd) |
 | `test_hopper_steering.gd` | `HopperSteering` | [tests/test_hopper_steering.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_hopper_steering.gd) |
 | `test_hopper_top_bar_debug_menu.gd` | `HopperTopBarDebugMenu` | [tests/test_hopper_top_bar_debug_menu.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_hopper_top_bar_debug_menu.gd) |
+| `test_intervention_visual_effects.gd` | `InterventionVisualEffects` | [tests/test_intervention_visual_effects.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_intervention_visual_effects.gd) |
 | `test_junk_box_dynamic_scroll.gd` | `JunkBoxDynamicScroll` | [tests/test_junk_box_dynamic_scroll.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_junk_box_dynamic_scroll.gd) |
 | `test_junk_box_inventory.gd` | `JunkBoxInventory` | [tests/test_junk_box_inventory.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_junk_box_inventory.gd) |
 | `test_junk_box_manual_placement.gd` | `JunkBoxManualPlacement` | [tests/test_junk_box_manual_placement.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_junk_box_manual_placement.gd) |

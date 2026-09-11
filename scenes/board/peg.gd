@@ -911,76 +911,16 @@ func _draw_wrench() -> void:
 	draw_circle(Vector2(0, r * 0.5), 3.0, wrench_color)
 
 func _draw_treasure_chest() -> void:
-	var r: float = Constants.PEG_RADIUS
-	var ratio: float = 1.0 if _max_durability <= 0 else (float(_durability) / float(_max_durability))
-	var t: float = float(Time.get_ticks_msec()) * 0.006
-	var pulse: float = 0.78 + 0.22 * sin(t * 2.0)
-	var alpha: float = clampf(0.45 + 0.55 * _treasure_chest_urgency, 0.35, 1.0) * pulse
-	var wood := Color(0.38, 0.24, 0.12, alpha)
-	var trim := Color(0.9, 0.72, 0.2, alpha)
-	var glow := Color(0.95, 0.55, 0.15, 0.28 * alpha * ratio)
-	draw_circle(Vector2.ZERO, r + 5.0, glow)
-	var bw: float = r * 1.35
-	var bh: float = r * 1.25
-	draw_rect(Rect2(-bw * 0.5, -bh * 0.5, bw, bh * 0.52), wood)
-	draw_rect(Rect2(-bw * 0.5, bh * 0.02, bw, bh * 0.48), wood.darkened(0.1))
-	draw_line(Vector2(-bw * 0.5, bh * 0.02), Vector2(bw * 0.5, bh * 0.02), trim, 2.5)
-	draw_arc(Vector2(0, -bh * 0.5), bw * 0.48, PI, TAU, 18, trim, 2.5, true)
-	draw_circle(Vector2(0, 0), 4.5, trim.lightened(0.05))
-	draw_arc(Vector2.ZERO, r + 2.0, 0.0, TAU, 28, Color(trim.r, trim.g, trim.b, alpha * 0.85), 2.0)
+	PegKindDrawing.draw_treasure_chest(self, Constants.PEG_RADIUS, _max_durability, _durability, _treasure_chest_urgency)
 
 func _draw_buffet_table() -> void:
-	var r: float = Constants.PEG_RADIUS
-	var t: float = float(Time.get_ticks_msec()) * 0.0065
-	var pulse: float = 0.78 + 0.22 * sin(t * 2.0)
-	var alpha: float = clampf(0.4 + 0.6 * _buffet_table_urgency, 0.35, 1.0) * pulse
-	var cloth := Color(0.78, 0.62, 0.42, alpha)
-	var trim := Color(0.55, 0.38, 0.22, alpha)
-	var plate := Color(0.96, 0.94, 0.9, alpha)
-	var steam := Color(0.88, 0.92, 0.95, 0.22 * alpha)
-	draw_circle(Vector2.ZERO, r + 4.0, steam)
-	var tw: float = r * 2.45
-	var th: float = r * 0.95
-	draw_rect(Rect2(-tw * 0.5, -th * 0.5, tw, th * 0.55), cloth)
-	draw_rect(Rect2(-tw * 0.5, th * 0.02, tw, th * 0.48), cloth.darkened(0.08))
-	draw_line(Vector2(-tw * 0.5, th * 0.02), Vector2(tw * 0.5, th * 0.02), trim, 2.0)
-	for px in [-r * 0.65, r * 0.65]:
-		draw_circle(Vector2(px, -r * 0.15), r * 0.42, plate)
-		draw_arc(Vector2(px, -r * 0.15), r * 0.42, 0.0, TAU, 20, trim.darkened(0.1), 1.5)
-	draw_arc(Vector2(0, -r * 0.35), r * 0.5, PI * 1.05, TAU * 0.95, 14, Color(0.7, 0.75, 0.78, 0.55 * alpha), 2.0)
-	draw_arc(Vector2.ZERO, r + 2.0, 0.0, TAU, 28, Color(trim.r, trim.g, trim.b, alpha * 0.85), 2.0)
+	PegKindDrawing.draw_buffet_table(self, Constants.PEG_RADIUS, _buffet_table_urgency)
 
 func _draw_sticky_slime() -> void:
-	var r: float = Constants.PEG_RADIUS
-	var pulse: float = 0.72 + 0.28 * sin(_sticky_slime_phase)
-	var alpha: float = clampf(0.42 + 0.58 * _sticky_slime_urgency, 0.35, 1.0) * pulse
-	var slime := Color(0.25, 0.72, 0.38, alpha)
-	var slime_dark := Color(0.12, 0.45, 0.22, alpha * 0.92)
-	var drip := Color(0.35, 0.85, 0.5, 0.55 * alpha)
-	draw_circle(Vector2.ZERO, r + 3.5, slime_dark)
-	draw_circle(Vector2.ZERO, r + 1.0, slime)
-	for i in range(5):
-		var ang: float = _sticky_slime_phase * 0.8 + float(i) * TAU / 5.0
-		var drip_len: float = 4.0 + 3.0 * sin(_sticky_slime_phase + float(i))
-		var outer: Vector2 = Vector2(cos(ang), sin(ang)) * (r + 1.5)
-		draw_line(outer, outer + Vector2(0, drip_len), drip, 2.2)
-	draw_arc(Vector2.ZERO, r + 2.5, 0.0, TAU, 28, Color(0.5, 1.0, 0.65, alpha * 0.35), 2.0)
+	PegKindDrawing.draw_sticky_slime(self, Constants.PEG_RADIUS, _sticky_slime_urgency, _sticky_slime_phase)
 
 func _draw_milestone_event() -> void:
-	var r: float = Constants.PEG_RADIUS
-	var t: float = float(Time.get_ticks_msec()) * 0.008
-	var pulse: float = 0.75 + 0.25 * sin(t * 3.0)
-	var alpha: float = clampf(0.35 + 0.65 * _milestone_event_urgency, 0.15, 1.0) * pulse
-	var gold := Color(0.95, 0.82, 0.25, alpha)
-	var rim := Color(0.55, 0.4, 0.1, alpha)
-	draw_circle(Vector2.ZERO, r + 3.0, Color(0.45, 0.25, 0.95, 0.35 * alpha))
-	draw_circle(Vector2.ZERO, r, gold)
-	draw_arc(Vector2.ZERO, r + 1.0, 0.0, TAU, 32, rim, 2.5)
-	# Bag silhouette
-	var bw: float = r * 1.1
-	var bh: float = r * 1.15
-	draw_rect(Rect2(-bw * 0.45, -bh * 0.35, bw * 0.9, bh * 0.7), Color(0.35, 0.28, 0.08, alpha * 0.9))
-	draw_arc(Vector2(0, -bh * 0.35), bw * 0.45, PI, TAU, 14, gold.darkened(0.15), 2.0, true)
+	PegKindDrawing.draw_milestone_event(self, Constants.PEG_RADIUS, _milestone_event_urgency)
 
 func _draw_leech_cone() -> void:
 	var r: float = Constants.PEG_RADIUS

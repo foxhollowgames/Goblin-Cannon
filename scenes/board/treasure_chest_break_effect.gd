@@ -6,6 +6,8 @@ const OUTER_RING_PX: float = 56.0
 const SPARK_COUNT: int = 22
 const SPARK_MAX_DIST: float = 72.0
 
+const SPARKLE_BURST_VFX: Texture2D = preload("res://assets/VFX/Essentials VFX Spritesheets/Star_ColorBurst_V1_A_spritesheet.png")
+
 var _elapsed: float = 0.0
 var _spark_angles: Array[float] = []
 
@@ -24,6 +26,15 @@ func _draw() -> void:
 	var t: float = clampf(_elapsed / DURATION_SEC, 0.0, 1.0)
 	var ease: float = 1.0 - pow(1.0 - t, 2.85)
 	var fade: float = (1.0 - t) * (1.0 - t * 0.32)
+
+	# Spritesheet sparkle burst
+	if SPARKLE_BURST_VFX:
+		var frame_idx: int = int(t * 15.0) % 16
+		var col: int = frame_idx % 4
+		var row: int = frame_idx / 4
+		var src_rect := Rect2(col * 512, row * 512, 512, 512)
+		var dest_rect := Rect2(-36.0, -36.0, 72.0, 72.0)
+		draw_texture_rect_region(SPARKLE_BURST_VFX, dest_rect, src_rect, Color(1.0, 0.9, 0.4, fade * 0.95))
 
 	# Bright core flash (first ~120ms)
 	var flash_t: float = clampf(_elapsed / 0.12, 0.0, 1.0)
