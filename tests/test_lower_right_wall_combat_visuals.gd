@@ -60,9 +60,9 @@ func test_wall_impact_vfx_setup_and_particles() -> void:
 	impact.free()
 
 func test_battlefield_view_horizontal_alignment() -> void:
-	begin("BattlefieldView coordinates align vertically at y=628.0 for horizontal combat")
-	assert_approx(BattlefieldViewScript.CANNON_MUZZLE_POS.y, 628.0, 0.01, "Cannon muzzle vertical position is 628.0")
-	assert_approx(BattlefieldViewScript.WALL_IMPACT_POS.y, 628.0, 0.01, "Wall impact vertical position is 628.0")
+	begin("BattlefieldView coordinates align vertically at y=58.0 for top horizontal combat")
+	assert_approx(BattlefieldViewScript.CANNON_MUZZLE_POS.y, 58.0, 0.01, "Cannon muzzle vertical position is 58.0")
+	assert_approx(BattlefieldViewScript.WALL_IMPACT_POS.y, 58.0, 0.01, "Wall impact vertical position is 58.0")
 	assert_true(BattlefieldViewScript.WALL_IMPACT_POS.x > BattlefieldViewScript.CANNON_MUZZLE_POS.x, "Wall is opposite cannon on the right side")
 
 func test_battlefield_view_fire_spawns_projectile() -> void:

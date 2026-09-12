@@ -193,18 +193,16 @@ func set_charge(current: int, threshold: int) -> void:
 			cannon_visual.set_charge(current, threshold)
 
 func set_timer(seconds_remaining: float) -> void:
-	if not _timer_label:
-		return
-	var mins: int = int(seconds_remaining) / 60
-	var secs: int = int(seconds_remaining) % 60
-	_timer_label.text = "%d:%02d" % [mins, secs]
-	# Color shifts to red when under 30 seconds
-	if seconds_remaining <= 30.0:
-		_timer_label.add_theme_color_override("font_color", MonsterPalette.RUST())
-	elif seconds_remaining <= 60.0:
-		_timer_label.add_theme_color_override("font_color", MonsterPalette.TAN().lerp(MonsterPalette.RUST(), 0.35))
-	else:
-		_timer_label.add_theme_color_override("font_color", MonsterPalette.SWATCH_CREAM())
+	if _timer_label:
+		var mins: int = int(seconds_remaining) / 60
+		var secs: int = int(seconds_remaining) % 60
+		_timer_label.text = "%d:%02d" % [mins, secs]
+		_timer_label.visible = false
+	var scene: Node = get_tree().current_scene if is_inside_tree() and get_tree() else null
+	if scene:
+		var battlefield: Node = scene.find_child("BattlefieldView", true, false)
+		if battlefield and battlefield.has_method("set_timer_progress"):
+			battlefield.set_timer_progress(seconds_remaining)
 
 ## Energy gain VFX (only main cannon now).
 func show_energy_gain(main_internal: int, _sidearm_internal: int, _shield_internal: int, exit_position: Vector2, _alignment: int = 0) -> void:

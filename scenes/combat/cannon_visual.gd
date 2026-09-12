@@ -23,6 +23,8 @@ var liquid_ratio: float = 0.0
 var _target_ratio: float = 0.0
 var _catchup_tween: Tween
 
+signal cannon_exploded
+
 var _shield_display: int = 0
 var _status_stacks: Dictionary = {}
 var _status_decay_counter: int = 0
@@ -30,6 +32,7 @@ var _status_decay_counter: int = 0
 var _recoil_offset_x: float = 0.0
 var _show_muzzle_flash: bool = false
 var _flash_frame: int = 0
+var _is_destroyed: bool = false
 
 func set_energy(p_current: int, p_max: int = 10000) -> void:
 	current_energy = maxi(0, p_current)
@@ -72,6 +75,27 @@ func trigger_firing_anim() -> void:
 		liquid_ratio = 0.0
 		queue_redraw()
 	)
+	queue_redraw()
+
+## Triggers catastrophic explosion when enemy breaches the cannon.
+func trigger_catastrophic_explosion() -> void:
+	_is_destroyed = true
+	_show_muzzle_flash = true
+	_flash_frame = 0
+	var tw: Tween = create_tween()
+	tw.set_parallel(true)
+	tw.tween_property(self, "_recoil_offset_x", -20.0, 0.15).set_trans(Tween.TRANS_BOUNCE)
+	tw.tween_property(self, "_flash_frame", 15, 0.5).set_trans(Tween.TRANS_LINEAR)
+	tw.chain().tween_callback(func():
+		cannon_exploded.emit()
+	)
+	queue_redraw()
+
+## Resets cannon visual state after destruction or restart.
+func reset_cannon() -> void:
+	_is_destroyed = false
+	_recoil_offset_x = 0.0
+	_show_muzzle_flash = false
 	queue_redraw()
 
 func apply_status(status_id: StringName, stacks: int) -> void:
@@ -118,6 +142,12 @@ func _process(_delta: float) -> void:
 func _draw() -> void:
 	var center_x: float = _recoil_offset_x
 	var center_y: float = 0.0
+
+	if _is_destroyed:
+		draw_circle(Vector2(center_x, center_y), 24.0, Color(0.12, 0.10, 0.09, 0.9))
+		draw_circle(Vector2(center_x - 10.0, center_y - 8.0), 16.0, Color(0.25, 0.15, 0.08, 0.8))
+		draw_circle(Vector2(center_x + 8.0, center_y - 12.0), 14.0, Color(0.35, 0.20, 0.05, 0.7))
+		return
 
 	# 1. Render Cannon Sprite Asset (Crisp native scale: 43.5 x 30.0)
 	if CANNON_TEXTURE:
