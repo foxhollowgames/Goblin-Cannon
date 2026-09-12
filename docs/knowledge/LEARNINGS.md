@@ -139,6 +139,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-128`](#lrn-128) | TASK-087 | `Visuals` | Lower right battlefield wall, cannonball projectile, and impact VFX | 2026-09-10 |
 | [`LRN-129`](#lrn-129) | TASK-088 | `Visual Effects` | Intervention Visuals | 2026-09-10 |
 | [`LRN-130`](#lrn-130) | TASK-089 | `orchestration` | Automatic Task Packet Creation on User Instructions | 2026-09-12 |
+| [`LRN-131`](#lrn-131) | TASK-090 | `godot_engine` | Idle hopper ball duplication and Area2D/exit lifecycles | 2026-09-12 |
 
 ---
 
@@ -2221,5 +2222,21 @@ Enforcing immediate task packet creation and dashboard regeneration before imple
 
 #### Actionable Guideline for Future Agents
 Whenever the user provides instructions to fix, resolve, or build something without an existing task packet, create docs/tasks/TASK-XXX-<name>.md, register in docs/tasks/README.md, and run python scripts/generate_task_dashboard.py before beginning code changes
+
+---
+
+### <a id="lrn-131"></a> LRN-131: Idle hopper ball duplication and Area2D/exit lifecycles
+- **Task:** `TASK-090`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-12T16:06:42.372569`
+
+#### Context & Problem
+During idle runs, balls multiplied from 10 to 50+ in the hopper. Falling balls crossing Area2D boundaries near the hopper gate re-triggered bin overlap checks, while Board._active_balls appended balls without uniqueness checks and GameBallManager handled bottom exits without checking is_queued_for_deletion.
+
+#### Key Insight & Learning
+Area2D overlap syncing must distinguish actively released rigidbodies to prevent re-entering storage lists. Furthermore, ball exit handlers and active collections in Board must check is_queued_for_deletion() and guard against duplicate exit events with metadata flags, ensuring flags like is_exiting_board are reset if mechanics like Fragment Echo recycle the ball.
+
+#### Actionable Guideline for Future Agents
+Always track released physics bodies when using Area2D boundary triggers, guard on_ball_exited callbacks against is_queued_for_deletion and repeat calls via node metadata, and clean up metadata when recycling bodies.
 
 ---

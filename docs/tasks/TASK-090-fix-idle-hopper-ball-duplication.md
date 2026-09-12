@@ -1,6 +1,6 @@
 # TASK-090: Fix Idle Hopper Ball Duplication
 
-- **Status:** IN_REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay / Physics
 - **Target Branch:** `fix/idle-hopper-ball-duplication`
@@ -42,6 +42,6 @@ When running the game without user interaction (idle run), the number of balls i
 - [x] Ball conservation verified: idle run preserves ball count without unwanted escalation.
 - [x] Automated regression test authoring and verification.
 - [x] Full headless test suite passes.
-- [ ] Code changes reviewed by sub-agent `pr_reviewer` and merged into `main`.
-- [ ] Post-merge learning added via `python scripts/learnings.py add`.
-- [ ] Task dashboard marked DONE.
+- [x] Code changes reviewed by sub-agent `pr_reviewer` and merged into `main`.
+- [x] Post-merge learning added via `python scripts/learnings.py add`.
+- [x] Task dashboard marked DONE.
