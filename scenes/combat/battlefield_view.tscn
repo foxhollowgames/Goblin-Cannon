@@ -1,20 +1,23 @@
-[gd_scene load_steps=7 format=3 uid="uid://battlefield001"]
+[gd_scene load_steps=8 format=3 uid="uid://battlefield001"]
 
 [ext_resource type="Script" path="res://scenes/combat/battlefield_view.gd" id="1_bf"]
 [ext_resource type="Script" path="res://scenes/combat/scrolling_terrain.gd" id="2_terrain"]
 [ext_resource type="Script" path="res://scenes/combat/wall_visual.gd" id="3_wall"]
 [ext_resource type="Script" path="res://scenes/combat/cannon_visual.gd" id="4_cannon"]
 [ext_resource type="PackedScene" uid="uid://fortturret001" path="res://scenes/combat/fortification_turret.tscn" id="5_fort"]
+[ext_resource type="Script" path="res://scenes/combat/city_mob_visual.gd" id="6_mob"]
 
 [node name="BattlefieldView" type="Node2D"]
-position = Vector2(960, 0)
+position = Vector2(0, 0)
 script = ExtResource("1_bf")
 
 [node name="ScrollingTerrain" type="Node2D" parent="."]
 script = ExtResource("2_terrain")
+terrain_width = 1280.0
+terrain_height = 110.0
 
 [node name="WallVisual" type="Node2D" parent="."]
-position = Vector2(265, 628)
+position = Vector2(1175, 58)
 script = ExtResource("3_wall")
 
 [node name="Fortification1" parent="WallVisual" instance=ExtResource("5_fort")]
@@ -31,5 +34,9 @@ position = Vector2(270, 44)
 [node name="ProjectilesContainer" type="Node2D" parent="."]
 
 [node name="CannonVisual" type="Node2D" parent="."]
-position = Vector2(50, 628)
+position = Vector2(75, 58)
 script = ExtResource("4_cannon")
+
+[node name="CityMobVisual" type="Node2D" parent="."]
+position = Vector2(1100, 62)
+script = ExtResource("6_mob")

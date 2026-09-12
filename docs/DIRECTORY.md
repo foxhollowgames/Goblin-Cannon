@@ -119,6 +119,7 @@
 | `test_test_scenario.gd` | `TestScenario` | [tests/test_test_scenario.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_test_scenario.gd) |
 | `test_tetromino_module_fusion.gd` | `TetrominoModuleFusion` | [tests/test_tetromino_module_fusion.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_tetromino_module_fusion.gd) |
 | `test_tooltip_text_refinement.gd` | `TooltipTextRefinement` | [tests/test_tooltip_text_refinement.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_tooltip_text_refinement.gd) |
+| `test_top_battlefield_and_mob_timer.gd` | `TopBattlefieldAndMobTimer` | [tests/test_top_battlefield_and_mob_timer.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_top_battlefield_and_mob_timer.gd) |
 | `test_top_gold_counter_ui.gd` | `TopGoldCounterUI` | [tests/test_top_gold_counter_ui.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_top_gold_counter_ui.gd) |
 | `test_ui_buttons_audit.gd` | `UIButtonAudit` | [tests/test_ui_buttons_audit.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_ui_buttons_audit.gd) |
 | `test_ui_wireframe_and_screen_layout.gd` | `UIWireframeAndScreenLayout` | [tests/test_ui_wireframe_and_screen_layout.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_ui_wireframe_and_screen_layout.gd) |

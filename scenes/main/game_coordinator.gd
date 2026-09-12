@@ -322,6 +322,8 @@ func _show_wall_title_card(title_text: String, subtitle_text: String, on_finishe
 
 func _on_time_expired() -> void:
 	_game_over = true
+	if _battlefield and _battlefield.has_method("trigger_cannon_explosion"):
+		_battlefield.trigger_cannon_explosion()
 	_show_fail_screen()
 
 func _show_fail_screen() -> void:

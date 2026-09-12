@@ -34,7 +34,12 @@ func test_playfield_and_sidebar_proportions() -> void:
 	var battlefield: Node2D = main_node.get_node_or_null("CombatContainer/BattlefieldView") as Node2D
 	assert_true(battlefield != null, "CombatContainer/BattlefieldView exists")
 	if battlefield:
-		assert_eq(battlefield.position.x, 960.0, "BattlefieldView starts at X=960px boundary")
+		assert_eq(battlefield.position.y, 0.0, "BattlefieldView spans across the top of the screen at Y=0")
+		assert_eq(battlefield.position.x, 0.0, "BattlefieldView starts at X=0 boundary")
+	var center_panel: Control = main_node.get_node_or_null("UILayer/CenterPanel") as Control
+	if center_panel:
+		assert_eq(center_panel.offset_top, 110.0, "CenterPanel starts below the top battlefield at Y=110")
+		assert_eq(center_panel.offset_bottom, 720.0, "CenterPanel extends to bottom of screen at Y=720")
 	var right_wall: Node2D = main_node.get_node_or_null("BoardWalls/RightWall") as Node2D
 	assert_true(right_wall != null, "BoardWalls/RightWall exists")
 	if right_wall:

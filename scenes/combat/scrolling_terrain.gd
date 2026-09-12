@@ -12,6 +12,7 @@ signal advance_stopped
 const TERRAIN_WIDTH: float = 320.0
 const TERRAIN_HEIGHT: float = 720.0
 const TILE_REPEAT_Y: float = 180.0
+const TILE_REPEAT_X: float = 160.0
 const VERGE_WIDTH: float = 40.0
 const ROAD_LEFT_X: float = 40.0
 const ROAD_WIDTH: float = 240.0
@@ -31,6 +32,7 @@ const LINE_WIDTH_TUFT: float = 1.5
 var scroll_speed: float = 0.0
 var is_advancing: bool = false
 var _scroll_offset_y: float = 0.0
+var _scroll_offset_x: float = 0.0
 var _rumble_offset: Vector2 = Vector2.ZERO
 var _speed_tween: Tween = null
 var _rumble_tween: Tween = null
@@ -49,6 +51,10 @@ var _detail_verge_tufts: Array[Vector2] = [
 func _process(delta: float) -> void:
 	var needs_redraw: bool = false
 	if not is_zero_approx(scroll_speed):
+		if terrain_width > terrain_height:
+			_scroll_offset_x = fmod(_scroll_offset_x + scroll_speed * delta, TILE_REPEAT_X)
+			if _scroll_offset_x < 0.0:
+				_scroll_offset_x += TILE_REPEAT_X
 		_scroll_offset_y = fmod(_scroll_offset_y + scroll_speed * delta, TILE_REPEAT_Y)
 		if _scroll_offset_y < 0.0:
 			_scroll_offset_y += TILE_REPEAT_Y
@@ -60,8 +66,11 @@ func _process(delta: float) -> void:
 
 func _draw() -> void:
 	draw_set_transform(_rumble_offset, 0.0, Vector2.ONE)
-	_draw_roadway_base()
-	_draw_repeating_slices()
+	if terrain_width > terrain_height:
+		_draw_horizontal_parapet()
+	else:
+		_draw_roadway_base()
+		_draw_repeating_slices()
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 #endregion
 
@@ -163,4 +172,31 @@ func _draw_repeating_slices() -> void:
 			draw_line(Vector2(tx - 3, start_y + tuft.y), Vector2(tx + 3, start_y + tuft.y - 4), c_grass, LINE_WIDTH_TUFT)
 			draw_line(Vector2(tx, start_y + tuft.y), Vector2(tx, start_y + tuft.y - 5), c_grass, LINE_WIDTH_TUFT)
 		start_y += TILE_REPEAT_Y
+
+func _draw_horizontal_parapet() -> void:
+	var w: float = terrain_width
+	var h: float = terrain_height
+	var c_stone: Color = Color(0.12, 0.10, 0.09)
+	var c_rim: Color = Color(0.18, 0.14, 0.11)
+	var c_floor: Color = Color(0.14, 0.12, 0.11)
+	var c_ledge: Color = Color(0.19, 0.14, 0.11)
+	var c_border: Color = MonsterPalette.WARM_BROWN().lerp(MonsterPalette.OLIVE(), 0.5)
+
+	# 1. Base parapet floor
+	draw_rect(Rect2(0, 0, w, h), c_stone, true)
+	draw_rect(Rect2(0, 16, w, h - 32), c_floor, true)
+
+	# 2. Top battlement wall band with merlon crenels
+	draw_rect(Rect2(0, 0, w, 16), c_rim, true)
+	var start_x: float = _scroll_offset_x - TILE_REPEAT_X
+	while start_x < w + TILE_REPEAT_X:
+		draw_rect(Rect2(start_x + 10, 0, 20, 8), c_stone, true)
+		draw_line(Vector2(start_x, 0), Vector2(start_x, 16), Color(0.08, 0.06, 0.05), 1.5)
+		draw_line(Vector2(start_x + 40, 16), Vector2(start_x + 40, h - 16), Color(0.10, 0.08, 0.07, 0.7), 1.5)
+		start_x += 80.0
+
+	# 3. Bottom parapet ledge divider
+	draw_rect(Rect2(0, h - 16, w, 16), c_ledge, true)
+	draw_line(Vector2(0, h - 16), Vector2(w, h - 16), c_border, 2.0)
+	draw_line(Vector2(0, h - 1), Vector2(w, h - 1), Color(0.05, 0.03, 0.02), 2.0)
 #endregion
