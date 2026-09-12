@@ -200,47 +200,43 @@ func remove_and_destroy_one_ball_if(predicate: Callable) -> bool:
 func spawn_ball_at_start(ball: Node) -> void:
 	if not ball:
 		return
+	if ball.has_meta("is_exiting_board"):
+		ball.set_meta("is_exiting_board", false)
 	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else 0
 	_ball_hit_count_this_visit[bid] = 0
 	_phantom_pegs_visited[bid] = 0
 	_splitter_triggered_this_visit[bid] = false
 	if ball.has_method("reset_energy_to_base"):
 		ball.reset_energy_to_base()
-	if ball.get_parent() == _balls_container:
-		if ball.has_method("reset_split_for_new_visit"):
-			ball.reset_split_for_new_visit()
-		if ball.has_method("reset_gas_buff_state_for_board_visit"):
-			ball.reset_gas_buff_state_for_board_visit()
-		_active_balls.append(ball)
-		return
-	if "freeze" in ball:
-		ball.freeze = false
 	if ball.has_method("reset_split_for_new_visit"):
 		ball.reset_split_for_new_visit()
 	if ball.has_method("reset_gas_buff_state_for_board_visit"):
 		ball.reset_gas_buff_state_for_board_visit()
+	if ball.get_parent() == _balls_container:
+		if not _active_balls.has(ball):
+			_active_balls.append(ball)
+		return
+	if "freeze" in ball:
+		ball.freeze = false
 	ball.global_position = _spawn_position
 	if "linear_velocity" in ball:
 		ball.linear_velocity = Vector2.ZERO
 	_balls_container.add_child(ball)
-	_active_balls.append(ball)
+	if not _active_balls.has(ball):
+		_active_balls.append(ball)
 
 ## Fragment Echo (wall break): ghost-float fragment back to top, then release. Do not reset split state.
 func respawn_fragment_at_top(ball: Node) -> void:
-	if not ball:
+	if not ball or ball.get_parent() != _balls_container:
 		return
-	if ball.get_parent() != _balls_container:
-		return
+	if ball.has_meta("is_exiting_board"):
+		ball.set_meta("is_exiting_board", false)
 	var exit_x: float = clampf(ball.global_position.x, 40.0, 920.0)
 	var target_pos: Vector2 = Vector2(exit_x, _spawn_position.y)
-	if "linear_velocity" in ball:
-		ball.linear_velocity = Vector2.ZERO
-	if "angular_velocity" in ball:
-		ball.angular_velocity = 0.0
-	if "freeze_mode" in ball:
-		ball.freeze_mode = RigidBody2D.FREEZE_MODE_KINEMATIC
-	if "freeze" in ball:
-		ball.freeze = true
+	if "linear_velocity" in ball: ball.linear_velocity = Vector2.ZERO
+	if "angular_velocity" in ball: ball.angular_velocity = 0.0
+	if "freeze_mode" in ball: ball.freeze_mode = RigidBody2D.FREEZE_MODE_KINEMATIC
+	if "freeze" in ball: ball.freeze = true
 	if ball.has_method("start_echo_float"):
 		ball.start_echo_float()
 	ball.set_meta("echo_target", target_pos)
@@ -257,13 +253,11 @@ func _finish_fragment_echo(ball: Node) -> void:
 	if "freeze" in ball:
 		ball.freeze = false
 	ball.global_position = target_pos
-	if "linear_velocity" in ball:
-		ball.linear_velocity = Vector2.ZERO
-	if "angular_velocity" in ball:
-		ball.angular_velocity = 0.0
-	if "lock_rotation" in ball:
-		ball.lock_rotation = true
-	_active_balls.append(ball)
+	if "linear_velocity" in ball: ball.linear_velocity = Vector2.ZERO
+	if "angular_velocity" in ball: ball.angular_velocity = 0.0
+	if "lock_rotation" in ball: ball.lock_rotation = true
+	if not _active_balls.has(ball):
+		_active_balls.append(ball)
 	ball.remove_meta("echo_target")
 	_emit_ball_reset_to_top(ball, BALL_RESET_REASON_FRAGMENT_ECHO)
 
@@ -744,7 +738,7 @@ func _remove_freed_active_balls() -> void:
 	var i: int = _active_balls.size()
 	while i > 0:
 		i -= 1
-		if not is_instance_valid(_active_balls[i]):
+		if not is_instance_valid(_active_balls[i]) or _active_balls[i].is_queued_for_deletion():
 			_active_balls.remove_at(i)
 
 func run_ball_steps(sim_tick: int) -> void:
@@ -760,8 +754,8 @@ func run_ball_steps(sim_tick: int) -> void:
 	_apply_magnet_and_gravity_well_forces()
 	_tick_black_hole_event(sim_tick)
 	for b in _active_balls.duplicate():
-		if not is_instance_valid(b):
-			_active_balls.erase(b)
+		if not is_instance_valid(b) or b.is_queued_for_deletion():
+			while _active_balls.has(b): _active_balls.erase(b)
 			continue
 		if not (b in _active_balls):
 			continue
@@ -1117,8 +1111,10 @@ func flush_tick(sim_tick: int) -> void:
 			if positions.size() >= 2:
 				_spawn_chain_lightning_arcs(positions)
 	for b in _active_balls.duplicate():
-		if not is_instance_valid(b):
-			_active_balls.erase(b)
+		if not is_instance_valid(b) or b.is_queued_for_deletion():
+			while _active_balls.has(b): _active_balls.erase(b)
+			continue
+		if not (b in _active_balls):
 			continue
 		var pos: Vector2 = b.get_global_sim_position() if b.has_method("get_global_sim_position") else b.global_position
 		var ability_for_bottom: String = ""
@@ -1164,7 +1160,7 @@ func flush_tick(sim_tick: int) -> void:
 				b.clear_gas_buffs_on_score()
 			_spawn_hit_effect(pos, status_effects, ability_name, false)
 			ball_reached_bottom.emit(ball_id, total, alignment, pos, status_effects)
-			_active_balls.erase(b)
+			while _active_balls.has(b): _active_balls.erase(b)
 			_ball_hit_count_this_visit.erase(ball_id)
 			_phantom_pegs_visited.erase(ball_id)
 			_ball_energized_pegs_hit.erase(ball_id)
@@ -1174,7 +1170,7 @@ func flush_tick(sim_tick: int) -> void:
 			ball_exited_board.emit(b, REASON_BOTTOM)
 		elif pos.y > OFF_SCREEN_Y or pos.x < OFF_SCREEN_X_LEFT or pos.x > OFF_SCREEN_X_RIGHT:
 			var ball_id: int = b.get_ball_id() if b.has_method("get_ball_id") else 0
-			_active_balls.erase(b)
+			while _active_balls.has(b): _active_balls.erase(b)
 			_ball_hit_count_this_visit.erase(ball_id)
 			_phantom_pegs_visited.erase(ball_id)
 			_ball_energized_pegs_hit.erase(ball_id)

@@ -120,6 +120,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-087](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-087-lower-right-wall-cannonball-and-impact-vfx.md) | Lower Right Battlefield Wall Sprite, Cannonball Projectile, and Impact VFX | UI / Visuals / VFX | P1 | DONE | `feature/lower-right-wall-cannonball-impact-vfx` |
 | [TASK-088](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-088-rework-intervention-visual-effects.md) | Rework Intervention Visual Effects and Peg Presentation | UI / Visuals / VFX | P1 | DONE | `feature/rework-intervention-visual-effects` |
 | [TASK-089](TASK-089-auto-task-creation-workflow.md) | Automatic Task Creation and Resolution Protocol for User Requests | DevOps / Workflow / Orchestration | P0 | DONE | `feature/auto-task-creation-workflow` |
+| [TASK-090](TASK-090-fix-idle-hopper-ball-duplication.md) | Fix Idle Hopper Ball Duplication | Systems / Gameplay / Physics | P1 | IN_REVIEW | `fix/idle-hopper-ball-duplication` |
 
 
 ---

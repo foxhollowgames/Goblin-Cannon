@@ -65,6 +65,7 @@
 | `test_game_state.gd` | `GameState` | [tests/test_game_state.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_game_state.gd) |
 | `test_hit_cooldown.gd` | `HitCooldown` | [tests/test_hit_cooldown.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_hit_cooldown.gd) |
 | `test_hopper_ball_cascade.gd` | `HopperBallCascade` | [tests/test_hopper_ball_cascade.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_hopper_ball_cascade.gd) |
+| `test_hopper_ball_duplication.gd` | `HopperBallDuplication` | [tests/test_hopper_ball_duplication.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_hopper_ball_duplication.gd) |
 | `test_hopper_steering.gd` | `HopperSteering` | [tests/test_hopper_steering.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_hopper_steering.gd) |
 | `test_hopper_top_bar_debug_menu.gd` | `HopperTopBarDebugMenu` | [tests/test_hopper_top_bar_debug_menu.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_hopper_top_bar_debug_menu.gd) |
 | `test_intervention_visual_effects.gd` | `InterventionVisualEffects` | [tests/test_intervention_visual_effects.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_intervention_visual_effects.gd) |
