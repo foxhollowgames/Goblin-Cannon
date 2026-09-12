@@ -138,6 +138,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-127`](#lrn-127) | TASK-085 | `Systems` | Multi-Peg Orbit Loop Turnaround Physics | 2026-09-10 |
 | [`LRN-128`](#lrn-128) | TASK-087 | `Visuals` | Lower right battlefield wall, cannonball projectile, and impact VFX | 2026-09-10 |
 | [`LRN-129`](#lrn-129) | TASK-088 | `Visual Effects` | Intervention Visuals | 2026-09-10 |
+| [`LRN-130`](#lrn-130) | TASK-089 | `orchestration` | Automatic Task Packet Creation on User Instructions | 2026-09-12 |
 
 ---
 
@@ -2204,5 +2205,21 @@ Preload dedicated asset sprites and spritesheets in preview and break effect nod
 
 #### Actionable Guideline for Future Agents
 Keep visual effect scenes self-contained with explicit type annotations, and manage memory with queue_free on timers.
+
+---
+
+### <a id="lrn-130"></a> LRN-130: Automatic Task Packet Creation on User Instructions
+- **Task:** `TASK-089`
+- **Category:** `orchestration`
+- **Created:** `2026-09-12T15:38:18.770553`
+
+#### Context & Problem
+Users frequently provide ad-hoc instructions or issue reports without referencing a task packet, risking untracked changes on the dashboard
+
+#### Key Insight & Learning
+Enforcing immediate task packet creation and dashboard regeneration before implementation ensures all work is visually tracked and prioritized
+
+#### Actionable Guideline for Future Agents
+Whenever the user provides instructions to fix, resolve, or build something without an existing task packet, create docs/tasks/TASK-XXX-<name>.md, register in docs/tasks/README.md, and run python scripts/generate_task_dashboard.py before beginning code changes
 
 ---
