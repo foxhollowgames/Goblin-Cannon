@@ -264,8 +264,13 @@ static func apply_ball_upgrade_conversion(parent_node: Node, hopper: Node, bag_q
 
 ## Handles ball exiting board (return to hopper or queue into bag).
 static func on_ball_exited_board(c: Node, ball: Node, reason: int) -> void:
+	if not ball or not is_instance_valid(ball) or ball.is_queued_for_deletion():
+		return
 	if reason == 1:
 		return
+	if ball.has_meta("is_exiting_board") and ball.get_meta("is_exiting_board"):
+		return
+	ball.set_meta("is_exiting_board", true)
 	if reason == 4:
 		on_ball_exited_black_hole(c, ball)
 		return
@@ -297,7 +302,7 @@ static func on_ball_exited_board(c: Node, ball: Node, reason: int) -> void:
 
 ## Handles ball destroyed by black hole with delayed respawn timer.
 static func on_ball_exited_black_hole(c: Node, ball: Node) -> void:
-	if not ball or not is_instance_valid(ball):
+	if not ball or not is_instance_valid(ball) or ball.is_queued_for_deletion():
 		return
 	if ball.has_method("is_bloom_spawn") and ball.is_bloom_spawn():
 		ball.queue_free()

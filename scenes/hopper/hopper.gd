@@ -34,6 +34,8 @@ var _prev_catchment_bodies: Array = []
 var _falling_carry_until: Dictionary = {}
 ## ball -> consecutive frames outside strict bin (gate closed only)
 var _outside_bin_frames: Dictionary = {}
+## ball -> true; tracks balls released onto the board to prevent premature re-entry into _stored_balls
+var _released_balls: Dictionary = {}
 var _manual_steer_dir: float = 0.0
 
 const ARM_OPEN_ANGLE: float = PI / 2.0  # 90° each way when open
@@ -139,9 +141,14 @@ func _register_falling_carry(ball: Node) -> void:
 func _sync_bin_membership() -> void:
 	if not _bin_area:
 		return
+	for b in _released_balls.keys():
+		if not is_instance_valid(b) or b.is_queued_for_deletion():
+			_released_balls.erase(b)
 	var strict_in_bin: Dictionary = {}
 	for body in _bin_area.get_overlapping_bodies():
 		if not _is_carryable_ball(body):
+			continue
+		if _released_balls.has(body):
 			continue
 		strict_in_bin[body] = true
 	# BinInterior is a tight rect; sloped side walls extend above it. Balls that bounce on those walls
@@ -154,11 +161,16 @@ func _sync_bin_membership() -> void:
 		for body in _catchment_area.get_overlapping_bodies():
 			if not _is_carryable_ball(body):
 				continue
+			if _released_balls.has(body):
+				continue
 			if was_in.has(body):
 				strict_in_bin[body] = true
 	for body in strict_in_bin:
 		if not was_in.has(body):
-			_stored_balls.append(body)
+			if _released_balls.has(body):
+				continue
+			if not _stored_balls.has(body):
+				_stored_balls.append(body)
 			if body.has_method("apply_hopper_physics"):
 				body.apply_hopper_physics(true)
 			_outside_bin_frames.erase(body)
@@ -171,6 +183,7 @@ func _sync_bin_membership() -> void:
 		if _gate_open:
 			_stored_balls.remove_at(i)
 			_outside_bin_frames.erase(body)
+			_released_balls[body] = true
 			if body.has_method("apply_hopper_physics"):
 				body.apply_hopper_physics(false)
 			ball_entered_board.emit(body)
@@ -244,6 +257,7 @@ func clear_stored_balls() -> void:
 		if is_instance_valid(ball):
 			ball.queue_free()
 	_stored_balls.clear()
+	_released_balls.clear()
 	_outside_bin_frames.clear()
 	_falling_carry_until.clear()
 	_prev_catchment_bodies.clear()
@@ -253,6 +267,9 @@ func return_ball(ball: Node) -> void:
 		return
 	if ball.has_method("reset_energy_to_base"):
 		ball.reset_energy_to_base()
+	if ball.has_meta("is_exiting_board"):
+		ball.set_meta("is_exiting_board", false)
+	_released_balls.erase(ball)
 	_stored_balls.erase(ball)
 	_outside_bin_frames.erase(ball)
 	var parent: Node = ball.get_parent()
