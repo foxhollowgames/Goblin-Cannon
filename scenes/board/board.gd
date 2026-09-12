@@ -200,6 +200,8 @@ func remove_and_destroy_one_ball_if(predicate: Callable) -> bool:
 func spawn_ball_at_start(ball: Node) -> void:
 	if not ball:
 		return
+	if ball.has_meta("is_exiting_board"):
+		ball.set_meta("is_exiting_board", false)
 	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else 0
 	_ball_hit_count_this_visit[bid] = 0
 	_phantom_pegs_visited[bid] = 0
@@ -225,20 +227,16 @@ func spawn_ball_at_start(ball: Node) -> void:
 
 ## Fragment Echo (wall break): ghost-float fragment back to top, then release. Do not reset split state.
 func respawn_fragment_at_top(ball: Node) -> void:
-	if not ball:
+	if not ball or ball.get_parent() != _balls_container:
 		return
-	if ball.get_parent() != _balls_container:
-		return
+	if ball.has_meta("is_exiting_board"):
+		ball.set_meta("is_exiting_board", false)
 	var exit_x: float = clampf(ball.global_position.x, 40.0, 920.0)
 	var target_pos: Vector2 = Vector2(exit_x, _spawn_position.y)
-	if "linear_velocity" in ball:
-		ball.linear_velocity = Vector2.ZERO
-	if "angular_velocity" in ball:
-		ball.angular_velocity = 0.0
-	if "freeze_mode" in ball:
-		ball.freeze_mode = RigidBody2D.FREEZE_MODE_KINEMATIC
-	if "freeze" in ball:
-		ball.freeze = true
+	if "linear_velocity" in ball: ball.linear_velocity = Vector2.ZERO
+	if "angular_velocity" in ball: ball.angular_velocity = 0.0
+	if "freeze_mode" in ball: ball.freeze_mode = RigidBody2D.FREEZE_MODE_KINEMATIC
+	if "freeze" in ball: ball.freeze = true
 	if ball.has_method("start_echo_float"):
 		ball.start_echo_float()
 	ball.set_meta("echo_target", target_pos)
@@ -255,12 +253,9 @@ func _finish_fragment_echo(ball: Node) -> void:
 	if "freeze" in ball:
 		ball.freeze = false
 	ball.global_position = target_pos
-	if "linear_velocity" in ball:
-		ball.linear_velocity = Vector2.ZERO
-	if "angular_velocity" in ball:
-		ball.angular_velocity = 0.0
-	if "lock_rotation" in ball:
-		ball.lock_rotation = true
+	if "linear_velocity" in ball: ball.linear_velocity = Vector2.ZERO
+	if "angular_velocity" in ball: ball.angular_velocity = 0.0
+	if "lock_rotation" in ball: ball.lock_rotation = true
 	if not _active_balls.has(ball):
 		_active_balls.append(ball)
 	ball.remove_meta("echo_target")
@@ -1118,6 +1113,8 @@ func flush_tick(sim_tick: int) -> void:
 	for b in _active_balls.duplicate():
 		if not is_instance_valid(b) or b.is_queued_for_deletion():
 			while _active_balls.has(b): _active_balls.erase(b)
+			continue
+		if not (b in _active_balls):
 			continue
 		var pos: Vector2 = b.get_global_sim_position() if b.has_method("get_global_sim_position") else b.global_position
 		var ability_for_bottom: String = ""

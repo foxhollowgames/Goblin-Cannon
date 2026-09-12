@@ -277,6 +277,7 @@ static func on_ball_exited_board(c: Node, ball: Node, reason: int) -> void:
 	if ball.has_method("is_split_twin") and ball.is_split_twin():
 		if GameState and GameState.has_wall_break_upgrade(&"fragment_echo") and ball.has_method("has_fragment_echo_used") and not ball.has_fragment_echo_used():
 			ball.mark_fragment_echo_used()
+			ball.set_meta("is_exiting_board", false)
 			if c._board and c._board.has_method("respawn_fragment_at_top"):
 				c._board.respawn_fragment_at_top(ball)
 			return
