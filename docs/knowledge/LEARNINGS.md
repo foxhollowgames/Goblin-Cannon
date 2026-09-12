@@ -140,6 +140,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-129`](#lrn-129) | TASK-088 | `Visual Effects` | Intervention Visuals | 2026-09-10 |
 | [`LRN-130`](#lrn-130) | TASK-089 | `orchestration` | Automatic Task Packet Creation on User Instructions | 2026-09-12 |
 | [`LRN-131`](#lrn-131) | TASK-090 | `godot_engine` | Idle hopper ball duplication and Area2D/exit lifecycles | 2026-09-12 |
+| [`LRN-132`](#lrn-132) | TASK-091 | `godot_engine` | Headless texture preloading and GDScript match pattern constants | 2026-09-12 |
 
 ---
 
@@ -2238,5 +2239,21 @@ Area2D overlap syncing must distinguish actively released rigidbodies to prevent
 
 #### Actionable Guideline for Future Agents
 Always track released physics bodies when using Area2D boundary triggers, guard on_ball_exited callbacks against is_queued_for_deletion and repeat calls via node metadata, and clean up metadata when recycling bodies.
+
+---
+
+### <a id="lrn-132"></a> LRN-132: Headless texture preloading and GDScript match pattern constants
+- **Task:** `TASK-091`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-12T16:20:57.874959`
+
+#### Context & Problem
+Preloading unimported asset pack PNGs or referencing autoload members in GDScript match statements causes compile-time parse failures.
+
+#### Key Insight & Learning
+Godot headless execution requires preloaded assets to have generated .ctex files in .godot/imported. Additionally, GDScript match statements only accept compile-time literals and local script const values, not autoload singleton member accesses.
+
+#### Actionable Guideline for Future Agents
+Always verify textures are compiled in .godot/imported before using preload(), and use local script constants (const CONST_NAME = ...) instead of Autoload.CONST in match patterns.
 
 ---

@@ -121,7 +121,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-088](file:///c:/Users/josep/Desktop/Games/Goblin-Cannon/docs/tasks/TASK-088-rework-intervention-visual-effects.md) | Rework Intervention Visual Effects and Peg Presentation | UI / Visuals / VFX | P1 | DONE | `feature/rework-intervention-visual-effects` |
 | [TASK-089](TASK-089-auto-task-creation-workflow.md) | Automatic Task Creation and Resolution Protocol for User Requests | DevOps / Workflow / Orchestration | P0 | DONE | `feature/auto-task-creation-workflow` |
 | [TASK-090](TASK-090-fix-idle-hopper-ball-duplication.md) | Fix Idle Hopper Ball Duplication | Systems / Gameplay / Physics | P1 | DONE | `fix/idle-hopper-ball-duplication` |
-| [TASK-091](TASK-091-peglin-style-top-cannon-battlefield-and-mob-timer.md) | Peglin-Style Top Cannon Battlefield and City Mob Timer | UI / Visuals / Gameplay | P1 | IN_REVIEW | `feature/peglin-style-top-battlefield` |
+| [TASK-091](TASK-091-peglin-style-top-cannon-battlefield-and-mob-timer.md) | Peglin-Style Top Cannon Battlefield and City Mob Timer | UI / Visuals / Gameplay | P1 | DONE | `feature/peglin-style-top-battlefield` |
 
 
 ---
