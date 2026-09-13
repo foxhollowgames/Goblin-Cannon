@@ -297,7 +297,7 @@ func resolve_milestone_event_position(preferred: Vector2, x_min: float, x_max: f
 		return best_pos
 
 	var clamped_col: int = clampi(preferred_cell.x, 0, BOARD_GRID_COLS - 1)
-	var clamped_row: int = clampi(preferred_cell.y, 0, BOARD_GRID_ROWS - 1)
+	var clamped_row: int = clampi(preferred_cell.y, 1, BOARD_GRID_ROWS - 1)
 	return board_cell_to_world(Vector2i(clamped_col, clamped_row))
 
 func _is_clear_for_milestone_peg(local_pos: Vector2) -> bool:
@@ -2350,7 +2350,7 @@ func _spawn_peg_layout() -> void:
 	if not _peg_scene:
 		return
 	var peg_id_counter: int = 0
-	for row in range(BOARD_GRID_ROWS):
+	for row in range(1, BOARD_GRID_ROWS):
 		for col in range(BOARD_GRID_COLS):
 			if (row + col) % 2 != 0:
 				continue
@@ -2878,7 +2878,7 @@ func is_cell_empty(grid_pos: Vector2i) -> bool:
 ## Returns all valid board grid coordinates that currently contain no pegs and no modules.
 func get_empty_grid_cells() -> Array[Vector2i]:
 	var empty: Array[Vector2i] = []
-	for r in range(BOARD_GRID_ROWS):
+	for r in range(1, BOARD_GRID_ROWS):
 		for c in range(BOARD_GRID_COLS):
 			var cell := Vector2i(c, r)
 			if is_cell_empty(cell):
