@@ -50,7 +50,7 @@ func resolve_event_position(local_pos: Vector2, x_min: float = 100.0, x_max: flo
 		preferred_cell = _board_root.world_to_board_cell(local_pos)
 
 	var clamped_col: int = clampi(preferred_cell.x, 0, BOARD_GRID_COLS - 1)
-	var clamped_row: int = clampi(preferred_cell.y, 0, BOARD_GRID_ROWS - 1)
+	var clamped_row: int = clampi(preferred_cell.y, 1, BOARD_GRID_ROWS - 1)
 	var pos: Vector2 = local_pos
 	if _board_root and _board_root.has_method("board_cell_to_world"):
 		pos = _board_root.board_cell_to_world(Vector2i(clamped_col, clamped_row))

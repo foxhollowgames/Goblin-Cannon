@@ -69,7 +69,7 @@ func is_cell_empty(grid_pos: Vector2i) -> bool:
 ## Returns all valid board grid coordinates that contain no pegs and no modules.
 func get_empty_grid_cells() -> Array[Vector2i]:
 	var empty: Array[Vector2i] = []
-	for r in range(BOARD_GRID_ROWS):
+	for r in range(1, BOARD_GRID_ROWS):
 		for c in range(BOARD_GRID_COLS):
 			var cell := Vector2i(c, r)
 			if is_cell_empty(cell):
