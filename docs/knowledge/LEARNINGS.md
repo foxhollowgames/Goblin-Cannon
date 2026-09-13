@@ -141,6 +141,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-130`](#lrn-130) | TASK-089 | `orchestration` | Automatic Task Packet Creation on User Instructions | 2026-09-12 |
 | [`LRN-131`](#lrn-131) | TASK-090 | `godot_engine` | Idle hopper ball duplication and Area2D/exit lifecycles | 2026-09-12 |
 | [`LRN-132`](#lrn-132) | TASK-091 | `godot_engine` | Headless texture preloading and GDScript match pattern constants | 2026-09-12 |
+| [`LRN-133`](#lrn-133) | TASK-092 | `godot_engine` | Orphan Fallback Widget Instantiation and 2D CanvasItem Layering | 2026-09-12 |
 
 ---
 
@@ -2255,5 +2256,21 @@ Godot headless execution requires preloaded assets to have generated .ctex files
 
 #### Actionable Guideline for Future Agents
 Always verify textures are compiled in .godot/imported before using preload(), and use local script constants (const CONST_NAME = ...) instead of Autoload.CONST in match patterns.
+
+---
+
+### <a id="lrn-133"></a> LRN-133: Orphan Fallback Widget Instantiation and 2D CanvasItem Layering
+- **Task:** `TASK-092`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-12T21:00:40.459977`
+
+#### Context & Problem
+When moving UI widgets into a top bar layout, an orphan fallback block dynamically created CircularCannonWidget at (0,0) on UILayer drawing a green border (#5d7545). Additionally, the Hopper world node (z_index=10) overlapped the top banner.
+
+#### Key Insight & Learning
+Dynamically instantiating fallback UI controls on CanvasLayer can create ghost panels if layout scenes are reworked. For layering 2D scene items against playfield elements, explicitly configure z_index (e.g. BattlefieldView z_index=20 > Hopper z_index=10) so dividing ledges cleanly mask lower items.
+
+#### Actionable Guideline for Future Agents
+Audit all dynamic UI coordinator instantiation paths when deprecating or moving UI widgets. Use CanvasItem z_index ordering to ensure top-bar framing renders in front of playfield physics elements.
 
 ---

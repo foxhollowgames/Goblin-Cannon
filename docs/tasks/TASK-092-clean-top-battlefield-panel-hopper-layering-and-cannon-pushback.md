@@ -1,6 +1,6 @@
 # TASK-092: Clean Top Battlefield Panel, Hopper Layering, and Cannon Pushback
 
-- **Status:** IN_REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Visuals / Gameplay
 - **Target Branch:** `feature/clean-top-battlefield-and-cannon-pushback`
