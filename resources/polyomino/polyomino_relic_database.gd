@@ -134,6 +134,11 @@ static func create_module_for_relic(relic_id: StringName) -> PolyominoModuleData
 		var pos: Vector2i = k if k is Vector2i else _parse_vector2i(str(k))
 		mod.custom_wall_edges[pos] = raw_walls[k]
 
+	var raw_letters: Dictionary = def.get("cell_letters", {})
+	for k in raw_letters:
+		var pos: Vector2i = k if k is Vector2i else _parse_vector2i(str(k))
+		mod.cell_letters[pos] = str(raw_letters[k])
+
 	var g: Dictionary = _get_goal_def(resolved_id)
 	if not g.is_empty():
 		mod.goal_type = int(g.get("type", GoalArchetype.TARGET_BANK))
@@ -331,7 +336,7 @@ static func _get_goal_def(id: StringName) -> Dictionary:
 	}
 	return defs.get(_resolve_id(id), {})
 
-static func _def(id: StringName, name: String, tier: int, shape_name: String, machinery_desc: String, cells: Array[Vector2i], types: Dictionary = {}, dirs: Dictionary = {}, energies: Dictionary = {}, enclosure: int = PolyominoModuleData.EnclosureType.OPEN_FRAME, walls: Dictionary = {}, layout_mode: int = PolyominoModuleData.MachineryLayoutMode.PER_CELL, unified_type: int = CellType.EMPTY) -> void:
+static func _def(id: StringName, name: String, tier: int, shape_name: String, machinery_desc: String, cells: Array[Vector2i], types: Dictionary = {}, dirs: Dictionary = {}, energies: Dictionary = {}, enclosure: int = PolyominoModuleData.EnclosureType.OPEN_FRAME, walls: Dictionary = {}, layout_mode: int = PolyominoModuleData.MachineryLayoutMode.PER_CELL, unified_type: int = CellType.EMPTY, letters: Dictionary = {}) -> void:
 	_DEFINITIONS[id] = {
 		"display_name": name,
 		"tier": tier,
@@ -341,6 +346,7 @@ static func _def(id: StringName, name: String, tier: int, shape_name: String, ma
 		"cell_types": types,
 		"cell_directions": dirs,
 		"energy_values": energies,
+		"cell_letters": letters,
 		"bumper_durability": 0,
 		"enclosure_type": enclosure,
 		"custom_wall_edges": walls,

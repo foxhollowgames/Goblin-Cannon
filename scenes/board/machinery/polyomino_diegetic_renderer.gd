@@ -84,6 +84,11 @@ static func draw_module(canvas: CanvasItem, module_node: Node2D, module_data: Po
 						canvas.draw_circle(c_pos, 3.5, Color(1.0, 1.0, 0.9, 0.95))
 					else:
 						canvas.draw_circle(c_pos, 3.0, Color(0.3, 0.35, 0.4, 0.6))
+					var letter_str: String = comp_item.letter if ("letter" in comp_item and not comp_item.letter.is_empty()) else (module_data.get_cell_letter_at(comp_item.local_cell) if module_data != null else "")
+					if not letter_str.is_empty():
+						var font: Font = ThemeDB.fallback_font
+						var let_col: Color = Color(1.0, 1.0, 1.0) if is_lit else Color(0.45, 0.48, 0.55)
+						canvas.draw_string(font, c_pos + Vector2(-5.0, -c_rad - 10.0), letter_str, HORIZONTAL_ALIGNMENT_CENTER, -1, 14, let_col)
 
 				PolyominoModuleData.CellType.ORBIT_LOOP, PolyominoModuleData.CellType.GUIDE_TRACK:
 					var dir_norm: Vector2 = comp_item.direction.normalized() if comp_item.direction != Vector2.ZERO else Vector2.UP

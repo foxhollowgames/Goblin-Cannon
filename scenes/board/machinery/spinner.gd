@@ -4,6 +4,7 @@ class_name Spinner
 
 #region Signals
 signal spinner_spun(spinner_node: Spinner, spin_count: int)
+signal spinner_overdrive_triggered(spinner_node: Spinner)
 #endregion
 
 #region Constants
@@ -17,6 +18,9 @@ const SPIN_FRICTION: float = 6.0
 var total_spins: int = 0
 var spin_angle: float = 0.0
 var spin_velocity: float = 0.0
+@export var rpm_trigger_threshold: float = 35.0
+@export var effect_cooldown_duration: float = 3.0
+var effect_cooldown_timer: float = 0.0
 #endregion
 
 #region Lifecycle Methods
@@ -32,6 +36,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	super._process(delta)
+	if effect_cooldown_timer > 0.0:
+		effect_cooldown_timer = maxf(0.0, effect_cooldown_timer - delta)
 	if spin_velocity > 0.0:
 		spin_angle += spin_velocity * delta
 		spin_velocity = maxf(0.0, spin_velocity - SPIN_FRICTION * delta)
@@ -46,6 +52,9 @@ func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 		total_spins += 1
 		spin_velocity += INITIAL_SPIN_VELOCITY
 		spinner_spun.emit(self, total_spins)
+		if spin_velocity >= rpm_trigger_threshold and effect_cooldown_timer <= 0.0:
+			effect_cooldown_timer = effect_cooldown_duration
+			spinner_overdrive_triggered.emit(self)
 		queue_redraw()
 	return res
 #endregion

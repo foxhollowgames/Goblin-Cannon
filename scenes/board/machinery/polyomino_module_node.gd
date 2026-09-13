@@ -76,17 +76,11 @@ func setup_module(p_item: Resource, p_grid_pos: Vector2i, p_rotation: int = 0) -
 	queue_redraw()
 
 func reset_goal_state() -> void:
-	_hit_cells.clear()
-	_widget_hit_counts.clear()
-	_current_hit_counter = 0
-	_sequence_index = 0
-	_orbit_count = 0
-	_jackpot_pool = 0
-	_lock_count = 0
-	_hurry_up_active = false
-	_hurry_up_timer = 0.0
-	_goal_flash_timer = 0.0
-	_floating_banner_timer = 0.0
+	_hit_cells.clear(); _widget_hit_counts.clear()
+	_current_hit_counter = 0; _sequence_index = 0
+	_orbit_count = 0; _jackpot_pool = 0; _lock_count = 0
+	_hurry_up_active = false; _hurry_up_timer = 0.0
+	_goal_flash_timer = 0.0; _floating_banner_timer = 0.0
 
 func _rebuild_components() -> void:
 	for comp in _components:
@@ -135,6 +129,14 @@ func _rebuild_components() -> void:
 			comp.base_energy = energy_val
 		if comp is WireGateScript and (module_data.activation_threshold > 0 or module_data.goal_type != GoalArchetype.NONE):
 			comp.requires_external_activation = true
+		if comp is WireGateScript:
+			comp.cascade_released.connect(func(_gate, _balls): _trigger_goal_completion(null))
+		if comp is RolloverSwitchScript and module_data != null:
+			comp.letter = module_data.get_cell_letter_at(orig_c)
+		if comp.has_signal("triangle_detonated"):
+			comp.connect("triangle_detonated", func(_tri, _pos): _trigger_goal_completion(null))
+		if comp.has_signal("spinner_overdrive_triggered"):
+			comp.connect("spinner_overdrive_triggered", func(_sp): _trigger_goal_completion(null))
 		comp.set_accent_color(_accent_color)
 		comp.position = Vector2(float(local_c.x) * CELL_WIDTH, float(local_c.y) * CELL_HEIGHT)
 		comp.component_activated.connect(_on_component_activated)
@@ -171,21 +173,32 @@ func _on_component_activated(comp: PolyominoMachineryComponent, ball: Node, ener
 		_widget_hit_counts[c_type] = _widget_hit_counts.get(c_type, 0) + 1
 		_current_hit_counter += 1
 		if c_type == PolyominoModuleData.CellType.ROLLOVER_SWITCH:
-			_check_rollover_bank_completion(comp)
+			_check_rollover_bank_completion(comp, ball)
 	_evaluate_goal_progress(comp, ball, energy)
 
-func _check_rollover_bank_completion(sw: Node) -> void:
+func _check_rollover_bank_completion(sw: Node, ball: Node = null) -> void:
 	if sw == null:
 		return
 	var b_id: StringName = sw.get("bank_id") if "bank_id" in sw else &"bank_1"
 	var all_lit: bool = true
 	var count: int = 0
+	var bank_switches: Array = []
 	for comp in _components:
 		if comp and comp.cell_type == PolyominoModuleData.CellType.ROLLOVER_SWITCH and comp.get("bank_id") == b_id:
 			count += 1
-			if not comp.get("is_lit"): all_lit = false; break
+			bank_switches.append(comp)
+			if not comp.get("is_lit"):
+				all_lit = false
 	if count > 0 and all_lit:
 		bank_completed.emit(b_id, RewardType.ENERGY_SURGE, 15)
+		if module_data and module_data.goal_type == GoalArchetype.ROLLOVER_SPELL and (module_data.required_widget_type == PolyominoModuleData.CellType.EMPTY or module_data.activation_threshold <= 0):
+			_trigger_goal_completion(ball)
+		call_deferred("_reset_rollover_bank", bank_switches)
+
+func _reset_rollover_bank(bank_switches: Array) -> void:
+	for s in bank_switches:
+		if is_instance_valid(s) and s.has_method("set_lit"):
+			s.set_lit(false)
 
 func _evaluate_goal_progress(comp: PolyominoMachineryComponent, ball: Node, energy: int) -> void:
 	if module_data == null or is_ghost:
@@ -404,9 +417,7 @@ func _process(delta: float) -> void:
 	var needs_redraw: bool = false
 	if _hurry_up_active:
 		_hurry_up_timer -= delta
-		if _hurry_up_timer <= 0.0:
-			_hurry_up_active = false
-			_hurry_up_timer = 0.0
+		if _hurry_up_timer <= 0.0: _hurry_up_active = false; _hurry_up_timer = 0.0
 		needs_redraw = true
 	if _goal_flash_timer > 0.0:
 		_goal_flash_timer = maxf(0.0, _goal_flash_timer - delta)
@@ -414,8 +425,7 @@ func _process(delta: float) -> void:
 	if _floating_banner_timer > 0.0:
 		_floating_banner_timer = maxf(0.0, _floating_banner_timer - delta)
 		needs_redraw = true
-	if needs_redraw:
-		queue_redraw()
+	if needs_redraw: queue_redraw()
 
 func _draw() -> void:
 	if _anchored_cells.is_empty():

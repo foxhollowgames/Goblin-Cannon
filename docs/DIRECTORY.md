@@ -58,6 +58,7 @@
 | `test_constellation_laser.gd` | `ConstellationLaser` | [tests/test_constellation_laser.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_constellation_laser.gd) |
 | `test_corner_cannon_terrain.gd` | `CornerCannonTerrain` | [tests/test_corner_cannon_terrain.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_corner_cannon_terrain.gd) |
 | `test_debug_board_machinery_showcase.gd` | `DebugBoardMachineryShowcase` | [tests/test_debug_board_machinery_showcase.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_debug_board_machinery_showcase.gd) |
+| `test_deliberate_pinball_devices.gd` | `DeliberatePinballDevices` | [tests/test_deliberate_pinball_devices.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_deliberate_pinball_devices.gd) |
 | `test_energize_event_pegs.gd` | `EnergizeEventPegs` | [tests/test_energize_event_pegs.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_energize_event_pegs.gd) |
 | `test_energy_router.gd` | `EnergyRouter` | [tests/test_energy_router.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_energy_router.gd) |
 | `test_energy_routing.gd` | `EnergyRouting` | [tests/test_energy_routing.gd](file:///C:/Users/josep/Desktop/Coding Projects/goblin-cannon/tests/test_energy_routing.gd) |
