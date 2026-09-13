@@ -238,6 +238,8 @@ func _load_vfx_scenes() -> void:
 func fire_cannon_shot(start_pos: Vector2 = CANNON_MUZZLE_POS, end_pos: Vector2 = WALL_IMPACT_POS) -> void:
 	if _cannon_visual and _cannon_visual.has_method("trigger_firing_anim"):
 		_cannon_visual.trigger_firing_anim()
+	if _city_mob_visual and _city_mob_visual.has_method("trigger_pushback"):
+		_city_mob_visual.trigger_pushback()
 	if _terrain and _terrain.has_method("trigger_recoil_rumble"):
 		_terrain.trigger_recoil_rumble(FIRING_RUMBLE_INTENSITY)
 	if _muzzle_blast_scene and _vfx_container:

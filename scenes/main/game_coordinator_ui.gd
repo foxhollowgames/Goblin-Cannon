@@ -191,16 +191,6 @@ static func create_inventory_ui(coordinator: Node, reward_handler: Node, board: 
 	var circular_widget: Control = null
 	if jb_panel and jb_panel.find_child("CircularCannonWidget", true, false):
 		circular_widget = jb_panel.find_child("CircularCannonWidget", true, false) as Control
-	else:
-		var circular_cannon_script: Script = load("res://scenes/ui/circular_cannon_widget.gd") as Script
-		if circular_cannon_script:
-			circular_widget = circular_cannon_script.new() as Control
-			if circular_widget:
-				circular_widget.name = "CircularCannonWidget"
-				var ui_layer: Node = main.get_node_or_null("UILayer")
-				if ui_layer:
-					ui_layer.add_child(circular_widget)
-	if circular_widget:
 		var cm: Node = main.get_node_or_null("CombatManager")
 		if cm and cm.has_signal("cannon_fired_at_wall") and circular_widget.has_method("trigger_firing_anim"):
 			cm.cannon_fired_at_wall.connect(func(_dmg, _hp, _max): circular_widget.trigger_firing_anim())
