@@ -54,6 +54,9 @@ static func draw_module(canvas: CanvasItem, module_node: Node2D, module_data: Po
 				canvas.draw_line(p1_px, p2_px, wall_highlight_col, 2.0)
 
 	# 3. Diegetic component-level visual overlays
+	draw_diegetic_overlays(canvas, module_node, module_data, components, components_by_cell, accent_col, banner_text, banner_timer, is_ghost)
+
+static func draw_diegetic_overlays(canvas: CanvasItem, module_node: Node2D, module_data: PolyominoModuleData, components: Array, components_by_cell: Dictionary, accent_col: Color, banner_text: String, banner_timer: float, is_ghost: bool = false) -> void:
 	if module_data != null and not is_ghost:
 		var th: int = module_node.get_activation_threshold()
 		var cur_count: int = module_node.get_current_hit_count()

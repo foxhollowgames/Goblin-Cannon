@@ -31,6 +31,10 @@ func run() -> void:
 	test_retention_reservoir_wire_gate_cascade()
 	test_funneled_spinner_overdrive_and_cooldown()
 	test_database_word_bank_and_archetype_mapping()
+	test_chonky_bash_toy_setpiece()
+	test_wire_gate_retention_relic()
+	test_bumper_chamber_ricochet()
+	test_speed_rail_momentum_flow()
 	cleanup()
 
 func test_rollover_word_bank_energy_and_letters() -> void:
@@ -101,7 +105,7 @@ func test_crackling_detonation_triangle() -> void:
 	autofree(ball)
 
 	var detonated: Array = [false]
-	tri.triangle_detonated.connect(func(_t, _pos): detonated[0] = true)
+	tri.triangle_detonated.connect(func(_t, _pos, _ball): detonated[0] = true)
 
 	# Hit 1
 	tri.trigger_activation(ball, 1)
@@ -165,7 +169,7 @@ func test_funneled_spinner_overdrive_and_cooldown() -> void:
 	spinner._ready()
 
 	var overdrive_fired: Array = [false]
-	spinner.spinner_overdrive_triggered.connect(func(_sp): overdrive_fired[0] = true)
+	spinner.spinner_overdrive_triggered.connect(func(_sp, _ball): overdrive_fired[0] = true)
 
 	var ball := MockBall.new()
 	autofree(ball)
@@ -188,7 +192,7 @@ func test_funneled_spinner_overdrive_and_cooldown() -> void:
 	assert_false(overdrive_fired[0], "overdrive blocked during cooldown period")
 
 func test_database_word_bank_and_archetype_mapping() -> void:
-	begin("Relic database defines valid cell letters and archetypes for all campaign relics")
+	begin("Relic database defines valid cell letters and archetypes for deliberate relics")
 	var all_ids: Array[StringName] = PolyominoRelicDatabase.get_all_relic_ids()
 	assert_true(all_ids.size() >= 80, "all 80+ relics present in database")
 
@@ -196,3 +200,149 @@ func test_database_word_bank_and_archetype_mapping() -> void:
 		var mod: PolyominoModuleData = PolyominoRelicDatabase.create_module_for_relic(rid)
 		assert_true(mod != null, "module created for %s" % rid)
 		assert_true(mod.cells.size() > 0, "%s has cells" % rid)
+
+	# Test Phase Siphon (W-I-N)
+	var win_mod := PolyominoRelicDatabase.create_module_for_relic(&"phase_siphon")
+	assert_true(win_mod != null, "phase_siphon exists")
+	assert_eq(win_mod.goal_type, PolyominoModuleData.GoalArchetype.ROLLOVER_SPELL, "phase_siphon is ROLLOVER_SPELL")
+	assert_eq(win_mod.get_cell_letter_at(Vector2i(0, 0)), "W", "phase_siphon (0,0) is W")
+	assert_eq(win_mod.get_cell_letter_at(Vector2i(1, 0)), "I", "phase_siphon (1,0) is I")
+	assert_eq(win_mod.get_cell_letter_at(Vector2i(2, 0)), "N", "phase_siphon (2,0) is N")
+	assert_eq(win_mod.enclosure_type, PolyominoModuleData.EnclosureType.DIVIDED_LANES, "phase_siphon has DIVIDED_LANES")
+
+	# Test Volt Primer (G-O-B)
+	var gob_mod := PolyominoRelicDatabase.create_module_for_relic(&"volt_primer")
+	assert_true(gob_mod != null, "volt_primer exists")
+	assert_eq(gob_mod.goal_type, PolyominoModuleData.GoalArchetype.ROLLOVER_SPELL, "volt_primer is ROLLOVER_SPELL")
+	assert_eq(gob_mod.get_cell_letter_at(Vector2i(0, 0)), "G", "volt_primer (0,0) is G")
+	assert_eq(gob_mod.get_cell_letter_at(Vector2i(1, 0)), "O", "volt_primer (1,0) is O")
+	assert_eq(gob_mod.get_cell_letter_at(Vector2i(2, 0)), "B", "volt_primer (2,0) is B")
+
+	# Test Static Bounce (P-O-P)
+	var pop_mod := PolyominoRelicDatabase.create_module_for_relic(&"static_bounce")
+	assert_true(pop_mod != null, "static_bounce exists")
+	assert_eq(pop_mod.goal_type, PolyominoModuleData.GoalArchetype.ROLLOVER_SPELL, "static_bounce is ROLLOVER_SPELL")
+	assert_eq(pop_mod.get_cell_letter_at(Vector2i(0, 0)), "P", "static_bounce (0,0) is P")
+	assert_eq(pop_mod.get_cell_letter_at(Vector2i(1, 0)), "O", "static_bounce (1,0) is O")
+	assert_eq(pop_mod.get_cell_letter_at(Vector2i(0, 1)), "P", "static_bounce (0,1) is P")
+
+	# Test Devastating Barrage (B-A-M)
+	var bam_mod := PolyominoRelicDatabase.create_module_for_relic(&"devastating_barrage")
+	assert_true(bam_mod != null, "devastating_barrage exists")
+	assert_eq(bam_mod.goal_type, PolyominoModuleData.GoalArchetype.ROLLOVER_SPELL, "devastating_barrage is ROLLOVER_SPELL")
+	assert_eq(bam_mod.get_cell_letter_at(Vector2i(0, 0)), "B", "devastating_barrage (0,0) is B")
+	assert_eq(bam_mod.get_cell_letter_at(Vector2i(0, 1)), "A", "devastating_barrage (0,1) is A")
+	assert_eq(bam_mod.get_cell_letter_at(Vector2i(0, 2)), "M", "devastating_barrage (0,2) is M")
+
+	# Test Wire Gate Relics
+	var fswarm_mod := PolyominoRelicDatabase.create_module_for_relic(&"fragment_swarm")
+	assert_eq(fswarm_mod.get_cell_type_at(Vector2i(1, 0)), CellType.WIRE_GATE, "fragment_swarm has WIRE_GATE")
+	assert_eq(fswarm_mod.goal_type, PolyominoModuleData.GoalArchetype.SINKHOLE_LOCK, "fragment_swarm is SINKHOLE_LOCK")
+
+	var drain_mod := PolyominoRelicDatabase.create_module_for_relic(&"overcharged_drain")
+	assert_eq(drain_mod.get_cell_type_at(Vector2i(0, 0)), CellType.WIRE_GATE, "overcharged_drain has WIRE_GATE")
+
+	var max_mod := PolyominoRelicDatabase.create_module_for_relic(&"max_energize_stacks")
+	assert_eq(max_mod.get_cell_type_at(Vector2i(0, 0)), CellType.WIRE_GATE, "max_energize_stacks has WIRE_GATE")
+
+func test_chonky_bash_toy_setpiece() -> void:
+	begin("Chonky bash toy setpiece absorbed hits, demo goal, and no duplicate goal completion")
+	var item := PolyominoRelicDatabase.create_item_for_relic(&"golem_effigy")
+	assert_true(item != null, "golem_effigy item created")
+	assert_true(item.module_data != null, "golem_effigy module data exists")
+	assert_eq(item.module_data.layout_mode, PolyominoModuleData.MachineryLayoutMode.UNIFIED, "golem_effigy uses UNIFIED multi-peg layout")
+	assert_eq(item.module_data.unified_component_type, CellType.BASH_TOY, "unified component is BASH_TOY")
+
+	var node: Node2D = PolyominoModuleNodeScript.new()
+	autofree(node)
+	node.setup_module(item, Vector2i.ZERO, 0)
+
+	var comp = node.get_unified_component()
+	assert_true(comp != null, "unified component instance exists")
+
+	var goals_completed: Array = []
+	node.goal_completed.connect(func(id, rew, amt, _ball, _data = {}):
+		goals_completed.append({"id": id, "reward": rew, "amount": amt})
+	)
+
+	var ball := MockBall.new()
+	autofree(ball)
+
+	# Golem effigy threshold is 5 hits
+	for i in range(4):
+		comp.trigger_activation(ball, (i + 1) * 20)
+		assert_eq(goals_completed.size(), 0, "goal not completed before threshold (hit %d)" % (i + 1))
+
+	comp.trigger_activation(ball, 100)
+	assert_eq(goals_completed.size(), 1, "goal completed exactly once at threshold")
+
+	# Hitting again should not double emit goal_completed in current activation
+	comp.trigger_activation(ball, 120)
+	assert_eq(goals_completed.size(), 1, "goal_completed not double emitted")
+
+func test_wire_gate_retention_relic() -> void:
+	begin("Wire gate retention reservoir on fragment_swarm relic")
+	var item := PolyominoRelicDatabase.create_item_for_relic(&"fragment_swarm")
+	assert_true(item != null, "fragment_swarm item created")
+	assert_true(item.module_data.get_cell_type_at(Vector2i(1, 0)) != CellType.EMPTY, "has machine cell at 1,0")
+	assert_eq(item.module_data.get_cell_type_at(Vector2i(1, 0)), CellType.WIRE_GATE, "fragment_swarm has WIRE_GATE at 1,0")
+
+	var node: Node2D = PolyominoModuleNodeScript.new()
+	autofree(node)
+	node.setup_module(item, Vector2i.ZERO, 0)
+
+	var gate = node.get_component_at_local_cell(Vector2i(1, 0)) as WireGate
+	assert_true(gate != null, "wire gate component exists in module node")
+	assert_true(gate.requires_external_activation, "wire gate requires external activation via module goal")
+
+	var goals_completed: Array = []
+	node.goal_completed.connect(func(id, rew, amt, triggering_ball, _data = {}):
+		goals_completed.append({"id": id, "reward": rew, "amount": amt, "ball": triggering_ball})
+	)
+
+	var b1 := MockBall.new(); b1.ball_id = 1; autofree(b1)
+	var b2 := MockBall.new(); b2.ball_id = 2; autofree(b2)
+	var b3 := MockBall.new(); b3.ball_id = 3; autofree(b3)
+
+	gate.trigger_activation(b1, 10)
+	gate.trigger_activation(b2, 20)
+	assert_eq(goals_completed.size(), 0, "not goal completed before gate capacity")
+
+	gate.trigger_activation(b3, 30)
+	assert_eq(goals_completed.size(), 1, "goal completed upon cascade release at capacity")
+	assert_true(goals_completed[0]["ball"] != null, "triggering ball passed to reward")
+
+func test_bumper_chamber_ricochet() -> void:
+	begin("Bumper chamber rich ricochets and bounce energy on storm_of_fragments")
+	var item := PolyominoRelicDatabase.create_item_for_relic(&"storm_of_fragments")
+	assert_true(item != null, "storm_of_fragments item created")
+	assert_true(item.module_data.get_cell_type_at(Vector2i(1, 0)) != CellType.EMPTY, "bumper cell at 1,0")
+	assert_eq(item.module_data.get_cell_type_at(Vector2i(1, 0)), CellType.POP_BUMPER, "is POP_BUMPER")
+
+	var node: Node2D = PolyominoModuleNodeScript.new()
+	autofree(node)
+	node.setup_module(item, Vector2i.ZERO, 0)
+
+	var bumper = node.get_component_at_local_cell(Vector2i(1, 0))
+	assert_true(bumper != null, "pop bumper exists in module")
+
+	var ball := MockBall.new()
+	autofree(ball)
+	var res = bumper.trigger_activation(ball, 15)
+	assert_true(res.get("activated", false), "pop bumper activated")
+	assert_true(res.get("energy_granted", 0) > 0, "pop bumper granted bounce energy")
+
+func test_speed_rail_momentum_flow() -> void:
+	begin("Speed rail momentum flow on perpetual_engine")
+	var item := PolyominoRelicDatabase.create_item_for_relic(&"perpetual_engine")
+	assert_true(item != null, "perpetual_engine item created")
+	assert_eq(item.module_data.get_cell_type_at(Vector2i(0, 1)), CellType.ACCELERATOR, "has ACCELERATOR wheel")
+	assert_eq(item.module_data.get_cell_direction_at(Vector2i(0, 1)), Vector2.DOWN, "accelerator pushes DOWN")
+
+	var node: Node2D = PolyominoModuleNodeScript.new()
+	autofree(node)
+	node.setup_module(item, Vector2i.ZERO, 0)
+
+	var accel = node.get_component_at_local_cell(Vector2i(0, 1))
+	assert_true(accel != null, "accelerator component exists")
+

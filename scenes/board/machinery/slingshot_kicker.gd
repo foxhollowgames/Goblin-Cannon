@@ -2,7 +2,7 @@ extends PolyominoMachineryComponent
 class_name SlingshotKicker
 ## Triangular slingshot bumper that crackles with electricity as it charges and detonates on full charge.
 
-signal triangle_detonated(triangle_node: Node, origin_pos: Vector2)
+signal triangle_detonated(triangle_node: Node, origin_pos: Vector2, ball: Node)
 
 @export var hits_to_detonate: int = 3
 @export var current_charge: int = 0
@@ -77,7 +77,7 @@ func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 
 func _detonate_explosion(ball: Node) -> void:
 	var my_p: Vector2 = global_position if is_inside_tree() else position
-	triangle_detonated.emit(self, my_p)
+	triangle_detonated.emit(self, my_p, ball)
 	if is_instance_valid(ball) and ball.has_method("add_peg_energy") and detonation_bonus_energy > 0:
 		ball.add_peg_energy(detonation_bonus_energy)
 	current_charge = 0

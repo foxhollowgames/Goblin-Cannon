@@ -4,7 +4,7 @@ class_name Spinner
 
 #region Signals
 signal spinner_spun(spinner_node: Spinner, spin_count: int)
-signal spinner_overdrive_triggered(spinner_node: Spinner)
+signal spinner_overdrive_triggered(spinner_node: Spinner, ball: Node)
 #endregion
 
 #region Constants
@@ -54,7 +54,7 @@ func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 		spinner_spun.emit(self, total_spins)
 		if spin_velocity >= rpm_trigger_threshold and effect_cooldown_timer <= 0.0:
 			effect_cooldown_timer = effect_cooldown_duration
-			spinner_overdrive_triggered.emit(self)
+			spinner_overdrive_triggered.emit(self, ball)
 		queue_redraw()
 	return res
 #endregion
