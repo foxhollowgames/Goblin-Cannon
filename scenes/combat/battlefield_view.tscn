@@ -8,6 +8,7 @@
 [ext_resource type="Script" path="res://scenes/combat/city_mob_visual.gd" id="6_mob"]
 
 [node name="BattlefieldView" type="Node2D"]
+z_index = 20
 position = Vector2(0, 0)
 script = ExtResource("1_bf")
 

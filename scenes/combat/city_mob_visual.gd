@@ -32,6 +32,8 @@ var _is_defeated: bool = false
 var _reached_emitted: bool = false
 var _base_scale: Vector2 = Vector2(-0.08, 0.08)
 var _sprite: Sprite2D = null
+var _pushback_offset_x: float = 0.0
+var _pushback_tween: Tween = null
 #endregion
 
 #region Lifecycle Methods
@@ -83,11 +85,26 @@ func set_timer_progress(seconds_remaining: float, total_seconds: float = 120.0) 
 	_total_phase_seconds = maxf(1.0, total_seconds)
 	var ratio: float = clampf(_seconds_remaining / _total_phase_seconds, 0.0, 1.0)
 	var progress: float = 1.0 - ratio
-	position.x = lerpf(START_X, TARGET_X, progress)
+	var base_x: float = lerpf(START_X, TARGET_X, progress)
+	position.x = minf(base_x + _pushback_offset_x, START_X)
 	position.y = MOB_Y
 	if progress >= 1.0 and not _reached_emitted:
 		_reached_emitted = true
 		mob_reached_cannon.emit()
+
+## Triggers a reactive knockback and stumble animation when the cannon fires.
+func trigger_pushback(pushback_distance: float = 30.0) -> void:
+	if _is_defeated:
+		return
+	if _pushback_tween and _pushback_tween.is_valid():
+		_pushback_tween.kill()
+	_pushback_offset_x = pushback_distance
+	_pushback_tween = create_tween()
+	_pushback_tween.set_parallel(true)
+	_pushback_tween.tween_property(self, "_pushback_offset_x", 0.0, 0.4).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	if _sprite:
+		_pushback_tween.tween_property(_sprite, "rotation", 0.22, 0.12).set_trans(Tween.TRANS_SINE)
+		_pushback_tween.chain().tween_property(_sprite, "rotation", 0.0, 0.28).set_trans(Tween.TRANS_SINE)
 
 ## Plays defeat sequence when the wall is broken before breach.
 func play_defeat() -> void:
@@ -107,6 +124,9 @@ func play_defeat() -> void:
 func reset_mob() -> void:
 	_is_defeated = false
 	_reached_emitted = false
+	_pushback_offset_x = 0.0
+	if _pushback_tween and _pushback_tween.is_valid():
+		_pushback_tween.kill()
 	visible = true
 	modulate.a = 1.0
 	position = Vector2(START_X, MOB_Y)

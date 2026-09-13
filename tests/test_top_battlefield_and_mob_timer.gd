@@ -14,6 +14,10 @@ func run() -> void:
 	test_cannon_explosion_trigger()
 	test_junk_drawer_full_height_without_cannon_widget()
 	test_main_scene_layout_integration()
+	test_no_circular_cannon_widget_on_ui_layer()
+	test_hopper_position_and_battlefield_layering()
+	test_combat_manager_extend_timer_and_cannon_pushback()
+	test_city_mob_pushback_displacement()
 
 func test_battlefield_view_top_coordinates_and_dimensions() -> void:
 	begin("BattlefieldView constants define 1280x110 top banner arena")
@@ -115,3 +119,55 @@ func test_main_scene_layout_integration() -> void:
 		assert_eq(right_bg.offset_bottom, 720.0, "RightPanelBg offset_bottom extends to 720.0")
 
 	main.free()
+
+func test_no_circular_cannon_widget_on_ui_layer() -> void:
+	begin("No CircularCannonWidget or extra green-bordered panel exists on UILayer")
+	var scene: PackedScene = load("res://scenes/main/main.tscn") as PackedScene
+	var main: Node = scene.instantiate()
+	var ui_layer: Node = main.get_node_or_null("UILayer")
+	assert_true(ui_layer != null, "UILayer exists")
+	var widget: Node = main.find_child("CircularCannonWidget", true, false)
+	assert_true(widget == null, "CircularCannonWidget is null in main scene")
+	main.free()
+
+func test_hopper_position_and_battlefield_layering() -> void:
+	begin("Hopper position is moved down and BattlefieldView renders on top")
+	var scene: PackedScene = load("res://scenes/main/main.tscn") as PackedScene
+	var main: Node = scene.instantiate()
+	var hopper: Node2D = main.get_node_or_null("Hopper") as Node2D
+	assert_true(hopper != null, "Hopper exists")
+	if hopper:
+		assert_approx(hopper.position.y, 150.0, 1.0, "Hopper position Y is 150.0")
+	var bf: Node2D = main.get_node_or_null("CombatContainer/BattlefieldView") as Node2D
+	assert_true(bf != null, "BattlefieldView exists")
+	if bf and hopper:
+		assert_gt(bf.z_index, hopper.z_index, "BattlefieldView z_index (20) renders in front of Hopper (10)")
+	main.free()
+
+func test_combat_manager_extend_timer_and_cannon_pushback() -> void:
+	begin("CombatManager extend_timer adds seconds and cannon firing extends timer")
+	var cm_scene: GDScript = load("res://scenes/main/combat_manager.gd") as GDScript
+	var cm: Node = cm_scene.new()
+	cm._timer_ticks_remaining = 60 * 60 # 60 seconds
+	cm._wall_hp = 200
+	cm._wall_hp_max = 200
+	cm.call("extend_timer", 4.0)
+	assert_approx(cm.call("get_timer_seconds_remaining"), 64.0, 0.1, "extend_timer adds 4.0 seconds")
+
+	# Firing cannon adds CANNON_PUSHBACK_SECONDS
+	var pre_fire: float = cm.call("get_timer_seconds_remaining")
+	cm.call("_on_main_fired", 25)
+	var post_fire: float = cm.call("get_timer_seconds_remaining")
+	assert_approx(post_fire, pre_fire + cm.get("CANNON_PUSHBACK_SECONDS"), 0.1, "Cannon firing adds CANNON_PUSHBACK_SECONDS")
+	cm.free()
+
+func test_city_mob_pushback_displacement() -> void:
+	begin("CityMobVisual trigger_pushback displaces position backward towards START_X")
+	var mob: Node2D = CityMobVisualScript.new() as Node2D
+	mob._ready()
+	mob.call("set_timer_progress", 60.0, 120.0)
+	var x_before: float = mob.position.x
+	mob.call("trigger_pushback", 30.0)
+	mob.call("set_timer_progress", 64.0, 120.0)
+	assert_gt(mob.position.x, x_before, "Mob position pushed back rightward towards START_X")
+	mob.free()

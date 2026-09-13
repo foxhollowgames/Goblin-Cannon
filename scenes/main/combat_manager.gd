@@ -12,6 +12,8 @@ const TICKS_PER_SECOND: int = 60
 const ENDLESS_HP_GROWTH: float = 1.12
 const ENDLESS_TIMER_SHRINK: float = 0.94
 const ENDLESS_MIN_TIMER_SEC: int = 25
+## Timer extension granted when player fires the main cannon at the wall.
+const CANNON_PUSHBACK_SECONDS: float = 4.0
 
 var _wall_hp: int = 200
 var _wall_hp_max: int = 200
@@ -87,8 +89,18 @@ func _on_main_fired(damage: int) -> void:
 	_wall_hp -= damage
 	if _wall_hp < 0:
 		_wall_hp = 0
+	extend_timer(CANNON_PUSHBACK_SECONDS)
 	cannon_fired_at_wall.emit(damage, _wall_hp, _wall_hp_max)
 	_emit_wall_destroyed_once()
+
+## Extends the wall siege countdown timer by the specified duration in seconds.
+## Capped at the maximum phase duration for the current wall.
+func extend_timer(seconds: float) -> void:
+	if _time_expired_emitted or seconds <= 0.0:
+		return
+	var add_ticks: int = int(roundf(seconds * float(TICKS_PER_SECOND)))
+	var max_ticks: int = _get_wall_time_ticks(_current_wall_index)
+	_timer_ticks_remaining = mini(_timer_ticks_remaining + add_ticks, max_ticks)
 
 func _emit_wall_destroyed_once() -> void:
 	if _wall_hp == 0 and not _wall_destroyed_emitted:
