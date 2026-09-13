@@ -87,6 +87,8 @@ enum RewardType {
 @export var enclosure_type: int = EnclosureType.OPEN_FRAME
 ## Custom wall side overrides per local cell coord: Vector2i -> Array of side strings ("N", "E", "S", "W").
 @export var custom_wall_edges: Dictionary = {}
+## Optional letter / glyph labels per cell (e.g. for rollover spelling lanes).
+@export var cell_letters: Dictionary = {}
 
 ## Pinball goal archetype and reward definition
 @export var goal_type: int = GoalArchetype.NONE
@@ -227,6 +229,14 @@ func get_cell_energy_value(cell: Vector2i) -> int:
 func set_cell_energy_value(cell: Vector2i, amount: int) -> void:
 	energy_values[cell] = amount
 
+func get_cell_letter_at(cell: Vector2i) -> String:
+	if cell_letters.has(cell): return str(cell_letters[cell])
+	var key_str: String = "%d,%d" % [cell.x, cell.y]
+	return str(cell_letters.get(key_str, ""))
+
+func set_cell_letter_at(cell: Vector2i, letter_val: String) -> void:
+	cell_letters[cell] = letter_val
+
 static func get_rotated_direction(dir: Vector2, steps: int = 0) -> Vector2:
 	var s: int = posmod(steps, 4)
 	match s:
@@ -343,10 +353,16 @@ func _serialize_custom_wall_edges() -> Dictionary:
 			res[key_str] = val
 	return res
 
+func _serialize_cell_letters() -> Dictionary:
+	var res: Dictionary = {}
+	for k in cell_letters:
+		var key_str: String = "%d,%d" % [k.x, k.y] if k is Vector2i else str(k)
+		res[key_str] = str(cell_letters[k])
+	return res
+
 func serialize() -> Dictionary:
 	var serialized_cells: Array = []
-	for c in cells:
-		serialized_cells.append([c.x, c.y])
+	for c in cells: serialized_cells.append([c.x, c.y])
 
 	var serialized_types: Dictionary = {}
 	for k in cell_types:
@@ -357,12 +373,7 @@ func serialize() -> Dictionary:
 	for k in cell_directions:
 		var key_str: String = "%d,%d" % [k.x, k.y] if k is Vector2i else str(k)
 		var val = cell_directions[k]
-		if val is Vector2i:
-			serialized_dirs[key_str] = [val.x, val.y]
-		elif val is Vector2:
-			serialized_dirs[key_str] = [val.x, val.y]
-		else:
-			serialized_dirs[key_str] = val
+		serialized_dirs[key_str] = [val.x, val.y] if (val is Vector2i or val is Vector2) else val
 
 	var serialized_energies: Dictionary = {}
 	for k in energy_values:
@@ -370,35 +381,22 @@ func serialize() -> Dictionary:
 		serialized_energies[key_str] = int(energy_values[k])
 
 	var serialized_seq: Array = []
-	for s in goal_target_sequence:
-		serialized_seq.append([s.x, s.y])
+	for s in goal_target_sequence: serialized_seq.append([s.x, s.y])
 
 	return {
-		"module_id": str(module_id),
-		"display_name": display_name,
-		"tier": tier,
-		"cells": serialized_cells,
-		"cell_types": serialized_types,
-		"cell_directions": serialized_dirs,
-		"energy_values": serialized_energies,
-		"bumper_durability": bumper_durability,
-		"rotation_step": rotation_step,
-		"enclosure_type": enclosure_type,
-		"custom_wall_edges": _serialize_custom_wall_edges(),
-		"goal_type": goal_type,
-		"reward_type": reward_type,
-		"goal_target_sequence": serialized_seq,
-		"goal_target_count": goal_target_count,
-		"goal_time_limit": goal_time_limit,
-		"reward_energy": reward_energy,
-		"reward_ball_count": reward_ball_count,
-		"goal_title": goal_title,
-		"goal_description": goal_description,
-		"reward_description": reward_description,
-		"activation_requirement": activation_requirement,
-		"required_widget_type": required_widget_type,
-		"activation_threshold": activation_threshold,
-		"layout_mode": layout_mode,
+		"module_id": str(module_id), "display_name": display_name, "tier": tier,
+		"cells": serialized_cells, "cell_types": serialized_types,
+		"cell_directions": serialized_dirs, "energy_values": serialized_energies,
+		"cell_letters": _serialize_cell_letters(),
+		"bumper_durability": bumper_durability, "rotation_step": rotation_step,
+		"enclosure_type": enclosure_type, "custom_wall_edges": _serialize_custom_wall_edges(),
+		"goal_type": goal_type, "reward_type": reward_type,
+		"goal_target_sequence": serialized_seq, "goal_target_count": goal_target_count,
+		"goal_time_limit": goal_time_limit, "reward_energy": reward_energy,
+		"reward_ball_count": reward_ball_count, "goal_title": goal_title,
+		"goal_description": goal_description, "reward_description": reward_description,
+		"activation_requirement": activation_requirement, "required_widget_type": required_widget_type,
+		"activation_threshold": activation_threshold, "layout_mode": layout_mode,
 		"unified_component_type": unified_component_type,
 	}
 
@@ -428,54 +426,39 @@ func deserialize(dict: Dictionary) -> void:
 	var raw_walls = dict.get("custom_wall_edges", {})
 	if raw_walls is Dictionary:
 		for k in raw_walls:
-			var cell_pos: Vector2i = _parse_vector2i_key(k)
-			var val = raw_walls[k]
-			if val is Array:
-				custom_wall_edges[cell_pos] = val
+			if raw_walls[k] is Array: custom_wall_edges[_parse_vector2i_key(k)] = raw_walls[k]
+
+	cell_letters.clear()
+	var raw_letters = dict.get("cell_letters", {})
+	if raw_letters is Dictionary:
+		for k in raw_letters: cell_letters[_parse_vector2i_key(k)] = str(raw_letters[k])
 
 	goal_target_sequence.clear()
-	var raw_seq = dict.get("goal_target_sequence", [])
-	if raw_seq is Array:
-		for s in raw_seq:
-			if s is Vector2i:
-				goal_target_sequence.append(s)
-			elif s is Array and s.size() >= 2:
-				goal_target_sequence.append(Vector2i(int(s[0]), int(s[1])))
+	for s in dict.get("goal_target_sequence", []):
+		if s is Vector2i: goal_target_sequence.append(s)
+		elif s is Array and s.size() >= 2: goal_target_sequence.append(Vector2i(int(s[0]), int(s[1])))
 
 	cells.clear()
-	var raw_cells = dict.get("cells", [])
-	for item in raw_cells:
-		if item is Vector2i:
-			cells.append(item)
-		elif item is Array and item.size() >= 2:
-			cells.append(Vector2i(int(item[0]), int(item[1])))
+	for item in dict.get("cells", []):
+		if item is Vector2i: cells.append(item)
+		elif item is Array and item.size() >= 2: cells.append(Vector2i(int(item[0]), int(item[1])))
 
 	cell_types.clear()
 	var raw_types = dict.get("cell_types", {})
 	if raw_types is Dictionary:
-		for k in raw_types:
-			var cell_pos: Vector2i = _parse_vector2i_key(k)
-			cell_types[cell_pos] = int(raw_types[k])
+		for k in raw_types: cell_types[_parse_vector2i_key(k)] = int(raw_types[k])
 
 	cell_directions.clear()
 	var raw_dirs = dict.get("cell_directions", {})
 	if raw_dirs is Dictionary:
 		for k in raw_dirs:
-			var cell_pos: Vector2i = _parse_vector2i_key(k)
 			var v = raw_dirs[k]
-			if v is Array and v.size() >= 2:
-				cell_directions[cell_pos] = Vector2i(int(v[0]), int(v[1]))
-			elif v is Vector2i:
-				cell_directions[cell_pos] = v
-			else:
-				cell_directions[cell_pos] = v
+			cell_directions[_parse_vector2i_key(k)] = Vector2i(int(v[0]), int(v[1])) if (v is Array and v.size() >= 2) else v
 
 	energy_values.clear()
 	var raw_energies = dict.get("energy_values", {})
 	if raw_energies is Dictionary:
-		for k in raw_energies:
-			var cell_pos: Vector2i = _parse_vector2i_key(k)
-			energy_values[cell_pos] = int(raw_energies[k])
+		for k in raw_energies: energy_values[_parse_vector2i_key(k)] = int(raw_energies[k])
 
 static func from_dictionary(dict: Dictionary) -> Resource:
 	var script: GDScript = load("res://resources/polyomino/polyomino_module_data.gd") as GDScript

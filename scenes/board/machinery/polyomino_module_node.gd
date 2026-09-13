@@ -57,6 +57,7 @@ var _hurry_up_timer: float = 0.0
 var _goal_flash_timer: float = 0.0
 var _floating_banner_text: String = ""
 var _floating_banner_timer: float = 0.0
+var _goal_completed_in_current_activation: bool = false
 
 func setup_module(p_item: Resource, p_grid_pos: Vector2i, p_rotation: int = 0) -> void:
 	item = p_item
@@ -76,17 +77,11 @@ func setup_module(p_item: Resource, p_grid_pos: Vector2i, p_rotation: int = 0) -
 	queue_redraw()
 
 func reset_goal_state() -> void:
-	_hit_cells.clear()
-	_widget_hit_counts.clear()
-	_current_hit_counter = 0
-	_sequence_index = 0
-	_orbit_count = 0
-	_jackpot_pool = 0
-	_lock_count = 0
-	_hurry_up_active = false
-	_hurry_up_timer = 0.0
-	_goal_flash_timer = 0.0
-	_floating_banner_timer = 0.0
+	_hit_cells.clear(); _widget_hit_counts.clear()
+	_current_hit_counter = 0; _sequence_index = 0
+	_orbit_count = 0; _jackpot_pool = 0; _lock_count = 0
+	_hurry_up_active = false; _hurry_up_timer = 0.0
+	_goal_flash_timer = 0.0; _floating_banner_timer = 0.0
 
 func _rebuild_components() -> void:
 	for comp in _components:
@@ -107,10 +102,7 @@ func _rebuild_components() -> void:
 			comp.position = module_data.get_module_center_offset(rotation_step, CELL_WIDTH, CELL_HEIGHT)
 			if comp.has_method("configure_footprint"):
 				comp.configure_footprint(_anchored_cells.size())
-			if comp is WireGateScript and (module_data.activation_threshold > 0 or module_data.goal_type != GoalArchetype.NONE):
-				comp.requires_external_activation = true
-			comp.set_accent_color(_accent_color)
-			comp.component_activated.connect(_on_component_activated)
+			_connect_component_signals(comp)
 			add_child(comp)
 			_components.append(comp)
 			for c in _anchored_cells:
@@ -133,14 +125,38 @@ func _rebuild_components() -> void:
 		comp.direction = rot_dir
 		if energy_val > 0:
 			comp.base_energy = energy_val
-		if comp is WireGateScript and (module_data.activation_threshold > 0 or module_data.goal_type != GoalArchetype.NONE):
-			comp.requires_external_activation = true
-		comp.set_accent_color(_accent_color)
 		comp.position = Vector2(float(local_c.x) * CELL_WIDTH, float(local_c.y) * CELL_HEIGHT)
-		comp.component_activated.connect(_on_component_activated)
+		_connect_component_signals(comp, orig_c)
 		add_child(comp)
 		_components.append(comp)
 		_components_by_cell[local_c] = comp
+
+func _connect_component_signals(comp: PolyominoMachineryComponent, orig_c: Vector2i = Vector2i.ZERO) -> void:
+	comp.set_accent_color(_accent_color)
+	comp.component_activated.connect(_on_component_activated)
+	if comp is WireGateScript:
+		if module_data != null and (module_data.activation_threshold > 0 or module_data.goal_type != GoalArchetype.NONE):
+			comp.requires_external_activation = true
+		comp.cascade_released.connect(_on_cascade_released)
+	if comp is RolloverSwitchScript and module_data != null:
+		comp.letter = module_data.get_cell_letter_at(orig_c)
+	if comp is SlingshotKickerScript:
+		comp.triangle_detonated.connect(_on_triangle_detonated)
+	if comp is SpinnerScript:
+		comp.spinner_overdrive_triggered.connect(_on_spinner_overdrive)
+
+func _on_cascade_released(_gate: Node, balls: Array) -> void:
+	var lead_ball: Node = balls[0] if not balls.is_empty() else null
+	_trigger_goal_completion(lead_ball)
+
+func _on_triangle_detonated(_tri: Node, _pos: Vector2, ball: Node = null) -> void:
+	_trigger_goal_completion(ball)
+
+func _on_spinner_overdrive(_sp: Node, ball: Node = null) -> void:
+	if module_data and module_data.goal_type == GoalArchetype.SPINNER_RPM and module_data.activation_threshold <= 0:
+		_trigger_goal_completion(ball)
+	elif is_instance_valid(ball) and ball.has_method("add_peg_energy"):
+		ball.add_peg_energy(25)
 
 func _create_component_for_type(c_type: int) -> PolyominoMachineryComponent:
 	match c_type:
@@ -165,42 +181,74 @@ func _create_component_for_type(c_type: int) -> PolyominoMachineryComponent:
 		_: return PinballBumperScript.new()
 
 func _on_component_activated(comp: PolyominoMachineryComponent, ball: Node, energy: int, impulse: Vector2) -> void:
+	_goal_completed_in_current_activation = false
 	machinery_triggered.emit(comp, ball, energy, impulse)
 	if comp:
 		var c_type: int = comp.cell_type
 		_widget_hit_counts[c_type] = _widget_hit_counts.get(c_type, 0) + 1
 		_current_hit_counter += 1
 		if c_type == PolyominoModuleData.CellType.ROLLOVER_SWITCH:
-			_check_rollover_bank_completion(comp)
+			_check_rollover_bank_completion(comp, ball)
 	_evaluate_goal_progress(comp, ball, energy)
 
-func _check_rollover_bank_completion(sw: Node) -> void:
+func _check_rollover_bank_completion(sw: Node, ball: Node = null) -> void:
 	if sw == null:
 		return
 	var b_id: StringName = sw.get("bank_id") if "bank_id" in sw else &"bank_1"
 	var all_lit: bool = true
 	var count: int = 0
+	var bank_switches: Array = []
 	for comp in _components:
 		if comp and comp.cell_type == PolyominoModuleData.CellType.ROLLOVER_SWITCH and comp.get("bank_id") == b_id:
 			count += 1
-			if not comp.get("is_lit"): all_lit = false; break
+			bank_switches.append(comp)
+			if not comp.get("is_lit"):
+				all_lit = false
 	if count > 0 and all_lit:
 		bank_completed.emit(b_id, RewardType.ENERGY_SURGE, 15)
+		if module_data and (module_data.goal_type == GoalArchetype.ROLLOVER_SPELL or module_data.required_widget_type == PolyominoModuleData.CellType.ROLLOVER_SWITCH):
+			_trigger_goal_completion(ball)
+		call_deferred("_reset_rollover_bank", bank_switches)
+
+func _reset_rollover_bank(bank_switches: Array) -> void:
+	for s in bank_switches:
+		if is_instance_valid(s) and s.has_method("set_lit"):
+			s.set_lit(false)
 
 func _evaluate_goal_progress(comp: PolyominoMachineryComponent, ball: Node, energy: int) -> void:
-	if module_data == null or is_ghost:
+	if module_data == null or is_ghost or _goal_completed_in_current_activation:
 		return
+	if module_data.goal_type == GoalArchetype.ROLLOVER_SPELL:
+		return
+
+	# Hurry-Up Frenzy has its own timing-based activation
+	if module_data.goal_type == GoalArchetype.HURRY_UP_FRENZY:
+		if not _hurry_up_active:
+			_hurry_up_active = true
+			_hurry_up_timer = module_data.goal_time_limit if module_data.goal_time_limit > 0.0 else 4.0
+		else:
+			_hurry_up_active = false
+			_hurry_up_timer = 0.0
+			_trigger_goal_completion(ball)
+		queue_redraw()
+		return
+
+	# Explicit widget threshold goals (e.g. DROP_TARGET x2, WIRE_GATE x3, POP_BUMPER x3, BASH_TOY x5)
 	if module_data.required_widget_type != PolyominoModuleData.CellType.EMPTY and module_data.activation_threshold > 0:
 		var hits: int = _widget_hit_counts.get(module_data.required_widget_type, 0)
 		if hits >= module_data.activation_threshold:
 			_widget_hit_counts[module_data.required_widget_type] = 0
 			_current_hit_counter = 0
 			_trigger_goal_completion(ball)
-			return
-	elif module_data.activation_threshold > 0 and module_data.goal_type == GoalArchetype.NONE:
+		queue_redraw()
+		return
+
+	# Generic hit threshold goals (e.g. no specific widget, or goal_type == NONE)
+	if module_data.activation_threshold > 0 and (module_data.goal_type == GoalArchetype.NONE or module_data.goal_type == GoalArchetype.TARGET_BANK):
 		if _current_hit_counter >= module_data.activation_threshold:
 			_current_hit_counter = 0
 			_trigger_goal_completion(ball)
+			queue_redraw()
 			return
 
 	var g_type: int = module_data.goal_type
@@ -233,7 +281,8 @@ func _evaluate_goal_progress(comp: PolyominoMachineryComponent, ball: Node, ener
 				_trigger_goal_completion(ball)
 		GoalArchetype.SINKHOLE_LOCK:
 			_lock_count += 1
-			if _lock_count >= maxi(1, module_data.goal_target_count):
+			var target_locks: int = module_data.goal_target_count if module_data.goal_target_count > 0 else module_data.activation_threshold
+			if _lock_count >= maxi(1, target_locks):
 				_lock_count = 0
 				_trigger_goal_completion(ball)
 		GoalArchetype.JACKPOT_ACCUMULATOR:
@@ -243,14 +292,6 @@ func _evaluate_goal_progress(comp: PolyominoMachineryComponent, ball: Node, ener
 				var final_payout: int = maxi(payout_target, _jackpot_pool)
 				_jackpot_pool = 0
 				_trigger_goal_completion(ball, final_payout)
-		GoalArchetype.HURRY_UP_FRENZY:
-			if not _hurry_up_active:
-				_hurry_up_active = true
-				_hurry_up_timer = module_data.goal_time_limit if module_data.goal_time_limit > 0.0 else 4.0
-			else:
-				_hurry_up_active = false
-				_hurry_up_timer = 0.0
-				_trigger_goal_completion(ball)
 		GoalArchetype.MULTIBALL_RESERVOIR:
 			_lock_count += 1
 			if _lock_count >= maxi(2, module_data.goal_target_count):
@@ -260,6 +301,9 @@ func _evaluate_goal_progress(comp: PolyominoMachineryComponent, ball: Node, ener
 	queue_redraw()
 
 func _trigger_goal_completion(ball: Node, bonus_energy: int = 0) -> void:
+	if _goal_completed_in_current_activation:
+		return
+	_goal_completed_in_current_activation = true
 	var r_energy: int = bonus_energy if bonus_energy > 0 else module_data.reward_energy
 	var reward_data: Dictionary = {
 		"energy": r_energy,
@@ -364,6 +408,7 @@ func is_area_clear_of_balls(active_balls: Array, ball_radius: float = Constants.
 
 func get_all_components() -> Array[PolyominoMachineryComponent]: return _components
 func get_component_at_local_cell(cell: Vector2i) -> PolyominoMachineryComponent: return _components_by_cell.get(cell, null)
+func get_unified_component() -> PolyominoMachineryComponent: return _components[0] if not _components.is_empty() else null
 func get_widget_hit_count(w_type: int) -> int: return _widget_hit_counts.get(w_type, 0)
 
 func get_current_hit_count() -> int:
@@ -404,9 +449,7 @@ func _process(delta: float) -> void:
 	var needs_redraw: bool = false
 	if _hurry_up_active:
 		_hurry_up_timer -= delta
-		if _hurry_up_timer <= 0.0:
-			_hurry_up_active = false
-			_hurry_up_timer = 0.0
+		if _hurry_up_timer <= 0.0: _hurry_up_active = false; _hurry_up_timer = 0.0
 		needs_redraw = true
 	if _goal_flash_timer > 0.0:
 		_goal_flash_timer = maxf(0.0, _goal_flash_timer - delta)
@@ -414,8 +457,7 @@ func _process(delta: float) -> void:
 	if _floating_banner_timer > 0.0:
 		_floating_banner_timer = maxf(0.0, _floating_banner_timer - delta)
 		needs_redraw = true
-	if needs_redraw:
-		queue_redraw()
+	if needs_redraw: queue_redraw()
 
 func _draw() -> void:
 	if _anchored_cells.is_empty():
@@ -445,40 +487,5 @@ func _draw() -> void:
 		var segments: Array[Dictionary] = module_data.get_solid_edge_segments(rotation_step)
 		RelicTierVisuals.draw_tier_frame(self, segments, cell_sz, Vector2.ZERO, tier, false, wall_highlight_override)
 		RelicTierVisuals.draw_tier_corner_accents(self, _anchored_cells, cell_sz, origin_offset, tier, false)
-	# 3. Draw live charge indicators and goal status markers on components
-	if module_data != null and not is_ghost:
-		var th: int = get_activation_threshold()
-		if th > 0:
-			var ratio: float = get_charge_progress()
-			for comp_item in _components:
-				if module_data.required_widget_type == PolyominoModuleData.CellType.EMPTY or comp_item.cell_type == module_data.required_widget_type:
-					draw_arc(comp_item.position, comp_item.component_radius + 4.0, -PI * 0.5, -PI * 0.5 + TAU * ratio, 24, Color(0.2, 0.9, 0.5, 0.9), 2.5)
-
-		match module_data.goal_type:
-			GoalArchetype.TARGET_BANK:
-				for c in _components:
-					var comp_pos: Vector2 = c.position
-					if _hit_cells.has(c.local_cell):
-						draw_arc(comp_pos, c.component_radius + 4.0, 0, TAU, 16, Color(1.0, 0.85, 0.2, 0.9), 2.5)
-					else:
-						draw_circle(comp_pos + Vector2(0, -c.component_radius - 2.0), 2.5, Color(0.4, 0.4, 0.4, 0.6))
-			GoalArchetype.SEQUENCE_ROUTE:
-				var target_seq: Array[Vector2i] = module_data.goal_target_sequence
-				if target_seq.is_empty():
-					for comp_item in _components:
-						target_seq.append(comp_item.local_cell)
-				if not target_seq.is_empty():
-					var cur_step: Vector2i = target_seq[mini(_sequence_index, target_seq.size() - 1)]
-					var cur_comp: PolyominoMachineryComponent = _components_by_cell.get(cur_step, null)
-					if cur_comp != null:
-						var pulse: float = 0.6 + 0.4 * sin(Time.get_ticks_msec() * 0.01)
-						draw_arc(cur_comp.position, cur_comp.component_radius + 5.0, 0, TAU, 16, Color(0.2, 0.9, 1.0, pulse), 3.0)
-
-	# 4. Floating comic banner text on goal achievement
-	if _floating_banner_timer > 0.0 and not _floating_banner_text.is_empty():
-		var font: Font = ThemeDB.fallback_font
-		var font_size: int = 14
-		var alpha: float = clampf(_floating_banner_timer / 0.4, 0.0, 1.0)
-		var text_pos: Vector2 = Vector2(-20, -18.0 - (1.2 - _floating_banner_timer) * 20.0)
-		draw_string(font, text_pos + Vector2(1, 1), _floating_banner_text, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size, Color(0.0, 0.0, 0.0, alpha))
-		draw_string(font, text_pos, _floating_banner_text, HORIZONTAL_ALIGNMENT_CENTER, -1, font_size, Color(1.0, 0.9, 0.2, alpha))
+	# 3. Draw diegetic overlays and indicators via PolyominoDiegeticRenderer
+	PolyominoDiegeticRenderer.draw_diegetic_overlays(self, self, module_data, _components, _components_by_cell, _accent_color, _floating_banner_text, _floating_banner_timer, is_ghost)
