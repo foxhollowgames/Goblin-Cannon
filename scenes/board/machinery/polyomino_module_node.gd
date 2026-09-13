@@ -140,10 +140,10 @@ func _connect_component_signals(comp: PolyominoMachineryComponent, orig_c: Vecto
 		comp.cascade_released.connect(_on_cascade_released)
 	if comp is RolloverSwitchScript and module_data != null:
 		comp.letter = module_data.get_cell_letter_at(orig_c)
-	if comp.has_signal("triangle_detonated"):
-		comp.connect("triangle_detonated", _on_triangle_detonated)
-	if comp.has_signal("spinner_overdrive_triggered"):
-		comp.connect("spinner_overdrive_triggered", _on_spinner_overdrive)
+	if comp is SlingshotKickerScript:
+		comp.triangle_detonated.connect(_on_triangle_detonated)
+	if comp is SpinnerScript:
+		comp.spinner_overdrive_triggered.connect(_on_spinner_overdrive)
 
 func _on_cascade_released(_gate: Node, balls: Array) -> void:
 	var lead_ball: Node = balls[0] if not balls.is_empty() else null

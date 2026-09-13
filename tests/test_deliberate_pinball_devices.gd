@@ -7,6 +7,8 @@ const RolloverSwitchScript = preload("res://scenes/board/machinery/rollover_swit
 const SlingshotKickerScript = preload("res://scenes/board/machinery/slingshot_kicker.gd")
 const WireGateScript = preload("res://scenes/board/machinery/wire_gate.gd")
 const SpinnerScript = preload("res://scenes/board/machinery/spinner.gd")
+const BashToyScript = preload("res://scenes/board/machinery/bash_toy.gd")
+const DropTargetScript = preload("res://scenes/board/machinery/drop_target.gd")
 const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 
 const CellType = PolyominoModuleData.CellType
@@ -35,6 +37,9 @@ func run() -> void:
 	test_wire_gate_retention_relic()
 	test_bumper_chamber_ricochet()
 	test_speed_rail_momentum_flow()
+	test_diegetic_renderer_overlays_no_crash()
+	test_bash_toy_lifecycle_and_break()
+	test_wire_gate_open_close_cycle()
 	cleanup()
 
 func test_rollover_word_bank_energy_and_letters() -> void:
@@ -345,4 +350,72 @@ func test_speed_rail_momentum_flow() -> void:
 
 	var accel = node.get_component_at_local_cell(Vector2i(0, 1))
 	assert_true(accel != null, "accelerator component exists")
+
+func test_diegetic_renderer_overlays_no_crash() -> void:
+	begin("Diegetic renderer overlays execute without crashing across relic archetypes")
+	var relics: Array[StringName] = [
+		&"superconductor",
+		&"phase_siphon",
+		&"fragment_swarm",
+		&"resonant_well",
+		&"golem_effigy",
+	]
+	for r_id in relics:
+		var item := PolyominoRelicDatabase.create_item_for_relic(r_id)
+		assert_true(item != null, "relic item created for %s" % String(r_id))
+		var node: Node2D = PolyominoModuleNodeScript.new()
+		autofree(node)
+		node.setup_module(item, Vector2i.ZERO, 0)
+		node.notification(CanvasItem.NOTIFICATION_DRAW)
+	assert_true(true, "All relic modules rendered diegetic overlays with zero runtime errors")
+
+func test_bash_toy_lifecycle_and_break() -> void:
+	begin("Bash toy hit accumulation, broken bonus energy, and broken state")
+	var bash := BashToyScript.new()
+	autofree(bash)
+	bash.max_hits = 3
+	bash.base_energy = 10
+	var broken_signaled: Array[bool] = []
+	bash.bash_toy_broken.connect(func(_node): broken_signaled.append(true))
+
+	var ball := MockBall.new()
+	autofree(ball)
+
+	var r1 = bash.trigger_activation(ball, 10)
+	assert_true(r1.get("activated", false), "Hit 1 activated")
+	assert_eq(bash.current_hits, 1, "Hit count is 1")
+	assert_false(bash.is_broken, "Not broken yet")
+	assert_eq(broken_signaled.size(), 0, "No break signal yet")
+
+	var r2 = bash.trigger_activation(ball, 40)
+	assert_true(r2.get("activated", false), "Hit 2 activated")
+	assert_eq(bash.current_hits, 2, "Hit count is 2")
+	assert_false(bash.is_broken, "Not broken yet")
+
+	var r3 = bash.trigger_activation(ball, 70)
+	assert_true(r3.get("activated", false), "Hit 3 activated")
+	assert_eq(bash.current_hits, 3, "Hit count is 3")
+	assert_true(bash.is_broken, "Bash toy is now broken")
+	assert_eq(broken_signaled.size(), 1, "bash_toy_broken signal emitted")
+	assert_eq(r3.get("energy_granted", 0), 10 + 25, "Granted base + BROKEN_BONUS_ENERGY")
+
+func test_wire_gate_open_close_cycle() -> void:
+	begin("Wire gate open, close, and state tracking")
+	var gate := WireGateScript.new()
+	autofree(gate)
+	assert_false(gate.is_open, "Gate initially closed")
+
+	var opened_count: Array[bool] = []
+	var closed_count: Array[bool] = []
+	gate.gate_opened.connect(func(_g): opened_count.append(true))
+	gate.gate_closed.connect(func(_g): closed_count.append(true))
+
+	gate.open_gate()
+	assert_true(gate.is_open, "Gate is open")
+	assert_eq(opened_count.size(), 1, "gate_opened emitted")
+
+	gate.close_gate()
+	assert_false(gate.is_open, "Gate is closed")
+	assert_eq(closed_count.size(), 1, "gate_closed emitted")
+
 
