@@ -142,6 +142,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-131`](#lrn-131) | TASK-090 | `godot_engine` | Idle hopper ball duplication and Area2D/exit lifecycles | 2026-09-12 |
 | [`LRN-132`](#lrn-132) | TASK-091 | `godot_engine` | Headless texture preloading and GDScript match pattern constants | 2026-09-12 |
 | [`LRN-133`](#lrn-133) | TASK-092 | `godot_engine` | Orphan Fallback Widget Instantiation and 2D CanvasItem Layering | 2026-09-12 |
+| [`LRN-134`](#lrn-134) | TASK-093 | `godot_engine` | Diegetic pinball machinery and component state isolation | 2026-09-13 |
 
 ---
 
@@ -2272,5 +2273,21 @@ Dynamically instantiating fallback UI controls on CanvasLayer can create ghost p
 
 #### Actionable Guideline for Future Agents
 Audit all dynamic UI coordinator instantiation paths when deprecating or moving UI widgets. Use CanvasItem z_index ordering to ensure top-bar framing renders in front of playfield physics elements.
+
+---
+
+### <a id="lrn-134"></a> LRN-134: Diegetic pinball machinery and component state isolation
+- **Task:** `TASK-093`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-13T16:59:58.382232`
+
+#### Context & Problem
+PolyominoDiegeticRenderer previously queried internal private module node dictionaries (_dropped_targets, _lit_rollovers) which caused fatal crashes when rendering drop targets and rollover switches, and duplicate text rendering between components and diegetic overlays.
+
+#### Key Insight & Learning
+Subcomponents such as DropTarget, RolloverSwitch, and WireGate already encapsulate and manage their own live states (is_dropped, is_lit, retained_balls). Querying component-level properties directly prevents coupling and crashes. Letter rendering should be owned solely by the component body to avoid blurry double-draws.
+
+#### Actionable Guideline for Future Agents
+When authoring diegetic visual overlays, always inspect typed component properties directly rather than module-level shadow dictionaries, ensure components exclusively own their local glyph drawing, and write automated tests that trigger NOTIFICATION_DRAW to catch drawing crashes.
 
 ---

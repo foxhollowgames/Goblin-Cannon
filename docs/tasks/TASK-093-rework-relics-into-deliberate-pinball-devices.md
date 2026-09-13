@@ -1,6 +1,6 @@
 # TASK-093: Rework Relics into Deliberate Pinball Devices and Mechanisms
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay / Visuals
 - **Target Branch:** `feature/rework-relics-deliberate-pinball-devices`
@@ -79,13 +79,13 @@ Rework the entire relic roster away from randomized machine pieces slotted hapha
 
 ## Acceptance Criteria
 
-- [ ] Rollover switch banks grant ball energy when lit and reset after spelling all letters/triggers.
-- [ ] Letters or glyphs render visibly above rollover lanes in divided lane assemblies.
-- [ ] Retention reservoirs trap falling balls until capacity is reached, then release them and trigger relic bonuses.
-- [ ] Triangular bumpers crackle with electric lightning as they are struck and detonate on full charge with an explosion.
-- [ ] Funneled spinners trigger effects at high RPM and enter cooldown while awarding base energy.
-- [ ] Speed boost wheels and track conduits redirect ball momentum for board combos.
-- [ ] Bumper chambers bounce balls repeatedly between internal bumpers and release them through open exits.
-- [ ] Relic definitions in `PolyominoRelicDatabase` reworked into deliberate, purposeful pinball machines.
-- [ ] All automated tests pass in headless mode (`tests/run_tests.gd`).
-- [ ] GDScript standards and file length limits (<= 500 lines) strictly satisfied.
+- [x] Rollover switch banks grant ball energy when lit and reset after spelling all letters/triggers.
+- [x] Letters or glyphs render visibly above rollover lanes in divided lane assemblies.
+- [x] Retention reservoirs trap falling balls until capacity is reached, then release them and trigger relic bonuses.
+- [x] Triangular bumpers crackle with electric lightning as they are struck and detonate on full charge with an explosion.
+- [x] Funneled spinners trigger effects at high RPM and enter cooldown while awarding base energy.
+- [x] Speed boost wheels and track conduits redirect ball momentum for board combos.
+- [x] Bumper chambers bounce balls repeatedly between internal bumpers and release them through open exits.
+- [x] Relic definitions in `PolyominoRelicDatabase` reworked into deliberate, purposeful pinball machines.
+- [x] All automated tests pass in headless mode (`tests/run_tests.gd`).
+- [x] GDScript standards and file length limits (<= 500 lines) strictly satisfied.

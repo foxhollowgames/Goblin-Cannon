@@ -123,7 +123,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-090](TASK-090-fix-idle-hopper-ball-duplication.md) | Fix Idle Hopper Ball Duplication | Systems / Gameplay / Physics | P1 | DONE | `fix/idle-hopper-ball-duplication` |
 | [TASK-091](TASK-091-peglin-style-top-cannon-battlefield-and-mob-timer.md) | Peglin-Style Top Cannon Battlefield and City Mob Timer | UI / Visuals / Gameplay | P1 | DONE | `feature/peglin-style-top-battlefield` |
 | [TASK-092](TASK-092-clean-top-battlefield-panel-hopper-layering-and-cannon-pushback.md) | Clean Top Battlefield Panel, Hopper Layering, and Cannon Pushback | UI / Visuals / Gameplay | P1 | DONE | `feature/clean-top-battlefield-and-cannon-pushback` |
-| [TASK-093](TASK-093-rework-relics-into-deliberate-pinball-devices.md) | Rework Relics into Deliberate Pinball Devices and Mechanisms | Systems / Gameplay / Visuals | P1 | IN_PROGRESS | `feature/rework-relics-deliberate-pinball-devices` |
+| [TASK-093](TASK-093-rework-relics-into-deliberate-pinball-devices.md) | Rework Relics into Deliberate Pinball Devices and Mechanisms | Systems / Gameplay / Visuals | P1 | DONE | `feature/rework-relics-deliberate-pinball-devices` |
 
 
 ---
