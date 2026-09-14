@@ -125,6 +125,8 @@ python scripts/generate_task_dashboard.py
 | [TASK-092](TASK-092-clean-top-battlefield-panel-hopper-layering-and-cannon-pushback.md) | Clean Top Battlefield Panel, Hopper Layering, and Cannon Pushback | UI / Visuals / Gameplay | P1 | DONE | `feature/clean-top-battlefield-and-cannon-pushback` |
 | [TASK-093](TASK-093-rework-relics-into-deliberate-pinball-devices.md) | Rework Relics into Deliberate Pinball Devices and Mechanisms | Systems / Gameplay / Visuals | P1 | DONE | `feature/rework-relics-deliberate-pinball-devices` |
 | [TASK-094](TASK-094-update-debug-menu-stores-with-new-relics.md) | Update Debug Menu Stores with New Deliberate Relics | Debug / UI / Systems | P1 | DONE | `feature/update-debug-menu-stores-with-new-relics` |
+| [TASK-095](TASK-095-implement-workspace-agent-skills.md) | Implement Workspace Agent Skills and Progressive Disclosure Architecture | DevOps / Tooling / Agent Skills | P1 | IN_REVIEW | `feature/workspace-agent-skills` |
+
 
 
 ---
