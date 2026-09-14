@@ -13,7 +13,6 @@ const BASELINE_LIMITS: Dictionary = {
 	"res://scenes/rewards/reward_handler.gd": 729,
 	"res://resources/polyomino/polyomino_relic_database.gd": 654,
 	"res://autoloads/constants.gd": 575,
-	"res://scenes/ui/debug_full_store_modal.gd": 546,
 }
 
 func run() -> void:

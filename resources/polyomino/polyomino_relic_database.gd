@@ -5,6 +5,7 @@ class_name PolyominoRelicDatabase
 
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
 const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
+const DeliberateRelicCatalog = preload("res://resources/polyomino/deliberate_relic_catalog.gd")
 
 const CellType = PolyominoModuleData.CellType
 const GoalArchetype = PolyominoModuleData.GoalArchetype
@@ -27,8 +28,10 @@ static func _get_defs() -> Dictionary:
 	return _DEFINITIONS
 
 static func _get_def(id: StringName) -> Dictionary:
-	var defs := _get_defs()
 	var res_id: StringName = _resolve_id(id)
+	if DeliberateRelicCatalog.has_relic(res_id):
+		return DeliberateRelicCatalog.get_relic(res_id)
+	var defs := _get_defs()
 	if defs.has(res_id):
 		return defs[res_id]
 	if _MULTI_PEG_DEFINITIONS.has(res_id):
@@ -37,7 +40,12 @@ static func _get_def(id: StringName) -> Dictionary:
 
 static func has_relic_definition(relic_id: StringName) -> bool:
 	var res_id: StringName = _resolve_id(relic_id)
+	if DeliberateRelicCatalog.has_relic(res_id):
+		return true
 	return _get_defs().has(res_id) or _MULTI_PEG_DEFINITIONS.has(res_id)
+
+static func get_deliberate_relic_ids() -> Array[StringName]:
+	return DeliberateRelicCatalog.get_all_ids()
 
 static func get_all_relic_ids() -> Array[StringName]:
 	var defs := _get_defs()
@@ -334,7 +342,10 @@ static func _get_goal_def(id: StringName) -> Dictionary:
 		&"cyclone_orbit_loop": {"type": GoalArchetype.ORBIT_FLOW, "reward": RewardType.BOARD_SUPERCHARGE, "title": "Cyclone Turnaround", "desc": "Traverse the cyclone orbit loop.", "activation_req": "Traverse cyclone orbit loop.", "reward_desc": "Board Supercharge (+2 Energize stacks)", "target_count": 1, "required_widget": CellType.ORBIT_LOOP, "threshold": 1},
 		&"grand_orbit_circuit": {"type": GoalArchetype.ORBIT_FLOW, "reward": RewardType.MULTIBALL_CASCADE, "title": "Grand Circuit Overdrive", "desc": "Traverse the grand orbit circuit.", "activation_req": "Traverse grand orbit circuit.", "reward_desc": "Multiball Cascade (3 balls)", "balls": 3, "target_count": 1, "required_widget": CellType.ORBIT_LOOP, "threshold": 1},
 	}
-	return defs.get(_resolve_id(id), {})
+	var res_id: StringName = _resolve_id(id)
+	if DeliberateRelicCatalog.has_relic(res_id):
+		return DeliberateRelicCatalog.get_goal(res_id)
+	return defs.get(res_id, {})
 
 static func _def(id: StringName, name: String, tier: int, shape_name: String, machinery_desc: String, cells: Array[Vector2i], types: Dictionary = {}, dirs: Dictionary = {}, energies: Dictionary = {}, enclosure: int = PolyominoModuleData.EnclosureType.OPEN_FRAME, walls: Dictionary = {}, letters: Dictionary = {}, layout_mode: int = PolyominoModuleData.MachineryLayoutMode.PER_CELL, unified_type: int = CellType.EMPTY) -> void:
 	_DEFINITIONS[id] = {

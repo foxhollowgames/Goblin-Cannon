@@ -23,7 +23,6 @@ BASELINE_LIMITS = {
     "scenes/rewards/reward_handler.gd": 729,
     "resources/polyomino/polyomino_relic_database.gd": 654,
     "autoloads/constants.gd": 575,
-    "scenes/ui/debug_full_store_modal.gd": 546,
     "orchestration/client/main.ts": 1086,
     "orchestration/client/style.css": 672,
     "orchestration/src/server/index.ts": 663,
