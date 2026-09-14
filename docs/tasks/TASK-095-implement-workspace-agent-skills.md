@@ -1,6 +1,6 @@
 # TASK-095: Implement Workspace Agent Skills and Progressive Disclosure Architecture
 
-- **Status:** IN_REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** DevOps / Tooling / Agent Skills
 - **Target Branch:** `feature/workspace-agent-skills`
@@ -66,5 +66,6 @@ Verify that all skills use progressive disclosure with concise YAML frontmatter 
 - [x] `.agents/skills/godot-learnings-loop/SKILL.md` created with YAML frontmatter.
 - [x] `tests/test_workspace_skills.py` written and passing cleanly.
 - [x] All file lengths verified under 500 lines via `python scripts/lint_file_lengths.py`.
-- [ ] Pull request opened, reviewed by independent sub-agent, and merged into `main`.
+- [x] Pull request opened, reviewed by independent sub-agent, and merged into `main`.
+
 
