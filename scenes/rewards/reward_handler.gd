@@ -322,47 +322,24 @@ func apply_peg_shop_unlock(kind: String) -> void:
 	if not GameState:
 		return
 	match kind:
-		"bomb":
-			GameState.bomb_peg_count += 1
-			_pending_peg_selection_kind = "bomb"
-		"trampoline":
-			GameState.trampoline_peg_count += 1
-			_pending_peg_selection_kind = "trampoline"
-		"goblin_reset":
-			GameState.goblin_reset_node_count += 1
-			_pending_peg_selection_kind = "goblin_reset"
-		"eternal":
-			GameState.eternal_peg_count += 1
-			_pending_peg_selection_kind = "eternal"
-		"extreme_bouncer":
-			GameState.extreme_bouncer_peg_count += 1
-			_pending_peg_selection_kind = "extreme_bouncer"
-		"magnet":
-			GameState.magnet_peg_count += 1
-			_pending_peg_selection_kind = "magnet"
-		"splitter":
-			GameState.splitter_peg_count += 1
-			_pending_peg_selection_kind = "splitter"
-		"gold":
-			GameState.gold_peg_count += 1
-			_pending_peg_selection_kind = "gold"
-		"lucky_gold":
-			GameState.lucky_gold_peg_count += 1
-			_pending_peg_selection_kind = "lucky_gold"
-		"gravity_well":
-			GameState.gravity_well_peg_count += 1
-			_pending_peg_selection_kind = "gravity_well"
-		"phase":
-			GameState.phase_peg_count += 1
-			_pending_peg_selection_kind = "phase"
-		"wrench":
-			GameState.wrench_peg_count += 1
-			_pending_peg_selection_kind = "wrench"
-		_:
-			pass
+		"bomb": GameState.bomb_peg_count += 1; _pending_peg_selection_kind = "bomb"
+		"trampoline": GameState.trampoline_peg_count += 1; _pending_peg_selection_kind = "trampoline"
+		"goblin_reset": GameState.goblin_reset_node_count += 1; _pending_peg_selection_kind = "goblin_reset"
+		"eternal": GameState.eternal_peg_count += 1; _pending_peg_selection_kind = "eternal"
+		"extreme_bouncer": GameState.extreme_bouncer_peg_count += 1; _pending_peg_selection_kind = "extreme_bouncer"
+		"magnet": GameState.magnet_peg_count += 1; _pending_peg_selection_kind = "magnet"
+		"splitter": GameState.splitter_peg_count += 1; _pending_peg_selection_kind = "splitter"
+		"gold": GameState.gold_peg_count += 1; _pending_peg_selection_kind = "gold"
+		"lucky_gold": GameState.lucky_gold_peg_count += 1; _pending_peg_selection_kind = "lucky_gold"
+		"gravity_well": GameState.gravity_well_peg_count += 1; _pending_peg_selection_kind = "gravity_well"
+		"phase": GameState.phase_peg_count += 1; _pending_peg_selection_kind = "phase"
+		"wrench": GameState.wrench_peg_count += 1; _pending_peg_selection_kind = "wrench"
+		_: pass
 
 func _add_relic_to_junk_box(uid: StringName) -> void:
-	if GameState and GameState.junk_box != null:
+	if GameState:
+		if GameState.junk_box == null:
+			GameState.junk_box = JunkBoxData.new()
 		var item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(uid)
 		if item != null:
 			GameState.junk_box.add_item_auto(item)
@@ -432,6 +409,10 @@ func get_catalog_milestone_stat_ids() -> Array:
 ## Treasure-chest onboard passives and global tag upgrades (not in wall-break draft list).
 func get_catalog_onboard_effect_definitions() -> Array:
 	return _onboard_effect_candidates.duplicate()
+
+## Deliberate pinball relics (TASK-093 / TASK-094 deliberate archetypes).
+func get_catalog_deliberate_relic_definitions() -> Array:
+	return RewardCardCatalog.build_deliberate_relic_candidates()
 
 func remove_one_almanac_wall_break(uid: StringName) -> bool:
 	if not GameState:

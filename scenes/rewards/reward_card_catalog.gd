@@ -2,6 +2,8 @@ class_name RewardCardCatalog
 extends RefCounted
 ## Static catalog definition builders for RewardHandler candidates.
 
+const DeliberateRelicCatalog = preload("res://resources/polyomino/deliberate_relic_catalog.gd")
+
 static func create_ball_def(ability_name: String, alignment: int, tier: int, rarity: int, city_weights: Dictionary, shape_type: int = -1, status_effects: Dictionary = {}) -> BallDefinition:
 	var d: BallDefinition = BallDefinition.new()
 	d.ability_name = ability_name
@@ -193,6 +195,34 @@ static func build_boss_candidates() -> Array:
 	list.append(mk_boss("Renewal Pact", "All Pegs: Broken pegs recover +12% faster.", &"renewal_pact", []))
 	list.append(mk_boss("Gilded Covenant", "Gold Pegs: Hits on Gold or Lucky Gold pegs award +1 run Gold.", &"gilded_covenant", []))
 	list.append(mk_boss("Iron Bloom", "Magnet Peg: Ambient magnetic pull strength +35%.", &"iron_bloom", []))
+	return list
+
+static func build_deliberate_relic_candidates() -> Array:
+	var list: Array = []
+	var cat: Dictionary = DeliberateRelicCatalog.get_catalog()
+	var goals: Dictionary = DeliberateRelicCatalog.get_goals()
+	for id in DeliberateRelicCatalog.get_all_ids():
+		var d: Dictionary = cat[id]
+		var g: Dictionary = goals.get(id, {})
+		var u: MajorUpgradeDefinition = MajorUpgradeDefinition.new()
+		u.upgrade_id = id
+		u.display_name = str(d.get("display_name", id))
+		var m_desc: String = str(d.get("machinery_desc", ""))
+		var rew_desc: String = str(g.get("reward_desc", ""))
+		var desc: String = ""
+		if not m_desc.is_empty() and not rew_desc.is_empty():
+			desc = "%s: %s" % [m_desc, rew_desc]
+		elif not m_desc.is_empty():
+			desc = "%s: Kinetic pinball machinery." % m_desc
+		else:
+			desc = "Machinery: Deliberate pinball device."
+		u.description = desc
+		var tier: int = int(d.get("tier", 1))
+		if tier >= 3:
+			u.category = MajorUpgradeDefinition.Category.BALL_ENHANCEMENT
+		else:
+			u.category = MajorUpgradeDefinition.Category.BOARD_UPGRADE
+		list.append(u)
 	return list
 
 static func get_peg_unlock_count(kind: String) -> int:
