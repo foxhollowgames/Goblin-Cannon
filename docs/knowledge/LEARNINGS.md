@@ -143,6 +143,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-132`](#lrn-132) | TASK-091 | `godot_engine` | Headless texture preloading and GDScript match pattern constants | 2026-09-12 |
 | [`LRN-133`](#lrn-133) | TASK-092 | `godot_engine` | Orphan Fallback Widget Instantiation and 2D CanvasItem Layering | 2026-09-12 |
 | [`LRN-134`](#lrn-134) | TASK-093 | `godot_engine` | Diegetic pinball machinery and component state isolation | 2026-09-13 |
+| [`LRN-135`](#lrn-135) | TASK-094 | `testing` | Deliberate Relic Tier Cell Count Constraints and Modular Catalogs | 2026-09-13 |
 
 ---
 
@@ -2289,5 +2290,21 @@ Subcomponents such as DropTarget, RolloverSwitch, and WireGate already encapsula
 
 #### Actionable Guideline for Future Agents
 When authoring diegetic visual overlays, always inspect typed component properties directly rather than module-level shadow dictionaries, ensure components exclusively own their local glyph drawing, and write automated tests that trigger NOTIFICATION_DRAW to catch drawing crashes.
+
+---
+
+### <a id="lrn-135"></a> LRN-135: Deliberate Relic Tier Cell Count Constraints and Modular Catalogs
+- **Task:** `TASK-094`
+- **Category:** `testing`
+- **Created:** `2026-09-13T18:19:28.475422`
+
+#### Context & Problem
+When implementing 42 deliberate relics across 7 archetypes and 3 tiers and hooking into PolyominoRelicDatabase, tier cell count assertions in test_polyomino_relic_shapes.gd caught a mismatch where a Tier 2 definition had 12 cells.
+
+#### Key Insight & Learning
+Polyomino tier conventions strictly require cell counts to match tier ranges (T1: 4-6, T2: 6-9, T3: 9-14). Defining deliberate relics in an isolated catalog preloaded by the main database prevents huge files (>500 lines) and keeps both catalog and database compliant with Rule 7.
+
+#### Actionable Guideline for Future Agents
+Always audit cell counts against tier boundaries (T1: 4-6, T2: 6-9, T3: 9-14) for any polyomino relic. Keep catalogs modularized into separate files preloaded by PolyominoRelicDatabase to maintain files under 500 lines.
 
 ---

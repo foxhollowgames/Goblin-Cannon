@@ -1,6 +1,6 @@
 # TASK-094: Update Debug Menu Stores with New Relics
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Debug / UI / Systems
 - **Target Branch:** `feature/update-debug-menu-stores-with-new-relics`
