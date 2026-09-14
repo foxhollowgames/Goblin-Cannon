@@ -340,7 +340,8 @@ func _on_apply_relic(def: MajorUpgradeDefinition, btn: Button = null) -> void:
 		if item != null: GameState.junk_box.add_item_auto(item)
 	if btn:
 		btn.text = "Added!"
-		get_tree().create_timer(1.0).timeout.connect(func(): if is_instance_valid(btn): btn.text = "Add")
+		if get_tree():
+			get_tree().create_timer(1.0).timeout.connect(func(): if is_instance_valid(btn): btn.text = "Add")
 
 func _add_stat_row(row: HBoxContainer, stat_id: String) -> void:
 	if stat_id.is_empty(): return
