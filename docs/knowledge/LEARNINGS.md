@@ -144,6 +144,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-133`](#lrn-133) | TASK-092 | `godot_engine` | Orphan Fallback Widget Instantiation and 2D CanvasItem Layering | 2026-09-12 |
 | [`LRN-134`](#lrn-134) | TASK-093 | `godot_engine` | Diegetic pinball machinery and component state isolation | 2026-09-13 |
 | [`LRN-135`](#lrn-135) | TASK-094 | `testing` | Deliberate Relic Tier Cell Count Constraints and Modular Catalogs | 2026-09-13 |
+| [`LRN-136`](#lrn-136) | TASK-095 | `tooling` | Workspace Skills and Progressive Disclosure Architecture | 2026-09-13 |
 
 ---
 
@@ -2306,5 +2307,21 @@ Polyomino tier conventions strictly require cell counts to match tier ranges (T1
 
 #### Actionable Guideline for Future Agents
 Always audit cell counts against tier boundaries (T1: 4-6, T2: 6-9, T3: 9-14) for any polyomino relic. Keep catalogs modularized into separate files preloaded by PolyominoRelicDatabase to maintain files under 500 lines.
+
+---
+
+### <a id="lrn-136"></a> LRN-136: Workspace Skills and Progressive Disclosure Architecture
+- **Task:** `TASK-095`
+- **Category:** `tooling`
+- **Created:** `2026-09-13T20:52:11.980930`
+
+#### Context & Problem
+Agents authoring repetitive ad-hoc scripts across tasks for task packets and multi-pass quality audits
+
+#### Key Insight & Learning
+Antigravity discovers workspace skills in .agents/skills/ and progressively discloses full skill contents only when activated, keeping the initial prompt small
+
+#### Actionable Guideline for Future Agents
+Keep YAML frontmatter descriptions concise in SKILL.md and encapsulate multi-pass pipelines into reusable scripts under scripts/
 
 ---
