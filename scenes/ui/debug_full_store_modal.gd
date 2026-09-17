@@ -304,8 +304,10 @@ func _add_relic_row(row: HBoxContainer, def: MajorUpgradeDefinition) -> void:
 	var tier: int = PolyominoRelicDatabase.get_relic_tier(uid)
 	var shape: String = PolyominoRelicDatabase.get_relic_shape_name(uid)
 	var tint: Color = Color(0.85, 0.75, 0.95, 1) if tier == 1 else (Color(0.95, 0.82, 0.55, 1) if tier == 2 else Color(0.95, 0.55, 0.4, 1))
-	var icon_tex: Texture2D = _ICON_BOSS if tier >= 3 else _ICON_RELIC
-	row.add_child(_make_icon_tile(icon_tex, tint))
+	var preview_wrap: CenterContainer = CenterContainer.new()
+	preview_wrap.custom_minimum_size = Vector2(44, 44)
+	preview_wrap.add_child(RewardCardBuilder.make_relic_shop_preview(uid, 44.0))
+	row.add_child(preview_wrap)
 
 	var text_col: VBoxContainer = VBoxContainer.new()
 	text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -320,8 +322,7 @@ func _add_relic_row(row: HBoxContainer, def: MajorUpgradeDefinition) -> void:
 	var g_rew: String = PolyominoRelicDatabase.get_relic_reward_description(uid)
 	var full_text: String = def.description
 	if not m_desc.is_empty() and not g_req.is_empty():
-		full_text = "%s
-[color=#b0b0c0]Goal: %s → %s[/color]" % [m_desc, g_req, g_rew]
+		full_text = "%s\n[color=#80d0ff]Trigger: %s[/color] → [color=#55ffaa]Effect: %s[/color]" % [m_desc, g_req, g_rew]
 	KeywordDatabase.format_and_attach(desc, full_text)
 	text_col.add_child(title); text_col.add_child(desc); row.add_child(text_col)
 
