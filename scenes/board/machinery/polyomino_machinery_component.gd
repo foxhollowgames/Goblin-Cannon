@@ -21,6 +21,7 @@ enum ShapeType {
 @export var local_cell: Vector2i = Vector2i.ZERO
 @export var cell_type: int = 0
 @export var direction: Vector2 = Vector2.DOWN: set = set_direction
+@export var rotation_step: int = 0: set = set_rotation_step
 @export var base_energy: int = 0
 @export var impulse_strength: float = 0.0
 @export var is_permeable: bool = false
@@ -39,6 +40,14 @@ func set_direction(p_dir: Vector2) -> void:
 	queue_redraw()
 
 func _update_direction() -> void:
+	pass
+
+func set_rotation_step(p_step: int) -> void:
+	rotation_step = posmod(p_step, 4)
+	_update_rotation()
+	queue_redraw()
+
+func _update_rotation() -> void:
 	pass
 
 var _last_hit_tick_by_ball: Dictionary = {}  # ball_id (int) -> int (sim_tick)
@@ -65,6 +74,7 @@ func _setup_collision() -> void:
 	collision_layer = 1
 	collision_mask = 1
 	var col_shape := CollisionShape2D.new()
+	_collision_shape_node = col_shape
 	match shape_type:
 		ShapeType.RECTANGLE:
 			var rect := RectangleShape2D.new()
@@ -80,6 +90,11 @@ func _setup_collision() -> void:
 			circle.radius = component_radius
 			col_shape.shape = circle
 	add_child(col_shape)
+
+var _collision_shape_node: CollisionShape2D = null
+
+func get_collision_shape_node() -> CollisionShape2D:
+	return _collision_shape_node
 
 func is_multi_cell() -> bool:
 	return footprint_cells.size() > 1 or component_radius > 25.0

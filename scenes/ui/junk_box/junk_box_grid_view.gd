@@ -205,7 +205,8 @@ func _draw_item(item: JunkBoxItem, being_dragged: bool = false) -> void:
 				radius = float(CELL_SIZE) * 1.35
 			elif cell_cnt >= 4:
 				radius = float(CELL_SIZE) * 0.85
-			PolyominoMachineryVisuals.draw_component(self, u_type, item_center, Vector2.DOWN, radius, color, cell_cnt, alpha_m)
+			var u_dir: Vector2 = PolyominoModuleData.get_rotated_direction(Vector2(1, 1), item.rotation_step)
+			PolyominoMachineryVisuals.draw_component(self, u_type, item_center, u_dir, radius, color, cell_cnt, alpha_m)
 		else:
 			var local_cells: Array[Vector2i] = item.get_local_cells()
 			for i in range(mini(occupied.size(), local_cells.size())):
