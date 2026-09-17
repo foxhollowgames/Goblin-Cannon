@@ -3,7 +3,7 @@
 - **Status:** IN_PROGRESS
 - **Priority:** P1
 - **Category:** Systems / Gameplay / Visuals
-- **Target Branch:** `feature/rework-relics-deliberate-pinball-devices`
+- **Target Branch:** `fix/task-093-relic-flow`
 - **Related Tasks:** [TASK-024](TASK-024-polyomino-relic-shapes-and-sizes.md), [TASK-026](TASK-026-polyomino-internal-machinery-and-bumpers.md), [TASK-033](TASK-033-relic-bounding-enclosures-and-dividing-lanes.md), [TASK-036](TASK-036-pinball-kinetic-machinery-and-lane-switches.md), [TASK-048](TASK-048-relic-activation-requirements-pinball-widget-rework.md), [TASK-071](TASK-071-diegetic-relic-activation-categories.md), [TASK-074](TASK-074-relic-machinery-trigger-safeguards-and-debounce.md), [TASK-083](TASK-083-rework-wire-gate-component-holding-cup.md)
 
 ## Description
@@ -114,3 +114,5 @@ The first implementation did not prove usable entrance-to-exit paths. Reopened a
 - [ ] Quality checks and independent PR review pass; changes merge to main.
 
 Review: [Ball flow review and implementation contract](../knowledge/relic-ball-flow-review.md).
+
+Iteration 2 verification: 16,651 assertions pass, real physics scenarios pass, and independent PR review approved both follow-up fixes. PR: https://github.com/foxhollowgames/Goblin-Cannon/pull/76. Merge pending.

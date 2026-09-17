@@ -54,7 +54,7 @@ The pre-change headless suite reports 12,562 passed assertions and zero failed a
 
 The user authorized direct implementation after the final Qwen retry failed. The implementation covers both catalogs (122 unique relic IDs), shared rotated walls and ports, open lanes, chamber drains, reservoir recovery, speed-based spinner rewards, and completed track traversal.
 
-Real physics tests cover all four lane rotations, five chamber entry positions, two shaped tracks, both orbit entrances, full and partial reservoirs, and a reservoir/spinner/chamber chain. The synchronous suite passes 16,350 assertions. Quality checks pass with the existing repository baseline exceptions. Independent review is pending.
+Real physics tests cover all four lane rotations, five chamber entry positions, two shaped tracks, both orbit entrances, full and partial reservoirs, and a reservoir/spinner/chamber chain. The synchronous suite passes 16,651 assertions. Quality checks pass with the existing repository baseline exceptions. Independent review approved the changes after fixes for exclusive ball ownership and bidirectional orbit ports. The physical suite also verifies adjacent track handoff and removal of an occupied reservoir.
 
 Catalog layouts change at item creation. Placing an existing item does not silently expand its stored footprint. Existing serialized custom layouts retain their cells; start a new run to use the revised catalog layouts.
 

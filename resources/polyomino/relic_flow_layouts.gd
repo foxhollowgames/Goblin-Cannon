@@ -29,6 +29,8 @@ static func apply_definition(id: StringName, definition: Dictionary, goal: Dicti
 		goal["activation_req"] = data.activation_requirement
 		goal["desc"] = data.activation_requirement
 		definition["machinery_desc"] = data.activation_requirement
+		if data.goal_type == G.ROLLOVER_SPELL:
+			definition["machinery_desc"] = "%d Rollover Switches in open lanes." % data.cell_letters.size()
 	if not data.goal_target_sequence.is_empty(): goal["sequence"] = data.goal_target_sequence
 
 ## Builds clear passages while preserving relic IDs, effects, and tier values.
@@ -98,7 +100,7 @@ static func _word_bank(data: Resource) -> void:
 		data.cell_letters[Vector2i(x, 0)] = letters[x]
 	data.enclosure_type = Data.EnclosureType.DIVIDED_LANES
 	data.activation_threshold = letters.size()
-	data.activation_requirement = "Light each letter by passing through its lane."
+	data.activation_requirement = "Spell %s by lighting each letter in its open lane." % "-".join(letters)
 
 static func _reservoir(data: Resource) -> void:
 	_rectangle(data, 2 if data.tier == 1 else 3, 3 if data.tier == 3 else 2)
