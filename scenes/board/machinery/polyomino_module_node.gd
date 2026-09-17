@@ -99,6 +99,8 @@ func _rebuild_components() -> void:
 		if comp != null:
 			comp.cell_type = u_type
 			comp.footprint_cells = _anchored_cells
+			comp.rotation_step = rotation_step
+			comp.direction = PolyominoModuleData.get_rotated_direction(Vector2(1, 1), rotation_step)
 			comp.position = module_data.get_module_center_offset(rotation_step, CELL_WIDTH, CELL_HEIGHT)
 			if comp.has_method("configure_footprint"):
 				comp.configure_footprint(_anchored_cells.size())
@@ -123,6 +125,7 @@ func _rebuild_components() -> void:
 		comp.local_cell = local_c
 		comp.cell_type = c_type
 		comp.direction = rot_dir
+		comp.rotation_step = rotation_step
 		if energy_val > 0:
 			comp.base_energy = energy_val
 		comp.position = Vector2(float(local_c.x) * CELL_WIDTH, float(local_c.y) * CELL_HEIGHT)
