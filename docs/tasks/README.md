@@ -126,8 +126,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-093](TASK-093-rework-relics-into-deliberate-pinball-devices.md) | Rework Relics into Deliberate Pinball Devices and Mechanisms | Systems / Gameplay / Visuals | P1 | DONE | `feature/rework-relics-deliberate-pinball-devices` |
 | [TASK-094](TASK-094-update-debug-menu-stores-with-new-relics.md) | Update Debug Menu Stores with New Deliberate Relics | Debug / UI / Systems | P1 | DONE | `feature/update-debug-menu-stores-with-new-relics` |
 | [TASK-095](TASK-095-implement-workspace-agent-skills.md) | Implement Workspace Agent Skills and Progressive Disclosure Architecture | DevOps / Tooling / Agent Skills | P1 | DONE | `feature/workspace-agent-skills` |
-
-
+| [TASK-096](TASK-096-archive-ball-upgrades-in-merchant-and-refocus-shop.md) | Archive Ball Upgrades in Merchant and Refocus Shop on Relics | Systems / Gameplay | P1 | IN_PROGRESS | `feature/archive-ball-upgrades-in-merchant-and-refocus-shop` |
 
 ---
 

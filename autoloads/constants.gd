@@ -174,6 +174,10 @@ const SHOP_PEG_PRICE_COMMON: int = 10
 const SHOP_PEG_PRICE_UNCOMMON: int = 15
 const SHOP_PEG_PRICE_RARE: int = 20
 const SHOP_PEG_PRICE_EPIC: int = 25
+const SHOP_RELIC_PRICE_TIER_1: int = 15
+const SHOP_RELIC_PRICE_TIER_2: int = 25
+const SHOP_RELIC_PRICE_TIER_3: int = 40
+
 
 ## Conquest milestone shop: rarity roll weights [common%, uncommon%, rare%, epic%] by progression step.
 ## Step = city_index * WALLS_PER_CITY + wall_index (0 = first city first wall). Rows sum to 100.
@@ -254,17 +258,20 @@ static func ball_rarity_display_name(ability_name: String, rarity: int) -> Strin
 		_:
 			return "Tier %d" % rarity
 
+static func shop_price_for_relic_tier(tier: int) -> int:
+	match tier:
+		2: return SHOP_RELIC_PRICE_TIER_2
+		3: return SHOP_RELIC_PRICE_TIER_3
+		_: return SHOP_RELIC_PRICE_TIER_1
+
 ## Stat draft options use rarity 0..2 (common/rare in design — map to same tiers).
 static func shop_price_for_stat_rarity(rarity: int) -> int:
 	match rarity:
-		0:
-			return SHOP_PRICE_COMMON
-		1:
-			return SHOP_PRICE_UNCOMMON
-		2:
-			return SHOP_PRICE_RARE
-		_:
-			return shop_price_for_ball_rarity(rarity)
+		0: return SHOP_PRICE_COMMON
+		1: return SHOP_PRICE_UNCOMMON
+		2: return SHOP_PRICE_RARE
+		_: return shop_price_for_ball_rarity(rarity)
+
 
 # Gravity Well peg: slows balls in its radius.
 const GRAVITY_WELL_RADIUS_PX: float = 100.0
