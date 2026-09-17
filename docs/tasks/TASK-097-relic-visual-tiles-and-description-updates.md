@@ -1,6 +1,6 @@
 # TASK-097: Relic Visual Tiles on Modals and Description Updates
 
-- **Status:** IN_REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Visuals / Relics
 - **Target Branch:** `feature/relic-visual-tiles-and-description-updates`

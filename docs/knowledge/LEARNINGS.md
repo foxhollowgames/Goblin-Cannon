@@ -146,6 +146,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-135`](#lrn-135) | TASK-094 | `testing` | Deliberate Relic Tier Cell Count Constraints and Modular Catalogs | 2026-09-13 |
 | [`LRN-136`](#lrn-136) | TASK-095 | `tooling` | Workspace Skills and Progressive Disclosure Architecture | 2026-09-13 |
 | [`LRN-137`](#lrn-137) | TASK-096 | `gameplay` | Merchant Relic Focus | 2026-09-17 |
+| [`LRN-138`](#lrn-138) | TASK-097 | `godot_engine` | Polyomino shop card preview and description formatting | 2026-09-17 |
 
 ---
 
@@ -2340,5 +2341,21 @@ Directing shop offerings to deliberate relics rather than balls/stats strengthen
 
 #### Actionable Guideline for Future Agents
 Keep ball upgrades out of standard merchant generation. Default shop relics to lowest tier (Tier 1) for current city to preserve high-tier excitement for wall break rewards.
+
+---
+
+### <a id="lrn-138"></a> LRN-138: Polyomino shop card preview and description formatting
+- **Task:** `TASK-097`
+- **Category:** `godot_engine`
+- **Created:** `2026-09-17T11:04:35.467197`
+
+#### Context & Problem
+Relic shop cards lacked polyomino shape previews and consistent kinetic machinery descriptions.
+
+#### Key Insight & Learning
+Embedding RelicLayoutPreview in CenterContainer with clamped cell sizes (7-13px) and 160px card height eliminates text and graphic clipping across diverse polyomino footprints.
+
+#### Actionable Guideline for Future Agents
+Use RewardCardBuilder.make_relic_shop_preview with CenterContainer and PolyominoRelicDatabase.get_relic_shop_description for shop relic cards.
 
 ---
