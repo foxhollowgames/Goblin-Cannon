@@ -26,23 +26,22 @@ Add visual tiles (polyomino shape cells, tier borders, and machinery component g
   1. Kinetic Device Behavior (how the machinery functions on the board).
   2. Trigger Condition (the hit count or widget event required).
   3. Effect / Reward (the gameplay effect when activated).
-- Ensure PolyominoRelicDatabase.format_relic_tooltip and related description helpers supply complete, current text.
+- Make sure PolyominoRelicDatabase.format_relic_tooltip and related description helpers supply complete, current text.
 
 ### 3. File Length and Coding Standards (Rule 7)
 - Maintain all modified files strictly <= 500 lines:
-  - scenes/rewards/reward_card_builder.gd
-  - scenes/rewards/reward_draft_panel.gd
-  - scenes/ui/debug_full_store_modal.gd
-  - 
-esources/polyomino/polyomino_relic_database.gd
-- Run python scripts/lint_gdscript.py and python scripts/lint_file_lengths.py.
+  - `scenes/rewards/reward_card_builder.gd`
+  - `scenes/rewards/reward_draft_panel.gd`
+  - `scenes/ui/debug_full_store_modal.gd`
+  - `resources/polyomino/polyomino_relic_database.gd`
+- Run `python scripts/lint_gdscript.py` and `python scripts/lint_file_lengths.py`.
 
 ### 4. Verification and Headless Tests
-- Author tests in 	ests/test_relic_visual_tiles.gd verifying:
+- Author tests in `tests/test_relic_visual_tiles.gd` verifying:
   - Relic cards in RewardDraftPanel contain a non-null RelicLayoutPreview control with valid cell bounds.
   - Relic description labels contain kinetic machinery, trigger, and effect text.
   - All modified files pass linting and headless test suites cleanly.
-- Ensure all tests pass under godot --headless -s tests/run_tests.gd.
+- Make sure all tests pass under `godot --headless -s tests/run_tests.gd`.
 
 ---
 
