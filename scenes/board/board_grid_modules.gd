@@ -137,7 +137,7 @@ func can_place_module(item: Resource, grid_pos: Vector2i, rotation: int = -1, ig
 			var occ_id: StringName = _occupied_board_cells[cell]
 			if ignore_instance_id == &"" or occ_id != ignore_instance_id:
 				return false
-	return true
+	return preload("res://resources/polyomino/relic_flow_placement.gd").ports_clear(item, grid_pos, rot, _placed_modules, ignore_instance_id)
 
 ## Retrieves the node of a placed module by instance ID.
 func get_placed_module_node(instance_id: StringName) -> Node2D:

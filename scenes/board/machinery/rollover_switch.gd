@@ -51,4 +51,4 @@ func _draw_component_body() -> void:
 	if not letter.is_empty():
 		var font: Font = ThemeDB.fallback_font
 		var f_col: Color = Color(1.0, 1.0, 1.0) if is_lit else Color(0.65, 0.68, 0.75)
-		draw_string(font, Vector2(-4.0, -r - 6.0), letter, HORIZONTAL_ALIGNMENT_CENTER, -1, 13, f_col)
+		draw_string(font, Vector2(-4.0, 5.0), letter, HORIZONTAL_ALIGNMENT_CENTER, -1, 13, f_col)

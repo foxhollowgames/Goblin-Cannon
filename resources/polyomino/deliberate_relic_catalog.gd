@@ -62,6 +62,8 @@ static func _build_catalog() -> void:
 	_build_bash_toys()
 	_build_spinners()
 	_build_momentum_tracks()
+	for id: StringName in _CATALOG:
+		preload("res://resources/polyomino/relic_flow_layouts.gd").apply_definition(id, _CATALOG[id], _GOALS[id])
 
 static func _build_bumper_vessels() -> void:
 	# T1

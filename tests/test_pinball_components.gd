@@ -82,7 +82,7 @@ func test_orbit_loop_activation() -> void:
 
 	var res: Dictionary = orbit.trigger_activation(dummy_ball, 1)
 	assert_true(res.get("activated", false), "OrbitLoop activated")
-	assert_true(traversed[0], "orbit_traversed signal emitted")
+	assert_false(traversed[0], "Entry is not a completed traversal")
 	var impulse: Vector2 = res.get("impulse_applied", Vector2.ZERO)
 	assert_gt(impulse.x, 0.0, "Impulse directed along orbit direction (positive X)")
 

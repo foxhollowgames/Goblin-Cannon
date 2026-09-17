@@ -129,7 +129,7 @@ func test_spinner_hit_accumulation() -> void:
 	begin("Spinner hit counter increments on ball collision")
 	_ensure_clean_state()
 
-	var item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(&"hyper_elastic")
+	var item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(&"funneled_spinner")
 	var node: PolyominoModuleNode = PolyominoModuleNode.new()
 	node.setup_module(item, Vector2i.ZERO, 0)
 
@@ -138,7 +138,7 @@ func test_spinner_hit_accumulation() -> void:
 		if comp.cell_type == CellType.SPINNER:
 			spinner = comp
 			break
-	assert_true(spinner != null, "hyper_elastic contains spinner")
+	assert_true(spinner != null, "funneled spinner contains a blade")
 
 	var dummy_ball: Node2D = Node2D.new()
 	spinner.trigger_activation(dummy_ball, 1)
@@ -167,12 +167,15 @@ func test_rollover_switch_hit_accumulation() -> void:
 		triggers.append(r_type)
 	)
 
-	assert_eq(node.get_activation_threshold(), 1, "threshold is 1")
+	assert_eq(node.get_activation_threshold(), 3, "Word requires three distinct letters")
 	assert_eq(node.get_current_hit_count(), 0, "initial count is 0")
 
 	var dummy_ball: Node2D = Node2D.new()
 	sw.trigger_activation(dummy_ball, 1)
-	assert_eq(triggers.size(), 1, "rollover switch meeting threshold 1 triggers goal")
+	assert_eq(triggers.size(), 0, "One letter does not complete the word")
+	for other in node.get_all_components():
+		if other != sw: other.trigger_activation(dummy_ball, 20)
+	assert_eq(triggers.size(), 1, "All letters complete the word")
 	assert_eq(triggers[0], RewardType.ENERGY_SURGE, "reward is ENERGY_SURGE")
 
 	dummy_ball.free()

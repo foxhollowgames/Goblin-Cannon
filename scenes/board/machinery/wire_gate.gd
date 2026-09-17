@@ -1,5 +1,6 @@
 extends PolyominoMachineryComponent
 class_name WireGate
+const BallFlow = preload("res://scenes/board/machinery/relic_ball_flow.gd")
 
 signal ball_retained(gate_node: Node, count: int)
 signal gate_opened(gate_node: Node)
@@ -15,6 +16,9 @@ signal cascade_released(gate_node: Node, released_balls: Array)
 @export var cup_rect: Rect2 = Rect2()
 
 const GATE_COOLDOWN_TICKS: int = 20
+const PARTIAL_RELEASE_TICKS: int = 360
+var _held_ticks: int = 0
+var _previous_freeze: Dictionary = {} ## instance ID -> original freeze state
 
 var retained_balls: Array[Node] = []
 var _balls_awaiting_exit: Array[Node] = []
@@ -81,14 +85,10 @@ func can_activate_for_ball(ball_id: int, sim_tick: int) -> bool:
 
 func record_ball_exit(ball_id: int, sim_tick: int) -> void:
 	super.record_ball_exit(ball_id, sim_tick)
-	for i in range(retained_balls.size() - 1, -1, -1):
-		var b: Node = retained_balls[i]
-		if is_instance_valid(b):
-			var bid: int = b.get_ball_id() if b.has_method("get_ball_id") else b.get_instance_id()
-			if bid == ball_id:
-				retained_balls.remove_at(i)
+	# Leaving the entry sensor does not remove a ball held inside the cup.
 
 func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
+	if not BallFlow.available(ball, self): return {"activated": false}
 	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else ball.get_instance_id()
 	if not can_activate_for_ball(bid, sim_tick):
 		return {"activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO, "type": cell_type}
@@ -142,6 +142,10 @@ func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 	return {"activated": true, "energy_granted": 0, "impulse_applied": bounce_impulse, "type": cell_type}
 
 func _retain_ball(ball: Node) -> void:
+	BallFlow.claim(ball, self)
+	if ball is RigidBody2D:
+		_previous_freeze[ball.get_instance_id()] = ball.freeze
+		ball.set_deferred("freeze", true)
 	if "linear_velocity" in ball:
 		ball.linear_velocity = Vector2.ZERO
 	if not retained_balls.has(ball):
@@ -155,6 +159,8 @@ func open_gate() -> void:
 	queue_redraw()
 
 func close_gate() -> void:
+	if not _balls_awaiting_exit.is_empty():
+		return
 	is_open = false
 	_balls_awaiting_exit.clear()
 	if _close_timer != null and not _close_timer.is_stopped():
@@ -169,8 +175,9 @@ func satisfy_activation_requirement() -> Array:
 	open_gate()
 	return []
 
-func release_retained_balls() -> Array:
+func release_retained_balls(award_bonus: bool = true) -> Array:
 	open_gate()
+	_held_ticks = 0
 	var released: Array = retained_balls.duplicate()
 	retained_balls.clear()
 	_balls_awaiting_exit = released.duplicate()
@@ -181,6 +188,10 @@ func release_retained_balls() -> Array:
 	for i in range(total):
 		var b: Node = released[i]
 		if is_instance_valid(b):
+			BallFlow.release(b, self)
+			if b is RigidBody2D:
+				b.set_deferred("freeze", _previous_freeze.get(b.get_instance_id(), false))
+			_previous_freeze.erase(b.get_instance_id())
 			var bid: int = b.get_ball_id() if b.has_method("get_ball_id") else b.get_instance_id()
 			record_ball_exit(bid, _current_sim_tick)
 			var spread: float = 0.0
@@ -189,7 +200,8 @@ func release_retained_balls() -> Array:
 			var impulse: Vector2 = gate_dir.rotated(spread) * release_impulse_strength
 			_apply_ball_impulse(b, impulse)
 
-	cascade_released.emit(self, released)
+	if award_bonus and not released.is_empty():
+		cascade_released.emit(self, released)
 
 	if _close_timer != null and _close_timer.is_inside_tree():
 		_close_timer.start()
@@ -198,6 +210,8 @@ func release_retained_balls() -> Array:
 	return released
 
 func reset_gate() -> void:
+	if not retained_balls.is_empty(): release_retained_balls(false)
+	_held_ticks = 0
 	retained_balls.clear()
 	_balls_awaiting_exit.clear()
 	is_open = false
@@ -206,46 +220,44 @@ func reset_gate() -> void:
 		_close_timer.stop()
 	queue_redraw()
 
-func _process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
+	if GameState.paused: return
+	retained_balls = retained_balls.filter(func(ball: Node) -> bool: return is_instance_valid(ball))
+	if not is_open and not retained_balls.is_empty():
+		_held_ticks += 1
+		if _held_ticks >= PARTIAL_RELEASE_TICKS: release_retained_balls(false)
+	else:
+		_held_ticks = 0
+	_update_held_positions()
+	_update_departures()
+
+func _update_held_positions() -> void:
+	if is_open: return
 	var my_p: Vector2 = global_position if is_inside_tree() else position
 	var gate_dir: Vector2 = direction.normalized() if direction != Vector2.ZERO else Vector2.DOWN
-	var ball_rad: float = Constants.BALL_RADIUS
-	var effective_r: float = maxf(component_radius - ball_rad, 10.0)
+	var side: Vector2 = Vector2(-gate_dir.y, gate_dir.x)
+	for index: int in range(retained_balls.size()):
+		var ball: Node2D = retained_balls[index]
+		var columns: int = mini(3, max_capacity)
+		var x: float = (float(index % columns) - float(columns - 1) * 0.5) * 20.0
+		var y: float = component_radius * 0.35 - float(index / columns) * 20.0
+		if ball.is_inside_tree(): ball.global_position = my_p + side * x + gate_dir * y
+		else: ball.position = my_p + side * x + gate_dir * y
+		ball.linear_velocity = Vector2.ZERO
 
-	if not is_open:
-		for b in retained_balls:
-			if not is_instance_valid(b) or not ("position" in b):
-				continue
-			var b_pos: Vector2 = b.position
-			var offset: Vector2 = b_pos - my_p
-			var dist: float = offset.length()
+func _update_departures() -> void:
+	if not is_open: return
+	var origin: Vector2 = global_position if is_inside_tree() else position
+	for index: int in range(_balls_awaiting_exit.size() - 1, -1, -1):
+		var ball: Node2D = _balls_awaiting_exit[index]
+		if not is_instance_valid(ball):
+			_balls_awaiting_exit.remove_at(index)
+		elif ball.global_position.distance_to(origin) > component_radius + Constants.BALL_RADIUS + 8.0:
+			_balls_awaiting_exit.remove_at(index)
+	if _balls_awaiting_exit.is_empty(): close_gate()
 
-			if dist > effective_r:
-				b.position = my_p + offset.normalized() * effective_r
-				if "linear_velocity" in b and b.linear_velocity.dot(offset) > 0.0:
-					b.linear_velocity = b.linear_velocity.bounce(offset.normalized()) * 0.7
-
-			var forward_dist: float = offset.dot(gate_dir)
-			var gate_barrier_dist: float = effective_r * 0.85
-			if forward_dist > gate_barrier_dist:
-				var excess: float = forward_dist - gate_barrier_dist
-				b.position = b.position - gate_dir * excess
-				if "linear_velocity" in b and b.linear_velocity.dot(gate_dir) > 0.0:
-					b.linear_velocity = b.linear_velocity.bounce(gate_dir) * 0.7
-	else:
-		if not _balls_awaiting_exit.is_empty():
-			for i in range(_balls_awaiting_exit.size() - 1, -1, -1):
-				var b_exit: Node = _balls_awaiting_exit[i]
-				if not is_instance_valid(b_exit):
-					_balls_awaiting_exit.remove_at(i)
-				elif "position" in b_exit:
-					var dist: float = (b_exit.position - my_p).length()
-					if dist > (component_radius + ball_rad + 8.0):
-						_balls_awaiting_exit.remove_at(i)
-			if _balls_awaiting_exit.is_empty():
-				close_gate()
-
-	super._process(delta)
+func _exit_tree() -> void:
+	if not retained_balls.is_empty(): release_retained_balls(false)
 
 func _draw_component_body() -> void:
 	var r: float = component_radius * _spring_scale.x
@@ -263,7 +275,8 @@ func _draw_component_body() -> void:
 		draw_circle(Vector2.ZERO, r * fill_ratio, fill_col)
 
 	var gate_ang: float = gate_dir.angle()
-	draw_arc(Vector2.ZERO, r, gate_ang + PI * 0.35, gate_ang + PI * 1.65, 24, _accent_color, 2.5)
+	draw_arc(Vector2.ZERO, r, gate_ang + PI * 0.25, gate_ang + PI * 0.75, 16, _accent_color, 2.5)
+	draw_arc(Vector2.ZERO, r, gate_ang + PI * 1.25, gate_ang + PI * 1.75, 16, _accent_color, 2.5)
 
 	var post_a: Vector2 = gate_dir * (r * 0.7) + perp * (r * 0.75)
 	var post_b: Vector2 = gate_dir * (r * 0.7) - perp * (r * 0.75)

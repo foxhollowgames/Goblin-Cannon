@@ -31,7 +31,7 @@ func run() -> void:
 
 func test_database_completeness() -> void:
 	var ids: Array[StringName] = PolyominoRelicDatabase.get_all_relic_ids()
-	_assert(ids.size() == 81, "Expected exactly 81 relic definitions in database, got %d" % ids.size())
+	_assert(ids.size() == 122, "Expected exactly 122 relic definitions in database, got %d" % ids.size())
 
 	for id in ids:
 		_assert(PolyominoRelicDatabase.has_relic_definition(id), "Database must acknowledge definition for '%s'" % str(id))
@@ -56,6 +56,17 @@ func test_relic_tiers_and_cell_counts() -> void:
 		var tier: int = mod.tier
 		var count: int = mod.get_cell_count()
 
+		# Named compact devices were omitted by the old catalog enumerator.
+		var compact_sizes: Dictionary = {
+			&"mega_pop_bumper": 4, &"abyssal_maw": 4, &"golem_effigy": 4,
+			&"corner_slingshot": 3, &"apex_orbit_loop": 3, &"cyclone_orbit_loop": 5,
+			&"grand_orbit_circuit": 7, &"detonation_triangle_wedge": 3,
+			&"detonation_triangle_acute": 3, &"track_u_turn": 5,
+			&"track_zigzag_chute": 5, &"track_cascade_switchback": 8
+		}
+		if compact_sizes.has(id):
+			_assert(count == compact_sizes[id], "Compact device keeps its designed footprint: %s" % id)
+			continue
 		match tier:
 			1:
 				_assert(count >= 4 and count <= 6, "Tier 1 relic '%s' cell count (%d) must be between 4 and 6" % [str(id), count])
@@ -74,7 +85,7 @@ func test_relic_empty_cells_present() -> void:
 			continue
 		var empty_cells: Array[Vector2i] = mod.get_empty_cells()
 		var machine_cells: Array[Vector2i] = mod.get_occupied_machine_cells()
-		_assert(empty_cells.size() >= 1, "Relic '%s' must have at least 1 empty playfield cell, got %d" % [str(id), empty_cells.size()])
+		_assert(empty_cells.size() >= 1 or mod.layout_mode == PolyominoModuleData.MachineryLayoutMode.UNIFIED, "Relic '%s' must have at least 1 empty playfield cell, got %d" % [str(id), empty_cells.size()])
 		_assert(machine_cells.size() >= 1, "Relic '%s' must have at least 1 machine cell, got %d" % [str(id), machine_cells.size()])
 		_assert(empty_cells.size() + machine_cells.size() == mod.get_cell_count(), "Empty + machine cells count must equal total cells for '%s'" % str(id))
 

@@ -7,6 +7,7 @@ extends SceneTree
 
 ## Register test scripts here. Add new test files to this array.
 const TEST_SCRIPTS: Array[String] = [
+	"res://tests/test_relic_flow_contract.gd",
 	"res://tests/test_monsters_also_die_palette.gd",
 	"res://tests/test_script_parse_smoke.gd",
 	"res://tests/test_energy_routing.gd",

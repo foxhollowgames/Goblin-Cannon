@@ -82,64 +82,35 @@ func test_target_bank_goal_triggers_on_all_components_hit() -> void:
 	node.free()
 
 func test_sequential_route_goal_progression() -> void:
-	begin("Sequential Route goal advances step by step and completes on final step")
+	begin("A physical rail requires a complete traversal")
 	_ensure_clean_state()
-
 	var item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(&"plain_momentum")
 	var node: PolyominoModuleNode = PolyominoModuleNode.new()
-	node.setup_module(item, Vector2i.ZERO, 0)
-
-	var goal_completed_calls: Array = []
-	node.goal_completed.connect(func(mod, g_type, r_type, ball, r_data) -> void:
-		goal_completed_calls.append({"g_type": g_type, "r_type": r_type})
-	)
-
-	var comps: Array = node.get_all_components()
-	assert_true(comps.size() >= 2, "plain_momentum has 2 components in sequence")
-
-	var dummy_ball: Node2D = Node2D.new()
-
-	# Hit second step first (wrong order)
-	comps[1].trigger_activation(dummy_ball, 1)
-	assert_eq(goal_completed_calls.size(), 0, "wrong order does not trigger goal")
-
-	# Hit step 0 (first in sequence)
-	comps[0].trigger_activation(dummy_ball, 2)
-	assert_eq(goal_completed_calls.size(), 0, "step 1 registered")
-
-	# Hit step 1 at tick 10 (after cooldown)
-	comps[1].trigger_activation(dummy_ball, 10)
-	assert_eq(goal_completed_calls.size(), 1, "sequence completed successfully")
-	assert_eq(goal_completed_calls[0]["g_type"], GoalArchetype.SEQUENCE_ROUTE, "goal type is SEQUENCE_ROUTE")
-
-	dummy_ball.free()
+	node.setup_module(item, Vector2i.ZERO)
+	var calls: Array = []
+	node.goal_completed.connect(func(_m, _g, _r, _b, _d): calls.append(1))
+	var track: Node = node.get_unified_component()
+	var ball: Node2D = Node2D.new()
+	assert_true(track.points.size() >= 3, "Rail includes an entrance, path, and outlet")
+	track.trigger_activation(ball, 1)
+	assert_eq(calls.size(), 0, "Entry cannot earn the route reward")
+	ball.free()
 	node.free()
 
 func test_orbit_flow_loop_counter() -> void:
-	begin("Orbit Flow goal counts loops and completes at threshold")
+	begin("A physical rail requires a complete traversal")
 	_ensure_clean_state()
-
 	var item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(&"hyper_elastic")
 	var node: PolyominoModuleNode = PolyominoModuleNode.new()
-	node.setup_module(item, Vector2i.ZERO, 0)
-
-	var goal_completed_calls: Array = []
-	node.goal_completed.connect(func(mod, g_type, r_type, ball, r_data) -> void:
-		goal_completed_calls.append({"g_type": g_type})
-	)
-
-	var comps: Array = node.get_all_components()
-	var dummy_ball: Node2D = Node2D.new()
-
-	# Hit loop passes
-	comps[0].trigger_activation(dummy_ball, 1)
-	assert_eq(goal_completed_calls.size(), 0, "orbit 1 recorded")
-
-	comps[1].trigger_activation(dummy_ball, 10)
-	assert_eq(goal_completed_calls.size(), 1, "orbit threshold completed goal")
-	assert_eq(goal_completed_calls[0]["g_type"], GoalArchetype.ORBIT_FLOW, "goal is ORBIT_FLOW")
-
-	dummy_ball.free()
+	node.setup_module(item, Vector2i.ZERO)
+	var calls: Array = []
+	node.goal_completed.connect(func(_m, _g, _r, _b, _d): calls.append(1))
+	var track: Node = node.get_unified_component()
+	var ball: Node2D = Node2D.new()
+	assert_true(track.points.size() >= 3, "Rail includes an entrance, path, and outlet")
+	track.trigger_activation(ball, 1)
+	assert_eq(calls.size(), 0, "Entry cannot earn the route reward")
+	ball.free()
 	node.free()
 
 func test_sinkhole_lock_goal_triggers() -> void:
@@ -159,7 +130,11 @@ func test_sinkhole_lock_goal_triggers() -> void:
 	var dummy_ball: Node2D = Node2D.new()
 
 	comps[0].trigger_activation(dummy_ball, 1)
-	assert_eq(goal_completed_calls.size(), 1, "sinkhole entry completed goal")
+	assert_eq(goal_completed_calls.size(), 0, "One ball cannot fill the reservoir")
+	var second_ball: Node2D = Node2D.new()
+	comps[0].trigger_activation(second_ball, 20)
+	assert_eq(goal_completed_calls.size(), 1, "Capacity release earns the goal")
+	second_ball.free()
 	assert_eq(goal_completed_calls[0]["g_type"], GoalArchetype.SINKHOLE_LOCK, "goal is SINKHOLE_LOCK")
 
 	dummy_ball.free()

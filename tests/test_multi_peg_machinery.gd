@@ -133,7 +133,7 @@ func test_golem_effigy_centerpiece_footprint() -> void:
 	var comp = module_node.get_all_components()[0]
 	assert_true(comp is BashToy, "Component is BashToy")
 	assert_eq(comp.component_radius, 48.0, "Enforces minimum 48px centerpiece radius")
-	assert_eq(comp.max_hits, 8, "Requires 8 hits to break")
+	assert_eq(comp.max_hits, 5, "Matches catalog requirement of 5 hits")
 
 	var ball := _create_mock_ball(Vector2(26.0, 28.0), Vector2(0, 50), 10)
 	var res: Dictionary = comp.trigger_activation(ball, 10)

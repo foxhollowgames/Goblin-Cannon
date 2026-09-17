@@ -2908,7 +2908,7 @@ func can_place_module(item: Resource, grid_pos: Vector2i, rotation: int = -1, ig
 			var occ_id: StringName = _occupied_board_cells[cell]
 			if ignore_instance_id == &"" or occ_id != ignore_instance_id:
 				return false
-	return true
+	return preload("res://resources/polyomino/relic_flow_placement.gd").ports_clear(item, grid_pos, rot, _placed_modules, ignore_instance_id)
 
 ## Attempts to place a module given a global/world coordinate.
 func try_place_module(item: Resource, world_pos: Vector2, rotation: int = -1) -> bool:

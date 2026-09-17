@@ -229,15 +229,15 @@ func test_database_word_bank_and_archetype_mapping() -> void:
 	assert_eq(pop_mod.goal_type, PolyominoModuleData.GoalArchetype.ROLLOVER_SPELL, "static_bounce is ROLLOVER_SPELL")
 	assert_eq(pop_mod.get_cell_letter_at(Vector2i(0, 0)), "P", "static_bounce (0,0) is P")
 	assert_eq(pop_mod.get_cell_letter_at(Vector2i(1, 0)), "O", "static_bounce (1,0) is O")
-	assert_eq(pop_mod.get_cell_letter_at(Vector2i(0, 1)), "P", "static_bounce (0,1) is P")
+	assert_eq(pop_mod.get_cell_letter_at(Vector2i(2, 0)), "P", "static_bounce (0,1) is P")
 
 	# Test Devastating Barrage (B-A-M)
 	var bam_mod := PolyominoRelicDatabase.create_module_for_relic(&"devastating_barrage")
 	assert_true(bam_mod != null, "devastating_barrage exists")
 	assert_eq(bam_mod.goal_type, PolyominoModuleData.GoalArchetype.ROLLOVER_SPELL, "devastating_barrage is ROLLOVER_SPELL")
 	assert_eq(bam_mod.get_cell_letter_at(Vector2i(0, 0)), "B", "devastating_barrage (0,0) is B")
-	assert_eq(bam_mod.get_cell_letter_at(Vector2i(0, 1)), "A", "devastating_barrage (0,1) is A")
-	assert_eq(bam_mod.get_cell_letter_at(Vector2i(0, 2)), "M", "devastating_barrage (0,2) is M")
+	assert_eq(bam_mod.get_cell_letter_at(Vector2i(1, 0)), "A", "devastating_barrage (0,1) is A")
+	assert_eq(bam_mod.get_cell_letter_at(Vector2i(2, 0)), "M", "devastating_barrage (0,2) is M")
 
 	# Test Wire Gate Relics
 	var fswarm_mod := PolyominoRelicDatabase.create_module_for_relic(&"fragment_swarm")
@@ -298,7 +298,7 @@ func test_wire_gate_retention_relic() -> void:
 
 	var gate = node.get_component_at_local_cell(Vector2i(1, 0)) as WireGate
 	assert_true(gate != null, "wire gate component exists in module node")
-	assert_true(gate.requires_external_activation, "wire gate requires external activation via module goal")
+	assert_false(gate.requires_external_activation, "wire gate releases at actual capacity")
 
 	var goals_completed: Array = []
 	node.goal_completed.connect(func(id, rew, amt, triggering_ball, _data = {}):
@@ -341,7 +341,7 @@ func test_speed_rail_momentum_flow() -> void:
 	begin("Speed rail momentum flow on perpetual_engine")
 	var item := PolyominoRelicDatabase.create_item_for_relic(&"perpetual_engine")
 	assert_true(item != null, "perpetual_engine item created")
-	assert_eq(item.module_data.get_cell_type_at(Vector2i(0, 1)), CellType.ACCELERATOR, "has ACCELERATOR wheel")
+	assert_eq(item.module_data.get_cell_type_at(Vector2i(0, 1)), CellType.GUIDE_TRACK, "has continuous track")
 	assert_eq(item.module_data.get_cell_direction_at(Vector2i(0, 1)), Vector2.DOWN, "accelerator pushes DOWN")
 
 	var node: Node2D = PolyominoModuleNodeScript.new()

@@ -34,6 +34,9 @@ func _compute_impulse(ball: Node) -> Vector2:
 	var dir: Vector2 = (ball_pos - my_pos).normalized()
 	if dir == Vector2.ZERO:
 		dir = Vector2.UP
+	if has_meta("flow_chamber") and absf(dir.x) < 0.25:
+		dir.x = 0.4 if (ball.get_ball_id() if ball.has_method("get_ball_id") else ball.get_instance_id()) % 2 == 0 else -0.4
+		dir = dir.normalized()
 	return dir * impulse_strength
 
 func _draw_component_body() -> void:
