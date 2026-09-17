@@ -22,6 +22,7 @@ func run() -> void:
 	test_custom_opening_round_trip()
 	test_roster_geometry()
 	test_blocked_neighbor()
+	test_orbit_ports()
 	test_partial_reservoir()
 	test_spinner_speed_reward()
 	test_route_contact_is_not_completion()
@@ -110,3 +111,23 @@ func test_route_contact_is_not_completion() -> void:
 	track.trigger_activation(ball, 1)
 	assert_eq(rewards.size(), 0)
 	assert_false(track.check_ball_contact(track.position + track.points[3], 8.0, Vector2.ZERO))
+
+func test_orbit_ports() -> void:
+	begin("Both orbit mouths match runtime routes and reject adjacent walls")
+	for id: StringName in [&"apex_orbit_loop", &"cyclone_orbit_loop", &"grand_orbit_circuit"]:
+		for steps: int in range(4):
+			var item: Resource = Database.create_item_for_relic(id)
+			var node: Node = autofree(Module.new())
+			node.setup_module(item, Vector2i.ZERO, steps)
+			var orbit: Node = node.get_unified_component()
+			var ports: Array[Dictionary] = item.module_data.get_flow_ports(steps)
+			assert_eq(ports.size(), 2)
+			for index: int in range(ports.size()):
+				var port: Dictionary = ports[index]
+				var expected: Vector2 = orbit.port_a_dir if index == 0 else orbit.port_b_dir
+				assert_true(port.normal.is_equal_approx(expected), "%s rotation %d port direction" % [id, steps])
+				var other: Resource = Database.create_item_for_relic(&"word_bank_gob")
+				other.module_data.cells.assign([Vector2i.ZERO])
+				other.module_data.enclosure_type = Data.EnclosureType.FULL_ENCLOSURE
+				other.grid_position = port.cell + Vector2i(signf(port.normal.x), signf(port.normal.y))
+				assert_false(Placement.ports_clear(item, Vector2i.ZERO, steps, {&"wall": other}), "%s rotation %d rejects blocked mouth" % [id, steps])

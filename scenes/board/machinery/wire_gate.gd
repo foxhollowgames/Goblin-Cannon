@@ -1,5 +1,6 @@
 extends PolyominoMachineryComponent
 class_name WireGate
+const BallFlow = preload("res://scenes/board/machinery/relic_ball_flow.gd")
 
 signal ball_retained(gate_node: Node, count: int)
 signal gate_opened(gate_node: Node)
@@ -87,6 +88,7 @@ func record_ball_exit(ball_id: int, sim_tick: int) -> void:
 	# Leaving the entry sensor does not remove a ball held inside the cup.
 
 func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
+	if not BallFlow.available(ball, self): return {"activated": false}
 	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else ball.get_instance_id()
 	if not can_activate_for_ball(bid, sim_tick):
 		return {"activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO, "type": cell_type}
@@ -140,6 +142,7 @@ func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 	return {"activated": true, "energy_granted": 0, "impulse_applied": bounce_impulse, "type": cell_type}
 
 func _retain_ball(ball: Node) -> void:
+	BallFlow.claim(ball, self)
 	if ball is RigidBody2D:
 		_previous_freeze[ball.get_instance_id()] = ball.freeze
 		ball.set_deferred("freeze", true)
@@ -185,6 +188,7 @@ func release_retained_balls(award_bonus: bool = true) -> Array:
 	for i in range(total):
 		var b: Node = released[i]
 		if is_instance_valid(b):
+			BallFlow.release(b, self)
 			if b is RigidBody2D:
 				b.set_deferred("freeze", _previous_freeze.get(b.get_instance_id(), false))
 			_previous_freeze.erase(b.get_instance_id())

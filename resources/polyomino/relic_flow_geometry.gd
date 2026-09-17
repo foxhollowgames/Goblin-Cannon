@@ -19,6 +19,8 @@ static func segments(data: Resource, steps: int = 0) -> Array[Dictionary]:
 
 ## Returns entrance and exit edges, including explicitly removed walls.
 static func ports(data: Resource, steps: int = 0) -> Array[Dictionary]:
+	if data.unified_component_type == 18 and data.cells.size() >= 3:
+		return _orbit_ports(data, steps)
 	if data.unified_component_type == 17 and data.goal_target_sequence.size() > 1:
 		return _track_ports(data, steps)
 	var result: Array[Dictionary] = []
@@ -97,3 +99,56 @@ static func _edge(data: Resource, cell: Vector2i, side: int, steps: int, offset:
 		"cell": Vector2i(rotate_point(Vector2(cell), steps) + offset),
 		"is_internal": data.cells.has(cell + DIRS[side])
 	}
+
+static func order_orbit_cells(cells: Array[Vector2i]) -> Array[int]:
+	var n: int = cells.size()
+	var adj: Array[Array] = []
+	for i in range(n):
+		adj.append([])
+
+	for i in range(n):
+		for j in range(i + 1, n):
+			var d: Vector2i = cells[i] - cells[j]
+			if absi(d.x) <= 1 and absi(d.y) <= 1:
+				adj[i].append(j)
+				adj[j].append(i)
+
+	# Find degree-1 endpoint or first cell
+	var start_node: int = 0
+	for i in range(n):
+		if adj[i].size() == 1:
+			start_node = i
+			break
+
+	var visited: Dictionary = {}
+	var path: Array[int] = []
+	var curr: int = start_node
+	while curr != -1 and not visited.has(curr):
+		visited[curr] = true
+		path.append(curr)
+		var next_node: int = -1
+		for neighbor in adj[curr]:
+			if not visited.has(neighbor):
+				next_node = neighbor
+				break
+		curr = next_node
+
+	# Append any remaining unvisited cells
+	for i in range(n):
+		if not visited.has(i):
+			path.append(i)
+	return path
+
+static func _orbit_ports(data: Resource, steps: int) -> Array[Dictionary]:
+	var cells: Array[Vector2i] = data.get_anchored_rotated_cells(steps)
+	var order: Array[int] = order_orbit_cells(cells)
+	var result: Array[Dictionary] = []
+	for pair: Vector2i in [Vector2i(0, 1), Vector2i(order.size() - 1, order.size() - 2)]:
+		var cell: Vector2i = cells[order[pair.x]]
+		var delta: Vector2 = Vector2(cell - cells[order[pair.y]])
+		var normal: Vector2 = (delta * Vector2(52, 56)).normalized()
+		var center: Vector2 = Vector2(cell) + delta * 0.5 / maxf(absf(delta.x), absf(delta.y))
+		var tangent: Vector2 = Vector2(-normal.y, normal.x) * 0.5
+		result.append({"p1": center - tangent, "p2": center + tangent,
+			"normal": normal, "cell": cell, "kind": "bidirectional", "is_internal": false})
+	return result

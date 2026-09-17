@@ -1,4 +1,5 @@
 extends "res://scenes/board/machinery/polyomino_machinery_component.gd"
+const BallFlow = preload("res://scenes/board/machinery/relic_ball_flow.gd")
 ## A continuous guided rail. Only entry-to-exit traversal earns a route reward.
 
 signal route_completed(ball: Node)
@@ -43,10 +44,12 @@ func check_ball_contact(ball_pos: Vector2, ball_radius: float, base_world_pos: V
 
 ## Starts traversal without granting a completion reward.
 func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
+	if not BallFlow.available(ball, self): return {"activated": false}
 	var id: int = ball.get_instance_id()
 	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else id
 	if points.size() < 2 or _travelers.has(id) or not can_activate_for_ball(bid, sim_tick):
 		return {"activated": false}
+	BallFlow.claim(ball, self)
 	record_activation(bid, sim_tick)
 	var gravity: float = ball.gravity_scale if ball is RigidBody2D else 0.0
 	_travelers[id] = {"ball": ball, "next": 1, "gravity": gravity, "ticks": 0}
@@ -83,6 +86,7 @@ func _release(id: int, completed: bool) -> void:
 	_travelers.erase(id)
 	if not is_instance_valid(ball):
 		return
+	BallFlow.release(ball, self)
 	if ball is RigidBody2D:
 		ball.gravity_scale = state.gravity
 	ball.linear_velocity = _exit_direction * SPEED

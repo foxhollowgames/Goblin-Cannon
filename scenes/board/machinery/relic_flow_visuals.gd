@@ -22,14 +22,24 @@ static func build_walls(data: Resource, steps: int) -> StaticBody2D:
 ## Draws arrows at open edges without drawing a false closed chassis.
 static func draw_ports(canvas: CanvasItem, data: Resource, steps: int, size: Vector2, offset: Vector2 = Vector2.ZERO) -> void:
 	for port: Dictionary in data.get_flow_ports(steps):
-		var center: Vector2 = (port.p1 + port.p2) * 0.5 * size + offset
-		var direction: Vector2 = port.normal if port.kind == "exit" else -port.normal
-		var color: Color = Color(0.25, 0.95, 0.65) if port.kind == "entry" else Color(1.0, 0.75, 0.25)
-		var tip: Vector2 = center + direction * 8.0
-		var side: Vector2 = Vector2(-direction.y, direction.x) * 4.0
-		canvas.draw_line(center - direction * 8.0, tip, color, 2.0)
-		canvas.draw_line(tip, center + side, color, 2.0)
-		canvas.draw_line(tip, center - side, color, 2.0)
+		if port.kind == "bidirectional":
+			var shifted: Dictionary = port.duplicate()
+			shifted.kind = "entry"
+			_draw_port(canvas, shifted, size, offset + Vector2(-port.normal.y, port.normal.x) * 4)
+			shifted.kind = "exit"
+			_draw_port(canvas, shifted, size, offset - Vector2(-port.normal.y, port.normal.x) * 4)
+		else:
+			_draw_port(canvas, port, size, offset)
+
+static func _draw_port(canvas: CanvasItem, port: Dictionary, size: Vector2, offset: Vector2) -> void:
+	var center: Vector2 = (port.p1 + port.p2) * 0.5 * size + offset
+	var direction: Vector2 = port.normal if port.kind == "exit" else -port.normal
+	var color: Color = Color(0.25, 0.95, 0.65) if port.kind == "entry" else Color(1.0, 0.75, 0.25)
+	var tip: Vector2 = center + direction * 8.0
+	var side: Vector2 = Vector2(-direction.y, direction.x) * 4.0
+	canvas.draw_line(center - direction * 8.0, tip, color, 2.0)
+	canvas.draw_line(tip, center + side, color, 2.0)
+	canvas.draw_line(tip, center - side, color, 2.0)
 
 ## Supports isolated collision tests outside the scene tree.
 static func bounce_wall(module_data: Resource, rotation_step: int, ball: Node, module_base_pos: Vector2) -> Dictionary:

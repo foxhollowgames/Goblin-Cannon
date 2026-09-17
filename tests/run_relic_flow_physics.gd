@@ -50,6 +50,7 @@ func _run() -> void:
 	_build_chambers()
 	_build_tracks()
 	_build_orbits()
+	_build_track_handoff()
 	var partial: Node2D = _module(&"wire_gate_reservoir", Vector2(4500, 200))
 	var partial_ball: RigidBody2D = _ball(Vector2(4552, 100), Vector2.DOWN * 150.0)
 	var partial_rewards: Array = []
@@ -67,6 +68,7 @@ func _run() -> void:
 				node.check_ball_collision(ball, tick)
 		await physics_frame
 	_verify_paths()
+	await _verify_occupied_removal()
 	_check(partial_rewards.is_empty(), "Partial reservoir grants no completion bonus")
 	_check(partial_ball.position.y > 400, "Partial reservoir releases its real ball")
 	_check(full_rewards.size() == 1, "Full reservoir completes exactly once")
@@ -115,8 +117,10 @@ func _build_chain() -> void:
 
 func _verify_paths() -> void:
 	for check: Dictionary in _checks:
+		if check.has("gravity"):
+			_check(is_equal_approx(check.ball.gravity_scale, check.gravity), check.label + " restores gravity")
 		if check.has("rewards"):
-			_check(check.rewards.size() >= 1, check.label)
+			_check(check.rewards.size() == 1 if check.has("gravity") else check.rewards.size() >= 1, check.label)
 		elif check.has("hits"):
 			_check(not check.hits.is_empty(), check.label)
 		else:
@@ -140,3 +144,27 @@ func _build_orbits() -> void:
 		var rewards: Array = []
 		node.goal_completed.connect(func(_m, _g, _r, _b, _d): rewards.append(1))
 		_checks.append({"ball": ball, "rewards": rewards, "label": "Orbit complete from port %d" % side})
+
+func _verify_occupied_removal() -> void:
+	var node: Node2D = _module(&"wire_gate_cup", Vector2(8000, 200))
+	var ball: RigidBody2D = _ball(Vector2(8026, 130), Vector2.DOWN * 80)
+	for tick: int in range(45):
+		node.check_ball_collision(ball, 1000 + tick)
+		await physics_frame
+	_check(ball.freeze, "Reservoir holds the original physics ball")
+	_modules.erase(node)
+	node.queue_free()
+	await physics_frame
+	await physics_frame
+	_check(not ball.freeze, "Removing an occupied reservoir unfreezes its ball")
+	_check(ball.linear_velocity.y > 0, "Removing an occupied reservoir releases toward its outlet")
+
+func _build_track_handoff() -> void:
+	var first: Node2D = _module(&"track_stairs_step", Vector2(9000, 200))
+	var second: Node2D = _module(&"track_right_angle", Vector2(9052, 368))
+	var track: Node2D = first.get_unified_component()
+	var ball: RigidBody2D = _ball(track.global_position + track.points[0] - Vector2(0, 40), Vector2.DOWN * 120)
+	for node: Node2D in [first, second]:
+		var rewards: Array = []
+		node.goal_completed.connect(func(_m, _g, _r, _b, _d): rewards.append(1))
+		_checks.append({"ball": ball, "rewards": rewards, "gravity": 1.0, "label": "Adjacent track handoff"})

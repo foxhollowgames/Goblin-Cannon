@@ -1,5 +1,6 @@
 extends PolyominoMachineryComponent
 class_name OrbitLoop
+const BallFlow = preload("res://scenes/board/machinery/relic_ball_flow.gd")
 ## Curved high-speed turnaround rail lane that redirects balls along multi-peg V and U shapes.
 
 #region Signals
@@ -188,43 +189,7 @@ func configure_from_cells(cells: Array[Vector2i]) -> void:
 	queue_redraw()
 
 func _order_cells_by_adjacency(cells: Array[Vector2i]) -> Array[int]:
-	var n: int = cells.size()
-	var adj: Array[Array] = []
-	for i in range(n):
-		adj.append([])
-
-	for i in range(n):
-		for j in range(i + 1, n):
-			var d: Vector2i = cells[i] - cells[j]
-			if absi(d.x) <= 1 and absi(d.y) <= 1:
-				adj[i].append(j)
-				adj[j].append(i)
-
-	# Find degree-1 endpoint or first cell
-	var start_node: int = 0
-	for i in range(n):
-		if adj[i].size() == 1:
-			start_node = i
-			break
-
-	var visited: Dictionary = {}
-	var path: Array[int] = []
-	var curr: int = start_node
-	while curr != -1 and not visited.has(curr):
-		visited[curr] = true
-		path.append(curr)
-		var next_node: int = -1
-		for neighbor in adj[curr]:
-			if not visited.has(neighbor):
-				next_node = neighbor
-				break
-		curr = next_node
-
-	# Append any remaining unvisited cells
-	for i in range(n):
-		if not visited.has(i):
-			path.append(i)
-	return path
+	return preload("res://resources/polyomino/relic_flow_geometry.gd").order_orbit_cells(cells)
 #endregion
 
 #region Getters
@@ -260,6 +225,7 @@ func check_ball_contact(ball_pos: Vector2, ball_radius: float, module_base_pos: 
 	return local_ball.length_squared() <= (hr * hr)
 
 func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
+	if not BallFlow.available(ball, self): return {"activated": false}
 	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else ball.get_instance_id()
 	if _guided_balls.has(bid) or not can_activate_for_ball(bid, sim_tick):
 		return { "activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO, "type": cell_type }
@@ -303,6 +269,7 @@ func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 	var impulse: Vector2 = exit_dir * impulse_strength
 
 	if is_inside_tree() and waypoints.size() >= 2 and is_instance_valid(ball) and ("linear_velocity" in ball or "position" in ball):
+		BallFlow.claim(ball, self)
 		_guided_balls[bid] = {
 			"ball": ball,
 			"target_idx": start_idx + travel_dir,
@@ -350,6 +317,7 @@ func _physics_process(_delta: float) -> void:
 
 			entry.ticks += 1
 			if entry.ticks > 600:
+				BallFlow.release(ball, self)
 				if ball is RigidBody2D: ball.gravity_scale = entry.gravity
 				_guided_balls.erase(bid)
 				continue
@@ -358,6 +326,7 @@ func _physics_process(_delta: float) -> void:
 			var exit_dir: Vector2 = entry.get("exit_dir", Vector2.UP)
 
 			if target_idx < 0 or target_idx >= waypoints.size():
+				BallFlow.release(ball, self)
 				if ball is RigidBody2D: ball.gravity_scale = entry.gravity
 				ball.linear_velocity = exit_dir * impulse_strength
 				traversal_count += 1
@@ -380,8 +349,9 @@ func _physics_process(_delta: float) -> void:
 
 func _exit_tree() -> void:
 	for entry: Dictionary in _guided_balls.values():
-		if is_instance_valid(entry.ball) and entry.ball is RigidBody2D:
-			entry.ball.gravity_scale = entry.gravity
+		if is_instance_valid(entry.ball):
+			BallFlow.release(entry.ball, self)
+			if entry.ball is RigidBody2D: entry.ball.gravity_scale = entry.gravity
 	_guided_balls.clear()
 #endregion
 

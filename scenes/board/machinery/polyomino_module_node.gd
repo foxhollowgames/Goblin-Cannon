@@ -365,6 +365,9 @@ func check_ball_collision(ball: Node, sim_tick: int) -> Dictionary:
 
 	for comp in _components:
 		if not is_instance_valid(comp): continue
+		if not preload("res://scenes/board/machinery/relic_ball_flow.gd").available(ball, comp):
+			if comp.is_ball_contacting(bid): comp.set_ball_contact(bid, false, sim_tick)
+			continue
 		var is_hit: bool = false
 		if comp.has_method("check_ball_contact"):
 			is_hit = comp.check_ball_contact(ball_pos, ball_radius, module_base_pos)
