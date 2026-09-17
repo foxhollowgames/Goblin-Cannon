@@ -1,10 +1,9 @@
 # TASK-098: Triangle Bumper Rotation with Polyomino
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P0
 - **Category:** Physics / Systems / Visuals
-- **Target Branch:** ix/triangle-bumper-polyomino-rotation
-- **Related Tasks:** [TASK-072](TASK-072-multi-peg-machinery-and-size-variations.md), [TASK-093](TASK-093-rework-relics-into-deliberate-pinball-devices.md), [TASK-097](TASK-097-relic-visual-tiles-and-description-updates.md)
+- **Target Branch:** \ix/triangle-bumper-polyomino-rotation- **Related Tasks:** [TASK-072](TASK-072-multi-peg-machinery-and-size-variations.md), [TASK-093](TASK-093-rework-relics-into-deliberate-pinball-devices.md), [TASK-097](TASK-097-relic-visual-tiles-and-description-updates.md)
 
 ## Description
 
@@ -45,8 +44,8 @@ This task adds rotational transformation support to \SlingshotKicker\ and \Polyo
 
 ## Acceptance Criteria
 
-- [ ] \SlingshotKicker\ visual triangle polygon and border lines rotate 90 degrees clockwise with each rotation step.
-- [ ] Collision segment endpoints and ball contact detection match rotated geometry.
-- [ ] Impulse vectors reflect ball away from the rotated hypotenuse into the board.
-- [ ] Both per-cell and unified layout modes rotate triangle bumpers correctly.
-- [ ] All tests pass cleanly without regressions.
+- [x] \SlingshotKicker\ visual triangle polygon and border lines rotate 90 degrees clockwise with each rotation step.
+- [x] Collision segment endpoints and ball contact detection match rotated geometry.
+- [x] Impulse vectors reflect ball away from the rotated hypotenuse into the board.
+- [x] Both per-cell and unified layout modes rotate triangle bumpers correctly.
+- [x] All tests pass cleanly without regressions.

@@ -147,6 +147,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-136`](#lrn-136) | TASK-095 | `tooling` | Workspace Skills and Progressive Disclosure Architecture | 2026-09-13 |
 | [`LRN-137`](#lrn-137) | TASK-096 | `gameplay` | Merchant Relic Focus | 2026-09-17 |
 | [`LRN-138`](#lrn-138) | TASK-097 | `godot_engine` | Polyomino shop card preview and description formatting | 2026-09-17 |
+| [`LRN-139`](#lrn-139) | TASK-098 | `machinery` | Slingshot triangle bumper rotational geometry transformation | 2026-09-17 |
 
 ---
 
@@ -2357,5 +2358,21 @@ Embedding RelicLayoutPreview in CenterContainer with clamped cell sizes (7-13px)
 
 #### Actionable Guideline for Future Agents
 Use RewardCardBuilder.make_relic_shop_preview with CenterContainer and PolyominoRelicDatabase.get_relic_shop_description for shop relic cards.
+
+---
+
+### <a id="lrn-139"></a> LRN-139: Slingshot triangle bumper rotational geometry transformation
+- **Task:** `TASK-098`
+- **Category:** `machinery`
+- **Created:** `2026-09-17T11:19:11.975556`
+
+#### Context & Problem
+Triangle bumpers inside polyomino modules remained in static orientation when the module was rotated.
+
+#### Key Insight & Learning
+Polyomino modules rotate via 90-degree clockwise steps. Preserving immutable base vertices and computing segment_p1, segment_p2, and corner_p3 using (x, y) -> (-y, x) ensures triangle borders, visual polygons, collision SegmentShape2D, and impulse vectors rotate synchronously with polyomino modules.
+
+#### Actionable Guideline for Future Agents
+Pass rotation_step to all child components in PolyominoModuleNode and transform base segment and corner vertices using 90-degree step rotation.
 
 ---
