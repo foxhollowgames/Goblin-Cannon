@@ -31,12 +31,12 @@ const SHOP_CARD_RARITY_MARKER_SIZE: float = 11.0
 ## Space below the border so body text clears the marker (marker overlaps into content slightly).
 const SHOP_CARD_BODY_TOP_INSET: float = 5.0
 ## Bordered frame width/height only (price sits below the frame; click the row to buy).
-const SHOP_CARD_WIDTH: int = 152
-const SHOP_CARD_FRAME_HEIGHT: int = 136
-## Reserved height for description (two lines at SHOP_CARD_DESC_FONT; ~2× line height + spacing). Longer copy clips.
-const SHOP_CARD_DESC_TWO_LINES_H: int = 34
-const SHOP_CARD_TITLE_FONT: int = 14
-const SHOP_CARD_DESC_FONT: int = 11
+const SHOP_CARD_WIDTH: int = 156
+const SHOP_CARD_FRAME_HEIGHT: int = 160
+## Reserved height for description.
+const SHOP_CARD_DESC_TWO_LINES_H: int = 42
+const SHOP_CARD_TITLE_FONT: int = 12
+const SHOP_CARD_DESC_FONT: int = 10
 const SHOP_OFFER_HOVER_SCALE: float = 1.08
 ## Real-time seconds; tweens use ignore_time_scale so hover works while REWARD_PAUSED (Engine.time_scale = 0).
 const SHOP_OFFER_HOVER_TWEEN_SEC: float = 0.04
@@ -371,16 +371,17 @@ func _make_relic_card(opt: MilestoneOption, index: int, price: int) -> Control:
 	title_label.add_theme_font_size_override("font_size", SHOP_CARD_TITLE_FONT)
 	title_label.add_theme_color_override("font_color", MilestoneShopData.TITLE_TEXT_COLOR)
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	card_vbox.add_child(title_label)
 	card_vbox.add_child(_shop_category_label("RELIC (T%d)" % tier))
+	card_vbox.add_child(RewardCardBuilder.make_relic_shop_preview(rid, 38.0))
 	var desc_label: RichTextLabel = RichTextLabel.new()
 	_shop_style_desc_label(desc_label)
-	var k_desc: String = PolyominoRelicDatabase.get_relic_kinetic_description(rid)
-	KeywordDatabase.format_and_attach(desc_label, k_desc, KeywordDatabase.HIGHLIGHT_COLOR, "[center]", "[/center]")
+	var desc_text: String = PolyominoRelicDatabase.get_relic_shop_description(rid)
+	KeywordDatabase.format_and_attach(desc_label, desc_text, KeywordDatabase.HIGHLIGHT_COLOR, "[center]", "[/center]")
 	card_vbox.add_child(desc_label)
 	card_vbox.add_child(_shop_vbox_fill_spacer())
 	return _finalize_shop_offer(panel, price, index)
-
 
 func _make_ball_card(def: BallDefinition, index: int, price: int) -> Control:
 	var ability: String = def.ability_name if def else "Ball"
@@ -392,9 +393,7 @@ func _make_ball_card(def: BallDefinition, index: int, price: int) -> Control:
 	var title_label: Label = Label.new()
 	title_label.text = ability
 	title_label.add_theme_font_size_override("font_size", SHOP_CARD_TITLE_FONT)
-	var ab_for_title: String = def.ability_name if def != null and not def.ability_name.is_empty() else "Plain"
-	if ability == "Ball":
-		ab_for_title = "Plain"
+	var ab_for_title: String = "Plain" if (def == null or def.ability_name.is_empty() or ability == "Ball") else def.ability_name
 	title_label.add_theme_color_override("font_color", MilestoneShopData.TITLE_TEXT_COLOR)
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	card_vbox.add_child(title_label)
