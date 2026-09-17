@@ -62,31 +62,77 @@ const MILESTONE_SHOP_PEG_FLEX_CHANCE_SINGLE: float = 0.28
 ## rarity_weights: [common%, uncommon%, rare%, epic%] from Constants.milestone_reward_rarity_weights (sums to 100).
 ## peg_candidates: MilestoneOption templates (PEG_UPGRADE, peg_kind + rarity set). If empty, no peg offers.
 ## If allow_ball_upgrades is false, upgrade slots become stat slots. No duplicate stat types or upgrade abilities.
-func pick_milestone_options(ball_candidates: Array, total_count: int = 5, allow_ball_upgrades: bool = true, peg_candidates: Array = [], rarity_weights: Array = [], max_ball_rarity: int = 5) -> Array:
+func pick_milestone_options(ball_candidates: Array, total_count: int = 5, allow_ball_upgrades: bool = false, peg_candidates: Array = [], rarity_weights: Array = [], max_ball_rarity: int = 5, relic_candidates: Array = [], max_relic_tier: int = 1) -> Array:
 	var weights: Array = rarity_weights
 	if weights.is_empty():
 		weights = [90, 10, 0, 0]
-	## +5 plain balls are not in the milestone gold shop; they are granted when the milestone board event peg is broken.
 	var after_basic: int = total_count
+	var out: Array = []
+	var seen_peg_kind: Dictionary = {}
+
+	if not allow_ball_upgrades:
+		# Merchant Shop mode: Relics + Pegs only. Zero ball upgrades, zero stats.
+		var peg_quota: int = 0
+		if not peg_candidates.is_empty() and after_basic > 0:
+			if after_basic == 1:
+				peg_quota = 1 if _rng.randf() < MILESTONE_SHOP_PEG_FLEX_CHANCE_SINGLE else 0
+			else:
+				peg_quota = 1 if _rng.randf() < MILESTONE_SHOP_PEG_FLEX_CHANCE_MULTI else 0
+		var relic_quota: int = after_basic - peg_quota
+
+		for _i in range(peg_quota):
+			var tier_p: int = _roll_milestone_tier(weights)
+			var peg_opt: MilestoneOption = _pick_peg_option_for_tier(peg_candidates, tier_p, seen_peg_kind)
+			if peg_opt:
+				out.append(peg_opt)
+			else:
+				relic_quota += 1
+
+		var seen_relic_id: Dictionary = {}
+		var relic_pool: Array = relic_candidates.duplicate()
+		if relic_pool.is_empty():
+			var cat: Dictionary = DeliberateRelicCatalog.get_catalog()
+			for id in cat:
+				var opt: MilestoneOption = MilestoneOption.new()
+				opt.option_type = MilestoneOption.Type.RELIC
+				opt.relic_id = id
+				opt.rarity = int(cat[id].get("tier", 1))
+				relic_pool.append(opt)
+
+		for _k in range(relic_quota):
+			var rolled_tier: int = _roll_milestone_tier(weights)
+			var target_tier: int = 1
+			if max_relic_tier >= 2 and rolled_tier >= 2:
+				target_tier = 2
+			var r_opt: MilestoneOption = _pick_relic_option_for_tier(relic_pool, target_tier, seen_relic_id, max_relic_tier)
+			if r_opt:
+				out.append(r_opt)
+			elif not peg_candidates.is_empty():
+				var tier_p2: int = _roll_milestone_tier(weights)
+				var peg_opt2: MilestoneOption = _pick_peg_option_for_tier(peg_candidates, tier_p2, seen_peg_kind)
+				if peg_opt2:
+					out.append(peg_opt2)
+
+		shuffle_array(out)
+		return out
+
+	# Legacy ball upgrade testing mode
 	var ball_quota: int = 0
-	var peg_quota: int = 0
+	var peg_quota_leg: int = 0
 	var stat_count: int = after_basic
-	if after_basic > 0 and allow_ball_upgrades:
+	if after_basic > 0:
 		ball_quota = _sample_milestone_ball_quota(after_basic)
 		var remaining: int = after_basic - ball_quota
 		stat_count = remaining
 		if remaining > 0 and not peg_candidates.is_empty():
 			if remaining == 1:
-				peg_quota = 1 if _rng.randf() < MILESTONE_SHOP_PEG_FLEX_CHANCE_SINGLE else 0
+				peg_quota_leg = 1 if _rng.randf() < MILESTONE_SHOP_PEG_FLEX_CHANCE_SINGLE else 0
 			else:
-				peg_quota = 1 if _rng.randf() < MILESTONE_SHOP_PEG_FLEX_CHANCE_MULTI else 0
-			stat_count = remaining - peg_quota
-	elif not allow_ball_upgrades:
-		ball_quota = 0
-		stat_count = after_basic
-	var out: Array = []
+				peg_quota_leg = 1 if _rng.randf() < MILESTONE_SHOP_PEG_FLEX_CHANCE_MULTI else 0
+			stat_count = remaining - peg_quota_leg
+
 	var seen_ball_key: Dictionary = {}
-	var seen_peg_kind: Dictionary = {}
+	var seen_peg_kind_leg: Dictionary = {}
 	var ball_picks: Array = []
 	for _i in ball_quota:
 		var tier: int = _roll_milestone_tier(weights)
@@ -95,7 +141,7 @@ func pick_milestone_options(ball_candidates: Array, total_count: int = 5, allow_
 			ball_picks.append(b)
 		else:
 			stat_count += 1
-	for _i in peg_quota:
+	for _i in peg_quota_leg:
 		var tier_p: int = _roll_milestone_tier(weights)
 		var peg_opt: MilestoneOption = _pick_peg_option_for_tier(peg_candidates, tier_p, seen_peg_kind)
 		if peg_opt:
@@ -236,6 +282,35 @@ func _pick_peg_option_for_tier(peg_templates: Array, tier: int, seen_kind: Dicti
 	var chosen: MilestoneOption = pool[_rng.randi() % pool.size()] as MilestoneOption
 	seen_kind[chosen.peg_kind] = true
 	return chosen.duplicate() as MilestoneOption
+
+func _pick_relic_option_for_tier(relic_templates: Array, target_tier: int, seen_id: Dictionary, max_tier: int = 1) -> MilestoneOption:
+	var tier: int = clampi(target_tier, 1, max_tier)
+	var pool: Array = []
+	for _attempt in range(4):
+		pool.clear()
+		for r in relic_templates:
+			var proto: MilestoneOption = r as MilestoneOption
+			if not proto or proto.option_type != MilestoneOption.Type.RELIC:
+				continue
+			if proto.rarity != tier:
+				continue
+			if proto.relic_id.is_empty() or seen_id.get(proto.relic_id, false):
+				continue
+			pool.append(proto)
+		if not pool.is_empty():
+			break
+		tier = maxi(1, tier - 1)
+	if pool.is_empty():
+		for r in relic_templates:
+			var proto: MilestoneOption = r as MilestoneOption
+			if proto and proto.option_type == MilestoneOption.Type.RELIC and not seen_id.get(proto.relic_id, false) and proto.rarity <= max_tier:
+				pool.append(proto)
+	if pool.is_empty():
+		return null
+	var chosen: MilestoneOption = pool[_rng.randi() % pool.size()] as MilestoneOption
+	seen_id[chosen.relic_id] = true
+	return chosen.duplicate() as MilestoneOption
+
 
 func _pick_stat_id_for_tier(rolled_tier: int, seen_stat: Dictionary) -> String:
 	var cap: int = 1 if rolled_tier < 2 else 2

@@ -115,6 +115,7 @@
 | `test_reward_handler.gd` | `RewardHandler` | [tests/test_reward_handler.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_reward_handler.gd) |
 | `test_script_parse_smoke.gd` | `ScriptParseSmoke` | [tests/test_script_parse_smoke.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_script_parse_smoke.gd) |
 | `test_shop_ball_prices.gd` | `ShopBallPrices` | [tests/test_shop_ball_prices.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_shop_ball_prices.gd) |
+| `test_shop_relic_focus.gd` | `ShopRelicFocus` | [tests/test_shop_relic_focus.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_shop_relic_focus.gd) |
 | `test_slotted_relic_effects.gd` | `SlottedRelicEffects` | [tests/test_slotted_relic_effects.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_slotted_relic_effects.gd) |
 | `test_sticky_slime_event.gd` | `StickySlimeEvent` | [tests/test_sticky_slime_event.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_sticky_slime_event.gd) |
 | `test_story_campaign_architecture.gd` | `StoryCampaignArchitecture` | [tests/test_story_campaign_architecture.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_story_campaign_architecture.gd) |

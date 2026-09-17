@@ -2,6 +2,7 @@ extends Node
 ## RewardHandler (§6.10). Milestones, wall-break synergies, treasure-chest onboard passives, boss amplifiers.
 
 const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
+const DeliberateRelicCatalog = preload("res://resources/polyomino/deliberate_relic_catalog.gd")
 const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 
 ## Relative weight for major/boss picks when required ball types are not in the run (vs 1.0 when satisfied).
@@ -18,6 +19,7 @@ var _board_candidates: Array = []
 var _onboard_effect_candidates: Array = []
 var _boss_candidates: Array = []
 var _peg_shop_candidates: Array = []
+var _relic_shop_candidates: Array = []
 var _pending_peg_selection_kind: String = ""
 
 func _ready() -> void:
@@ -28,9 +30,11 @@ func _ready() -> void:
 		_game_coordinator = main.get_node_or_null("GameCoordinator")
 	_ball_candidates = _build_ball_candidates()
 	_build_peg_shop_candidates()
+	_build_relic_shop_candidates()
 	_build_wall_break_candidates()
 	_build_onboard_effect_candidates()
 	_build_boss_candidates()
+
 
 func _build_ball_candidates() -> Array:
 	return RewardCardCatalog.build_ball_candidates()
@@ -91,6 +95,17 @@ func _add_peg_shop_template(kind: String, rarity: int) -> void:
 	opt.peg_kind = kind
 	opt.rarity = rarity
 	_peg_shop_candidates.append(opt)
+
+func _build_relic_shop_candidates() -> void:
+	_relic_shop_candidates.clear()
+	for id in DeliberateRelicCatalog.get_all_ids():
+		var tier: int = PolyominoRelicDatabase.get_relic_tier(id)
+		var opt: MilestoneOption = MilestoneOption.new()
+		opt.option_type = MilestoneOption.Type.RELIC
+		opt.relic_id = id
+		opt.rarity = tier
+		_relic_shop_candidates.append(opt)
+
 
 ## Treasure chest: pick 3 passive onboard upgrades (global peg scaling + explosion/chain/energize tags).
 func get_onboard_effect_picks(count: int = 3) -> Array:
@@ -238,12 +253,11 @@ func get_ball_reward_picks(count: int) -> Array:
 	return _reward_gen.pick_ball_rewards(candidates, count)
 
 func get_milestone_reward_picks(count: int = 5) -> Array:
-	var candidates: Array = _get_candidates_for_current_city()
-	var max_r: int = _get_max_rarity_for_city(GameState.current_city_id if GameState else 0)
 	var endless: bool = GameState.endless_mode if GameState else false
 	var city_id: int = GameState.current_city_id if GameState else 0
 	var weights: Array = Constants.milestone_reward_rarity_weights(city_id, _get_reward_wall_index(), endless)
-	return _reward_gen.pick_milestone_options(candidates, count, true, _peg_shop_candidates, weights, max_r)
+	var max_tier: int = 1 if city_id <= 0 else 2
+	return _reward_gen.pick_milestone_options([], count, false, _peg_shop_candidates, weights, 5, _relic_shop_candidates, max_tier)
 
 func apply_ball_pick(pick: Resource) -> void:
 	_apply_ball_to_hopper(pick)
@@ -258,23 +272,23 @@ func apply_milestone_pick(option: Resource) -> void:
 	if option is MilestoneOption:
 		var opt: MilestoneOption = option as MilestoneOption
 		match opt.option_type:
-			MilestoneOption.Type.BASIC_BATCH:
-				if _game_coordinator and _game_coordinator.has_method("add_basic_balls"):
-					_game_coordinator.add_basic_balls(RewardGeneration.BASIC_BATCH_SIZE)
+			MilestoneOption.Type.RELIC:
+				if not opt.relic_id.is_empty():
+					_add_relic_to_junk_box(opt.relic_id)
+			MilestoneOption.Type.PEG_UPGRADE:
+				apply_peg_shop_unlock(opt.peg_kind)
 			MilestoneOption.Type.STAT:
-				if not opt.stat_id.is_empty():
-					apply_stat_upgrade(opt.stat_id)
+				if not opt.stat_id.is_empty(): apply_stat_upgrade(opt.stat_id)
 			MilestoneOption.Type.BALL_UPGRADE:
 				if opt.ball_definition:
 					var converted: bool = false
 					if _game_coordinator and _game_coordinator.has_method("apply_ball_upgrade_conversion"):
 						converted = _game_coordinator.apply_ball_upgrade_conversion(opt.ball_definition)
-					if not converted:
-						# If there are no plain balls to convert, still grant the ball directly
-						# so the shop purchase always provides meaningful value.
-						_apply_ball_to_hopper(opt.ball_definition)
-			MilestoneOption.Type.PEG_UPGRADE:
-				apply_peg_shop_unlock(opt.peg_kind)
+					if not converted: _apply_ball_to_hopper(opt.ball_definition)
+			MilestoneOption.Type.BASIC_BATCH:
+				if _game_coordinator and _game_coordinator.has_method("add_basic_balls"):
+					_game_coordinator.add_basic_balls(RewardGeneration.BASIC_BATCH_SIZE)
+
 
 func apply_stat_upgrade(stat_id: String) -> void:
 	if not GameState:
@@ -388,6 +402,10 @@ func get_catalog_ball_definitions() -> Array:
 
 func get_catalog_peg_milestone_options() -> Array:
 	return _peg_shop_candidates.duplicate()
+
+func get_catalog_relic_milestone_options() -> Array:
+	return _relic_shop_candidates.duplicate()
+
 
 func get_catalog_wall_break_major_definitions() -> Array:
 	var out: Array = []

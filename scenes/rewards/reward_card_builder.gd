@@ -112,6 +112,8 @@ static func compute_pick_price(pick: Variant) -> int:
 				return Constants.shop_price_for_ball_rarity(bd.rarity if bd else 0)
 			MilestoneOption.Type.PEG_UPGRADE:
 				return Constants.shop_price_for_peg_rarity(opt.rarity)
+			MilestoneOption.Type.RELIC:
+				return Constants.shop_price_for_relic_tier(opt.rarity)
 			_:
 				return Constants.shop_price_for_stat_rarity(opt.rarity)
 	if pick is BallDefinition:
