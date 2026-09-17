@@ -2,38 +2,47 @@ class_name RewardCardBuilder
 extends RefCounted
 ## Static helper class for constructing and styling shop card UI components in RewardDraftPanel.
 
-# Constants for rarity levels
-const RARITY_COMMON = 0
-const RARITY_UNCOMMON = 1
-const RARITY_RARE = 2
-const RARITY_EPIC = 3
-const RARITY_LEGENDARY = 4
+## Renders a centered polyomino relic shape preview with tier frame and component glyphs.
+static func make_relic_shop_preview(relic_id: StringName, preview_h: float = 38.0) -> Control:
+	var holder: CenterContainer = CenterContainer.new()
+	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	holder.custom_minimum_size = Vector2(0, preview_h)
+	holder.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
-# ## Build a shop card with the given offer index and pick resource.
-static func build_shop_card(offer_index: int, pick: Resource) -> PanelContainer:
-	var card = PanelContainer.new()
-	card.name = "ShopCard_" + str(offer_index)
-	
-	# Add card content here (e.g., icons, labels, etc.)
-	# Example: var icon = Sprite.new(); card.add_child(icon); icon.texture = pick.icon
-	
-	return card
+	if not PolyominoRelicDatabase.has_relic_definition(relic_id):
+		return holder
 
-# ## Apply styling based on the rarity level to the given card.
-static func apply_rarity_style(card: PanelContainer, rarity: int) -> void:
-	var color = Color(1, 1, 1)
-	
-	match rarity:
-		RARITY_COMMON:
-			color = Color(0.8, 0.8, 0.8)
-		RARITY_UNCOMMON:
-			color = Color(0.4, 0.7, 0.2)
-		RARITY_RARE:
-			color = Color(0.3, 0.5, 1.0)
-		RARITY_EPIC:
-			color = Color(1.0, 0.4, 0.8)
-		RARITY_LEGENDARY:
-			color = Color(1.0, 0.9, 0.2)
+	var preview: RelicLayoutPreview = RelicLayoutPreview.new()
+	preview.setup_for_relic(relic_id)
+	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
+
+	var mod: PolyominoModuleData = preview.get_module_data()
+	var cols: int = 3
+	var rows: int = 3
+	if mod != null and not mod.cells.is_empty():
+		var min_x: int = 9999
+		var max_x: int = -9999
+		var min_y: int = 9999
+		var max_y: int = -9999
+		for c in mod.cells:
+			min_x = mini(min_x, c.x)
+			max_x = maxi(max_x, c.x)
+			min_y = mini(min_y, c.y)
+			max_y = maxi(max_y, c.y)
+		cols = maxi(1, max_x - min_x + 1)
+		rows = maxi(1, max_y - min_y + 1)
+
+	var max_w: float = 76.0
+	var max_h: float = preview_h - 4.0
+	var cell_w: float = max_w / float(cols)
+	var cell_h: float = max_h / float(rows)
+	preview.cell_size = clampf(minf(cell_w, cell_h), 7.0, 13.0)
+	preview.cell_pad = 1.0
+	var req_w: float = float(cols) * preview.cell_size + 4.0
+	preview.custom_minimum_size = Vector2(req_w, preview_h)
+	holder.add_child(preview)
+	return holder
+
 	
 ## Create a purchased overlay for an already-bought card.
 static func make_purchased_overlay() -> Control:
@@ -112,6 +121,8 @@ static func compute_pick_price(pick: Variant) -> int:
 				return Constants.shop_price_for_ball_rarity(bd.rarity if bd else 0)
 			MilestoneOption.Type.PEG_UPGRADE:
 				return Constants.shop_price_for_peg_rarity(opt.rarity)
+			MilestoneOption.Type.RELIC:
+				return Constants.shop_price_for_relic_tier(opt.rarity)
 			_:
 				return Constants.shop_price_for_stat_rarity(opt.rarity)
 	if pick is BallDefinition:

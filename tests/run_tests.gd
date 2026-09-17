@@ -98,6 +98,9 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/test_top_battlefield_and_mob_timer.gd",
 	"res://tests/test_deliberate_pinball_devices.gd",
 	"res://tests/test_debug_store_new_relics.gd",
+	"res://tests/test_shop_relic_focus.gd",
+	"res://tests/test_relic_visual_tiles.gd",
+	"res://tests/test_triangle_bumper_rotation.gd",
 	"res://tests/test_file_lengths.gd",
 ]
 

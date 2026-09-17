@@ -31,12 +31,12 @@ const SHOP_CARD_RARITY_MARKER_SIZE: float = 11.0
 ## Space below the border so body text clears the marker (marker overlaps into content slightly).
 const SHOP_CARD_BODY_TOP_INSET: float = 5.0
 ## Bordered frame width/height only (price sits below the frame; click the row to buy).
-const SHOP_CARD_WIDTH: int = 152
-const SHOP_CARD_FRAME_HEIGHT: int = 136
-## Reserved height for description (two lines at SHOP_CARD_DESC_FONT; ~2× line height + spacing). Longer copy clips.
-const SHOP_CARD_DESC_TWO_LINES_H: int = 34
-const SHOP_CARD_TITLE_FONT: int = 14
-const SHOP_CARD_DESC_FONT: int = 11
+const SHOP_CARD_WIDTH: int = 156
+const SHOP_CARD_FRAME_HEIGHT: int = 160
+## Reserved height for description.
+const SHOP_CARD_DESC_TWO_LINES_H: int = 42
+const SHOP_CARD_TITLE_FONT: int = 12
+const SHOP_CARD_DESC_FONT: int = 10
 const SHOP_OFFER_HOVER_SCALE: float = 1.08
 ## Real-time seconds; tweens use ignore_time_scale so hover works while REWARD_PAUSED (Engine.time_scale = 0).
 const SHOP_OFFER_HOVER_TWEEN_SEC: float = 0.04
@@ -341,12 +341,12 @@ func _make_card(pick: Variant, index: int, price: int) -> Control:
 	if pick is MilestoneOption:
 		var opt: MilestoneOption = pick as MilestoneOption
 		match opt.option_type:
-			MilestoneOption.Type.BASIC_BATCH:
-				return _make_basic_batch_card(index, price)
-			MilestoneOption.Type.BALL_UPGRADE:
-				return _make_ball_card(opt.ball_definition, index, price)
+			MilestoneOption.Type.RELIC:
+				return _make_relic_card(opt, index, price)
 			MilestoneOption.Type.PEG_UPGRADE:
 				return _make_peg_card(opt, index, price)
+			MilestoneOption.Type.BALL_UPGRADE:
+				return _make_ball_card(opt.ball_definition, index, price)
 			_:
 				return _make_stat_card(opt, index, price)
 	# Legacy: raw BallDefinition
@@ -357,20 +357,28 @@ func _make_card(pick: Variant, index: int, price: int) -> Control:
 func _make_card_panel(border_color: Color) -> PanelContainer:
 	return RewardCardBuilder.make_card_panel(border_color, SHOP_CARD_BORDER_WIDTH, SHOP_CARD_WIDTH, SHOP_CARD_FRAME_HEIGHT)
 
-func _make_basic_batch_card(index: int, price: int) -> Control:
-	var panel: PanelContainer = _make_card_panel(_rarity_color(0))
-	var card_vbox: VBoxContainer = _make_shop_card_layer(panel, 0)
+func _make_relic_card(opt: MilestoneOption, index: int, price: int) -> Control:
+	var rid: StringName = opt.relic_id if opt else &""
+	var tier: int = opt.rarity if opt and opt.rarity > 0 else PolyominoRelicDatabase.get_relic_tier(rid)
+	var title_text: String = PolyominoRelicDatabase.get_relic_display_name(rid)
+	if title_text.is_empty():
+		title_text = String(rid)
+	var border_color: Color = _rarity_color(tier)
+	var panel: PanelContainer = _make_card_panel(border_color)
+	var card_vbox: VBoxContainer = _make_shop_card_layer(panel, tier)
 	var title_label: Label = Label.new()
-	title_label.text = "+%d Plain Balls" % RewardGeneration.BASIC_BATCH_SIZE
+	title_label.text = title_text
 	title_label.add_theme_font_size_override("font_size", SHOP_CARD_TITLE_FONT)
 	title_label.add_theme_color_override("font_color", MilestoneShopData.TITLE_TEXT_COLOR)
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	card_vbox.add_child(title_label)
-	card_vbox.add_child(_shop_category_label("BALL"))
-	card_vbox.add_child(_make_basic_batch_ball_row())
+	card_vbox.add_child(_shop_category_label("RELIC (T%d)" % tier))
+	card_vbox.add_child(RewardCardBuilder.make_relic_shop_preview(rid, 38.0))
 	var desc_label: RichTextLabel = RichTextLabel.new()
 	_shop_style_desc_label(desc_label)
-	KeywordDatabase.format_and_attach(desc_label, "Adds 10 Plain balls to your hopper for this run.", KeywordDatabase.HIGHLIGHT_COLOR, "[center]", "[/center]")
+	var desc_text: String = PolyominoRelicDatabase.get_relic_shop_description(rid)
+	KeywordDatabase.format_and_attach(desc_label, desc_text, KeywordDatabase.HIGHLIGHT_COLOR, "[center]", "[/center]")
 	card_vbox.add_child(desc_label)
 	card_vbox.add_child(_shop_vbox_fill_spacer())
 	return _finalize_shop_offer(panel, price, index)
@@ -385,9 +393,7 @@ func _make_ball_card(def: BallDefinition, index: int, price: int) -> Control:
 	var title_label: Label = Label.new()
 	title_label.text = ability
 	title_label.add_theme_font_size_override("font_size", SHOP_CARD_TITLE_FONT)
-	var ab_for_title: String = def.ability_name if def != null and not def.ability_name.is_empty() else "Plain"
-	if ability == "Ball":
-		ab_for_title = "Plain"
+	var ab_for_title: String = "Plain" if (def == null or def.ability_name.is_empty() or ability == "Ball") else def.ability_name
 	title_label.add_theme_color_override("font_color", MilestoneShopData.TITLE_TEXT_COLOR)
 	title_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	card_vbox.add_child(title_label)
@@ -476,24 +482,18 @@ func _make_stat_card(opt: MilestoneOption, index: int, price: int) -> Control:
 	return _finalize_shop_offer(panel, price, index)
 
 func _on_refresh_pressed() -> void:
-	if not GameState or GameState.run_gold < Constants.SHOP_REFRESH_COST:
-		return
+	if not GameState or GameState.run_gold < Constants.SHOP_REFRESH_COST: return
 	refresh_requested.emit()
 
 func _on_done_pressed() -> void:
-	set_process(false)
-	_set_overlay_visible(false)
-	hide()
-	shop_done.emit()
+	set_process(false); _set_overlay_visible(false); hide(); shop_done.emit()
 
 func _on_pick_pressed(index: int) -> void:
-	if index < 0 or index >= _picks.size():
-		return
-	if index < _purchased_flags.size() and _purchased_flags[index]:
-		return
+	if index < 0 or index >= _picks.size(): return
+	if index < _purchased_flags.size() and _purchased_flags[index]: return
 	var price: int = _compute_pick_price(_picks[index])
-	if GameState == null or GameState.run_gold < price:
-		return
+	if GameState == null or GameState.run_gold < price: return
 	GameState.add_run_gold(-price)
 	pick_selected.emit(_picks[index])
 	_set_card_purchased(index)
+

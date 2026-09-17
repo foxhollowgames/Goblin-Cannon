@@ -41,3 +41,5 @@ assets/
 
 # Git worktrees created by local orchestration (full repo copies; do not commit)
 goblin-cannon-agent-task_*/
+
+*.uid

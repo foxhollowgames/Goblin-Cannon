@@ -111,11 +111,13 @@
 | `test_relic_pinball_goals.gd` | `RelicPinballGoals` | [tests/test_relic_pinball_goals.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_pinball_goals.gd) |
 | `test_relic_selection_preview.gd` | `RelicSelectionPreview` | [tests/test_relic_selection_preview.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_selection_preview.gd) |
 | `test_relic_tier_visual_styling.gd` | `RelicTierVisualStyling` | [tests/test_relic_tier_visual_styling.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_tier_visual_styling.gd) |
+| `test_relic_visual_tiles.gd` | `RelicVisualTiles` | [tests/test_relic_visual_tiles.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_visual_tiles.gd) |
 | `test_relic_widget_distribution.gd` | `RelicWidgetDistribution` | [tests/test_relic_widget_distribution.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_relic_widget_distribution.gd) |
 | `test_reward_generation.gd` | `RewardGeneration` | [tests/test_reward_generation.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_reward_generation.gd) |
 | `test_reward_handler.gd` | `RewardHandler` | [tests/test_reward_handler.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_reward_handler.gd) |
 | `test_script_parse_smoke.gd` | `ScriptParseSmoke` | [tests/test_script_parse_smoke.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_script_parse_smoke.gd) |
 | `test_shop_ball_prices.gd` | `ShopBallPrices` | [tests/test_shop_ball_prices.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_shop_ball_prices.gd) |
+| `test_shop_relic_focus.gd` | `ShopRelicFocus` | [tests/test_shop_relic_focus.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_shop_relic_focus.gd) |
 | `test_slotted_relic_effects.gd` | `SlottedRelicEffects` | [tests/test_slotted_relic_effects.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_slotted_relic_effects.gd) |
 | `test_sticky_slime_event.gd` | `StickySlimeEvent` | [tests/test_sticky_slime_event.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_sticky_slime_event.gd) |
 | `test_story_campaign_architecture.gd` | `StoryCampaignArchitecture` | [tests/test_story_campaign_architecture.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_story_campaign_architecture.gd) |
@@ -124,6 +126,7 @@
 | `test_tooltip_text_refinement.gd` | `TooltipTextRefinement` | [tests/test_tooltip_text_refinement.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_tooltip_text_refinement.gd) |
 | `test_top_battlefield_and_mob_timer.gd` | `TopBattlefieldAndMobTimer` | [tests/test_top_battlefield_and_mob_timer.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_top_battlefield_and_mob_timer.gd) |
 | `test_top_gold_counter_ui.gd` | `TopGoldCounterUI` | [tests/test_top_gold_counter_ui.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_top_gold_counter_ui.gd) |
+| `test_triangle_bumper_rotation.gd` | `TriangleBumperRotation` | [tests/test_triangle_bumper_rotation.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_triangle_bumper_rotation.gd) |
 | `test_ui_buttons_audit.gd` | `UIButtonAudit` | [tests/test_ui_buttons_audit.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_ui_buttons_audit.gd) |
 | `test_ui_wireframe_and_screen_layout.gd` | `UIWireframeAndScreenLayout` | [tests/test_ui_wireframe_and_screen_layout.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_ui_wireframe_and_screen_layout.gd) |
 | `test_volatile_gas.gd` | `VolatileGas` | [tests/test_volatile_gas.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_volatile_gas.gd) |

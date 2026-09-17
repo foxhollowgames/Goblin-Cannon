@@ -66,21 +66,15 @@ static func get_relic_tier(relic_id: StringName) -> int:
 
 static func get_relic_shape_name(relic_id: StringName) -> String:
 	var d = _get_def(relic_id)
-	if not d.is_empty():
-		return str(d.get("shape_name", ""))
-	return ""
+	return str(d.get("shape_name", "")) if not d.is_empty() else ""
 
 static func get_relic_kinetic_description(relic_id: StringName) -> String:
 	var d = _get_def(relic_id)
-	if not d.is_empty():
-		return str(d.get("machinery_desc", ""))
-	return ""
+	return str(d.get("machinery_desc", "")) if not d.is_empty() else ""
 
 static func get_relic_display_name(relic_id: StringName) -> String:
 	var d = _get_def(relic_id)
-	if not d.is_empty():
-		return str(d.get("display_name", ""))
-	return ""
+	return str(d.get("display_name", "")) if not d.is_empty() else ""
 
 static func get_relic_goal_title(relic_id: StringName) -> String:
 	var g: Dictionary = _get_goal_def(relic_id)
@@ -98,6 +92,16 @@ static func get_relic_activation_requirement(relic_id: StringName) -> String:
 static func get_relic_reward_description(relic_id: StringName) -> String:
 	var g: Dictionary = _get_goal_def(relic_id)
 	return str(g.get("reward_desc", "+100 Energy Surge"))
+
+static func get_relic_shop_description(relic_id: StringName) -> String:
+	var m_desc: String = get_relic_kinetic_description(relic_id)
+	var g_req: String = get_relic_activation_requirement(relic_id)
+	var g_rew: String = get_relic_reward_description(relic_id)
+	if g_req.is_empty() and g_rew.is_empty():
+		return m_desc
+	if m_desc.is_empty():
+		return "[color=#80d0ff]%s[/color] → [color=#55ffaa]%s[/color]" % [g_req, g_rew]
+	return "%s\n[color=#80d0ff]%s[/color] → [color=#55ffaa]%s[/color]" % [m_desc, g_req, g_rew]
 
 static func create_module_for_relic(relic_id: StringName) -> PolyominoModuleData:
 	var resolved_id: StringName = _resolve_id(relic_id)
