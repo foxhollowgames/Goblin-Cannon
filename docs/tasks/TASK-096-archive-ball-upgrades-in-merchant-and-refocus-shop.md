@@ -1,6 +1,6 @@
 # TASK-096: Archive Ball Upgrades in Merchant and Refocus Shop on Relics
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay
 - **Target Branch:** `feature/archive-ball-upgrades-in-merchant-and-refocus-shop`
