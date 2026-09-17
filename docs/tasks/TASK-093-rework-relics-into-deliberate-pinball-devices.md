@@ -1,6 +1,6 @@
 # TASK-093: Rework Relics into Deliberate Pinball Devices and Mechanisms
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay / Visuals
 - **Target Branch:** `fix/task-093-relic-flow`
@@ -111,8 +111,8 @@ The first implementation did not prove usable entrance-to-exit paths. Reopened a
 - [x] Spinner and route rewards match the displayed condition.
 - [x] Placement shows entrances/exits and detects directly blocked ports.
 - [x] Real physics tests cover passage, retention, rotation, and device combinations.
-- [ ] Quality checks and independent PR review pass; changes merge to main.
+- [x] Quality checks and independent PR review pass; changes merge to main.
 
 Review: [Ball flow review and implementation contract](../knowledge/relic-ball-flow-review.md).
 
-Iteration 2 verification: 16,651 assertions pass, real physics scenarios pass, and independent PR review approved both follow-up fixes. PR: https://github.com/foxhollowgames/Goblin-Cannon/pull/76. Merge pending.
+Iteration 2 verification: 16,651 assertions pass, real physics scenarios pass, and independent PR review approved both follow-up fixes. PR: https://github.com/foxhollowgames/Goblin-Cannon/pull/76. Merged to main as b7dfd3b.

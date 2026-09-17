@@ -148,6 +148,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-137`](#lrn-137) | TASK-096 | `gameplay` | Merchant Relic Focus | 2026-09-17 |
 | [`LRN-138`](#lrn-138) | TASK-097 | `godot_engine` | Polyomino shop card preview and description formatting | 2026-09-17 |
 | [`LRN-139`](#lrn-139) | TASK-098 | `machinery` | Slingshot triangle bumper rotational geometry transformation | 2026-09-17 |
+| [`LRN-140`](#lrn-140) | TASK-093 | `physics` | Exclusive ball control and shared passage geometry | 2026-09-17 |
 
 ---
 
@@ -2374,5 +2375,21 @@ Polyomino modules rotate via 90-degree clockwise steps. Preserving immutable bas
 
 #### Actionable Guideline for Future Agents
 Pass rotation_step to all child components in PolyominoModuleNode and transform base segment and corner vertices using 90-degree step rotation.
+
+---
+
+### <a id="lrn-140"></a> LRN-140: Exclusive ball control and shared passage geometry
+- **Task:** `TASK-093`
+- **Category:** `physics`
+- **Created:** `2026-09-17T13:36:20.115132`
+
+#### Context & Problem
+Review of PR 76 found overlapping track captures and orbit mouths missing from placement checks.
+
+#### Key Insight & Learning
+Two devices can capture one ball before the first reaches its outlet. The second then saves zero gravity and can leave the released ball weightless. Device ports must also come from the same route used at runtime.
+
+#### Actionable Guideline for Future Agents
+Use one shared owner per captured ball. Restore physics state on release or removal. Derive preview ports and placement checks from runtime geometry. Test adjacent device handoffs with real physics, one completion each, and restored gravity. See relic_ball_flow.gd, relic_flow_geometry.gd, and run_relic_flow_physics.gd.
 
 ---
