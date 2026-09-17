@@ -1,6 +1,6 @@
 # TASK-093: Rework Relics into Deliberate Pinball Devices and Mechanisms
 
-- **Status:** DONE
+- **Status:** IN_PROGRESS
 - **Priority:** P1
 - **Category:** Systems / Gameplay / Visuals
 - **Target Branch:** `feature/rework-relics-deliberate-pinball-devices`
@@ -89,3 +89,28 @@ Rework the entire relic roster away from randomized machine pieces slotted hapha
 - [x] Relic definitions in `PolyominoRelicDatabase` reworked into deliberate, purposeful pinball machines.
 - [x] All automated tests pass in headless mode (`tests/run_tests.gd`).
 - [x] GDScript standards and file length limits (<= 500 lines) strictly satisfied.
+
+## Iteration 2: Accessible Ball Flow (2026-09-16)
+
+The first implementation did not prove usable entrance-to-exit paths. Reopened after user review.
+
+### Approved scope
+- Audit both relic catalogs for sealed passages, missing components, and false trigger descriptions.
+- Separate physical walls from placement footprints. Rotate openings with the device.
+- Prove open word lanes, bumper chambers, and retention reservoirs before expanding variants.
+- Connect spinner, route, and reservoir rewards to mechanism events.
+- Add safe partial reservoir release, entrance/exit placement feedback, and physical flow tests.
+- Keep seven distinct device families and preserve open board space.
+
+### Iteration acceptance
+- [x] Word banks have accessible entrances and exits in every supported rotation.
+- [x] Passage walls and preview walls use the same geometry.
+- [x] All catalog component cells belong to the reserved footprint.
+- [x] Chambers guide balls without blocking their drain.
+- [x] Reservoirs release captured balls, including underfilled recovery without a full reward.
+- [x] Spinner and route rewards match the displayed condition.
+- [x] Placement shows entrances/exits and detects directly blocked ports.
+- [x] Real physics tests cover passage, retention, rotation, and device combinations.
+- [ ] Quality checks and independent PR review pass; changes merge to main.
+
+Review: [Ball flow review and implementation contract](../knowledge/relic-ball-flow-review.md).

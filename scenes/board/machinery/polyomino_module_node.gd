@@ -2,11 +2,9 @@ extends Node2D
 class_name PolyominoModuleNode
 ## Compound multi-cell polyomino module node on the board.
 ## Scales and spawns internal kinetic machinery components matching module shape and rotation.
-
 signal machinery_triggered(component: PolyominoMachineryComponent, ball: Node, energy_granted: int, impulse: Vector2)
 signal goal_completed(module_node: Node, goal_type: int, reward_type: int, triggering_ball: Node, reward_data: Dictionary)
 signal bank_completed(bank_id: StringName, reward_type: int, reward_value: int)
-
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
 const PolyominoMachineryComponentScript = preload("res://scenes/board/machinery/polyomino_machinery_component.gd")
 const PinballBumperScript = preload("res://scenes/board/machinery/pinball_bumper.gd")
@@ -27,24 +25,22 @@ const MechanicalDiverterScript = preload("res://scenes/board/machinery/mechanica
 const VerticalUpKickerScript = preload("res://scenes/board/machinery/vertical_up_kicker.gd")
 const BashToyScript = preload("res://scenes/board/machinery/bash_toy.gd")
 const RelicTierVisuals = preload("res://scenes/ui/relic_tier_visuals.gd")
-
+const FlowVisuals = preload("res://scenes/board/machinery/relic_flow_visuals.gd")
+const FlowTrack = preload("res://scenes/board/machinery/flow_track.gd")
 const GoalArchetype = PolyominoModuleData.GoalArchetype
 const RewardType = PolyominoModuleData.RewardType
-
 const CELL_WIDTH: float = 52.0
 const CELL_HEIGHT: float = 56.0
-
 var item: Resource = null
 var module_data: PolyominoModuleData = null
 var grid_position: Vector2i = Vector2i.ZERO
 var rotation_step: int = 0
-
 var _components: Array[PolyominoMachineryComponent] = []
 var _components_by_cell: Dictionary = {} # Vector2i (anchored local cell) -> PolyominoMachineryComponent
 var _anchored_cells: Array[Vector2i] = []
 var _accent_color: Color = Color(0.6, 0.6, 0.6)
+var _wall_body: StaticBody2D = null
 
-# Pinball goal runtime tracking state
 var _hit_cells: Dictionary = {} # Vector2i -> bool (for Target Bank)
 var _widget_hit_counts: Dictionary = {} # int (CellType) -> int (hit count)
 var _current_hit_counter: int = 0
@@ -74,6 +70,9 @@ func setup_module(p_item: Resource, p_grid_pos: Vector2i, p_rotation: int = 0) -
 	_accent_color = RelicTierVisuals.get_tier_color(tier)
 	reset_goal_state()
 	_rebuild_components()
+	if is_instance_valid(_wall_body): _wall_body.free()
+	_wall_body = FlowVisuals.build_walls(module_data, rotation_step)
+	add_child(_wall_body)
 	queue_redraw()
 
 func reset_goal_state() -> void:
@@ -94,20 +93,8 @@ func _rebuild_components() -> void:
 	var orig_cells: Array[Vector2i] = module_data.cells
 
 	if module_data.layout_mode == PolyominoModuleData.MachineryLayoutMode.UNIFIED and module_data.unified_component_type != PolyominoModuleData.CellType.EMPTY:
-		var u_type: int = module_data.unified_component_type
-		var comp: PolyominoMachineryComponent = _create_component_for_type(u_type)
-		if comp != null:
-			comp.cell_type = u_type
-			comp.footprint_cells = _anchored_cells
-			comp.position = module_data.get_module_center_offset(rotation_step, CELL_WIDTH, CELL_HEIGHT)
-			if comp.has_method("configure_footprint"):
-				comp.configure_footprint(_anchored_cells.size())
-			_connect_component_signals(comp)
-			add_child(comp)
-			_components.append(comp)
-			for c in _anchored_cells:
-				_components_by_cell[c] = comp
-			return
+		_build_unified_component()
+		return
 
 	for idx in range(_anchored_cells.size()):
 		var local_c: Vector2i = _anchored_cells[idx]
@@ -126,37 +113,84 @@ func _rebuild_components() -> void:
 		if energy_val > 0:
 			comp.base_energy = energy_val
 		comp.position = Vector2(float(local_c.x) * CELL_WIDTH, float(local_c.y) * CELL_HEIGHT)
+		if module_data.enclosure_type == PolyominoModuleData.EnclosureType.DIRECTIONAL_FUNNEL and c_type in [3, 9]:
+			comp.component_radius = 10.0
+			var shift: float = 8.0 if orig_c.x == 0 else (-8.0 if orig_c.x == module_data.get_bounding_box().size.x - 1 else 0.0)
+			comp.position += Vector2(shift, 0).rotated(rotation_step * PI * 0.5)
+			comp.impulse_strength = 220.0
+			comp.set_meta("flow_chamber", true)
 		_connect_component_signals(comp, orig_c)
 		add_child(comp)
 		_components.append(comp)
 		_components_by_cell[local_c] = comp
 
+func _build_unified_component() -> void:
+	var u_type: int = module_data.unified_component_type
+	var comp: PolyominoMachineryComponent = _create_component_for_type(u_type)
+	if u_type == PolyominoModuleData.CellType.GUIDE_TRACK and module_data.goal_target_sequence.size() > 1:
+		comp.free()
+		comp = FlowTrack.new()
+	if comp != null:
+		comp.cell_type = u_type
+		comp.footprint_cells = _anchored_cells
+		comp.position = module_data.get_module_center_offset(rotation_step, CELL_WIDTH, CELL_HEIGHT)
+		if comp.has_method("configure_footprint"):
+			comp.configure_footprint(_anchored_cells.size())
+		if comp is FlowTrack:
+			comp.configure_route(module_data, rotation_step)
+			comp.route_completed.connect(_complete_device)
+		_connect_component_signals(comp)
+		add_child(comp)
+		_components.append(comp)
+		for c in _anchored_cells:
+			_components_by_cell[c] = comp
+		return
+
 func _connect_component_signals(comp: PolyominoMachineryComponent, orig_c: Vector2i = Vector2i.ZERO) -> void:
 	comp.set_accent_color(_accent_color)
 	comp.component_activated.connect(_on_component_activated)
 	if comp is WireGateScript:
-		if module_data != null and (module_data.activation_threshold > 0 or module_data.goal_type != GoalArchetype.NONE):
-			comp.requires_external_activation = true
+		_configure_gate(comp)
 		comp.cascade_released.connect(_on_cascade_released)
 	if comp is RolloverSwitchScript and module_data != null:
 		comp.letter = module_data.get_cell_letter_at(orig_c)
 	if comp is SlingshotKickerScript:
+		comp.hits_to_detonate = maxi(2, module_data.activation_threshold)
+		comp.detonation_bonus_energy = 0
 		comp.triangle_detonated.connect(_on_triangle_detonated)
+	if comp is BashToyScript:
+		comp.max_hits = maxi(2, module_data.activation_threshold)
 	if comp is SpinnerScript:
 		comp.spinner_overdrive_triggered.connect(_on_spinner_overdrive)
+	if comp is OrbitLoopScript:
+		comp.orbit_traversed.connect(_on_orbit_finished)
+
+func _on_orbit_finished(_comp: Node, ball: Node) -> void:
+	_complete_device(ball)
+
+func _configure_gate(comp: Node) -> void:
+	comp.requires_external_activation = false
+	comp.max_capacity = maxi(2, module_data.activation_threshold)
+	comp.direction = PolyominoModuleData.get_rotated_direction(Vector2.DOWN, rotation_step)
+	if module_data.layout_mode == PolyominoModuleData.MachineryLayoutMode.UNIFIED:
+		var bounds: Vector2i = Vector2i.ZERO
+		for cell: Vector2i in _anchored_cells: bounds = bounds.max(cell + Vector2i.ONE)
+		comp.component_radius = minf(bounds.x * CELL_WIDTH, bounds.y * CELL_HEIGHT) * 0.5 - 8.0
 
 func _on_cascade_released(_gate: Node, balls: Array) -> void:
 	var lead_ball: Node = balls[0] if not balls.is_empty() else null
-	_trigger_goal_completion(lead_ball)
+	_complete_device(lead_ball)
 
 func _on_triangle_detonated(_tri: Node, _pos: Vector2, ball: Node = null) -> void:
-	_trigger_goal_completion(ball)
+	_complete_device(ball)
 
 func _on_spinner_overdrive(_sp: Node, ball: Node = null) -> void:
-	if module_data and module_data.goal_type == GoalArchetype.SPINNER_RPM and module_data.activation_threshold <= 0:
-		_trigger_goal_completion(ball)
-	elif is_instance_valid(ball) and ball.has_method("add_peg_energy"):
-		ball.add_peg_energy(25)
+	if module_data and module_data.goal_type == GoalArchetype.SPINNER_RPM:
+		_complete_device(ball)
+
+func _complete_device(ball: Node) -> void:
+	_goal_completed_in_current_activation = false
+	_trigger_goal_completion(ball)
 
 func _create_component_for_type(c_type: int) -> PolyominoMachineryComponent:
 	match c_type:
@@ -220,6 +254,8 @@ func _evaluate_goal_progress(comp: PolyominoMachineryComponent, ball: Node, ener
 		return
 	if module_data.goal_type == GoalArchetype.ROLLOVER_SPELL:
 		return
+	if comp is WireGateScript or comp is FlowTrack or comp is OrbitLoopScript or comp is SlingshotKickerScript or module_data.goal_type == GoalArchetype.SPINNER_RPM:
+		return
 
 	# Hurry-Up Frenzy has its own timing-based activation
 	if module_data.goal_type == GoalArchetype.HURRY_UP_FRENZY:
@@ -260,24 +296,6 @@ func _evaluate_goal_progress(comp: PolyominoMachineryComponent, ball: Node, ener
 			_hit_cells[comp.local_cell] = true
 			if _hit_cells.size() >= _components.size():
 				_hit_cells.clear()
-				_trigger_goal_completion(ball)
-		GoalArchetype.SEQUENCE_ROUTE:
-			var target_seq: Array[Vector2i] = module_data.goal_target_sequence.duplicate()
-			if target_seq.is_empty():
-				for c in _components: target_seq.append(c.local_cell)
-			if not target_seq.is_empty():
-				var expected: Vector2i = target_seq[mini(_sequence_index, target_seq.size() - 1)]
-				if comp.local_cell == expected:
-					_sequence_index += 1
-					if _sequence_index >= target_seq.size():
-						_sequence_index = 0
-						_trigger_goal_completion(ball)
-				else:
-					_sequence_index = 1 if comp.local_cell == target_seq[0] else 0
-		GoalArchetype.ORBIT_FLOW:
-			_orbit_count += 1
-			if _orbit_count >= maxi(2, module_data.goal_target_count):
-				_orbit_count = 0
 				_trigger_goal_completion(ball)
 		GoalArchetype.SINKHOLE_LOCK:
 			_lock_count += 1
@@ -327,6 +345,9 @@ var is_ghost: bool = false
 
 func set_ghost_state(p_ghost: bool) -> void:
 	is_ghost = p_ghost
+	if is_instance_valid(_wall_body): _wall_body.collision_layer = 0 if is_ghost else 1
+	for comp in _components:
+		comp.collision_layer = 0 if is_ghost or comp.is_permeable else 1
 	modulate.a = 0.5 if is_ghost else 1.0
 	queue_redraw()
 
@@ -362,37 +383,10 @@ func check_ball_collision(ball: Node, sim_tick: int) -> Dictionary:
 
 	if not act_res.is_empty():
 		return act_res
-	return _check_wall_segment_collision(ball)
+	return _check_wall_segment_collision(ball) if not is_inside_tree() else {"activated": false}
 
 func _check_wall_segment_collision(ball: Node) -> Dictionary:
-	if module_data == null:
-		return { "activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO }
-	var segments: Array[Dictionary] = module_data.get_solid_edge_segments(rotation_step)
-	if segments.is_empty():
-		return { "activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO }
-
-	var ball_pos: Vector2 = (ball.global_position if ball.is_inside_tree() else ball.position) if "position" in ball else Vector2.ZERO
-	var ball_vel: Vector2 = ball.linear_velocity if "linear_velocity" in ball else Vector2.ZERO
-	var ball_radius: float = Constants.BALL_RADIUS
-	var module_base_pos: Vector2 = global_position if is_inside_tree() else position
-
-	for seg in segments:
-		var p1_l: Vector2 = seg["p1"]
-		var p2_l: Vector2 = seg["p2"]
-		var w1: Vector2 = module_base_pos + Vector2(p1_l.x * CELL_WIDTH, p1_l.y * CELL_HEIGHT)
-		var w2: Vector2 = module_base_pos + Vector2(p2_l.x * CELL_WIDTH, p2_l.y * CELL_HEIGHT)
-		var closest: Vector2 = Geometry2D.get_closest_point_to_segment(ball_pos, w1, w2)
-		if ball_pos.distance_to(closest) <= ball_radius + 2.0:
-			var hit_normal: Vector2 = (ball_pos - closest).normalized()
-			if hit_normal.length_squared() < 0.01:
-				hit_normal = seg["normal"]
-			var eff_vel: Vector2 = ball_vel if ball_vel.length_squared() > 0.01 else -hit_normal * 100.0
-			if eff_vel.dot(hit_normal) <= 0.0:
-				var reflected: Vector2 = eff_vel.bounce(hit_normal) * 0.85
-				if "linear_velocity" in ball:
-					ball.linear_velocity = reflected
-				return { "activated": true, "energy_granted": 0, "impulse_applied": reflected - eff_vel, "wall_hit": true }
-	return { "activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO }
+	return FlowVisuals.bounce_wall(module_data, rotation_step, ball, position)
 
 ## Returns true if all active balls are completely outside this module's collision footprint.
 func is_area_clear_of_balls(active_balls: Array, ball_radius: float = Constants.BALL_RADIUS) -> bool:
@@ -412,6 +406,9 @@ func get_unified_component() -> PolyominoMachineryComponent: return _components[
 func get_widget_hit_count(w_type: int) -> int: return _widget_hit_counts.get(w_type, 0)
 
 func get_current_hit_count() -> int:
+	if module_data != null:
+		var flow: Vector2i = preload("res://scenes/board/machinery/relic_flow_progress.gd").read(module_data, _components)
+		if flow.x >= 0: return flow.x
 	if module_data and module_data.required_widget_type != PolyominoModuleData.CellType.EMPTY:
 		return _widget_hit_counts.get(module_data.required_widget_type, 0)
 	if module_data and module_data.goal_type == GoalArchetype.TARGET_BANK:
@@ -421,6 +418,9 @@ func get_current_hit_count() -> int:
 	return _current_hit_counter
 
 func get_activation_threshold() -> int:
+	if module_data != null:
+		var flow: Vector2i = preload("res://scenes/board/machinery/relic_flow_progress.gd").read(module_data, _components)
+		if flow.x >= 0: return flow.y
 	if module_data == null:
 		return 0
 	if module_data.activation_threshold > 0:
@@ -487,5 +487,6 @@ func _draw() -> void:
 		var segments: Array[Dictionary] = module_data.get_solid_edge_segments(rotation_step)
 		RelicTierVisuals.draw_tier_frame(self, segments, cell_sz, Vector2.ZERO, tier, false, wall_highlight_override)
 		RelicTierVisuals.draw_tier_corner_accents(self, _anchored_cells, cell_sz, origin_offset, tier, false)
+		FlowVisuals.draw_ports(self, module_data, rotation_step, cell_sz)
 	# 3. Draw diegetic overlays and indicators via PolyominoDiegeticRenderer
 	PolyominoDiegeticRenderer.draw_diegetic_overlays(self, self, module_data, _components, _components_by_cell, _accent_color, _floating_banner_text, _floating_banner_timer, is_ghost)

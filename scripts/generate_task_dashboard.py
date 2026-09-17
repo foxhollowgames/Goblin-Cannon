@@ -478,16 +478,14 @@ def main():
         f.write(html_content)
     print(f"Generated standalone task dashboard at {out_file}")
 
-    brain_root = os.path.expanduser("~/.gemini/antigravity/brain")
-    if os.path.exists(brain_root):
-        conv_id = os.environ.get("ANTIGRAVITY_CONVERSATION_ID", "")
-        tdirs = [os.path.join(brain_root, conv_id)] if conv_id and os.path.exists(os.path.join(brain_root, conv_id)) else []
-        if not tdirs:
-            dirs = sorted([os.path.join(brain_root, d) for d in os.listdir(brain_root) if os.path.isdir(os.path.join(brain_root, d))], key=os.path.getmtime, reverse=True)
-            tdirs = dirs[:1] if dirs else []
-        for tdir in tdirs:
-            with open(os.path.join(tdir, "task_dashboard.html"), "w", encoding="utf-8") as f:
+    conv_id = os.environ.get("ANTIGRAVITY_CONVERSATION_ID", "")
+    if conv_id:
+        brain_root = os.path.expanduser("~/.gemini/antigravity/brain")
+        target = os.path.join(brain_root, conv_id)
+        if os.path.isdir(target):
+            with open(os.path.join(target, "task_dashboard.html"), "w", encoding="utf-8") as f:
                 f.write(html_content)
+
 
 
 if __name__ == "__main__":

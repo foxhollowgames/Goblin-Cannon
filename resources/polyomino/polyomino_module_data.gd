@@ -164,6 +164,8 @@ func get_module_center_offset(steps: int = 0, cell_w: float = 52.0, cell_h: floa
 	return sum / float(anchored.size())
 
 func get_cell_type_at(cell: Vector2i) -> int:
+	if layout_mode == MachineryLayoutMode.UNIFIED and cells.has(cell):
+		return unified_component_type
 	if cell_types.has(cell):
 		return int(cell_types[cell])
 	var key_str: String = "%d,%d" % [cell.x, cell.y]
@@ -258,91 +260,14 @@ static func rotate_side(side: String, steps: int = 0) -> String:
 ## Returns Array of Dictionary for edge wall segments in anchored rotated space.
 ## Each element: { "p1": Vector2, "p2": Vector2, "normal": Vector2, "side": String, "cell": Vector2i, "is_internal": bool }
 func get_solid_edge_segments(steps: int = 0) -> Array[Dictionary]:
-	var anchored: Array[Vector2i] = get_anchored_rotated_cells(steps)
-	if anchored.is_empty():
-		return []
+	return preload("res://resources/polyomino/relic_flow_geometry.gd").segments(self, steps)
 
-	var segments: Array[Dictionary] = []
-	var cell_set: Dictionary = {}
-	for c in anchored:
-		cell_set[c] = true
+## Returns entrance and exit edges in rotated cell coordinates.
+func get_flow_ports(steps: int = 0) -> Array[Dictionary]:
+	return preload("res://resources/polyomino/relic_flow_geometry.gd").ports(self, steps)
 
-	var max_x: int = anchored[0].x
-	for c in anchored:
-		max_x = maxi(max_x, c.x)
-
-	for c in anchored:
-		_append_cell_edge_segments(c, steps, cell_set, max_x, segments)
-
-	return segments
-
-func _append_cell_edge_segments(c: Vector2i, steps: int, cell_set: Dictionary, max_x: int, segments: Array[Dictionary]) -> void:
-	var has_top: bool = cell_set.has(Vector2i(c.x, c.y - 1))
-	var has_bot: bool = cell_set.has(Vector2i(c.x, c.y + 1))
-	var has_left: bool = cell_set.has(Vector2i(c.x - 1, c.y))
-	var has_right: bool = cell_set.has(Vector2i(c.x + 1, c.y))
-
-	var is_funnel: bool = (enclosure_type == EnclosureType.DIRECTIONAL_FUNNEL)
-	var is_full: bool = (enclosure_type == EnclosureType.FULL_ENCLOSURE)
-	var is_divided: bool = (enclosure_type == EnclosureType.DIVIDED_LANES)
-
-	var n_solid: bool = (is_full or is_divided) and not has_top
-	var s_solid: bool = (is_full or is_divided) and not has_bot
-	var w_solid: bool = (is_full or is_divided or is_funnel) and not has_left
-	var e_solid: bool = (is_full or is_divided or is_funnel) and not has_right
-	var is_internal_e: bool = false
-	if is_divided and has_right and c.x < max_x:
-		e_solid = true
-		is_internal_e = true
-
-	var orig_idx: int = _find_orig_cell_index_for_anchored(c, steps)
-	if orig_idx >= 0 and orig_idx < cells.size():
-		for cs in _get_custom_sides_for_cell(cells[orig_idx]):
-			match rotate_side(cs, steps):
-				"N": n_solid = true
-				"S": s_solid = true
-				"W": w_solid = true
-				"E": e_solid = true
-
-	_build_edge_dicts(c, n_solid, s_solid, w_solid, e_solid, is_internal_e, segments)
-
-func _build_edge_dicts(c: Vector2i, n_solid: bool, s_solid: bool, w_solid: bool, e_solid: bool, is_internal_e: bool, segments: Array[Dictionary]) -> void:
-	var hw: float = 0.5
-	var hh: float = 0.5
-	var fx: float = float(c.x)
-	var fy: float = float(c.y)
-
-	if n_solid:
-		segments.append({"p1": Vector2(fx - hw, fy - hh), "p2": Vector2(fx + hw, fy - hh), "normal": Vector2(0, -1), "side": "N", "cell": c, "is_internal": false})
-	if s_solid:
-		segments.append({"p1": Vector2(fx - hw, fy + hh), "p2": Vector2(fx + hw, fy + hh), "normal": Vector2(0, 1), "side": "S", "cell": c, "is_internal": false})
-	if w_solid:
-		segments.append({"p1": Vector2(fx - hw, fy - hh), "p2": Vector2(fx - hw, fy + hh), "normal": Vector2(-1, 0), "side": "W", "cell": c, "is_internal": false})
-	if e_solid:
-		segments.append({"p1": Vector2(fx + hw, fy - hh), "p2": Vector2(fx + hw, fy + hh), "normal": Vector2(1, 0), "side": "E", "cell": c, "is_internal": is_internal_e})
-
-	return
-
-func _find_orig_cell_index_for_anchored(anchored_cell: Vector2i, steps: int) -> int:
-	var anchored_list: Array[Vector2i] = get_anchored_rotated_cells(steps)
-	for i in range(anchored_list.size()):
-		if anchored_list[i] == anchored_cell:
-			return i
-	return -1
-
-func _get_custom_sides_for_cell(cell: Vector2i) -> Array[String]:
-	var raw = null
-	if custom_wall_edges.has(cell):
-		raw = custom_wall_edges[cell]
-	else:
-		var key_str: String = "%d,%d" % [cell.x, cell.y]
-		if custom_wall_edges.has(key_str):
-			raw = custom_wall_edges[key_str]
-	var res: Array[String] = []
-	if raw is Array:
-		for item in raw:
-			res.append(str(item))
-	return res
+func _find_orig_cell_index_for_anchored(cell: Vector2i, steps: int) -> int:
+	return get_anchored_rotated_cells(steps).find(cell)
 
 func _serialize_custom_wall_edges() -> Dictionary:
 	var res: Dictionary = {}

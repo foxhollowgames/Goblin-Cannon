@@ -19,8 +19,6 @@ static func handle_goal_reward(board: Node2D, module_node: Node, goal_type: int,
 			if is_instance_valid(ball):
 				if ball.has_method("add_peg_energy"):
 					ball.add_peg_energy(energy)
-				if "linear_velocity" in ball:
-					ball.linear_velocity = Vector2(randf_range(-120.0, 120.0), -420.0)
 			if board.has_method("_spawn_energy_popup_at_pos"):
 				board._spawn_energy_popup_at_pos(origin_pos, energy)
 

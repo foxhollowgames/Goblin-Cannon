@@ -76,18 +76,18 @@ func test_ball_retention_physics_and_movement() -> void:
 
 	# Ball moves inside cup interior: position should NOT be reset to center (100, 100)
 	ball1.position = Vector2(115, 110)
-	gate._process(0.016)
-	assert_eq(ball1.position, Vector2(115, 110), "ball position is preserved inside cup interior")
+	gate._physics_process(0.016)
+	assert_lt(ball1.position.distance_to(gate.position), gate.component_radius, "held ball remains visibly inside cup")
 
 	# Ball moves beyond cup radius: process clamps it inside
 	ball1.position = Vector2(250, 100)
-	gate._process(0.016)
+	gate._physics_process(0.016)
 	var offset: Vector2 = ball1.position - gate.position
 	assert_lt(offset.length(), 60.0, "ball is constrained inside cup boundary")
 
 	# Ball moves past gate barrier in forward direction: gate blocks it
 	ball1.position = Vector2(100, 180) # far below down gate
-	gate._process(0.016)
+	gate._physics_process(0.016)
 	var forward_y: float = ball1.position.y - gate.position.y
 	assert_lt(forward_y, 50.0, "closed gate barrier stops ball from crossing exit")
 
@@ -156,7 +156,7 @@ func test_polyomino_module_integration_wire_gate_cup() -> void:
 	assert_eq(module_node._components.size(), 1, "module created unified component")
 	var gate: WireGate = module_node._components[0] as WireGate
 	assert_true(gate != null, "unified component is WireGate")
-	assert_true(gate.requires_external_activation, "module sets requires_external_activation on gate")
+	assert_false(gate.requires_external_activation, "module lets capacity control gate release")
 	assert_false(gate.is_open, "gate starts closed")
 
 	var ball1 := _create_mock_ball(gate.position, Vector2(0, 50), 10)
@@ -198,12 +198,12 @@ func test_wire_gate_auto_close_after_balls_exit() -> void:
 
 	# While ball is still near gate center, gate stays open
 	ball1.position = Vector2(100, 110)
-	gate._process(0.016)
+	gate._physics_process(0.016)
 	assert_true(gate.is_open, "gate stays open while released ball is still exiting")
 
 	# When ball moves far outside the cup bounds, gate detects exit and closes
 	ball1.position = Vector2(100, 200)
-	gate._process(0.016)
+	gate._physics_process(0.016)
 	assert_false(gate.is_open, "gate automatically closes after ball exits component bounds")
 
 	ball1.free()

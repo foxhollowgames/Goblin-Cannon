@@ -87,8 +87,8 @@ func test_v_shape_ball_entry_and_exit_impulse_forward() -> void:
 	var res: Dictionary = orbit.trigger_activation(ball, 10)
 
 	assert_true(res.get("activated", false), "Orbit loop activated upon ball entry")
-	assert_true(traversed_emitted[0], "orbit_traversed signal emitted")
-	assert_eq(orbit.traversal_count, 1, "Traversal count incremented to 1")
+	assert_false(traversed_emitted[0], "Entry is not a completed traversal")
+	assert_eq(orbit.traversal_count, 0, "Traversal count waits for the exit")
 
 	var impulse: Vector2 = res.get("impulse_applied", Vector2.ZERO)
 	assert_gt(impulse.length(), 400.0, "Exit impulse applied with high magnitude")
@@ -105,8 +105,8 @@ func test_v_shape_ball_entry_and_exit_impulse_reverse() -> void:
 	var res: Dictionary = orbit.trigger_activation(ball, 10)
 
 	assert_true(res.get("activated", false), "Orbit loop activated in reverse direction")
-	assert_true(traversed_emitted[0], "orbit_traversed signal emitted")
-	assert_eq(orbit.traversal_count, 1, "Traversal count incremented to 1")
+	assert_false(traversed_emitted[0], "Entry is not a completed traversal")
+	assert_eq(orbit.traversal_count, 0, "Traversal count waits for the exit")
 
 	var impulse: Vector2 = res.get("impulse_applied", Vector2.ZERO)
 	assert_gt(impulse.length(), 400.0, "Exit impulse applied on reverse exit")

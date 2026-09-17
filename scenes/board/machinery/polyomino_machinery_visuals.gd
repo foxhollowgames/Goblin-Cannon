@@ -232,11 +232,13 @@ static func _draw_vuk(canvas: CanvasItem, center: Vector2, dir: Vector2, r: floa
 static func _draw_wire_gate(canvas: CanvasItem, center: Vector2, dir: Vector2, r: float, col: Color, ink: Color, a: float) -> void:
 	canvas.draw_circle(center, r, ink)
 	canvas.draw_circle(center, r - 1.5, col.darkened(0.5))
-	canvas.draw_arc(center, r, 0, TAU, 24, col, 2.0)
 	var gate_dir: Vector2 = dir.normalized() if dir != Vector2.ZERO else Vector2.DOWN
+	var angle: float = gate_dir.angle()
+	canvas.draw_arc(center, r, angle + PI * 0.25, angle + PI * 0.75, 16, col, 2.0)
+	canvas.draw_arc(center, r, angle + PI * 1.25, angle + PI * 1.75, 16, col, 2.0)
 	var perp: Vector2 = Vector2(-gate_dir.y, gate_dir.x)
-	var post_a: Vector2 = center + perp * (r * 0.75)
-	var post_b: Vector2 = center - perp * (r * 0.75)
+	var post_a: Vector2 = center + gate_dir * r * 0.7 + perp * (r * 0.75)
+	var post_b: Vector2 = center + gate_dir * r * 0.7 - perp * (r * 0.75)
 	canvas.draw_circle(post_a, 3.5, ink)
 	canvas.draw_circle(post_a, 2.5, Color(0.85, 0.85, 0.9, a))
 	canvas.draw_circle(post_b, 3.5, ink)

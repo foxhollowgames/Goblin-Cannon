@@ -84,8 +84,8 @@ func test_bash_toy_exclusive_to_tier_3() -> void:
 			elif mod.tier == 3:
 				tier_3_bash_toys += 1
 
-	_assert(tier_1_bash_toys == 0, "Tier 1 common relics must contain 0 bash toys, got %d" % tier_1_bash_toys)
-	_assert(tier_2_bash_toys == 0, "Tier 2 wall break relics must contain 0 bash toys, got %d" % tier_2_bash_toys)
+	_assert(tier_1_bash_toys > 0, "Tier 1 common relics include the compact bash toys from Task 93, got %d" % tier_1_bash_toys)
+	_assert(tier_2_bash_toys > 0, "Tier 2 wall break relics include the compact bash toys from Task 93, got %d" % tier_2_bash_toys)
 	_assert(tier_3_bash_toys > 0, "Tier 3 boss amplifier relics must contain bash toys, got %d" % tier_3_bash_toys)
 
 func test_even_widget_distribution() -> void:
@@ -99,4 +99,4 @@ func test_even_widget_distribution() -> void:
 		if not mod.get_occupied_machine_cells().is_empty():
 			total_relics_with_machinery += 1
 
-	_assert(total_relics_with_machinery == 81, "All 81 relics must have active machinery components defined")
+	_assert(total_relics_with_machinery == ids.size(), "All catalog relics must have active machinery components defined")

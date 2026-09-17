@@ -36,6 +36,9 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	super._process(delta)
+
+func _physics_process(delta: float) -> void:
+	if GameState.paused: return
 	if effect_cooldown_timer > 0.0:
 		effect_cooldown_timer = maxf(0.0, effect_cooldown_timer - delta)
 	if spin_velocity > 0.0:

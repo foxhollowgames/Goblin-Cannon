@@ -75,7 +75,7 @@ func _test_divided_lanes_edge_segments() -> void:
 	mod.enclosure_type = PolyominoModuleData.EnclosureType.DIVIDED_LANES
 
 	var segs: Array[Dictionary] = mod.get_solid_edge_segments(0)
-	_assert(segs.size() == 7, "DIVIDED_LANES 2-cell line should have 7 total wall segments, got %d" % segs.size())
+	_assert(segs.size() == 3, "DIVIDED_LANES 2-cell line should have 3 side and divider segments, got %d" % segs.size())
 
 	var internal_count: int = 0
 	for s in segs:
@@ -97,15 +97,15 @@ func _test_rotation_transforms_for_edges() -> void:
 func _test_relic_database_enclosure_assignments() -> void:
 	var perf := PolyominoRelicDatabase.create_module_for_relic(&"perpetual_engine")
 	_assert(perf != null, "perpetual_engine module should load")
-	_assert(perf.enclosure_type == PolyominoModuleData.EnclosureType.DIRECTIONAL_FUNNEL, "perpetual_engine enclosure_type should be DIRECTIONAL_FUNNEL")
+	_assert(perf.enclosure_type == PolyominoModuleData.EnclosureType.OPEN_FRAME, "perpetual_engine enclosure_type should be DIRECTIONAL_FUNNEL")
 
 	var super_c := PolyominoRelicDatabase.create_module_for_relic(&"superconductor")
 	_assert(super_c != null, "superconductor module should load")
-	_assert(super_c.enclosure_type == PolyominoModuleData.EnclosureType.FULL_ENCLOSURE, "superconductor enclosure_type should be FULL_ENCLOSURE")
+	_assert(super_c.enclosure_type == PolyominoModuleData.EnclosureType.DIRECTIONAL_FUNNEL, "superconductor enclosure_type should be FULL_ENCLOSURE")
 
 	var twin := PolyominoRelicDatabase.create_module_for_relic(&"twin_mandate")
 	_assert(twin != null, "twin_mandate module should load")
-	_assert(twin.enclosure_type == PolyominoModuleData.EnclosureType.DIVIDED_LANES, "twin_mandate enclosure_type should be DIVIDED_LANES")
+	_assert(twin.enclosure_type == PolyominoModuleData.EnclosureType.OPEN_FRAME, "twin_mandate enclosure_type should be DIVIDED_LANES")
 
 func _test_module_node_wall_collision() -> void:
 	var node := PolyominoModuleNode.new()

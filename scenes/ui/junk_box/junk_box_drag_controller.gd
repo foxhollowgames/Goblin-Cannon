@@ -365,13 +365,14 @@ class _GhostPreviewVisual extends Control:
 		var fill_color: Color = Color(0.2, 0.9, 0.3, 0.65) if is_valid else Color(0.95, 0.2, 0.2, 0.65)
 		var border_color: Color = Color(0.4, 1.0, 0.5, 0.9) if is_valid else Color(1.0, 0.4, 0.4, 0.9)
 
+
 		var orig_cells: Array[Vector2i] = module_data.cells if module_data != null else []
 
 		for idx in range(cells.size()):
 			var c: Vector2i = cells[idx]
 			var rect := Rect2(c.x * cell_size.x + 2.0, c.y * cell_size.y + 2.0, cell_size.x - 4.0, cell_size.y - 4.0)
 			draw_rect(rect, fill_color)
-			draw_rect(rect, border_color, false, 2.5)
+			draw_rect(rect, Color(border_color, 0.2), false, 1.0)
 
 			var center: Vector2 = rect.get_center()
 			var orig_c: Vector2i = orig_cells[idx] if idx < orig_cells.size() else c
@@ -399,4 +400,12 @@ class _GhostPreviewVisual extends Control:
 				var base_p: Vector2 = center - dir_norm * (rect.size.x * 0.15)
 				var pts: PackedVector2Array = [head, base_p + perp, base_p - perp]
 				draw_colored_polygon(pts, icon_col)
+
+
+		if module_data != null:
+			preload("res://scenes/board/machinery/relic_flow_visuals.gd").draw_route(self, module_data, rotation_step, cell_size, cell_size * 0.5)
+			var walls: Array[Dictionary] = module_data.get_solid_edge_segments(rotation_step)
+			for wall: Dictionary in walls:
+				draw_line(wall.p1 * cell_size + cell_size * 0.5, wall.p2 * cell_size + cell_size * 0.5, border_color, 3.0)
+			preload("res://scenes/board/machinery/relic_flow_visuals.gd").draw_ports(self, module_data, rotation_step, cell_size, cell_size * 0.5)
 

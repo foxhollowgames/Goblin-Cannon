@@ -244,7 +244,6 @@ func can_activate_for_ball(ball_id: int, sim_tick: int) -> bool:
 
 func record_ball_exit(ball_id: int, sim_tick: int) -> void:
 	super.record_ball_exit(ball_id, sim_tick)
-	_guided_balls.erase(ball_id)
 
 func check_ball_contact(ball_pos: Vector2, ball_radius: float, module_base_pos: Vector2 = Vector2.ZERO) -> bool:
 	var my_global: Vector2 = global_position if is_inside_tree() else (module_base_pos + position)
@@ -256,16 +255,13 @@ func check_ball_contact(ball_pos: Vector2, ball_radius: float, module_base_pos: 
 			return true
 		if local_ball.distance_squared_to(port_b) <= contact_sq:
 			return true
-		for i in range(waypoints.size() - 1):
-			var closest: Vector2 = Geometry2D.get_closest_point_to_segment(local_ball, waypoints[i], waypoints[i + 1])
-			if local_ball.distance_squared_to(closest) <= contact_sq:
-				return true
+		return false
 	var hr: float = component_radius + ball_radius + 4.0
 	return local_ball.length_squared() <= (hr * hr)
 
 func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else ball.get_instance_id()
-	if not can_activate_for_ball(bid, sim_tick):
+	if _guided_balls.has(bid) or not can_activate_for_ball(bid, sim_tick):
 		return { "activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO, "type": cell_type }
 
 	record_activation(bid, sim_tick)
@@ -276,8 +272,6 @@ func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 	if ball.has_method("add_peg_energy") and energy > 0:
 		ball.add_peg_energy(energy)
 
-	traversal_count += 1
-	orbit_traversed.emit(self, ball)
 	_pulse_t = 0.0
 
 	var exit_dir: Vector2 = direction.normalized() if direction != Vector2.ZERO else Vector2.UP
@@ -313,8 +307,11 @@ func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 			"ball": ball,
 			"target_idx": start_idx + travel_dir,
 			"dir": travel_dir,
-			"exit_dir": exit_dir
+			"exit_dir": exit_dir,
+			"gravity": ball.gravity_scale if ball is RigidBody2D else 0.0,
+			"ticks": 0
 		}
+		if ball is RigidBody2D: ball.gravity_scale = 0.0
 	else:
 		_apply_ball_impulse(ball, impulse)
 
@@ -338,6 +335,10 @@ func _process(delta: float) -> void:
 		_pulse_t = minf(1.0, _pulse_t + delta * 2.5)
 		queue_redraw()
 
+	super._process(delta)
+
+func _physics_process(_delta: float) -> void:
+	if GameState.paused: return
 	if not _guided_balls.is_empty():
 		var my_pos: Vector2 = global_position if is_inside_tree() else position
 		for bid in _guided_balls.keys():
@@ -347,12 +348,20 @@ func _process(delta: float) -> void:
 				_guided_balls.erase(bid)
 				continue
 
+			entry.ticks += 1
+			if entry.ticks > 600:
+				if ball is RigidBody2D: ball.gravity_scale = entry.gravity
+				_guided_balls.erase(bid)
+				continue
 			var target_idx: int = entry.get("target_idx", 0)
 			var travel_dir: int = entry.get("dir", 1)
 			var exit_dir: Vector2 = entry.get("exit_dir", Vector2.UP)
 
 			if target_idx < 0 or target_idx >= waypoints.size():
-				_apply_ball_impulse(ball, exit_dir * impulse_strength)
+				if ball is RigidBody2D: ball.gravity_scale = entry.gravity
+				ball.linear_velocity = exit_dir * impulse_strength
+				traversal_count += 1
+				orbit_traversed.emit(self, ball)
 				record_ball_exit(bid, _current_sim_tick)
 				_guided_balls.erase(bid)
 				continue
@@ -368,10 +377,12 @@ func _process(delta: float) -> void:
 				var move_dir: Vector2 = (target_global - ball_pos).normalized()
 				if "linear_velocity" in ball:
 					ball.linear_velocity = move_dir * (guide_speed * speed_multiplier)
-				if "position" in ball:
-					ball.position += move_dir * (guide_speed * speed_multiplier * delta)
 
-	super._process(delta)
+func _exit_tree() -> void:
+	for entry: Dictionary in _guided_balls.values():
+		if is_instance_valid(entry.ball) and entry.ball is RigidBody2D:
+			entry.ball.gravity_scale = entry.gravity
+	_guided_balls.clear()
 #endregion
 
 #region Visual Rendering

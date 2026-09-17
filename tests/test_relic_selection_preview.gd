@@ -42,7 +42,7 @@ func test_preview_control_instantiation_and_properties() -> void:
 func test_all_database_relics_generate_valid_previews() -> void:
 	begin("Every campaign relic in PolyominoRelicDatabase generates a valid preview")
 	var all_ids: Array[StringName] = PolyominoRelicDatabase.get_all_relic_ids()
-	assert_eq(all_ids.size(), 81, "exactly 81 relic definitions exist")
+	assert_eq(all_ids.size(), 122, "exactly 122 relic definitions exist")
 
 	var preview: RelicLayoutPreview = RelicLayoutPreview.new()
 	preview.size = Vector2(180, 80)
@@ -83,11 +83,11 @@ func test_kinetic_glyph_types_and_directions() -> void:
 	assert_true(mod_accel != null, "hyper_elastic module exists")
 	var has_accel: bool = false
 	for c in mod_accel.cells:
-		if mod_accel.get_cell_type_at(c) == PolyominoModuleData.CellType.SPINNER:
+		if mod_accel.get_cell_type_at(c) == PolyominoModuleData.CellType.GUIDE_TRACK:
 			has_accel = true
 			var dir: Vector2 = mod_accel.get_cell_direction_at(c)
-			assert_eq(dir, Vector2.UP, "hyper_elastic spinner direction is UP")
-	assert_true(has_accel, "hyper_elastic contains spinner cell")
+			assert_eq(dir, Vector2.DOWN, "Track entrance points down")
+	assert_true(has_accel, "hyper_elastic contains continuous track")
 
 	# Test Ball Lock component relic
 	preview.setup_for_relic(&"perpetual_engine")
@@ -95,11 +95,11 @@ func test_kinetic_glyph_types_and_directions() -> void:
 	assert_true(mod_funnel != null, "perpetual_engine module exists")
 	var has_funnel: bool = false
 	for c in mod_funnel.cells:
-		if mod_funnel.get_cell_type_at(c) == PolyominoModuleData.CellType.BALL_LOCK:
+		if mod_funnel.get_cell_type_at(c) == PolyominoModuleData.CellType.GUIDE_TRACK:
 			has_funnel = true
 			var f_dir: Vector2 = mod_funnel.get_cell_direction_at(c)
 			assert_eq(f_dir, Vector2.DOWN, "perpetual_engine ball lock direction is DOWN")
-	assert_true(has_funnel, "perpetual_engine contains ball lock cell")
+	assert_true(has_funnel, "perpetual_engine contains continuous track")
 
 	# Test Rotary Booster component relic
 	preview.setup_for_relic(&"storm_of_fragments")

@@ -112,6 +112,12 @@ func _draw() -> void:
 	RelicTierVisuals.draw_tier_frame(self, segments, cell_sz, offset_px, tier)
 	RelicTierVisuals.draw_tier_corner_accents(self, module_data.cells, cell_sz, origin_px, tier)
 
+	var flow = preload("res://scenes/board/machinery/relic_flow_visuals.gd")
+	flow.draw_route(self, module_data, 0, cell_sz, offset_px)
+	flow.draw_ports(self, module_data, 0, cell_sz, offset_px)
+	if module_data.unified_component_type == CellType.GUIDE_TRACK and module_data.goal_target_sequence.size() > 1:
+		return
+
 	# 3. Render internal kinetic machinery components
 	if module_data.layout_mode == PolyominoModuleData.MachineryLayoutMode.UNIFIED and module_data.unified_component_type != CellType.EMPTY:
 		var u_type: int = module_data.unified_component_type
@@ -136,4 +142,9 @@ func _draw() -> void:
 			var cell_center := cell_pos + Vector2(cell_size * 0.5, cell_size * 0.5)
 			var c_dir: Vector2 = module_data.get_cell_direction_at(c)
 			var radius: float = (cell_size - cell_pad * 2.0) * 0.45
+			if module_data.enclosure_type == PolyominoModuleData.EnclosureType.DIRECTIONAL_FUNNEL and c_type in [CellType.BUMPER, CellType.POP_BUMPER]:
+				radius = cell_size * 10.0 / 52.0
+				cell_center.x += cell_size * (8.0 if c.x == 0 else (-8.0 if c.x == max_x else 0.0)) / 52.0
 			PolyominoMachineryVisuals.draw_component(self, c_type, cell_center, c_dir, radius, accent_color, 1)
+			if c_type == CellType.ROLLOVER_SWITCH:
+				draw_string(ThemeDB.fallback_font, cell_center + Vector2(-4, 4), module_data.get_cell_letter_at(c), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color.WHITE)

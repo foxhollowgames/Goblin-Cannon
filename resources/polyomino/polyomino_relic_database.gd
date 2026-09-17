@@ -52,6 +52,10 @@ static func get_all_relic_ids() -> Array[StringName]:
 	var ids: Array[StringName] = []
 	for k in defs:
 		ids.append(k)
+	for k in _MULTI_PEG_DEFINITIONS:
+		if not ids.has(k): ids.append(k)
+	for k in DeliberateRelicCatalog.get_all_ids():
+		if not ids.has(k): ids.append(k)
 	return ids
 
 static func get_relic_tier(relic_id: StringName) -> int:
@@ -87,10 +91,9 @@ static func get_relic_goal_description(relic_id: StringName) -> String:
 	return str(g.get("desc", "Hit all components in module."))
 
 static func get_relic_activation_requirement(relic_id: StringName) -> String:
-	var g: Dictionary = _get_goal_def(relic_id)
-	if g.has("activation_req"):
-		return str(g["activation_req"])
-	return get_relic_goal_description(relic_id)
+	if has_relic_definition(relic_id):
+		return create_module_for_relic(relic_id).activation_requirement
+	return ""
 
 static func get_relic_reward_description(relic_id: StringName) -> String:
 	var g: Dictionary = _get_goal_def(relic_id)
@@ -158,7 +161,7 @@ static func create_module_for_relic(relic_id: StringName) -> PolyominoModuleData
 		mod.reward_ball_count = int(g.get("balls", 0))
 		mod.goal_target_count = int(g.get("target_count", 0))
 		mod.goal_time_limit = float(g.get("time_limit", 0.0))
-		mod.activation_requirement = get_relic_activation_requirement(resolved_id)
+		mod.activation_requirement = str(g.get("activation_req", g.get("desc", "")))
 		mod.required_widget_type = int(g.get("required_widget", CellType.EMPTY))
 		mod.activation_threshold = int(g.get("threshold", g.get("target_count", 0)))
 		var seq: Array = g.get("sequence", [])
@@ -168,6 +171,7 @@ static func create_module_for_relic(relic_id: StringName) -> PolyominoModuleData
 				typed_seq.append(s)
 		mod.goal_target_sequence = typed_seq
 
+	preload("res://resources/polyomino/relic_flow_layouts.gd").apply(mod)
 	return mod
 
 static func create_item_for_relic(relic_id: StringName) -> JunkBoxItem:
