@@ -1,11 +1,13 @@
 extends Control
 class_name RelicLayoutPreview
 ## Visual preview control that renders polyomino relic shapes and machine composition.
-## Shows multi-cell grid footprints, comic ink borders, and kinetic component glyphs.
+## Shows multi-cell grid footprints, comic ink borders, and kinetic component machinery
+## using PolyominoModuleNode as the single source of truth.
 
 const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
-const PolyominoMachineryVisuals = preload("res://scenes/board/machinery/polyomino_machinery_visuals.gd")
+const PolyominoModuleNode = preload("res://scenes/board/machinery/polyomino_module_node.gd")
+const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 const CellType = PolyominoModuleData.CellType
 const RelicTierVisuals = preload("res://scenes/ui/relic_tier_visuals.gd")
 
@@ -19,6 +21,7 @@ var relic_id: StringName = &""
 var cell_size: float = DEFAULT_CELL_SIZE
 var cell_pad: float = DEFAULT_CELL_PAD
 var accent_color: Color = Color(0.9, 0.8, 0.4, 1.0)
+var _module_node: PolyominoModuleNode = null
 
 func _init() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS
@@ -29,12 +32,15 @@ func setup_for_relic(p_relic_id: StringName) -> bool:
 	relic_id = p_relic_id
 	if not PolyominoRelicDatabase.has_relic_definition(p_relic_id):
 		module_data = null
+		if _module_node:
+			_module_node.visible = false
 		queue_redraw()
 		return false
 
 	module_data = PolyominoRelicDatabase.create_module_for_relic(p_relic_id)
 	if module_data != null:
 		accent_color = RelicTierVisuals.get_tier_color(module_data.tier)
+	_update_preview_node()
 	queue_redraw()
 	return true
 
@@ -43,11 +49,14 @@ func setup_for_module(data: PolyominoModuleData) -> void:
 	if module_data != null:
 		relic_id = module_data.module_id
 		accent_color = RelicTierVisuals.get_tier_color(module_data.tier)
+	_update_preview_node()
 	queue_redraw()
 
 func clear() -> void:
 	module_data = null
 	relic_id = &""
+	if _module_node:
+		_module_node.visible = false
 	queue_redraw()
 
 func get_module_data() -> PolyominoModuleData:
@@ -78,8 +87,32 @@ func get_preview_bounds() -> Rect2:
 	var origin_y: float = (size.y - total_h) * 0.5
 	return Rect2(origin_x, origin_y, total_w, total_h)
 
-func _draw() -> void:
+func _update_preview_node() -> void:
 	if module_data == null or module_data.cells.is_empty():
+		if _module_node:
+			_module_node.visible = false
+		return
+
+	if _module_node == null or not is_instance_valid(_module_node):
+		_module_node = PolyominoModuleNode.new()
+		_module_node.name = "PreviewModuleNode"
+		add_child(_module_node)
+
+	_module_node.visible = true
+
+	var item: JunkBoxItem = null
+	if not relic_id.is_empty() and PolyominoRelicDatabase.has_relic_definition(relic_id):
+		item = PolyominoRelicDatabase.create_item_for_relic(relic_id)
+	if item == null:
+		item = JunkBoxItem.new()
+		item.module_data = module_data
+
+	_module_node.setup_module(item, Vector2i.ZERO, 0)
+	_module_node.set_ghost_state(true, 1.0)
+	_position_module_node()
+
+func _position_module_node() -> void:
+	if _module_node == null or module_data == null or module_data.cells.is_empty():
 		return
 
 	var min_x: int = 9999
@@ -98,53 +131,13 @@ func _draw() -> void:
 	var total_h: float = float(rows) * cell_size
 	var origin_x: float = (size.x - total_w) * 0.5 - float(min_x) * cell_size
 	var origin_y: float = (size.y - total_h) * 0.5 - float(min_y) * cell_size
-	var tier: int = module_data.tier if module_data != null else 1
-	var cell_sz := Vector2(cell_size, cell_size)
-	var origin_px := Vector2(origin_x, origin_y)
-	var style: Dictionary = RelicTierVisuals.get_tier_style(tier)
 
-	# 1. Draw unified transparent background for all cells
-	RelicTierVisuals.draw_cell_backgrounds(self, module_data.cells, cell_sz, origin_px, tier)
+	_module_node.scale = Vector2(cell_size / 52.0, cell_size / 56.0)
+	_module_node.position = Vector2(origin_x, origin_y) + Vector2(cell_size * 0.5, cell_size * 0.5)
 
-	# 2. Draw wall enclosures and internal dividers with tier styling
-	var segments: Array[Dictionary] = module_data.get_solid_edge_segments(0)
-	var offset_px: Vector2 = origin_px + Vector2(0.5 * cell_size, 0.5 * cell_size)
-	RelicTierVisuals.draw_tier_frame(self, segments, cell_sz, offset_px, tier)
-	RelicTierVisuals.draw_tier_corner_accents(self, module_data.cells, cell_sz, origin_px, tier)
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_RESIZED:
+		_position_module_node()
 
-	var flow = preload("res://scenes/board/machinery/relic_flow_visuals.gd")
-	flow.draw_route(self, module_data, 0, cell_sz, offset_px)
-	flow.draw_ports(self, module_data, 0, cell_sz, offset_px)
-	if module_data.unified_component_type == CellType.GUIDE_TRACK and module_data.goal_target_sequence.size() > 1:
-		return
-
-	# 3. Render internal kinetic machinery components
-	if module_data.layout_mode == PolyominoModuleData.MachineryLayoutMode.UNIFIED and module_data.unified_component_type != CellType.EMPTY:
-		var u_type: int = module_data.unified_component_type
-		var center_sum := Vector2.ZERO
-		for c in module_data.cells:
-			var cell_pos := Vector2(origin_x + float(c.x) * cell_size, origin_y + float(c.y) * cell_size)
-			center_sum += cell_pos + Vector2(cell_size * 0.5, cell_size * 0.5)
-		var center: Vector2 = center_sum / float(module_data.cells.size())
-		var cell_cnt: int = module_data.cells.size()
-		var radius: float = (cell_size - cell_pad * 2.0) * 0.45
-		if cell_cnt >= 9:
-			radius = cell_size * 1.35
-		elif cell_cnt >= 4:
-			radius = cell_size * 0.85
-		PolyominoMachineryVisuals.draw_component(self, u_type, center, Vector2.DOWN, radius, accent_color, cell_cnt)
-	else:
-		for c in module_data.cells:
-			var c_type: int = module_data.get_cell_type_at(c)
-			if c_type == CellType.EMPTY:
-				continue
-			var cell_pos := Vector2(origin_x + float(c.x) * cell_size, origin_y + float(c.y) * cell_size)
-			var cell_center := cell_pos + Vector2(cell_size * 0.5, cell_size * 0.5)
-			var c_dir: Vector2 = module_data.get_cell_direction_at(c)
-			var radius: float = (cell_size - cell_pad * 2.0) * 0.45
-			if module_data.enclosure_type == PolyominoModuleData.EnclosureType.DIRECTIONAL_FUNNEL and c_type in [CellType.BUMPER, CellType.POP_BUMPER]:
-				radius = cell_size * 10.0 / 52.0
-				cell_center.x += cell_size * (8.0 if c.x == 0 else (-8.0 if c.x == max_x else 0.0)) / 52.0
-			PolyominoMachineryVisuals.draw_component(self, c_type, cell_center, c_dir, radius, accent_color, 1)
-			if c_type == CellType.ROLLOVER_SWITCH:
-				draw_string(ThemeDB.fallback_font, cell_center + Vector2(-4, 4), module_data.get_cell_letter_at(c), HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color.WHITE)
+func _draw() -> void:
+	_position_module_node()

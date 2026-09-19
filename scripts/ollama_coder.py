@@ -12,7 +12,7 @@ import sys
 import urllib.request
 import urllib.error
 
-DEFAULT_OLLAMA_URL = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+DEFAULT_OLLAMA_URL = os.environ.get("OLLAMA_HOST", "http://127.0.0.1:11434")
 DEFAULT_MODEL = os.environ.get("OLLAMA_CODER_MODEL", "qwen2.5-coder:7b")
 
 GODOT4_SYSTEM_PROMPT = """You are an expert Godot 4 and GDScript 2.0 developer for the Goblin Cannon game project.

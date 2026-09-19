@@ -84,8 +84,7 @@ func reset_goal_state() -> void:
 
 func _rebuild_components() -> void:
 	for comp in _components:
-		if is_instance_valid(comp):
-			comp.queue_free()
+		if is_instance_valid(comp): comp.queue_free()
 	_components.clear()
 	_components_by_cell.clear()
 
@@ -346,12 +345,12 @@ func _trigger_goal_completion(ball: Node, bonus_energy: int = 0) -> void:
 
 var is_ghost: bool = false
 
-func set_ghost_state(p_ghost: bool) -> void:
+func set_ghost_state(p_ghost: bool, p_alpha: float = -1.0) -> void:
 	is_ghost = p_ghost
 	if is_instance_valid(_wall_body): _wall_body.collision_layer = 0 if is_ghost else 1
 	for comp in _components:
 		comp.collision_layer = 0 if is_ghost or comp.is_permeable else 1
-	modulate.a = 0.5 if is_ghost else 1.0
+	modulate.a = (p_alpha if p_alpha >= 0.0 else (0.5 if is_ghost else 1.0))
 	queue_redraw()
 
 func is_ghost_state_active() -> bool: return is_ghost

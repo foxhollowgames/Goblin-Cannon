@@ -129,6 +129,13 @@ python scripts/generate_task_dashboard.py
 | [TASK-096](TASK-096-archive-ball-upgrades-in-merchant-and-refocus-shop.md) | Archive Ball Upgrades in Merchant and Refocus Shop on Relics | Systems / Gameplay | P1 | DONE | `feature/archive-ball-upgrades-in-merchant-and-refocus-shop` |
 | [TASK-097](TASK-097-relic-visual-tiles-and-description-updates.md) | Relic Visual Tiles on Modals and Description Updates | UI / Visuals / Relics | P1 | DONE | `feature/relic-visual-tiles-and-description-updates` |
 | [TASK-098](TASK-098-triangle-bumper-rotation-with-polyomino.md) | Triangle Bumper Rotation with Polyomino | Physics / Systems / Visuals | P0 | DONE | `fix/triangle-bumper-polyomino-rotation` |
+| [TASK-099](TASK-099-restore-junk-box-physical-relic-visuals-and-flow-r.md) | Restore Junk Box Physical Relic Visuals and Flow Representation | UI / Visuals / Relics | P1 | IN_REVIEW | `fix/junk-box-physical-relic-visuals` |
+| [TASK-100](TASK-100-design-temporary-special-ball-relic-rewards.md) | Design Temporary Special Ball Relic Rewards | Design / Relics | P1 | READY | `feature/temporary-special-ball-reward-design` |
+| [TASK-101](TASK-101-remove-passive-upgrades-completely.md) | Remove Passive Upgrades Completely | Systems / Cleanup | P1 | READY | `fix/remove-passive-upgrades` |
+| [TASK-102](TASK-102-unlock-tier-3-relics-in-the-third-city.md) | Unlock Tier 3 Relics in the Third City | Progression / Rewards | P1 | READY | `feature/third-city-tier-three-relics` |
+| [TASK-103](TASK-103-validate-relic-variant-choices-in-reward-redesign.md) | Validate Relic Variant Choices in Reward Redesign | Design / Relics | P1 | BACKLOG | `feature/relic-variant-design-validation` |
+| [TASK-104](TASK-104-balance-siege-timer-wall-health-and-cannon-damage.md) | Balance Siege Timer Wall Health and Cannon Damage | Balance / Gameplay | P1 | BACKLOG | `feature/siege-and-cannon-balance` |
+| [TASK-105](TASK-105-validate-relic-reward-variety-through-special-ball.md) | Validate Relic Reward Variety Through Special Balls | Design / Relics | P1 | BACKLOG | `feature/relic-reward-variety-validation` |
 
 ---
 

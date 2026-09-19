@@ -1,8 +1,7 @@
 extends Control
 class_name JunkBoxGridView
 
-const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
-const PolyominoMachineryVisuals = preload("res://scenes/board/machinery/polyomino_machinery_visuals.gd")
+const PolyominoModuleNode = preload("res://scenes/board/machinery/polyomino_module_node.gd")
 const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 const JunkBoxData = preload("res://resources/inventory/junk_box_data.gd")
 const JunkBoxDragController = preload("res://scenes/ui/junk_box/junk_box_drag_controller.gd")
@@ -24,6 +23,7 @@ var hovered_cell: Vector2i = Vector2i(-1, -1)
 var hovered_item: JunkBoxItem = null
 var drag_controller: Node = null
 @export var junk_box_data: JunkBoxData = null
+var _item_nodes: Dictionary = {}
 
 func get_cell_size() -> int:
 	return CELL_SIZE
@@ -52,6 +52,7 @@ func set_junk_box_data(value: JunkBoxData) -> void:
 	if junk_box_data != null and not junk_box_data.inventory_changed.is_connected(_on_inventory_changed):
 		junk_box_data.inventory_changed.connect(_on_inventory_changed)
 	update_grid_size()
+	sync_item_nodes()
 	queue_redraw()
 
 func _ready() -> void:
@@ -62,6 +63,7 @@ func _ready() -> void:
 	if not mouse_exited.is_connected(_on_mouse_exited):
 		mouse_exited.connect(_on_mouse_exited)
 	update_grid_size()
+	sync_item_nodes()
 
 func _on_mouse_exited() -> void:
 	if hovered_cell != Vector2i(-1, -1) or hovered_item != null:
@@ -72,6 +74,7 @@ func _on_mouse_exited() -> void:
 
 func _on_inventory_changed() -> void:
 	update_grid_size()
+	sync_item_nodes()
 	queue_redraw()
 
 func _update_size() -> void:
@@ -110,6 +113,51 @@ func get_cell_at_global_pos(global_pos: Vector2) -> Vector2i:
 func get_global_pos_for_cell(cell: Vector2i) -> Vector2:
 	return global_position + Vector2(cell.x * CELL_SIZE, cell.y * CELL_SIZE)
 
+func sync_item_nodes() -> void:
+	var data: JunkBoxData = get_junk_box_data()
+	if data == null:
+		for inst_id in _item_nodes.keys():
+			var old_node: Node = _item_nodes[inst_id]
+			if is_instance_valid(old_node):
+				old_node.queue_free()
+		_item_nodes.clear()
+		return
+
+	var all_items: Array[JunkBoxItem] = data.get_all_items()
+	var current_ids: Dictionary = {}
+	for it in all_items:
+		var iid: StringName = it.instance_id if "instance_id" in it and not it.instance_id.is_empty() else StringName(str(it.get_instance_id()))
+		current_ids[iid] = it
+
+	# Remove nodes for items no longer in junk box
+	var to_remove: Array = []
+	for inst_id in _item_nodes.keys():
+		if not current_ids.has(inst_id):
+			var old_node: Node = _item_nodes[inst_id]
+			if is_instance_valid(old_node):
+				old_node.queue_free()
+			to_remove.append(inst_id)
+	for rid in to_remove:
+		_item_nodes.erase(rid)
+
+	# Update or create nodes for existing items
+	var dragging_item: JunkBoxItem = drag_controller.dragging_item if (drag_controller != null and "dragging_item" in drag_controller) else null
+	for iid in current_ids.keys():
+		var item: JunkBoxItem = current_ids[iid]
+		var being_dragged: bool = (dragging_item == item)
+		var node: PolyominoModuleNode = _item_nodes.get(iid, null)
+		if node == null or not is_instance_valid(node):
+			node = PolyominoModuleNode.new()
+			node.name = "JunkItem_%s" % str(iid)
+			add_child(node)
+			_item_nodes[iid] = node
+
+		node.position = Vector2((float(item.grid_position.x) + 0.5) * float(CELL_SIZE), (float(item.grid_position.y) + 0.5) * float(CELL_SIZE))
+		node.scale = Vector2(float(CELL_SIZE) / 52.0, float(CELL_SIZE) / 56.0)
+		if node.item != item or node.rotation_step != item.rotation_step or node.grid_position != item.grid_position:
+			node.setup_module(item, item.grid_position, item.rotation_step)
+		node.set_ghost_state(true, 0.35 if being_dragged else 1.0)
+
 func _gui_input(event: InputEvent) -> void:
 	var is_dragging: bool = (drag_controller != null and drag_controller.dragging_item != null)
 	if event is InputEventMouseMotion:
@@ -136,6 +184,7 @@ func _gui_input(event: InputEvent) -> void:
 				if drag_controller:
 					var grab_offset: Vector2i = cell - item.grid_position
 					drag_controller.start_drag(item, 0, item.grid_position, grab_offset) # DragSource.JUNK_BOX = 0
+					sync_item_nodes()
 					queue_redraw()
 			else:
 				cell_clicked.emit(cell)
@@ -160,10 +209,6 @@ func _draw() -> void:
 			draw_circle(rect.get_center(), 1.0, Color(border_color.r, border_color.g, border_color.b, 0.5))
 
 	var is_dragging: bool = (drag_controller != null and drag_controller.dragging_item != null)
-	for item in data.get_all_items():
-		var being_dragged: bool = (drag_controller != null and drag_controller.dragging_item == item)
-		_draw_item(item, being_dragged)
-
 	if not is_dragging and hovered_cell.x >= 0 and hovered_cell.x < cols and hovered_cell.y >= 0 and hovered_cell.y < rows:
 		var highlight_rect: Rect2 = Rect2(hovered_cell.x * CELL_SIZE, hovered_cell.y * CELL_SIZE, CELL_SIZE, CELL_SIZE)
 		if hovered_item != null:
@@ -172,52 +217,3 @@ func _draw() -> void:
 				draw_rect(r, Color(1.0, 1.0, 1.0, 0.2))
 		else:
 			draw_rect(highlight_rect, Color(1.0, 1.0, 1.0, 0.1))
-
-func _draw_item(item: JunkBoxItem, being_dragged: bool = false) -> void:
-	if item == null:
-		return
-	var tier: int = item.module_data.tier if item.module_data != null else 1
-	var color: Color = RelicTierVisuals.get_tier_color(tier)
-	var occupied: Array[Vector2i] = item.get_occupied_cells()
-	if occupied.is_empty():
-		return
-
-	var cell_sz := Vector2(float(CELL_SIZE), float(CELL_SIZE))
-	RelicTierVisuals.draw_cell_backgrounds(self, occupied, cell_sz, Vector2.ZERO, tier, being_dragged)
-
-	if item.module_data != null:
-		var segments: Array[Dictionary] = item.module_data.get_solid_edge_segments(item.rotation_step)
-		var offset_px: Vector2 = (Vector2(item.grid_position) + Vector2(0.5, 0.5)) * float(CELL_SIZE)
-		RelicTierVisuals.draw_tier_frame(self, segments, cell_sz, offset_px, tier, being_dragged)
-		RelicTierVisuals.draw_tier_corner_accents(self, occupied, cell_sz, Vector2.ZERO, tier, being_dragged)
-
-	if item.module_data != null:
-		var alpha_m: float = 0.35 if being_dragged else 1.0
-		if item.module_data.layout_mode == PolyominoModuleData.MachineryLayoutMode.UNIFIED and item.module_data.unified_component_type != PolyominoModuleData.CellType.EMPTY:
-			var u_type: int = item.module_data.unified_component_type
-			var item_center := Vector2.ZERO
-			for c in occupied:
-				item_center += Vector2((float(c.x) + 0.5) * float(CELL_SIZE), (float(c.y) + 0.5) * float(CELL_SIZE))
-			item_center /= float(occupied.size())
-			var cell_cnt: int = occupied.size()
-			var radius: float = (float(CELL_SIZE) - float(CELL_PAD) * 2.0) * 0.45
-			if cell_cnt >= 9:
-				radius = float(CELL_SIZE) * 1.35
-			elif cell_cnt >= 4:
-				radius = float(CELL_SIZE) * 0.85
-			var u_dir: Vector2 = PolyominoModuleData.get_rotated_direction(Vector2(1, 1), item.rotation_step)
-			PolyominoMachineryVisuals.draw_component(self, u_type, item_center, u_dir, radius, color, cell_cnt, alpha_m)
-		else:
-			var local_cells: Array[Vector2i] = item.get_local_cells()
-			for i in range(mini(occupied.size(), local_cells.size())):
-				var occ_c: Vector2i = occupied[i]
-				var orig_idx: int = item.module_data._find_orig_cell_index_for_anchored(local_cells[i], item.rotation_step)
-				if orig_idx >= 0 and orig_idx < item.module_data.cells.size():
-					var orig_c: Vector2i = item.module_data.cells[orig_idx]
-					var c_type: int = item.module_data.get_cell_type_at(orig_c)
-					if c_type != PolyominoModuleData.CellType.EMPTY:
-						var orig_dir: Vector2 = item.module_data.get_cell_direction_at(orig_c)
-						var rotated_dir: Vector2 = PolyominoModuleData.get_rotated_direction(orig_dir, item.rotation_step)
-						var center := Vector2((float(occ_c.x) + 0.5) * float(CELL_SIZE), (float(occ_c.y) + 0.5) * float(CELL_SIZE))
-						var radius: float = (float(CELL_SIZE) - float(CELL_PAD) * 2.0) * 0.45
-						PolyominoMachineryVisuals.draw_component(self, c_type, center, rotated_dir, radius, color, 1, alpha_m)

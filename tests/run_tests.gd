@@ -102,6 +102,7 @@ const TEST_SCRIPTS: Array[String] = [
 	"res://tests/test_relic_visual_tiles.gd",
 	"res://tests/test_triangle_bumper_rotation.gd",
 	"res://tests/test_file_lengths.gd",
+	"res://tests/test_junk_box_physical_visuals.gd",
 ]
 
 func _initialize() -> void:
