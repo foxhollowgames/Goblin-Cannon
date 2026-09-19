@@ -77,6 +77,8 @@ func start_drag(item: JunkBoxItem, source: int, origin_cell: Vector2i, offset_ce
 	if ghost_preview:
 		ghost_preview.visible = true
 	if junk_box_grid_view != null:
+		if junk_box_grid_view.has_method("sync_item_nodes"):
+			junk_box_grid_view.sync_item_nodes()
 		junk_box_grid_view.queue_redraw()
 	_update_ghost()
 
@@ -206,7 +208,7 @@ func _update_ghost() -> void:
 			ghost_preview.global_position = mouse_pos
 
 		var mod_data: PolyominoModuleData = dragging_item.module_data if dragging_item != null else null
-		_ghost_visual.update_data(cells, mod_data, cell_size, valid, tier, current_rotation_step)
+		_ghost_visual.update_data(cells, mod_data, cell_size, valid, tier, current_rotation_step, dragging_item)
 	elif board and _is_mouse_over_board():
 		var col_spacing: float = board.BOARD_GRID_COL_SPACING if "BOARD_GRID_COL_SPACING" in board else 52.0
 		var row_spacing: float = board.BOARD_GRID_ROW_SPACING if "BOARD_GRID_ROW_SPACING" in board else 56.0
@@ -229,19 +231,19 @@ func _update_ghost() -> void:
 			ghost_preview.global_position = mouse_pos
 
 		var mod_data: PolyominoModuleData = dragging_item.module_data if dragging_item != null else null
-		_ghost_visual.update_data(cells, mod_data, cell_size, valid, tier, current_rotation_step)
+		_ghost_visual.update_data(cells, mod_data, cell_size, valid, tier, current_rotation_step, dragging_item)
 	elif drag_source == DragSource.BOARD and junk_box_panel and junk_box_panel.is_visible_in_tree() and _is_mouse_over(junk_box_panel):
 		var cell_size := Vector2(48.0, 48.0)
 		ghost_preview.global_position = mouse_pos - Vector2(24.0, 24.0)
 		var can_fit: bool = junk_box_data != null and junk_box_data.find_first_available_slot(dragging_item).x >= 0
 		var mod_data: PolyominoModuleData = dragging_item.module_data if dragging_item != null else null
-		_ghost_visual.update_data(cells, mod_data, cell_size, can_fit, tier, current_rotation_step)
+		_ghost_visual.update_data(cells, mod_data, cell_size, can_fit, tier, current_rotation_step, dragging_item)
 	else:
 		# Floating in empty/invalid area
 		var cell_size := Vector2(48.0, 48.0)
 		ghost_preview.global_position = mouse_pos - Vector2(24.0, 24.0)
 		var mod_data: PolyominoModuleData = dragging_item.module_data if dragging_item != null else null
-		_ghost_visual.update_data(cells, mod_data, cell_size, false, tier, current_rotation_step)
+		_ghost_visual.update_data(cells, mod_data, cell_size, false, tier, current_rotation_step, dragging_item)
 
 func try_drop_at_junk_box_cell(target_cell: Vector2i) -> bool:
 	if dragging_item == null:
@@ -321,6 +323,8 @@ func _end_drag() -> void:
 	if ghost_preview:
 		ghost_preview.visible = false
 	if junk_box_grid_view != null:
+		if junk_box_grid_view.has_method("sync_item_nodes"):
+			junk_box_grid_view.sync_item_nodes()
 		junk_box_grid_view.queue_redraw()
 
 func _is_mouse_over(control: Node) -> bool:
@@ -342,70 +346,53 @@ func _is_mouse_over_board() -> bool:
 # GHOST PREVIEW CUSTOM VISUAL
 # ==============================================================================
 class _GhostPreviewVisual extends Control:
+	const PolyominoModuleNode = preload("res://scenes/board/machinery/polyomino_module_node.gd")
 	var cells: Array[Vector2i] = []
 	var module_data: PolyominoModuleData = null
 	var cell_size: Vector2 = Vector2(48.0, 48.0)
 	var is_valid: bool = true
 	var tier: int = 1
 	var rotation_step: int = 0
+	var _module_node: PolyominoModuleNode = null
 
-	func update_data(p_cells: Array[Vector2i], p_module_data: PolyominoModuleData, p_size: Vector2, p_valid: bool, p_tier: int, p_rot_step: int = 0) -> void:
+	func update_data(p_cells: Array[Vector2i], p_module_data: PolyominoModuleData, p_size: Vector2, p_valid: bool, p_tier: int, p_rot_step: int = 0, p_item: JunkBoxItem = null) -> void:
 		cells = p_cells
 		module_data = p_module_data
 		cell_size = p_size
 		is_valid = p_valid
 		tier = p_tier
 		rotation_step = p_rot_step
+
+		if _module_node == null or not is_instance_valid(_module_node):
+			_module_node = PolyominoModuleNode.new()
+			_module_node.name = "GhostModuleNode"
+			add_child(_module_node)
+
+		var item_to_use: JunkBoxItem = p_item
+		if item_to_use == null and module_data != null:
+			item_to_use = JunkBoxItem.new()
+			item_to_use.module_data = module_data
+			item_to_use.rotation_step = rotation_step
+
+		if item_to_use != null:
+			_module_node.setup_module(item_to_use, Vector2i.ZERO, rotation_step)
+			_module_node.set_ghost_state(true, 0.75)
+			_module_node.scale = Vector2(cell_size.x / 52.0, cell_size.y / 56.0)
+			_module_node.position = Vector2(cell_size.x * 0.5, cell_size.y * 0.5)
+			var tint_col: Color = Color(0.7, 1.0, 0.7, 0.9) if is_valid else Color(1.0, 0.45, 0.45, 0.9)
+			_module_node.modulate = tint_col
+
 		queue_redraw()
 
 	func _draw() -> void:
 		if cells.is_empty():
 			return
 
-		var fill_color: Color = Color(0.2, 0.9, 0.3, 0.65) if is_valid else Color(0.95, 0.2, 0.2, 0.65)
-		var border_color: Color = Color(0.4, 1.0, 0.5, 0.9) if is_valid else Color(1.0, 0.4, 0.4, 0.9)
+		var fill_color: Color = Color(0.2, 0.9, 0.3, 0.2) if is_valid else Color(0.95, 0.2, 0.2, 0.2)
+		var border_color: Color = Color(0.4, 1.0, 0.5, 0.6) if is_valid else Color(1.0, 0.4, 0.4, 0.6)
 
-
-		var orig_cells: Array[Vector2i] = module_data.cells if module_data != null else []
-
-		for idx in range(cells.size()):
-			var c: Vector2i = cells[idx]
+		for c in cells:
 			var rect := Rect2(c.x * cell_size.x + 2.0, c.y * cell_size.y + 2.0, cell_size.x - 4.0, cell_size.y - 4.0)
 			draw_rect(rect, fill_color)
-			draw_rect(rect, Color(border_color, 0.2), false, 1.0)
-
-			var center: Vector2 = rect.get_center()
-			var orig_c: Vector2i = orig_cells[idx] if idx < orig_cells.size() else c
-			var c_type: int = module_data.get_cell_type_at(orig_c) if module_data != null else 0
-
-			if c_type == PolyominoModuleData.CellType.EMPTY:
-				continue
-
-			var orig_dir: Vector2 = module_data.get_cell_direction_at(orig_c) if module_data != null else Vector2.DOWN
-			var rot_dir: Vector2 = PolyominoModuleData.get_rotated_direction(orig_dir, rotation_step)
-			var icon_col: Color = border_color
-
-			if c_type == PolyominoModuleData.CellType.BUMPER or c_type == PolyominoModuleData.CellType.POP_BUMPER:
-				draw_circle(center, rect.size.x * 0.22, icon_col)
-			elif c_type == PolyominoModuleData.CellType.ROTARY_BOOSTER:
-				draw_arc(center, 8.0, 0, TAU, 16, icon_col, 2.0)
-			elif c_type == PolyominoModuleData.CellType.FUNNEL:
-				draw_line(center + Vector2(-8, -8), center + Vector2(0, 8), icon_col, 2.0)
-				draw_line(center + Vector2(8, -8), center + Vector2(0, 8), icon_col, 2.0)
-			else:
-				# Rotated directional chevrons for ACCELERATOR, DEFLECTOR, GUIDE_TRACK, KICKERS, DIVERTER, SINKHOLE, LOCK, etc.
-				var dir_norm: Vector2 = rot_dir.normalized() if rot_dir != Vector2.ZERO else Vector2.DOWN
-				var head: Vector2 = center + dir_norm * (rect.size.x * 0.28)
-				var perp: Vector2 = Vector2(-dir_norm.y, dir_norm.x) * (rect.size.x * 0.22)
-				var base_p: Vector2 = center - dir_norm * (rect.size.x * 0.15)
-				var pts: PackedVector2Array = [head, base_p + perp, base_p - perp]
-				draw_colored_polygon(pts, icon_col)
-
-
-		if module_data != null:
-			preload("res://scenes/board/machinery/relic_flow_visuals.gd").draw_route(self, module_data, rotation_step, cell_size, cell_size * 0.5)
-			var walls: Array[Dictionary] = module_data.get_solid_edge_segments(rotation_step)
-			for wall: Dictionary in walls:
-				draw_line(wall.p1 * cell_size + cell_size * 0.5, wall.p2 * cell_size + cell_size * 0.5, border_color, 3.0)
-			preload("res://scenes/board/machinery/relic_flow_visuals.gd").draw_ports(self, module_data, rotation_step, cell_size, cell_size * 0.5)
+			draw_rect(rect, border_color, false, 1.5)
 
