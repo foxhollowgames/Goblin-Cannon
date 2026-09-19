@@ -1,9 +1,11 @@
 # TASK-099: Restore Junk Box Physical Relic Visuals and Flow Representation
 
-- **Status:** IN_REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Visuals / Relics
 - **Target Branch:** `fix/junk-box-physical-relic-visuals`
+- **Pull Request:** [#80](https://github.com/foxhollowgames/Goblin-Cannon/pull/80)
+- **Learnings:** [LRN-141](../../docs/knowledge/LEARNINGS.md)
 - **Related Tasks:** [TASK-028](TASK-028-junk-box-ui-opening-and-board-transfer.md), [TASK-039](TASK-039-junk-box-sidebar-integration-and-pegboard-display.md), [TASK-063](TASK-063-junk-box-relic-display-and-tooltip-fix.md), [TASK-068](TASK-068-relic-tier-visual-styling.md), [TASK-093](TASK-093-rework-relics-into-deliberate-pinball-devices.md), [TASK-097](TASK-097-relic-visual-tiles-and-description-updates.md), [TASK-098](TASK-098-triangle-bumper-rotation-with-polyomino.md)
 
 ## Description
