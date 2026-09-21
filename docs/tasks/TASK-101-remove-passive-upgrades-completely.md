@@ -1,6 +1,6 @@
 # TASK-101: Remove Passive Upgrades Completely
 
-- **Status:** READY
+- **Status:** IN_PROGRESS
 - **Priority:** P1
 - **Category:** Systems / Cleanup
 - **Target Branch:** `fix/remove-passive-upgrades`
@@ -36,3 +36,9 @@ Completely remove passive upgrades from the current playable game for now. This 
 - [ ] Ordinary ball/peg behavior and physical activation rewards continue to function.
 - [ ] Tests prove former passive effects stay absent even when legacy IDs/data are supplied.
 - [ ] Required directory maintenance, lint/file-length checks, headless tests, independent PR review, merge, and learning capture complete when implemented.
+
+
+## Execution note
+
+The consumer inventory and migration baseline are recorded in [Passive removal baseline](../knowledge/passive-removal-baseline.md). Repeated local Qwen attempts produced invalid or incomplete edits. Rejected code was removed. No gameplay changes have shipped. Awaiting the user's answer on allowing direct code edits for this run. TASK-102 remains queued after this task.
+

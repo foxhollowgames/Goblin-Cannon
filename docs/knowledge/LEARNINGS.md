@@ -150,6 +150,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-139`](#lrn-139) | TASK-098 | `machinery` | Slingshot triangle bumper rotational geometry transformation | 2026-09-17 |
 | [`LRN-140`](#lrn-140) | TASK-093 | `physics` | Exclusive ball control and shared passage geometry | 2026-09-17 |
 | [`LRN-141`](#lrn-141) | TASK-099 | `ui_and_visuals` | Single Source of Truth Polyomino Relic UI Rendering | 2026-09-18 |
+| [`LRN-142`](#lrn-142) | TASK-100 | `tooling` | Runtime relic variant audit | 2026-09-20 |
 
 ---
 
@@ -2408,5 +2409,21 @@ Instantiating PolyominoModuleNode in ghost mode (set_ghost_state(true, alpha)) w
 
 #### Actionable Guideline for Future Agents
 Never maintain separate drawing or glyph routines for relics; always instantiate PolyominoModuleNode in ghost mode scaled to the container cell bounds for inventory, previews, and drag feedback.
+
+---
+
+### <a id="lrn-142"></a> LRN-142: Runtime relic variant audit
+- **Task:** `TASK-100`
+- **Category:** `tooling`
+- **Created:** `2026-09-20T21:58:35.624216`
+
+#### Context & Problem
+Authored catalog shapes differ from normalized runtime layouts.
+
+#### Key Insight & Learning
+G-O-B and P-O-P share runtime lanes; spinner pairs also share normalized layouts. The design draft compares runtime definitions.
+
+#### Actionable Guideline for Future Agents
+Audit create_module_for_relic output when comparing variant geometry; keep proposed reward changes separate from gameplay approval.
 
 ---
