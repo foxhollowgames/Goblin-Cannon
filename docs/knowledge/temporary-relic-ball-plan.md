@@ -32,7 +32,7 @@ Limit reward balls to 24 active or reserved slots per board. Allocate in module-
 Overflow cancels only the new emission. Never delete a permanent ball to make room.
 Temporary balls may operate machinery, but their contacts do not advance reward goals.
 They can complete a physical route, open a gate, or turn a spinner without producing more reward balls.
-For shared counters, only permanent-ball contacts count. Spinner reward charge needs a permanent-ball contact since its last award.
+For shared counters, only permanent-ball contacts count. Spinner reward charge uses a separate speed accumulator fed only by permanent-ball impulses. Temporary contacts can turn the visible rotor but cannot raise this reward accumulator.
 All children of temporary balls inherit temporary status, expiration, and the population budget.
 The proposed types below do not split. Future splitting requires a separate bounded design change.
 A ball has only one capture owner. Retention and transfer use the existing relic_ball_flow contract.
@@ -103,7 +103,7 @@ The table proposes distinct jobs; it does not claim that all pairs have passed p
    Temporary contacts turn the spinner but cannot award a second reward. Permanent contents can still award it once.
 3. A Drive track points at a remote reservoir inlet. A Bounce track points back into a chamber.
    The first uses a short flight; the second risks expiration during recirculation.
-4. A Blast wedge sits above a dense peg cluster. A Charge wedge would preserve that cluster for later hits.
+4. A Blast wedge sits above a dense peg cluster. A Drive wedge instead feeds a Charge bank above the same cluster. That layout preserves the cluster for later hits but needs more space.
    Compare cannon output and retained peg value, not just the first burst.
 5. A Charge spinner above a chamber supports sustained output. A Volley spinner above a trap supports a timed release.
    Captured temporary balls still expire. A full trap must never keep a stale ownership reference.
@@ -305,3 +305,7 @@ Tier is the data tier, not proof of current normal reachability. TASK-102 audits
 | track_zigzag_chute | 2 | [(0, 0), (1, 0), (1, 1), (2, 1), (2, 2)] | One ball must enter the arrowed mouth, follow the whole track, and leave the outlet. | +80 Energy Surge to ball | Retain; family/variant mapping above |
 | track_grand_orbit | 3 | [(0, 0), (1, 0), (2, 0), (3, 0), (0, 1), (3, 1), (0, 2), (1, 2), (2, 2), (3, 2)] | One ball must enter the arrowed mouth, follow the whole track, and leave the outlet. | +140 Energy Surge to ball | Retain; family/variant mapping above |
 | track_cascade_switchback | 3 | [(0, 0), (1, 0), (1, 1), (2, 1), (2, 2), (3, 2), (3, 1), (3, 0)] | One ball must enter the arrowed mouth, follow the whole track, and leave the outlet. | Multiball Cascade (3 balls) + 150 Energy | Retain; family/variant mapping above |
+
+
+Spinner regression: one permanent contact followed by temporary contacts may rotate the rotor, but must not complete reward charge. A later sufficient permanent-only contribution may complete it once.
+
