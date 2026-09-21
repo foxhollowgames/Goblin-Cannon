@@ -60,3 +60,8 @@ Design and plan a relic reward system centered on different temporary special ba
 - [ ] No passive upgrade system is reintroduced.
 - [ ] UI requirements, open decisions, implementation sequence, and balance handoff are documented.
 - [ ] Completion of this packet is design/planning completion, not an assertion that gameplay changes shipped.
+
+## Discussion draft
+
+Implementation proposal: [Temporary relic balls](../knowledge/temporary-relic-ball-plan.md). Runtime inventory covers 122 IDs. Gameplay implementation is on hold for user discussion. Acceptance checks remain open until review.
+
