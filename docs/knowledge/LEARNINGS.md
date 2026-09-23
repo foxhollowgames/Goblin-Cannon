@@ -152,6 +152,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-141`](#lrn-141) | TASK-099 | `ui_and_visuals` | Single Source of Truth Polyomino Relic UI Rendering | 2026-09-18 |
 | [`LRN-142`](#lrn-142) | TASK-100 | `tooling` | Runtime relic variant audit | 2026-09-20 |
 | [`LRN-143`](#lrn-143) | TASK-101 | `architecture` | Separate physical relic ownership from passive effects | 2026-09-23 |
+| [`LRN-144`](#lrn-144) | TASK-102 | `gameplay` | Gate relic tiers across every normal source | 2026-09-23 |
 
 ---
 
@@ -2442,5 +2443,21 @@ Inert legacy inputs prevent old data from restoring bonuses. Physical inventory 
 
 #### Actionable Guideline for Future Agents
 Remove passive consumers and offers together. Count physical items across inventory and board; test sibling scene lookups and update glossary text.
+
+---
+
+### <a id="lrn-144"></a> LRN-144: Gate relic tiers across every normal source
+- **Task:** `TASK-102`
+- **Category:** `gameplay`
+- **Created:** `2026-09-23T05:41:01.269750`
+
+#### Context & Problem
+Third-city merchant tiers were capped at2 while legacy boss and wall pools could offer Tier3 early.
+
+#### Key Insight & Learning
+A shared eligibility filter and complete physical roster give every retained Tier3 item a reachable city3 route. Free wall rewards avoid depending on uncertain gold income.
+
+#### Actionable Guideline for Future Agents
+Test every normal reward source, every retained high-tier ID, and actual purchase flow. Distinguish acquisition probability from guaranteed income, and use small reviewed Qwen fragments for local code generation.
 
 ---

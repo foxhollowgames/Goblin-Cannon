@@ -1,6 +1,6 @@
 # TASK-102: Unlock Tier 3 Relics in the Third City
 
-- **Status:** IN_REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Progression / Rewards
 - **Target Branch:** `feature/third-city-tier-three-relics`
@@ -30,12 +30,12 @@ Make Tier 3 relics available through normal play in the third city (Elf Palace; 
 
 ## Acceptance Criteria
 
-- [ ] Third-city merchant offers can contain Tier 3 relics with nonzero probability during the city.
-- [ ] Every retained production Tier 3 relic has an explicit, reachable normal third-city source.
-- [ ] Earlier-city eligibility and intended lower-tier availability are preserved and tested.
-- [ ] Deterministic acquisition tests cover eligibility, weights, roster reachability, duplicates, and purchase-to-inventory flow.
-- [ ] Pricing and timing are checked for practical acquisition before the third city ends.
-- [ ] Required quality checks and the implementation PR/review/merge workflow complete.
+- [x] Third-city merchant offers can contain Tier 3 relics with nonzero probability during the city.
+- [x] Every retained production Tier 3 relic has an explicit, reachable normal third-city source.
+- [x] Earlier-city eligibility and intended lower-tier availability are preserved and tested.
+- [x] Deterministic acquisition tests cover eligibility, weights, roster reachability, duplicates, and purchase-to-inventory flow.
+- [x] Pricing and timing are checked for practical acquisition before the third city ends.
+- [x] Required quality checks and the implementation PR/review/merge workflow complete.
 
 
 ## Checkpoint — 2026-09-23
@@ -57,4 +57,9 @@ Included shorter allowance reached 93% used; credits were unchanged. Paused befo
 Local Qwen produced all implementation and test code. Smaller corrected test fragments passed review. The full quality audit passed: directory sync, GDScript lint, file lengths, and headless tests. The new suite checks all source city gates, all production Tier 3 reachability in shops and free wall rewards across 500 seeds, all 14 deliberate Tier 3 entries, tier rolls, repeat-seed offers, duplicate merchant offers, and 39/40-gold purchase behavior. Rejected scratch drafts were removed. Independent PR review and merge remain.
 
 See [acquisition routes](../knowledge/third-city-relic-acquisition.md) for the roster, weights, cost, and timing.
+
+
+## Completion
+
+Merged PR #83 on 2026-09-23 after the full quality audit and independent approval with no findings. All implementation and test code came from local Qwen. Post-merge learning recorded. Earlier checkpoint notes are historical. TASK-100 remains a discussion plan and was not implemented.
 
