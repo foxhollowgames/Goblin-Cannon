@@ -151,6 +151,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-140`](#lrn-140) | TASK-093 | `physics` | Exclusive ball control and shared passage geometry | 2026-09-17 |
 | [`LRN-141`](#lrn-141) | TASK-099 | `ui_and_visuals` | Single Source of Truth Polyomino Relic UI Rendering | 2026-09-18 |
 | [`LRN-142`](#lrn-142) | TASK-100 | `tooling` | Runtime relic variant audit | 2026-09-20 |
+| [`LRN-143`](#lrn-143) | TASK-101 | `architecture` | Separate physical relic ownership from passive effects | 2026-09-23 |
 
 ---
 
@@ -2425,5 +2426,21 @@ G-O-B and P-O-P share runtime lanes; spinner pairs also share normalized layouts
 
 #### Actionable Guideline for Future Agents
 Audit create_module_for_relic output when comparing variant geometry; keep proposed reward changes separate from gameplay approval.
+
+---
+
+### <a id="lrn-143"></a> LRN-143: Separate physical relic ownership from passive effects
+- **Task:** `TASK-101`
+- **Category:** `architecture`
+- **Created:** `2026-09-23T00:37:36.403350`
+
+#### Context & Problem
+Relic placement registered legacy upgrade stacks; UI quantities depended on those stacks.
+
+#### Key Insight & Learning
+Inert legacy inputs prevent old data from restoring bonuses. Physical inventory and board items are the ownership source.
+
+#### Actionable Guideline for Future Agents
+Remove passive consumers and offers together. Count physical items across inventory and board; test sibling scene lookups and update glossary text.
 
 ---

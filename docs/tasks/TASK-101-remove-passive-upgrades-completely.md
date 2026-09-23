@@ -1,6 +1,6 @@
 # TASK-101: Remove Passive Upgrades Completely
 
-- **Status:** IN_REVIEW
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Cleanup
 - **Target Branch:** `fix/remove-passive-upgrades`
@@ -30,12 +30,12 @@ Completely remove passive upgrades from the current playable game for now. This 
 
 ## Acceptance Criteria
 
-- [ ] No passive upgrade can be acquired, applied, or activated in the current playable game, including through debug or legacy data paths.
-- [ ] Installing/removing/repositioning a relic changes only its physical presence and bookkeeping; it grants no passive global/stat bonus.
-- [ ] Reward descriptions and upgrade menus contain no functioning-passive promises.
-- [ ] Ordinary ball/peg behavior and physical activation rewards continue to function.
-- [ ] Tests prove former passive effects stay absent even when legacy IDs/data are supplied.
-- [ ] Required directory maintenance, lint/file-length checks, headless tests, independent PR review, merge, and learning capture complete when implemented.
+- [x] No passive upgrade can be acquired, applied, or activated in the current playable game, including through debug or legacy data paths.
+- [x] Installing/removing/repositioning a relic changes only its physical presence and bookkeeping; it grants no passive global/stat bonus.
+- [x] Reward descriptions and upgrade menus contain no functioning-passive promises.
+- [x] Ordinary ball/peg behavior and physical activation rewards continue to function.
+- [x] Tests prove former passive effects stay absent even when legacy IDs/data are supplied.
+- [x] Required directory maintenance, lint/file-length checks, headless tests, independent PR review, merge, and learning capture complete when implemented.
 
 
 ## Execution note
@@ -58,4 +58,9 @@ PR: https://github.com/foxhollowgames/Goblin-Cannon/pull/82. Independent review 
 
 
 Independent reviewer approved the glossary correction. The complete quality audit passed again on 2026-09-23. Ready to merge PR #82.
+
+
+## Completion
+
+Merged PR #82 at 3e1a486. Independent review approved the final correction. All quality checks passed. Post-merge learning recorded. Earlier execution notes are historical checkpoints.
 
