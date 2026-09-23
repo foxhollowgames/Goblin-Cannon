@@ -85,9 +85,7 @@ func pick_milestone_options(ball_candidates: Array, total_count: int = 5, allow_
 
 		for _k in range(relic_quota):
 			var rolled_tier: int = _roll_milestone_tier(weights)
-			var target_tier: int = 1
-			if max_relic_tier >= 2 and rolled_tier >= 2:
-				target_tier = 2
+			var target_tier: int = _relic_tier_for_roll(rolled_tier, max_relic_tier)
 			var r_opt: MilestoneOption = _pick_relic_option_for_tier(relic_pool, target_tier, seen_relic_id, max_relic_tier)
 			if r_opt:
 				out.append(r_opt)
@@ -424,3 +422,12 @@ func randi_range(min_val: int, max_val: int) -> int:
 	if min_val > max_val:
 		return min_val
 	return _rng.randi() % (max_val - min_val + 1) + min_val
+
+func _relic_tier_for_roll(rolled_tier: int, max_relic_tier: int) -> int:
+	if max_relic_tier >= 3 and rolled_tier >= 3:
+		return 3
+	elif max_relic_tier >= 2 and rolled_tier >= 2:
+		return 2
+	else:
+		return 1
+

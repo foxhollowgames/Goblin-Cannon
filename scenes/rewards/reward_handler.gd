@@ -98,59 +98,33 @@ func _add_peg_shop_template(kind: String, rarity: int) -> void:
 
 func _build_relic_shop_candidates() -> void:
 	_relic_shop_candidates.clear()
-	for id in DeliberateRelicCatalog.get_all_ids():
-		var tier: int = PolyominoRelicDatabase.get_relic_tier(id)
+	for id in PolyominoRelicDatabase.get_all_relic_ids():
 		var opt: MilestoneOption = MilestoneOption.new()
 		opt.option_type = MilestoneOption.Type.RELIC
 		opt.relic_id = id
-		opt.rarity = tier
+		opt.rarity = PolyominoRelicDatabase.get_relic_tier(id)
 		_relic_shop_candidates.append(opt)
 
-
-## Chest reward hook. Each pick is a physical relic item with an on-board goal.
 func get_onboard_effect_picks(count: int = 3) -> Array:
-	return _reward_gen.pick_major_upgrades(_onboard_effect_candidates, count)
+	return _reward_gen.pick_major_upgrades(_normal_relic_pool(_onboard_effect_candidates), count)
 
 func _major_upgrade_ball_gate_weight(_def: MajorUpgradeDefinition) -> float:
 	return 1.0
 
 ## Wall break: pick physical relics from the legacy reward roster.
 func get_major_upgrade_picks(count: int = 3) -> Array:
-	var cross_pool: Array = []
-	var cross_weights: Array = []
-	for c in _cross_link_candidates:
-		var def: MajorUpgradeDefinition = c as MajorUpgradeDefinition
-		if not def:
-			continue
-		cross_pool.append(c)
-		cross_weights.append(_major_upgrade_ball_gate_weight(def))
-	var ball_pool: Array = []
-	var ball_weights: Array = []
-	for c in _ball_enhancement_candidates:
-		var def: MajorUpgradeDefinition = c as MajorUpgradeDefinition
-		if not def:
-			continue
-		ball_pool.append(c)
-		ball_weights.append(_major_upgrade_ball_gate_weight(def))
-	var board_pool: Array = []
-	var board_weights: Array = []
-	for c in _board_candidates:
-		var bdef: MajorUpgradeDefinition = c as MajorUpgradeDefinition
-		board_pool.append(c)
-		board_weights.append(_major_upgrade_ball_gate_weight(bdef) if bdef else 1.0)
-	return _reward_gen.pick_wall_break_draft(cross_pool, ball_pool, board_pool, count, cross_weights, ball_weights, board_weights)
+	return _reward_gen.pick_wall_break_draft(
+		_normal_relic_pool(_cross_link_candidates),
+		_normal_relic_pool(_ball_enhancement_candidates),
+		_normal_relic_pool(_board_candidates + _third_city_relic_candidates()),
+		count
+	)
 
-## Boss reward: pick physical relics from the legacy reward roster.
 func get_boss_upgrade_picks(count: int = 3) -> Array:
-	var pool: Array = []
-	var weights: Array = []
-	for c in _boss_candidates:
-		var def: MajorUpgradeDefinition = c as MajorUpgradeDefinition
-		if not def:
-			continue
-		pool.append(c)
-		weights.append(_major_upgrade_ball_gate_weight(def))
-	return _reward_gen.pick_major_upgrades(pool, count, weights)
+	var pool: Array = _normal_relic_pool(_boss_candidates)
+	if pool.is_empty():
+		pool = _normal_relic_pool(_cross_link_candidates + _ball_enhancement_candidates + _board_candidates)
+	return _reward_gen.pick_major_upgrades(pool, count)
 
 func _mk(def_name: String, desc: String, uid: StringName, cat: int, ball_t: String = "") -> MajorUpgradeDefinition:
 	return RewardCardCatalog.mk(def_name, desc, uid, cat, ball_t)
@@ -178,11 +152,20 @@ func get_ball_reward_picks(count: int) -> Array:
 	return _reward_gen.pick_ball_rewards(candidates, count)
 
 func get_milestone_reward_picks(count: int = 5) -> Array:
-	var endless: bool = GameState.endless_mode if GameState else false
-	var city_id: int = GameState.current_city_id if GameState else 0
+	var endless: bool = GameState.endless_mode
+	var city_id: int = GameState.current_city_id
 	var weights: Array = Constants.milestone_reward_rarity_weights(city_id, _get_reward_wall_index(), endless)
-	var max_tier: int = 1 if city_id <= 0 else 2
-	return _reward_gen.pick_milestone_options([], count, false, _peg_shop_candidates, weights, 5, _relic_shop_candidates, max_tier)
+	var max_tier: int = clampi(city_id + 1, 1, 3)
+	return _reward_gen.pick_milestone_options(
+		[],
+		count,
+		false,
+		_peg_shop_candidates,
+		weights,
+		5,
+		_relic_shop_candidates,
+		max_tier
+	)
 
 func apply_ball_pick(pick: Resource) -> void:
 	_apply_ball_to_hopper(pick)
@@ -363,3 +346,25 @@ func _apply_ball_to_hopper(pick: Variant) -> void:
 		_game_coordinator.add_balls_to_reserve(1)
 	elif _hopper and _hopper.has_method("add_balls"):
 		_hopper.add_balls(1)
+
+func _normal_relic_pool(candidates: Array) -> Array:
+	var out: Array = []
+	for candidate in candidates:
+		var def: MajorUpgradeDefinition = candidate as MajorUpgradeDefinition
+		if def == null or not PolyominoRelicDatabase.has_relic_definition(def.upgrade_id):
+			continue
+		if GameState.current_city_id < 2 and PolyominoRelicDatabase.get_relic_tier(def.upgrade_id) >= 3:
+			continue
+		out.append(def)
+	return out
+
+func _third_city_relic_candidates() -> Array:
+	var out: Array = []
+	if GameState.current_city_id < 2:
+		return out
+	for uid in PolyominoRelicDatabase.get_all_relic_ids():
+		if PolyominoRelicDatabase.get_relic_tier(uid) != 3:
+			continue
+		out.append(RewardCardCatalog.mk(PolyominoRelicDatabase.get_relic_display_name(uid), "", uid, MajorUpgradeDefinition.Category.BOARD_UPGRADE))
+	return out
+

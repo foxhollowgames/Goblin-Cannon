@@ -124,6 +124,7 @@
 | `test_story_campaign_architecture.gd` | `StoryCampaignArchitecture` | [tests/test_story_campaign_architecture.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_story_campaign_architecture.gd) |
 | `test_test_scenario.gd` | `TestScenario` | [tests/test_test_scenario.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_test_scenario.gd) |
 | `test_tetromino_module_fusion.gd` | `TetrominoModuleFusion` | [tests/test_tetromino_module_fusion.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_tetromino_module_fusion.gd) |
+| `test_third_city_relics.gd` | `ThirdCityRelics` | [tests/test_third_city_relics.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_third_city_relics.gd) |
 | `test_tooltip_text_refinement.gd` | `TooltipTextRefinement` | [tests/test_tooltip_text_refinement.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_tooltip_text_refinement.gd) |
 | `test_top_battlefield_and_mob_timer.gd` | `TopBattlefieldAndMobTimer` | [tests/test_top_battlefield_and_mob_timer.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_top_battlefield_and_mob_timer.gd) |
 | `test_top_gold_counter_ui.gd` | `TopGoldCounterUI` | [tests/test_top_gold_counter_ui.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_top_gold_counter_ui.gd) |

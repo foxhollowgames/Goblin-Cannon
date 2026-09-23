@@ -7,6 +7,7 @@ extends SceneTree
 
 ## Register test scripts here. Add new test files to this array.
 const TEST_SCRIPTS: Array[String] = [
+	"res://tests/test_third_city_relics.gd",
 	"res://tests/test_relic_flow_contract.gd",
 	"res://tests/test_monsters_also_die_palette.gd",
 	"res://tests/test_script_parse_smoke.gd",
@@ -171,4 +172,5 @@ func _execute_test_file(path: String) -> Dictionary:
 		res["errors"].append("%s > %s" % [suite, e])
 
 	return res
+
 
