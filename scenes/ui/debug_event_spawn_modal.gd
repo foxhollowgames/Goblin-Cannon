@@ -71,19 +71,19 @@ func _build_ui() -> void:
 	vbox.add_child(title)
 
 	var hint: Label = Label.new()
-	hint.text = "Two board events: milestone peg (shop progress) and treasure chest (passive upgrade draft). Reward rows match normal play."
+	hint.text = "Board events provide milestone progress and physical playfield interactions."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.add_theme_font_size_override("font_size", 12)
 	hint.add_theme_color_override("font_color", Color(0.7, 0.68, 0.78))
 	vbox.add_child(hint)
 
 	vbox.add_child(_make_row_button("Milestone board event", "Preview → timed milestone peg (milestone shop)", "_on_board_milestone"))
-	vbox.add_child(_make_row_button("Treasure chest event", "Preview → durable chest peg (onboard passive upgrade draft)", "_on_treasure_chest"))
+	vbox.add_child(_make_row_button("Treasure chest event", "Preview → durable chest peg", "_on_treasure_chest"))
 	vbox.add_child(_make_row_button("Sticky slime event", "Human Kingdom: highlight pegs → sticky coating; other balls wear it down", "_on_sticky_slime"))
 	vbox.add_child(_make_row_button("Black hole event", "Elf Palace: preview → black hole pulls balls in; delayed return to hopper", "_on_black_hole"))
-	vbox.add_child(_make_row_button("Milestone shop", "Ball/stat/peg draft (gold shop)", "_on_milestone_shop"))
-	vbox.add_child(_make_row_button("Wall break reward", "Conquest major-upgrade draft", "_on_wall_break"))
-	vbox.add_child(_make_row_button("Boss reward", "Boss amplifier draft", "_on_boss_reward"))
+	vbox.add_child(_make_row_button("Milestone shop", "Ball, peg, and physical relic draft (gold shop)", "_on_milestone_shop"))
+	vbox.add_child(_make_row_button("Wall break reward", "Physical relic draft", "_on_wall_break"))
+	vbox.add_child(_make_row_button("Boss reward", "Physical relic draft", "_on_boss_reward"))
 
 	var close_btn: Button = Button.new()
 	close_btn.text = "Close"

@@ -1,20 +1,10 @@
 extends Control
-## Debug: paginated shop with balls, pegs, deliberate relics, and milestone stats.
+## Debug: paginated shop with balls, pegs, and physical relics.
 
 const ITEMS_PER_PAGE: int = 12
 
-const _MILESTONE_STAT_UI: Dictionary = MilestoneShopData.STAT_DISPLAY
 const _PEG_SHOP_DISPLAY: Dictionary = MilestoneShopData.PEG_SHOP_DISPLAY
 const _BALL_ABILITY_BLURB: Dictionary = MilestoneShopData.BALL_SHOP_BLURB
-
-const _STAT_ICONS: Dictionary = {
-	"main_charge": preload("res://icons/ffffff/transparent/1x1/lorc/energy-arrow.svg"),
-	"door_interval": preload("res://icons/ffffff/transparent/1x1/delapouite/speedometer.svg"),
-	"door_duration": preload("res://icons/ffffff/transparent/1x1/lorc/hourglass.svg"),
-	"cannon_damage": preload("res://icons/ffffff/transparent/1x1/lorc/cannon-shot.svg"),
-	"cannon_energy": preload("res://icons/ffffff/transparent/1x1/priorblue/battery-100.svg"),
-	"hopper_width": preload("res://icons/ffffff/transparent/1x1/delapouite/expand.svg")
-}
 
 const _ICON_RELIC = preload("res://icons/ffffff/transparent/1x1/willdabeast/round-shield.svg")
 const _ICON_BOSS = preload("res://icons/ffffff/transparent/1x1/lorc/skull-crossed-bones.svg")
@@ -22,14 +12,13 @@ const _ICON_BOSS = preload("res://icons/ffffff/transparent/1x1/lorc/skull-crosse
 var _coordinator: Node
 var _reward_handler: Node
 var _tab_container: TabContainer
-var _tab_names: Array[String] = ["Balls", "Pegs", "Relics", "Stats & upgrades"]
-var _page_by_tab: Array[int] = [0, 0, 0, 0]
+var _tab_names: Array[String] = ["Balls", "Pegs", "Relics"]
+var _page_by_tab: Array[int] = [0, 0, 0]
 var _page_labels: Array[Label] = []
 var _scroll_hosts: Array[VBoxContainer] = []
 var _data_balls: Array = []
 var _data_pegs: Array = []
 var _data_relics: Array = []
-var _data_stat_ids: Array = []
 
 func setup(coordinator: Node, reward_handler: Node) -> void:
 	_coordinator = coordinator
@@ -51,7 +40,6 @@ func _reload_catalog_arrays() -> void:
 	_data_balls.clear()
 	_data_pegs.clear()
 	_data_relics.clear()
-	_data_stat_ids.clear()
 	if _coordinator and _coordinator.has_method("get_debug_shop_ball_definitions"):
 		_data_balls = _coordinator.get_debug_shop_ball_definitions()
 	if _reward_handler and _reward_handler.has_method("get_catalog_peg_milestone_options"):
@@ -60,8 +48,6 @@ func _reload_catalog_arrays() -> void:
 		_data_relics = _reward_handler.get_catalog_deliberate_relic_definitions()
 	else:
 		_data_relics = RewardCardCatalog.build_deliberate_relic_candidates()
-	if _reward_handler and _reward_handler.has_method("get_catalog_milestone_stat_ids"):
-		_data_stat_ids = _reward_handler.get_catalog_milestone_stat_ids()
 
 func _build_ui() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -174,14 +160,7 @@ func _items_for_tab(tab_idx: int) -> Array:
 		0: return _unique_ball_definitions(_data_balls)
 		1: return _data_pegs
 		2: return _data_relics
-		3: return _stats_items()
 		_: return []
-
-func _stats_items() -> Array:
-	var list: Array = []
-	for sid in _data_stat_ids:
-		list.append({"kind": "stat", "id": String(sid)})
-	return list
 
 func _unique_ball_definitions(items: Array) -> Array:
 	var seen: Dictionary = {}
@@ -243,7 +222,6 @@ func _refresh_tab(tab_idx: int) -> void:
 			0: _add_ball_row(row, item as BallDefinition)
 			1: _add_peg_row(row, item as MilestoneOption)
 			2: _add_relic_row(row, item as MajorUpgradeDefinition)
-			3: _add_stat_row(row, String((item as Dictionary).get("id", "")))
 
 func _add_ball_row(row: HBoxContainer, def: BallDefinition) -> void:
 	if not def: return
@@ -344,17 +322,3 @@ func _on_apply_relic(def: MajorUpgradeDefinition, btn: Button = null) -> void:
 		if get_tree():
 			get_tree().create_timer(1.0).timeout.connect(func(): if is_instance_valid(btn): btn.text = "Add")
 
-func _add_stat_row(row: HBoxContainer, stat_id: String) -> void:
-	if stat_id.is_empty(): return
-	var ui: Dictionary = _MILESTONE_STAT_UI.get(stat_id, {"name": stat_id, "desc": ""})
-	var icon_tex: Texture2D = _STAT_ICONS.get(stat_id, _STAT_ICONS["main_charge"]) as Texture2D
-	row.add_child(_make_icon_tile(icon_tex, Color(0.85, 0.78, 0.95, 1)))
-	var text_col: VBoxContainer = VBoxContainer.new(); text_col.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	var title: Label = Label.new(); title.text = String(ui.get("name", stat_id)); title.add_theme_font_size_override("font_size", 14); title.add_theme_color_override("font_color", Color(0.95, 0.88, 1.0, 1))
-	var desc: RichTextLabel = RichTextLabel.new(); _style_desc_label(desc)
-	KeywordDatabase.format_and_attach(desc, String(ui.get("desc", "")))
-	text_col.add_child(title); text_col.add_child(desc); row.add_child(text_col)
-	var btn: Button = Button.new(); btn.text = "Apply"; btn.process_mode = Node.PROCESS_MODE_ALWAYS
-	var sid: String = stat_id
-	btn.pressed.connect(func(): if _reward_handler and _reward_handler.has_method("apply_stat_upgrade"): _reward_handler.apply_stat_upgrade(sid))
-	row.add_child(btn)

@@ -1,7 +1,10 @@
 extends Control
-## Inventory panel overlay: balls, wall break upgrades, cannon & hopper stats.
+## Inventory panel overlay: balls, physical relics, and special pegs.
 
 signal closed
+
+const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
+const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 
 var _game_coordinator: Node
 var _reward_handler: Node
@@ -126,7 +129,7 @@ func _rebuild() -> void:
 
 	_build_balls_section(content)
 	_build_upgrades_section(content)
-	_build_stats_section(content)
+	_build_peg_section(content)
 
 func _build_balls_section(parent: VBoxContainer) -> void:
 	var ball_types: Dictionary = {}
@@ -153,96 +156,45 @@ func _build_balls_section(parent: VBoxContainer) -> void:
 		_add_body_text(parent, "  Bag (overflow)  ×%d" % bag_count, MonsterPalette.TAN())
 
 func _build_upgrades_section(parent: VBoxContainer) -> void:
-	var wall_upgrades: Dictionary = GameState.applied_wall_break_upgrades
-	var boss_upgrades: Dictionary = GameState.applied_boss_upgrades
-
-	if wall_upgrades.is_empty() and boss_upgrades.is_empty():
-		_add_section_header(parent, "RELICS")
+	_add_section_header(parent, "PHYSICAL RELICS")
+	var relic_counts: Dictionary = {}
+	var relic_names: Dictionary = {}
+	var relic_descs: Dictionary = {}
+	var add_item := func(item: Resource) -> void:
+		if not item is JunkBoxItem:
+			return
+		var relic_id: String = str(item.custom_payload.get("relic_id", ""))
+		if relic_id.is_empty():
+			return
+		relic_counts[relic_id] = int(relic_counts.get(relic_id, 0)) + 1
+		relic_names[relic_id] = item.display_name
+		relic_descs[relic_id] = PolyominoRelicDatabase.format_relic_tooltip(item)
+	if GameState and GameState.junk_box:
+		for item in GameState.junk_box.get_all_items():
+			add_item.call(item)
+	var board: Node = _get_board()
+	if board and board.has_method("get_all_placed_modules"):
+		for item in board.get_all_placed_modules():
+			add_item.call(item)
+	if relic_counts.is_empty():
 		_add_body_text(parent, "  None yet")
 		return
+	var ids: Array = relic_counts.keys()
+	ids.sort()
+	for relic_id in ids:
+		_add_body_text(parent, "  %s  ×%d" % [relic_names.get(relic_id, relic_id), relic_counts[relic_id]], MonsterPalette.SWATCH_CREAM())
+		var desc: String = relic_descs.get(relic_id, "")
+		if not desc.is_empty():
+			_add_rich_body_text(parent, "    %s" % desc, MonsterPalette.TAN().lerp(MonsterPalette.INDIGO(), 0.25), 12)
 
-	if not wall_upgrades.is_empty():
-		_add_section_header(parent, "RELICS")
-		var ids: Array = wall_upgrades.keys()
-		ids.sort()
-		for uid in ids:
-			var stacks: int = wall_upgrades[uid]
-			var info: Dictionary = _get_upgrade_info(uid)
-			var name_str: String = info.get("name", String(uid))
-			if stacks > 1:
-				name_str += "  ×%d" % stacks
-			_add_body_text(parent, "  %s" % name_str, MonsterPalette.SWATCH_CREAM())
-			var desc: String = info.get("description", "")
-			if not desc.is_empty():
-				_add_rich_body_text(parent, "    %s" % desc, MonsterPalette.TAN().lerp(MonsterPalette.INDIGO(), 0.25), 12)
+func _get_board() -> Node:
+	if not _game_coordinator:
+		return null
+	var main: Node = _game_coordinator.get_parent()
+	return main.get_node_or_null("Board") if main else null
 
-	if not boss_upgrades.is_empty():
-		_add_section_header(parent, "BOSS RELICS")
-		var ids: Array = boss_upgrades.keys()
-		ids.sort()
-		for uid in ids:
-			var info: Dictionary = _get_upgrade_info(uid)
-			var name_str: String = info.get("name", String(uid))
-			_add_body_text(parent, "  %s" % name_str, MonsterPalette.RUST())
-			var desc: String = info.get("description", "")
-			if not desc.is_empty():
-				_add_rich_body_text(parent, "    %s" % desc, MonsterPalette.TAN().lerp(MonsterPalette.INDIGO(), 0.25), 12)
-
-func _build_stats_section(parent: VBoxContainer) -> void:
-	_add_section_header(parent, "CANNON")
-	_add_stat_row(parent, "Damage Bonus", "+%d" % GameState.cannon_base_damage_bonus)
-	var cr: float = GameState.cannon_charge_reduction / 100.0
-	_add_stat_row(parent, "Charge Reduction", "-%.1f" % cr if cr > 0.001 else "0")
-	_add_stat_row(parent, "Main Energy Bonus", "+%d%%" % int(GameState.main_charge_bonus * 100))
-
-	if GameState.plain_surge_stacks > 0 or GameState.plain_horde_stacks > 0 or GameState.plain_momentum_stacks > 0:
-		_add_section_header(parent, "PLAIN SWARM")
-		if GameState.plain_surge_stacks > 0:
-			_add_stat_row(parent, "Plain Surge", "+%d/hit" % GameState.plain_surge_stacks)
-		if GameState.plain_horde_stacks > 0:
-			_add_stat_row(parent, "Plain Horde", "%d stacks (max +3/hit)" % GameState.plain_horde_stacks)
-		if GameState.plain_momentum_stacks > 0:
-			_add_stat_row(parent, "Plain Momentum", "+%d/hit (6+ hits)" % GameState.plain_momentum_stacks)
-
-	_add_section_header(parent, "HOPPER & CONDUIT")
-	_add_stat_row(parent, "Hopper Width", "%.1fx" % GameState.hopper_width_scale)
-	var dur_pct: int = int((GameState.conduit_open_duration_scale - 1.0) * 100)
-	_add_stat_row(parent, "Gate Duration", "+%d%%" % dur_pct if dur_pct > 0 else "Base")
-	_add_stat_row(parent, "Wave Interval", "%.1fx" % GameState.conduit_wave_interval_scale)
-
+func _build_peg_section(parent: VBoxContainer) -> void:
 	var board_stats: Array = []
-	if GameState.explosion_radius_bonus > 0:
-		board_stats.append(["Explosion Radius", "+%d" % GameState.explosion_radius_bonus])
-	if GameState.explosion_peg_hit_count_bonus > 0:
-		board_stats.append(["Explosion Hit Count", "+%d" % GameState.explosion_peg_hit_count_bonus])
-	if GameState.explosion_impulse_bonus > 0.0:
-		board_stats.append(["Explosion Impulse", "+%.0f%%" % (GameState.explosion_impulse_bonus * 100)])
-	if GameState.chain_arc_bonus > 0:
-		board_stats.append(["Chain Arcs", "+%d" % GameState.chain_arc_bonus])
-	if GameState.chain_range_bonus > 0:
-		board_stats.append(["Chain Range", "+%d" % GameState.chain_range_bonus])
-	if GameState.max_energize_stacks_per_peg != 3:
-		board_stats.append(["Max Energize Stacks", "%d" % GameState.max_energize_stacks_per_peg])
-	if GameState.energize_decay_scale < 1.0:
-		board_stats.append(["Energize Decay", "%.0f%%" % (GameState.energize_decay_scale * 100)])
-	if GameState.energized_peg_repair_scale > 1.0:
-		board_stats.append(["Peg Repair (Energized)", "+%.0f%%" % ((GameState.energized_peg_repair_scale - 1.0) * 100)])
-	if GameState.global_peg_durability_bonus > 0:
-		board_stats.append(["Peg Durability", "+%d" % GameState.global_peg_durability_bonus])
-	if GameState.peg_recovery_speed_scale > 1.0:
-		board_stats.append(["Peg Recovery Speed", "+%.0f%%" % ((GameState.peg_recovery_speed_scale - 1.0) * 100)])
-	if GameState.chest_leech_drain_stacks > 0:
-		board_stats.append(["Chest: Drain Rate", "+%d/sec" % GameState.chest_leech_drain_stacks])
-	if GameState.chest_leech_duration_stacks > 0:
-		board_stats.append(["Chest: Drain Duration", "+%ds" % GameState.chest_leech_duration_stacks])
-	if GameState.chest_phantom_energy_stacks > 0:
-		board_stats.append(["Chest: Phantom Hits", "+%d%%" % (GameState.chest_phantom_energy_stacks * 5)])
-	if GameState.chest_rubbery_energy_stacks > 0:
-		board_stats.append(["Chest: Rubbery Hits", "+%d%%" % (GameState.chest_rubbery_energy_stacks * 5)])
-	if GameState.chest_bounce_energy_stacks > 0:
-		board_stats.append(["Chest: Plain Hits", "+%d%%" % (GameState.chest_bounce_energy_stacks * 5)])
-	if GameState.chest_split_energy_stacks > 0:
-		board_stats.append(["Chest: Split Fragments", "+%d%%" % (GameState.chest_split_energy_stacks * 5)])
 	if GameState.bomb_peg_count > 0:
 		board_stats.append(["Bomb Pegs", "%d" % GameState.bomb_peg_count])
 	if GameState.trampoline_peg_count > 0:
@@ -268,7 +220,7 @@ func _build_stats_section(parent: VBoxContainer) -> void:
 	if GameState.wrench_peg_count > 0:
 		board_stats.append(["Wrench Pegs", "%d" % GameState.wrench_peg_count])
 	if not board_stats.is_empty():
-		_add_section_header(parent, "BOARD")
+		_add_section_header(parent, "SPECIAL PEGS")
 		for stat in board_stats:
 			_add_stat_row(parent, stat[0], stat[1])
 

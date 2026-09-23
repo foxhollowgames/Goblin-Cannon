@@ -39,8 +39,7 @@ func _can_release() -> bool:
 
 func _open_door() -> void:
 	_ticks_door_open = 0
-	var scale: float = GameState.conduit_open_duration_scale if GameState else 1.0
-	_open_ticks = ceili(Constants.OPEN_SECONDS * Constants.SIM_TICKS_PER_SECOND * scale)
+	_open_ticks = ceili(Constants.OPEN_SECONDS * Constants.SIM_TICKS_PER_SECOND)
 	if _hopper and _hopper.has_method("set_gate_open"):
 		_hopper.set_gate_open(true)
 	door_opened.emit()
@@ -53,5 +52,4 @@ func _close_door() -> void:
 	door_closed.emit()
 
 func _update_wave_interval_ticks() -> void:
-	var scale: float = GameState.conduit_wave_interval_scale if GameState else 1.0
-	_wave_interval_ticks = ceili(Constants.WAVE_INTERVAL_SECONDS * Constants.SIM_TICKS_PER_SECOND * scale)
+	_wave_interval_ticks = ceili(Constants.WAVE_INTERVAL_SECONDS * Constants.SIM_TICKS_PER_SECOND)

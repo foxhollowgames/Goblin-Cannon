@@ -30,3 +30,15 @@ Inject legacy IDs and scalar values. Check cannon damage, charge, peg durability
 Place, rotate, move, remove, and return physical relics. Check inventory conservation and absent global bonuses.
 Check physical activation still pays its current reward. Check ordinary ball effects still work.
 Check all normal and debug catalogs show active device effects only.
+
+## Recorded starting values
+
+- Main cannon charge: 100 display energy, or 10,000 internal units.
+- Main cannon damage: 10 wall damage per shot.
+- Default ball starting energy: 3 display energy.
+- Ordinary peg hit: 1 display energy before ordinary ball or peg mechanics.
+- Leech: 1 display energy per second for 10 seconds.
+- Energize: existing maximum of three peg-durability stacks.
+
+These values come from the current constants, ball definition, Board, and cannon.
+They are a measurement baseline, not a new balance target. Special pegs and physical device rewards can produce different output.

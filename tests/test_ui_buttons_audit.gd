@@ -1,5 +1,11 @@
 extends "res://tests/test_base.gd"
 
+const BoardScript = preload("res://scenes/board/board.gd")
+const AlmanacScript = preload("res://scenes/ui/almanac_panel.gd")
+const InventoryScript = preload("res://scenes/ui/inventory_panel.gd")
+const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
+const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
+
 func _init() -> void:
 	suite_name = "UIButtonAudit"
 
@@ -11,6 +17,7 @@ func run() -> void:
 	test_major_upgrade_draft_panel_buttons()
 	test_inventory_panel_buttons()
 	test_almanac_panel_buttons()
+	test_physical_relic_counts_use_root_board()
 	test_junk_box_panel_buttons()
 	test_debug_modals_buttons()
 	test_reward_draft_panel_shop_card_content()
@@ -146,6 +153,33 @@ func test_almanac_panel_buttons() -> void:
 	assert_true(close_btn != null, "close button exists")
 	assert_true(close_btn.pressed.get_connections().size() > 0, "close button connected")
 	panel.free()
+
+func test_physical_relic_counts_use_root_board() -> void:
+	begin("Physical relic UI counts include modules placed on the root Board")
+	var main: Node = Node.new()
+	var coordinator: Node = Node.new()
+	main.add_child(coordinator)
+	var board: Node2D = Node2D.new()
+	board.name = "Board"
+	board.set_script(BoardScript)
+	main.add_child(board)
+	var item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(&"chest_random_ball")
+	assert_true(item != null, "physical chest relic item created")
+	assert_true(board.place_module(item, Vector2i(3, 2)), "physical relic placed on root Board")
+
+	var almanac: Control = Control.new()
+	almanac.set_script(AlmanacScript)
+	main.add_child(almanac)
+	var inventory: Control = Control.new()
+	inventory.set_script(InventoryScript)
+	main.add_child(inventory)
+	almanac.setup(coordinator, null)
+	inventory.setup(coordinator, null)
+	assert_eq(almanac._physical_relic_count(&"chest_random_ball"), 1, "Almanac counts the placed relic")
+	assert_eq(almanac._get_board(), board, "Almanac resolves sibling Board through the coordinator root")
+	assert_eq(inventory._get_board(), board, "Inventory resolves sibling Board through the coordinator root")
+
+	main.free()
 
 func test_junk_box_panel_buttons() -> void:
 	begin("JunkBoxPanel close and sort buttons are wired and connected")

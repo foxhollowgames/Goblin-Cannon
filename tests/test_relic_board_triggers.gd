@@ -76,7 +76,7 @@ func test_relic_board_unslot_zero_passive_stats() -> void:
 
 	var item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(&"supernova_peg")
 	board.place_module(item, Vector2i(2, 2), 0)
-	assert_true(GameState.has_wall_break_upgrade(&"supernova_peg"), "supernova peg registered when placed")
+	assert_false(GameState.has_wall_break_upgrade(&"supernova_peg"), "legacy registry remains empty when placed")
 
 	var unslotted: Resource = board.unslot_module(item.instance_id)
 	assert_true(unslotted != null, "relic unslotted")

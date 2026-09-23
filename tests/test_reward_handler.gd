@@ -1,5 +1,8 @@
 extends "res://tests/test_base.gd"
 
+const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
+const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
+
 func _init() -> void:
 	suite_name = "RewardHandler"
 
@@ -10,16 +13,17 @@ func run() -> void:
 	test_ball_abilities_are_board_focused()
 	test_no_sidearm_upgrade_candidates()
 	test_wall_break_candidates_exist()
-	test_onboard_effect_candidates_exist()
-	test_apply_stat_upgrade_main_charge()
-	test_apply_stat_upgrade_cannon_damage()
-	test_apply_stat_upgrade_cannon_energy()
-	test_apply_stat_upgrade_door_interval()
-	test_apply_stat_upgrade_door_duration()
-	test_apply_stat_upgrade_hopper_width()
-	test_apply_stat_upgrade_plain_surge_cap()
-	test_apply_stat_upgrade_plain_horde_cap()
-	test_apply_stat_upgrade_plain_momentum_cap()
+	test_onboard_effect_candidates_are_physical_relics()
+	test_onboard_effect_picks_are_physical_relics()
+	test_legacy_stat_upgrade_main_charge_ignored()
+	test_legacy_stat_upgrade_cannon_damage_ignored()
+	test_legacy_stat_upgrade_cannon_energy_ignored()
+	test_legacy_stat_upgrade_door_interval_ignored()
+	test_legacy_stat_upgrade_door_duration_ignored()
+	test_legacy_stat_upgrade_hopper_width_ignored()
+	test_legacy_stat_upgrade_plain_surge_ignored()
+	test_legacy_stat_upgrade_plain_horde_ignored()
+	test_legacy_stat_upgrade_plain_momentum_ignored()
 	test_apply_major_upgrade_explosion_radius()
 	test_apply_major_upgrade_chain_arc()
 	test_apply_major_upgrade_chest_leech_drain()
@@ -109,10 +113,10 @@ func test_wall_break_candidates_exist() -> void:
 	assert_not_empty(rh._ball_enhancement_candidates, "ball enhancements present")
 	assert_not_empty(rh._board_candidates, "board upgrades present (plain swarm)")
 
-func test_onboard_effect_candidates_exist() -> void:
-	begin("onboard effect pool has passive tag upgrades")
+func test_onboard_effect_candidates_are_physical_relics() -> void:
+	begin("onboard effect pool contains physical relics")
 	var rh := _make_handler()
-	assert_not_empty(rh._onboard_effect_candidates, "onboard passives present")
+	assert_not_empty(rh._onboard_effect_candidates, "physical relics present")
 	var seen_global: bool = false
 	for def in rh._onboard_effect_candidates:
 		if def is MajorUpgradeDefinition and def.upgrade_id == &"global_peg_durability":
@@ -120,75 +124,87 @@ func test_onboard_effect_candidates_exist() -> void:
 			break
 	assert_true(seen_global, "includes global peg durability")
 
-func test_apply_stat_upgrade_main_charge() -> void:
-	begin("apply_stat_upgrade 'main_charge' increases bonus")
+func test_onboard_effect_picks_are_physical_relics() -> void:
+	begin("onboard reward picks resolve to physical relic items")
+	var rh := _make_handler()
+	var picks: Array = rh.get_onboard_effect_picks(19)
+	assert_not_empty(picks, "physical chest picks are available")
+	for pick in picks:
+		assert_true(pick is MajorUpgradeDefinition, "pick is a relic definition")
+		var def: MajorUpgradeDefinition = pick as MajorUpgradeDefinition
+		var item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(def.upgrade_id)
+		assert_true(item != null, "relic definition resolves to physical item")
+		assert_true(def.description.contains("Physical device:"), "catalog description states physical trigger")
+
+func test_legacy_stat_upgrade_main_charge_ignored() -> void:
+	begin("legacy main charge stat upgrade is ignored")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	var before: float = GameState.main_charge_bonus
 	rh.apply_stat_upgrade("main_charge")
-	assert_approx(GameState.main_charge_bonus, before + 0.05, 0.001, "+0.05 main_charge")
+	assert_approx(GameState.main_charge_bonus, before, 0.001, "legacy main_charge is ignored")
 
-func test_apply_stat_upgrade_cannon_damage() -> void:
-	begin("apply_stat_upgrade 'cannon_damage' increases bonus")
+func test_legacy_stat_upgrade_cannon_damage_ignored() -> void:
+	begin("legacy cannon damage stat upgrade is ignored")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	rh.apply_stat_upgrade("cannon_damage")
-	assert_eq(GameState.cannon_base_damage_bonus, 5, "+5 cannon damage")
+	assert_eq(GameState.cannon_base_damage_bonus, 0, "legacy cannon damage is ignored")
 
-func test_apply_stat_upgrade_cannon_energy() -> void:
-	begin("apply_stat_upgrade 'cannon_energy' increases reduction")
+func test_legacy_stat_upgrade_cannon_energy_ignored() -> void:
+	begin("legacy cannon energy stat upgrade is ignored")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	rh.apply_stat_upgrade("cannon_energy")
-	assert_eq(GameState.cannon_charge_reduction, Constants.legacy_internal_energy_to_current(2000), "scaled charge reduction")
+	assert_eq(GameState.cannon_charge_reduction, 0, "legacy charge reduction is ignored")
 
-func test_apply_stat_upgrade_door_interval() -> void:
-	begin("apply_stat_upgrade 'door_interval' reduces scale")
+func test_legacy_stat_upgrade_door_interval_ignored() -> void:
+	begin("legacy door interval stat upgrade is ignored")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	rh.apply_stat_upgrade("door_interval")
-	assert_approx(GameState.conduit_wave_interval_scale, 0.9, 0.001, "1.0 - 0.1 = 0.9")
+	assert_approx(GameState.conduit_wave_interval_scale, 1.0, 0.001, "legacy interval is ignored")
 
-func test_apply_stat_upgrade_door_duration() -> void:
-	begin("apply_stat_upgrade 'door_duration' increases scale")
+func test_legacy_stat_upgrade_door_duration_ignored() -> void:
+	begin("legacy door duration stat upgrade is ignored")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	rh.apply_stat_upgrade("door_duration")
-	assert_approx(GameState.conduit_open_duration_scale, 1.1, 0.001, "1.0 + 0.1 = 1.1")
+	assert_approx(GameState.conduit_open_duration_scale, 1.0, 0.001, "legacy duration is ignored")
 
-func test_apply_stat_upgrade_hopper_width() -> void:
-	begin("apply_stat_upgrade 'hopper_width' increases scale capped at 2")
+func test_legacy_stat_upgrade_hopper_width_ignored() -> void:
+	begin("legacy hopper width stat upgrade is ignored")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	rh.apply_stat_upgrade("hopper_width")
-	assert_approx(GameState.hopper_width_scale, 1.1, 0.001, "+0.1 width")
+	assert_approx(GameState.hopper_width_scale, 1.0, 0.001, "legacy width is ignored")
 	GameState.hopper_width_scale = 1.95
 	rh.apply_stat_upgrade("hopper_width")
-	assert_approx(GameState.hopper_width_scale, 2.0, 0.001, "capped at 2.0")
+	assert_approx(GameState.hopper_width_scale, 1.0, 0.001, "legacy width remains ignored")
 
-func test_apply_stat_upgrade_plain_surge_cap() -> void:
-	begin("apply_stat_upgrade 'plain_surge' stacks to max 5")
+func test_legacy_stat_upgrade_plain_surge_ignored() -> void:
+	begin("legacy plain surge stat upgrade is ignored")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	for _i in 7:
 		rh.apply_stat_upgrade("plain_surge")
-	assert_eq(GameState.plain_surge_stacks, 5, "capped at 5")
+	assert_eq(GameState.plain_surge_stacks, 0, "legacy plain surge is ignored")
 
-func test_apply_stat_upgrade_plain_horde_cap() -> void:
-	begin("apply_stat_upgrade 'plain_horde' stacks to max 3")
+func test_legacy_stat_upgrade_plain_horde_ignored() -> void:
+	begin("legacy plain horde stat upgrade is ignored")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	for _i in 5:
 		rh.apply_stat_upgrade("plain_horde")
-	assert_eq(GameState.plain_horde_stacks, 3, "capped at 3")
+	assert_eq(GameState.plain_horde_stacks, 0, "legacy plain horde is ignored")
 
-func test_apply_stat_upgrade_plain_momentum_cap() -> void:
-	begin("apply_stat_upgrade 'plain_momentum' stacks to max 3")
+func test_legacy_stat_upgrade_plain_momentum_ignored() -> void:
+	begin("legacy plain momentum stat upgrade is ignored")
 	_ensure_clean_state()
 	var rh := _make_handler()
 	for _i in 5:
 		rh.apply_stat_upgrade("plain_momentum")
-	assert_eq(GameState.plain_momentum_stacks, 3, "capped at 3")
+	assert_eq(GameState.plain_momentum_stacks, 0, "legacy plain momentum is ignored")
 
 func test_apply_major_upgrade_explosion_radius() -> void:
 	begin("apply_major_upgrade explosion_radius adds relic to junk box")
@@ -200,7 +216,7 @@ func test_apply_major_upgrade_explosion_radius() -> void:
 	rh.apply_major_upgrade(def)
 	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
 	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"explosion_radius")
-	assert_true(GameState.has_wall_break_upgrade(&"explosion_radius"), "upgrade registered when slotted")
+	assert_false(GameState.has_wall_break_upgrade(&"explosion_radius"), "legacy registry remains empty")
 	assert_eq(GameState.explosion_radius_bonus, 0, "passive stat bonus remains 0")
 
 func test_apply_major_upgrade_chain_arc() -> void:
@@ -213,7 +229,7 @@ func test_apply_major_upgrade_chain_arc() -> void:
 	rh.apply_major_upgrade(def)
 	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
 	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"chain_arc")
-	assert_true(GameState.has_wall_break_upgrade(&"chain_arc"), "upgrade registered when slotted")
+	assert_false(GameState.has_wall_break_upgrade(&"chain_arc"), "legacy registry remains empty")
 	assert_eq(GameState.chain_arc_bonus, 0, "passive stat bonus remains 0")
 
 func test_apply_major_upgrade_chest_leech_drain() -> void:
@@ -226,7 +242,7 @@ func test_apply_major_upgrade_chest_leech_drain() -> void:
 	rh.apply_major_upgrade(def)
 	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
 	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"chest_leech_drain")
-	assert_true(GameState.has_wall_break_upgrade(&"chest_leech_drain"), "upgrade registered when slotted")
+	assert_false(GameState.has_wall_break_upgrade(&"chest_leech_drain"), "legacy registry remains empty")
 	assert_eq(GameState.chest_leech_drain_stacks, 0, "passive stat stack remains 0")
 
 func test_apply_major_upgrade_devastating_barrage_once() -> void:
@@ -239,7 +255,7 @@ func test_apply_major_upgrade_devastating_barrage_once() -> void:
 	rh.apply_major_upgrade(def)
 	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
 	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"devastating_barrage")
-	assert_true(GameState.has_wall_break_upgrade(&"devastating_barrage"), "upgrade registered when slotted")
+	assert_false(GameState.has_wall_break_upgrade(&"devastating_barrage"), "legacy registry remains empty")
 	assert_eq(GameState.cannon_base_damage_bonus, 0, "passive stat bonus remains 0")
 
 func test_apply_major_upgrade_compressed_charge_once() -> void:
@@ -252,28 +268,32 @@ func test_apply_major_upgrade_compressed_charge_once() -> void:
 	rh.apply_major_upgrade(def)
 	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
 	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"compressed_charge")
-	assert_true(GameState.has_wall_break_upgrade(&"compressed_charge"), "upgrade registered when slotted")
+	assert_false(GameState.has_wall_break_upgrade(&"compressed_charge"), "legacy registry remains empty")
 	assert_eq(GameState.cannon_charge_reduction, 0, "passive stat reduction remains 0")
 
 func test_onboard_effect_picks_exclude_devastating_barrage_when_taken() -> void:
-	begin("get_onboard_effect_picks omits devastating_barrage after taken")
+	begin("get_onboard_effect_picks keeps physical cannon relic after legacy flag")
 	_ensure_clean_state()
 	GameState.chest_devastating_barrage_taken = true
 	var rh := _make_handler()
 	var picks: Array = rh.get_onboard_effect_picks(50)
+	var found: bool = false
 	for p in picks:
-		if p is MajorUpgradeDefinition:
-			assert_neq((p as MajorUpgradeDefinition).upgrade_id, &"devastating_barrage", "excluded when taken")
+		if p is MajorUpgradeDefinition and (p as MajorUpgradeDefinition).upgrade_id == &"devastating_barrage":
+			found = true
+	assert_true(found, "physical relic remains eligible")
 
 func test_onboard_effect_picks_exclude_compressed_charge_when_taken() -> void:
-	begin("get_onboard_effect_picks omits compressed_charge after taken")
+	begin("get_onboard_effect_picks keeps physical charge relic after legacy flag")
 	_ensure_clean_state()
 	GameState.chest_compressed_charge_taken = true
 	var rh := _make_handler()
 	var picks: Array = rh.get_onboard_effect_picks(50)
+	var found: bool = false
 	for p in picks:
-		if p is MajorUpgradeDefinition:
-			assert_neq((p as MajorUpgradeDefinition).upgrade_id, &"compressed_charge", "excluded when taken")
+		if p is MajorUpgradeDefinition and (p as MajorUpgradeDefinition).upgrade_id == &"compressed_charge":
+			found = true
+	assert_true(found, "physical relic remains eligible")
 
 func test_apply_major_upgrade_plain_horde_delegates() -> void:
 	begin("apply_major_upgrade plain_horde adds relic to junk box")
@@ -285,18 +305,20 @@ func test_apply_major_upgrade_plain_horde_delegates() -> void:
 	rh.apply_major_upgrade(def)
 	assert_eq(GameState.junk_box.get_item_count(), 1, "relic added to junk box")
 	PolyominoRelicDatabase.apply_relic_effects_to_game_state(&"plain_horde")
-	assert_true(GameState.has_wall_break_upgrade(&"plain_horde"), "upgrade registered when slotted")
+	assert_false(GameState.has_wall_break_upgrade(&"plain_horde"), "legacy registry remains empty")
 	assert_eq(GameState.plain_horde_stacks, 0, "passive stat stack remains 0")
 
 func test_major_upgrade_picks_exclude_plain_swarm_at_cap() -> void:
-	begin("get_major_upgrade_picks omits plain swarm upgrades at stack cap")
+	begin("get_major_upgrade_picks keeps physical plain relic at legacy cap")
 	_ensure_clean_state()
 	GameState.plain_horde_stacks = 3
 	var rh := _make_handler()
 	var picks: Array = rh.get_major_upgrade_picks(50)
+	var found: bool = false
 	for p in picks:
-		if p is MajorUpgradeDefinition:
-			assert_neq((p as MajorUpgradeDefinition).upgrade_id, &"plain_horde", "plain_horde excluded when capped")
+		if p is MajorUpgradeDefinition and (p as MajorUpgradeDefinition).upgrade_id == &"plain_horde":
+			found = true
+	assert_true(found, "physical relic remains eligible")
 
 func test_apply_major_upgrade_stack_cap_respected() -> void:
 	begin("apply_major_upgrade adds relic item to junk box")
@@ -372,21 +394,23 @@ func test_major_upgrade_ball_gate_weight() -> void:
 	def_missing.ball_type = "Phantom"
 	GameState.record_ball_ability_in_run("Rubbery")
 	assert_eq(rh._major_upgrade_ball_gate_weight(def_ok), 1.0, "owned ball type")
-	assert_approx(rh._major_upgrade_ball_gate_weight(def_missing), 0.05, 0.001, "missing ball type")
+	assert_eq(rh._major_upgrade_ball_gate_weight(def_missing), 1.0, "missing ball type does not gate physical relic")
 	var cross: MajorUpgradeDefinition = MajorUpgradeDefinition.new()
 	cross.required_ball_types = ["Split", "Explosive"]
-	assert_approx(rh._major_upgrade_ball_gate_weight(cross), 0.05, 0.001, "missing required cross type")
+	assert_eq(rh._major_upgrade_ball_gate_weight(cross), 1.0, "missing required type does not gate physical relic")
 
 func test_major_upgrade_picks_respect_stack_cap() -> void:
-	begin("get_major_upgrade_picks excludes at-cap upgrades")
+	begin("get_major_upgrade_picks keeps physical relic at legacy cap")
 	_ensure_clean_state()
 	GameState.record_ball_ability_in_run("Rubbery")
 	GameState.add_wall_break_upgrade(&"hyper_elastic", 1)
 	var rh := _make_handler()
 	var picks: Array = rh.get_major_upgrade_picks(50)
+	var found: bool = false
 	for p in picks:
-		if p is MajorUpgradeDefinition:
-			assert_neq(p.upgrade_id, &"hyper_elastic", "hyper_elastic excluded at cap")
+		if p is MajorUpgradeDefinition and p.upgrade_id == &"hyper_elastic":
+			found = true
+	assert_true(found, "physical relic remains eligible")
 
 func test_boss_upgrade_picks_returns_requested_count() -> void:
 	begin("boss reward returns requested pick count when pool is large enough")

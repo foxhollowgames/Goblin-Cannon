@@ -17,12 +17,10 @@ const GOBLIN_RESET_POST_RELEASE_GRACE_TICKS: int = SIM_TICKS_PER_SECOND / 2
 const GRAVITY: float = 12.0  # pixels per sim tick² (gentler fall)
 const BALL_RADIUS: float = 8.0
 const PEG_RADIUS: float = 12.0
-## Treasure chest board event: high durability peg before onboard passive reward draft.
+## Treasure chest board event: high durability peg before physical relic draft.
 const TREASURE_CHEST_BASE_DURABILITY: int = 5
 ## Human Kingdom sticky slime event: distinct balls that hit the peg wear down the coating; at 0 the peg breaks.
 const STICKY_SLIME_RESCUE_HITS: int = 5
-## Max stacks per treasure-chest numeric passive (Leech/Phantom/etc.).
-const CHEST_PASSIVE_MAX_STACKS: int = 5
 
 ## Milestone / chest / buffet / sticky: objectives you clear — no Energize extra durability or Overclock-on-energize.
 static func peg_extra_kind_blocks_energize(kind: String) -> bool:

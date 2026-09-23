@@ -120,8 +120,6 @@ func _ready() -> void:
 		_vibrancy_scale = peg_config.vibrancy_scale
 	else:
 		_vibrancy_scale = 1.0
-	if GameState:
-		base_durability += GameState.global_peg_durability_bonus
 	_max_durability = base_durability
 	_durability = base_durability
 	if peg_extra_kind == "goblin_reset":
@@ -282,8 +280,6 @@ func revert_milestone_shop_kind_to_normal() -> void:
 		_vibrancy_scale = peg_config.vibrancy_scale
 	else:
 		_vibrancy_scale = 1.0
-	if GameState:
-		base_durability += GameState.global_peg_durability_bonus
 	_max_durability = base_durability
 	_durability = base_durability
 	apply_default_peg_collision_and_physics()
@@ -371,13 +367,8 @@ func apply_hit(show_aura: bool = true, damage: int = 1, add_energized: bool = fa
 	if add_energized and Constants.peg_extra_kind_blocks_energize(peg_extra_kind):
 		add_energized = false
 	if add_energized:
-		var cap: int = _max_durability
-		if GameState and GameState.max_energize_stacks_per_peg > 0:
-			cap = _max_durability * maxi(1, GameState.max_energize_stacks_per_peg)
-		var before_ed: int = _energized_durability
+		var cap: int = _max_durability * 3
 		_energized_durability = mini(cap, _energized_durability + _max_durability)
-		if GameState and _energized_durability > before_ed:
-			GameState.apply_volt_primer_on_energize()
 		set_process(true)
 	if damage > 0:
 		_apply_damage(damage)
@@ -523,11 +514,6 @@ func enter_break_recovery_after_sticky_slime() -> void:
 	_just_destroyed = true
 	_had_energize_on_destroy = (_energized_durability > 0)
 	var recovery_ticks: int = peg_config.recovery_sim_ticks if peg_config else 360
-	if GameState:
-		if GameState.peg_recovery_speed_scale > 0.0:
-			recovery_ticks = int(float(recovery_ticks) / GameState.peg_recovery_speed_scale)
-		if GameState.energized_peg_repair_scale > 0.0:
-			recovery_ticks = int(float(recovery_ticks) / GameState.energized_peg_repair_scale)
 	_recovery_ticks_remaining = maxi(1, recovery_ticks)
 	_set_collision_enabled(false)
 	queue_redraw()
@@ -544,8 +530,6 @@ func sim_tick(_tick: int) -> void:
 	if _energized_durability > 0 and _recovery_ticks_remaining <= 0:
 		_energize_decay_counter += 1
 		var interval: int = Constants.ENERGIZE_DECAY_INTERVAL_TICKS
-		if GameState and GameState.energize_decay_scale > 0.0 and GameState.energize_decay_scale < 1.0:
-			interval = int(float(interval) / GameState.energize_decay_scale)
 		if _energize_decay_counter >= interval:
 			_energize_decay_counter = 0
 			_energized_durability = maxi(0, _energized_durability - 1)
@@ -557,8 +541,6 @@ func sim_tick(_tick: int) -> void:
 	_recovery_ticks_remaining -= 1
 	if _recovery_ticks_remaining <= 0:
 		var base_d: int = peg_config.durability if peg_config else 3
-		if GameState:
-			base_d += GameState.global_peg_durability_bonus
 		_durability = base_d
 		_max_durability = base_d
 		if peg_extra_kind == "goblin_reset":
@@ -601,11 +583,6 @@ func _apply_damage(amount: int) -> void:
 		_just_destroyed = true
 		_had_energize_on_destroy = (_energized_durability > 0)
 		var recovery_ticks: int = peg_config.recovery_sim_ticks if peg_config else 360
-		if GameState:
-			if GameState.peg_recovery_speed_scale > 0.0:
-				recovery_ticks = int(float(recovery_ticks) / GameState.peg_recovery_speed_scale)
-			if GameState.energized_peg_repair_scale > 0.0:
-				recovery_ticks = int(float(recovery_ticks) / GameState.energized_peg_repair_scale)
 		_recovery_ticks_remaining = maxi(1, recovery_ticks)
 		_set_collision_enabled(false)
 

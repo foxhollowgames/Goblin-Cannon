@@ -1,5 +1,5 @@
 extends Node
-## RewardHandler (§6.10). Milestones, wall-break synergies, treasure-chest onboard passives, boss amplifiers.
+## RewardHandler (§6.10). Milestones, physical relics, balls, pegs, and boss rewards.
 
 const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
 const DeliberateRelicCatalog = preload("res://resources/polyomino/deliberate_relic_catalog.gd")
@@ -15,7 +15,7 @@ var _ball_candidates: Array = []
 var _ball_enhancement_candidates: Array = []
 var _cross_link_candidates: Array = []
 var _board_candidates: Array = []
-## Treasure chest / onboard: passive tag upgrades and global peg scaling (no synergy gates).
+## Treasure chest physical relic candidates.
 var _onboard_effect_candidates: Array = []
 var _boss_candidates: Array = []
 var _peg_shop_candidates: Array = []
@@ -107,77 +107,20 @@ func _build_relic_shop_candidates() -> void:
 		_relic_shop_candidates.append(opt)
 
 
-## Treasure chest: pick 3 passive onboard upgrades (global peg scaling + explosion/chain/energize tags).
+## Chest reward hook. Each pick is a physical relic item with an on-board goal.
 func get_onboard_effect_picks(count: int = 3) -> Array:
-	var pool: Array = []
-	for c in _onboard_effect_candidates:
-		var bdef: MajorUpgradeDefinition = c as MajorUpgradeDefinition
-		if bdef and _plain_swarm_upgrade_at_cap(bdef.upgrade_id):
-			continue
-		if bdef and _chest_passive_at_cap(bdef.upgrade_id):
-			continue
-		pool.append(c)
-	return _reward_gen.pick_major_upgrades(pool, count)
+	return _reward_gen.pick_major_upgrades(_onboard_effect_candidates, count)
 
-func _chest_passive_at_cap(uid: StringName) -> bool:
-	if not GameState:
-		return false
-	match uid:
-		&"chest_leech_drain":
-			return GameState.chest_leech_drain_stacks >= Constants.CHEST_PASSIVE_MAX_STACKS
-		&"chest_leech_duration":
-			return GameState.chest_leech_duration_stacks >= Constants.CHEST_PASSIVE_MAX_STACKS
-		&"chest_phantom_energy":
-			return GameState.chest_phantom_energy_stacks >= Constants.CHEST_PASSIVE_MAX_STACKS
-		&"chest_rubbery_energy":
-			return GameState.chest_rubbery_energy_stacks >= Constants.CHEST_PASSIVE_MAX_STACKS
-		&"chest_bounce_energy":
-			return GameState.chest_bounce_energy_stacks >= Constants.CHEST_PASSIVE_MAX_STACKS
-		&"chest_split_energy":
-			return GameState.chest_split_energy_stacks >= Constants.CHEST_PASSIVE_MAX_STACKS
-		&"devastating_barrage":
-			return GameState.chest_devastating_barrage_taken
-		&"compressed_charge":
-			return GameState.chest_compressed_charge_taken
-		_:
-			return false
-
-func _major_upgrade_ball_gate_weight(def: MajorUpgradeDefinition) -> float:
-	if not GameState:
-		return 1.0
-	for req_type in def.required_ball_types:
-		if not GameState.has_ball_ability_in_run(req_type):
-			return MAJOR_UPGRADE_UNOWNED_BALL_WEIGHT
-	if not def.ball_type.is_empty() and not GameState.has_ball_ability_in_run(def.ball_type):
-		return MAJOR_UPGRADE_UNOWNED_BALL_WEIGHT
+func _major_upgrade_ball_gate_weight(_def: MajorUpgradeDefinition) -> float:
 	return 1.0
 
-## Wall break: pick 3 — one each from cross-link / single-type / plain swarm when possible, then fill without dupes.
-## Ball-gated upgrades stay in the pool but are heavily down-weighted when their ball types are missing.
+## Wall break: pick physical relics from the legacy reward roster.
 func get_major_upgrade_picks(count: int = 3) -> Array:
-	var max_stacks_for: Dictionary = {
-		&"volt_primer": 1,
-		&"supernova_peg": 1, &"chain_conduction": 1, &"explosions_apply_energize": 1,
-		&"chain_hits_apply_energize": 1, &"overcharged_drain": 1, &"final_arc_detonation": 1,
-		&"energy_collapse": 1, &"shrapnel_split": 1, &"energized_fragments": 1,
-		&"arc_twins": 1, &"phase_siphon": 1, &"phase_detonation": 1,
-		&"spectral_conduit": 1, &"impact_burst": 2, &"kinetic_charge": 1,
-		&"static_bounce": 1, &"parasitic_arc": 1, &"draining_fragments": 1,
-		&"resonant_bounce": 1, &"ricochet_blast": 1, &"blast_launch": 1,
-		&"hyper_elastic": 1, &"overdrive_hits": 1, &"cluster_grenade": 1,
-		&"storm_feedback": 1, &"overcurrent_surge": 1, &"fragment_echo": 1,
-		&"mass_cascade": 1, &"ghost_trail": 1, &"phase_instability": 1,
-		&"chain_surge_wrench": 1, &"goblin_width_pulse": 1, &"magnet_arc_snare": 1, &"spark_trampoline": 1,
-		&"chest_random_ball": 1
-	}
 	var cross_pool: Array = []
 	var cross_weights: Array = []
 	for c in _cross_link_candidates:
 		var def: MajorUpgradeDefinition = c as MajorUpgradeDefinition
 		if not def:
-			continue
-		var cap: Variant = max_stacks_for.get(def.upgrade_id, -1)
-		if cap >= 0 and GameState.get_wall_break_upgrade_stacks(def.upgrade_id) >= cap:
 			continue
 		cross_pool.append(c)
 		cross_weights.append(_major_upgrade_ball_gate_weight(def))
@@ -187,41 +130,23 @@ func get_major_upgrade_picks(count: int = 3) -> Array:
 		var def: MajorUpgradeDefinition = c as MajorUpgradeDefinition
 		if not def:
 			continue
-		var cap: Variant = max_stacks_for.get(def.upgrade_id, -1)
-		if cap >= 0 and GameState.get_wall_break_upgrade_stacks(def.upgrade_id) >= cap:
-			continue
 		ball_pool.append(c)
 		ball_weights.append(_major_upgrade_ball_gate_weight(def))
 	var board_pool: Array = []
 	var board_weights: Array = []
 	for c in _board_candidates:
 		var bdef: MajorUpgradeDefinition = c as MajorUpgradeDefinition
-		if bdef and _plain_swarm_upgrade_at_cap(bdef.upgrade_id):
-			continue
 		board_pool.append(c)
 		board_weights.append(_major_upgrade_ball_gate_weight(bdef) if bdef else 1.0)
 	return _reward_gen.pick_wall_break_draft(cross_pool, ball_pool, board_pool, count, cross_weights, ball_weights, board_weights)
 
-func _plain_swarm_upgrade_at_cap(uid: StringName) -> bool:
-	match uid:
-		&"plain_surge":
-			return GameState.plain_surge_stacks >= 5
-		&"plain_horde":
-			return GameState.plain_horde_stacks >= 3
-		&"plain_momentum":
-			return GameState.plain_momentum_stacks >= 3
-		_:
-			return false
-
-## Boss reward: pick 3 amplifiers; ball-gated options stay in the pool but are heavily down-weighted when types are missing.
+## Boss reward: pick physical relics from the legacy reward roster.
 func get_boss_upgrade_picks(count: int = 3) -> Array:
 	var pool: Array = []
 	var weights: Array = []
 	for c in _boss_candidates:
 		var def: MajorUpgradeDefinition = c as MajorUpgradeDefinition
 		if not def:
-			continue
-		if GameState.has_boss_upgrade(def.upgrade_id):
 			continue
 		pool.append(c)
 		weights.append(_major_upgrade_ball_gate_weight(def))
@@ -291,45 +216,14 @@ func apply_milestone_pick(option: Resource) -> void:
 
 
 func apply_stat_upgrade(stat_id: String) -> void:
-	if not GameState:
-		return
-	match stat_id:
-		"main_charge":
-			GameState.main_charge_bonus += 0.05
-		"door_interval":
-			GameState.conduit_wave_interval_scale = maxf(0.5, GameState.conduit_wave_interval_scale - 0.1)
-		"door_duration":
-			GameState.conduit_open_duration_scale += 0.1
-		"cannon_damage":
-			GameState.cannon_base_damage_bonus += 5
-		"cannon_energy":
-			GameState.cannon_charge_reduction += Constants.legacy_internal_energy_to_current(2000)
-		"plain_surge":
-			GameState.plain_surge_stacks = mini(5, GameState.plain_surge_stacks + 1)
-		"plain_momentum":
-			GameState.plain_momentum_stacks = mini(3, GameState.plain_momentum_stacks + 1)
-		"plain_horde":
-			GameState.plain_horde_stacks = mini(3, GameState.plain_horde_stacks + 1)
-		"hopper_width":
-			GameState.hopper_width_scale = minf(2.0, GameState.hopper_width_scale + 0.1)
-			if _hopper and _hopper.has_method("refresh_width_from_game_state"):
-				_hopper.refresh_width_from_game_state()
+	pass
 
 func grant_ball_rewards(count: int) -> void:
 	if _game_coordinator and _game_coordinator.has_method("add_basic_balls"):
 		_game_coordinator.add_basic_balls(count)
 
 func grant_stat_upgrades(count: int) -> void:
-	if not GameState:
-		return
-	var options: Array[String] = ["main_charge", "door_interval", "door_duration", "cannon_damage", "cannon_energy", "hopper_width"]
-	for i in count:
-		if options.is_empty():
-			break
-		var idx: int = _reward_gen.randi_range(0, options.size() - 1) if _reward_gen and options.size() > 0 else 0
-		var pick: String = options[idx]
-		options.remove_at(idx)
-		apply_stat_upgrade(pick)
+	pass
 
 ## Milestone shop: unlock a special peg and prompt placement (same state as former wall-break peg picks).
 func apply_peg_shop_unlock(kind: String) -> void:
@@ -422,9 +316,9 @@ func get_catalog_boss_definitions() -> Array:
 
 ## Milestone shop stat picks (conduit / cannon / hopper); same IDs as `apply_stat_upgrade`.
 func get_catalog_milestone_stat_ids() -> Array:
-	return RewardGeneration.MILESTONE_STAT_IDS.duplicate()
+	return []
 
-## Treasure-chest onboard passives and global tag upgrades (not in wall-break draft list).
+## Physical relics available from treasure chests.
 func get_catalog_onboard_effect_definitions() -> Array:
 	return _onboard_effect_candidates.duplicate()
 
@@ -433,35 +327,10 @@ func get_catalog_deliberate_relic_definitions() -> Array:
 	return RewardCardCatalog.build_deliberate_relic_candidates()
 
 func remove_one_almanac_wall_break(uid: StringName) -> bool:
-	if not GameState:
-		return false
-	match uid:
-		&"plain_surge":
-			if GameState.plain_surge_stacks <= 0:
-				return false
-			GameState.plain_surge_stacks -= 1
-			return true
-		&"plain_horde":
-			if GameState.plain_horde_stacks <= 0:
-				return false
-			GameState.plain_horde_stacks -= 1
-			return true
-		&"plain_momentum":
-			if GameState.plain_momentum_stacks <= 0:
-				return false
-			GameState.plain_momentum_stacks -= 1
-			return true
-		_:
-			if GameState.get_wall_break_upgrade_stacks(uid) <= 0:
-				return false
-			GameState.remove_wall_break_upgrade_stack(uid, 1)
-			return true
+	return false
 
 func remove_one_almanac_boss(uid: StringName) -> bool:
-	if not GameState or not GameState.has_boss_upgrade(uid):
-		return false
-	GameState.remove_boss_upgrade_entry(uid)
-	return true
+	return false
 
 ## Remove one milestone-shop peg unlock: revert a placed peg if possible, then decrement GameState count.
 func remove_one_peg_unlock_for_almanac(kind: String, board: Node) -> bool:

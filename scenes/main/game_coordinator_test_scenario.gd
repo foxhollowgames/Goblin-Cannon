@@ -18,38 +18,19 @@ const LEGACY_PEG_UPGRADE_ID_TO_KIND: Dictionary = {
 }
 
 #region Public API
-## Applies TestScenario starting stats, upgrades, and peg counts to GameState.
+## Applies supported test-scenario city and peg values. Legacy passive values are ignored.
 static func apply_test_scenario() -> void:
 	if not TestScenario or not TestScenario.enabled:
 		return
 	if TestScenario.starting_city_id >= 0:
 		GameState.current_city_id = TestScenario.starting_city_id
-	for stat_key in TestScenario.starting_stats:
-		var value = TestScenario.starting_stats[stat_key]
-		match stat_key:
-			"cannon_damage":
-				GameState.cannon_base_damage_bonus += int(value)
-			"cannon_energy":
-				GameState.cannon_charge_reduction += Constants.legacy_internal_energy_to_current(int(value))
-			"main_charge":
-				GameState.main_charge_bonus += float(value)
-			"door_interval":
-				GameState.conduit_wave_interval_scale = maxf(0.5, GameState.conduit_wave_interval_scale - float(value))
-			"door_duration":
-				GameState.conduit_open_duration_scale += float(value)
-			"plain_surge":
-				GameState.plain_surge_stacks = mini(5, GameState.plain_surge_stacks + int(value))
-			"plain_horde":
-				GameState.plain_horde_stacks = mini(3, GameState.plain_horde_stacks + int(value))
-			"plain_momentum":
-				GameState.plain_momentum_stacks = mini(3, GameState.plain_momentum_stacks + int(value))
 	for entry in TestScenario.starting_upgrades:
 		if entry is String:
 			var s_uid: String = entry as String
 			if LEGACY_PEG_UPGRADE_ID_TO_KIND.has(s_uid):
 				add_peg_stacks(str(LEGACY_PEG_UPGRADE_ID_TO_KIND[s_uid]), 1)
 			else:
-				GameState.add_wall_break_upgrade(StringName(entry), 1)
+				pass
 		elif entry is Dictionary:
 			var uid: String = entry.get("id", "")
 			var stacks: int = entry.get("stacks", 1)
@@ -57,7 +38,7 @@ static func apply_test_scenario() -> void:
 				if LEGACY_PEG_UPGRADE_ID_TO_KIND.has(uid):
 					add_peg_stacks(str(LEGACY_PEG_UPGRADE_ID_TO_KIND[uid]), stacks)
 				else:
-					GameState.add_wall_break_upgrade(StringName(uid), stacks)
+					pass
 	if TestScenario.starting_peg_counts.has("bomb"):
 		GameState.bomb_peg_count += int(TestScenario.starting_peg_counts["bomb"])
 	if TestScenario.starting_peg_counts.has("trampoline"):

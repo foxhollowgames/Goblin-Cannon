@@ -11,7 +11,7 @@ func run() -> void:
 	test_hopper_released_balls_lifecycle()
 	test_game_ball_manager_exited_board_duplicate_guard()
 	test_board_flush_tick_cleans_queued_deletion_balls()
-	test_game_ball_manager_fragment_echo_lifecycle()
+	test_game_ball_manager_split_twin_exit_lifecycle()
 
 func test_board_spawn_ball_at_start_duplicate_guard() -> void:
 	begin("Board.spawn_ball_at_start does not append duplicates to _active_balls")
@@ -98,10 +98,9 @@ func test_board_flush_tick_cleans_queued_deletion_balls() -> void:
 	
 	board.free()
 
-func test_game_ball_manager_fragment_echo_lifecycle() -> void:
-	begin("GameBallManager fragment_echo resets is_exiting_board and frees on second exit")
+func test_game_ball_manager_split_twin_exit_lifecycle() -> void:
+	begin("Split twin exits without legacy Fragment Echo passive")
 	GameState.start_run(1234)
-	GameState.add_wall_break_upgrade(&"fragment_echo")
 	
 	var coordinator_scene: PackedScene = load("res://scenes/main/main.tscn") as PackedScene
 	var main: Node = coordinator_scene.instantiate()
@@ -111,14 +110,13 @@ func test_game_ball_manager_fragment_echo_lifecycle() -> void:
 	ball.mark_as_split_twin()
 	main.get_node("BallsContainer").add_child(ball)
 	
-	# First exit triggers fragment echo:
+	# First exit frees the twin because the legacy passive is ignored:
 	GameBallManager.on_ball_exited_board(gc, ball, 0)
-	assert_true(ball.has_fragment_echo_used(), "Fragment echo should be marked as used on first exit")
-	assert_false(ball.get_meta("is_exiting_board", false), "is_exiting_board must be reset to false for echo")
-	assert_false(ball.is_queued_for_deletion(), "Ball should not be freed on first echo exit")
+	assert_false(ball.has_fragment_echo_used(), "legacy Fragment Echo remains unused")
+	assert_true(ball.is_queued_for_deletion(), "split twin is freed on first exit")
 	
 	# Second exit should not trigger echo again and should free the twin:
 	GameBallManager.on_ball_exited_board(gc, ball, 0)
-	assert_true(ball.is_queued_for_deletion(), "Split twin must be queued for deletion on second exit")
+	assert_true(ball.is_queued_for_deletion(), "second exit remains safe")
 	
 	main.free()

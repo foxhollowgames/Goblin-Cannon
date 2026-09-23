@@ -31,37 +31,21 @@ func pick_ball_rewards(candidates: Array, count: int) -> Array:
 			out.append(c)
 	return out
 
-const MILESTONE_STAT_IDS: Array[String] = [
-	"main_charge",
-	"door_interval", "door_duration",
-	"cannon_damage", "cannon_energy",
-	"hopper_width"
-]
-
-const STAT_RARITY: Dictionary = {
-	"main_charge": 1, "cannon_damage": 1, "cannon_energy": 1,
-	"door_interval": 2, "door_duration": 2,
-	"hopper_width": 1
-}
-
-## Weight copies per stat in pool (common appears more often). Index = rarity tier.
-const STAT_WEIGHT_BY_RARITY: Array[int] = [3, 2, 1]  # Common x3, Uncommon x2, Rare x1
-
 ## Plain balls granted when a milestone board event peg is claimed (and by legacy apply_milestone_pick BASIC_BATCH).
 ## Not offered in the gold milestone shop — pick_milestone_options never inserts a BASIC_BATCH card.
 const BASIC_BATCH_SIZE: int = 5
 
-## Milestone shop mix (soft targets, not hard quotas): ~3/5 ball upgrades, ~1 stat, last non-ball slot stat vs peg.
+## Milestone shop mix for legacy ball-upgrade callers.
 ## How many ball-upgrade slots; mean ~= 0.6 * n (n = slots).
 const MILESTONE_SHOP_BALL_SHARE: float = 0.6
-## Among 2+ non-ball slots, chance the flex slot is a peg (rest are stats). Single flex: peg vs stat.
+## Among non-ball slots, chance the flex slot is a peg.
 const MILESTONE_SHOP_PEG_FLEX_CHANCE_MULTI: float = 0.42
 const MILESTONE_SHOP_PEG_FLEX_CHANCE_SINGLE: float = 0.28
 
-## GDD §12: 5 milestone shop options — stats and/or ball/peg upgrades (city-filtered). +5 plain balls come from board events only.
+## GDD §12: 5 milestone shop options — ball, peg, or physical relic options.
 ## rarity_weights: [common%, uncommon%, rare%, epic%] from Constants.milestone_reward_rarity_weights (sums to 100).
 ## peg_candidates: MilestoneOption templates (PEG_UPGRADE, peg_kind + rarity set). If empty, no peg offers.
-## If allow_ball_upgrades is false, upgrade slots become stat slots. No duplicate stat types or upgrade abilities.
+## If allow_ball_upgrades is false, the shop returns physical relics and pegs.
 func pick_milestone_options(ball_candidates: Array, total_count: int = 5, allow_ball_upgrades: bool = false, peg_candidates: Array = [], rarity_weights: Array = [], max_ball_rarity: int = 5, relic_candidates: Array = [], max_relic_tier: int = 1) -> Array:
 	var weights: Array = rarity_weights
 	if weights.is_empty():
@@ -116,56 +100,28 @@ func pick_milestone_options(ball_candidates: Array, total_count: int = 5, allow_
 		shuffle_array(out)
 		return out
 
-	# Legacy ball upgrade testing mode
-	var ball_quota: int = 0
-	var peg_quota_leg: int = 0
-	var stat_count: int = after_basic
-	if after_basic > 0:
-		ball_quota = _sample_milestone_ball_quota(after_basic)
-		var remaining: int = after_basic - ball_quota
-		stat_count = remaining
-		if remaining > 0 and not peg_candidates.is_empty():
-			if remaining == 1:
-				peg_quota_leg = 1 if _rng.randf() < MILESTONE_SHOP_PEG_FLEX_CHANCE_SINGLE else 0
-			else:
-				peg_quota_leg = 1 if _rng.randf() < MILESTONE_SHOP_PEG_FLEX_CHANCE_MULTI else 0
-			stat_count = remaining - peg_quota_leg
-
+	# Ball upgrade mode: return ordinary ball and peg options only.
+	var ball_quota: int = _sample_milestone_ball_quota(after_basic) if not ball_candidates.is_empty() else 0
+	var remaining: int = after_basic - ball_quota
+	var peg_quota: int = mini(remaining, peg_candidates.size())
+	if peg_quota <= 0 and ball_quota < after_basic and not ball_candidates.is_empty():
+		ball_quota = after_basic
+		remaining = 0
 	var seen_ball_key: Dictionary = {}
-	var seen_peg_kind_leg: Dictionary = {}
-	var ball_picks: Array = []
+	var seen_peg_kind_ball_mode: Dictionary = {}
 	for _i in ball_quota:
 		var tier: int = _roll_milestone_tier(weights)
 		var b: BallDefinition = _pick_ball_for_tier(ball_candidates, tier, max_ball_rarity, seen_ball_key)
 		if b:
-			ball_picks.append(b)
-		else:
-			stat_count += 1
-	for _i in peg_quota_leg:
+			var ball_opt: MilestoneOption = MilestoneOption.new()
+			ball_opt.option_type = MilestoneOption.Type.BALL_UPGRADE
+			ball_opt.ball_definition = b
+			out.append(ball_opt)
+	for _i in peg_quota:
 		var tier_p: int = _roll_milestone_tier(weights)
-		var peg_opt: MilestoneOption = _pick_peg_option_for_tier(peg_candidates, tier_p, seen_peg_kind)
+		var peg_opt: MilestoneOption = _pick_peg_option_for_tier(peg_candidates, tier_p, seen_peg_kind_ball_mode)
 		if peg_opt:
 			out.append(peg_opt)
-		else:
-			stat_count += 1
-	for b in ball_picks:
-		var opt: MilestoneOption = MilestoneOption.new()
-		opt.option_type = MilestoneOption.Type.BALL_UPGRADE
-		opt.ball_definition = b as BallDefinition
-		out.append(opt)
-	var seen_stat: Dictionary = {}
-	var stat_picks: Array = []
-	for _j in stat_count:
-		var tier_s: int = _roll_milestone_tier(weights)
-		var sid: String = _pick_stat_id_for_tier(tier_s, seen_stat)
-		if not sid.is_empty():
-			stat_picks.append(sid)
-	for sid in stat_picks:
-		var opt: MilestoneOption = MilestoneOption.new()
-		opt.option_type = MilestoneOption.Type.STAT
-		opt.stat_id = sid as String
-		opt.rarity = mini(2, STAT_RARITY.get(sid, 0))
-		out.append(opt)
 	shuffle_array(out)
 	return out
 
@@ -311,24 +267,6 @@ func _pick_relic_option_for_tier(relic_templates: Array, target_tier: int, seen_
 	seen_id[chosen.relic_id] = true
 	return chosen.duplicate() as MilestoneOption
 
-
-func _pick_stat_id_for_tier(rolled_tier: int, seen_stat: Dictionary) -> String:
-	var cap: int = 1 if rolled_tier < 2 else 2
-	var pool: Array = []
-	for sid in MILESTONE_STAT_IDS:
-		if seen_stat.get(sid, false):
-			continue
-		if STAT_RARITY.get(sid, 0) <= cap:
-			pool.append(sid)
-	if pool.is_empty():
-		for sid2 in MILESTONE_STAT_IDS:
-			if not seen_stat.get(sid2, false):
-				pool.append(sid2)
-	if pool.is_empty():
-		return MILESTONE_STAT_IDS[_rng.randi() % MILESTONE_STAT_IDS.size()] as String
-	var pick: String = pool[_rng.randi() % pool.size()] as String
-	seen_stat[pick] = true
-	return pick
 
 ## Weighted unique picks by upgrade_id. If weights.size() != candidates.size(), falls back to shuffle (uniform).
 func pick_major_upgrades(candidates: Array, count: int, weights: Array = []) -> Array:
@@ -481,7 +419,7 @@ func shuffle_array(arr: Array) -> void:
 		arr[i] = arr[j]
 		arr[j] = t
 
-## Random int in [min_val, max_val] inclusive. Used for stat upgrade picks.
+## Random int in [min_val, max_val] inclusive.
 func randi_range(min_val: int, max_val: int) -> int:
 	if min_val > max_val:
 		return min_val

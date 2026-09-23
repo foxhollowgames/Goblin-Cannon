@@ -40,5 +40,14 @@ Completely remove passive upgrades from the current playable game for now. This 
 
 ## Execution note
 
-The consumer inventory and migration baseline are recorded in [Passive removal baseline](../knowledge/passive-removal-baseline.md). Repeated local Qwen attempts produced invalid or incomplete edits. Rejected code was removed. No gameplay changes have shipped. Awaiting the user's answer on allowing direct code edits for this run. TASK-102 remains queued after this task.
+The consumer inventory and migration baseline are recorded in [Passive removal baseline](../knowledge/passive-removal-baseline.md). Repeated local Qwen attempts produced invalid or incomplete edits. Rejected code was removed. No gameplay changes have shipped. The user authorized a lower-grade Codex fallback after three consecutive Qwen review failures. That threshold was met for this implementation. A GPT-5.6 Luna agent is implementing the task; independent review and all quality checks still apply. TASK-102 remains queued after this task.
 
+
+
+## Allowance checkpoint — 2026-09-22
+
+The included weekly allowance refreshed and work resumed. The shorter usage window then reached 88% used. Work paused before credits were needed. The credit balance did not change. Resume is scheduled for 2026-09-23 at 00:30 America/Denver, after the 00:25 reset.
+
+The lower-grade fallback implementation is saved on this branch. It removes passive gameplay consumers, ignores old passive state, preserves physical reward items, updates physical inventory counts, and updates regression tests. The full local audit passed after the final edits: directory sync, GDScript lint, file lengths, and headless Godot tests.
+
+Remaining: inspect the final diff and test coverage, open the PR, obtain independent review, resolve findings, merge, and record learnings. No TASK-101 gameplay changes have shipped. TASK-102 remains queued. TASK-100 remains plan-only.

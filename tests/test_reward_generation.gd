@@ -22,7 +22,6 @@ func run() -> void:
 	test_pick_milestone_options_uncommon_only_catalog_still_mostly_balls()
 	test_shuffle_deterministic_with_seed()
 	test_randi_range()
-	test_milestone_stat_ids_no_sidearm_or_shield()
 	test_milestone_reward_rarity_weights_progression()
 
 func _make_rg(s: int = 42) -> RewardGeneration:
@@ -135,16 +134,14 @@ func test_pick_milestone_options_returns_milestone_options() -> void:
 		assert_true(opt is MilestoneOption, "each option is MilestoneOption")
 
 func test_pick_milestone_options_stat_ids_valid() -> void:
-	begin("milestone stat options only use valid stat IDs")
+	begin("milestone options contain no legacy stat offers")
 	var rg := _make_rg()
 	var candidates: Array = [_make_ball_def("A")]
-	var valid_ids: Array = ["main_charge", "door_interval", "door_duration", "cannon_damage", "cannon_energy", "hopper_width"]
-	# Run multiple times to sample RNG variance
 	for _trial in 10:
 		var options: Array = rg.pick_milestone_options(candidates, 5)
 		for opt in options:
-			if opt is MilestoneOption and opt.option_type == MilestoneOption.Type.STAT:
-				assert_in(opt.stat_id, valid_ids, "stat_id '%s' is valid" % opt.stat_id)
+			if opt is MilestoneOption:
+				assert_neq((opt as MilestoneOption).option_type, MilestoneOption.Type.STAT, "no legacy stat offer")
 
 func test_pick_milestone_options_never_includes_basic_batch() -> void:
 	begin("pick_milestone_options never emits BASIC_BATCH (plain batch is from the milestone board event, not the shop)")
@@ -187,7 +184,8 @@ func test_pick_milestone_options_uncommon_only_catalog_still_mostly_balls() -> v
 					total_balls += 1
 				elif mo.option_type == MilestoneOption.Type.STAT:
 					total_stats += 1
-	assert_gt(total_balls, total_stats, "ball slots should exceed stat slots when uncommon+ defs exist (live shop)")
+	assert_gt(total_balls, 0, "ball upgrade slots remain available")
+	assert_eq(total_stats, 0, "legacy stat slots are removed")
 
 func test_shuffle_deterministic_with_seed() -> void:
 	begin("same seed produces same shuffle order")
@@ -206,12 +204,6 @@ func test_randi_range() -> void:
 		var val: int = rg.randi_range(5, 10)
 		assert_gte(val, 5, "val >= 5")
 		assert_lte(val, 10, "val <= 10")
-
-func test_milestone_stat_ids_no_sidearm_or_shield() -> void:
-	begin("MILESTONE_STAT_IDS contains no sidearm/shield/health stats")
-	var forbidden: Array = ["sidearm_cap", "shield_cap", "health_max", "shield_max"]
-	for stat_id in RewardGeneration.MILESTONE_STAT_IDS:
-		assert_not_in(stat_id, forbidden, "stat_id '%s' is not a removed stat" % stat_id)
 
 func test_milestone_reward_rarity_weights_progression() -> void:
 	begin("milestone_reward_rarity_weights matches city/wall progression and endless uses max")

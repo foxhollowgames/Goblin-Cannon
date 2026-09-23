@@ -3,14 +3,14 @@ extends Resource
 class_name MajorUpgradeDefinition
 ## GDD: wall break / conquest = major upgrades (not same as milestone balls+stats).
 ## Categories: 1 Sidearm, 1 Ball Enhancement, 1 Board (including Tag) per draft.
-## ONBOARD_PASSIVE = treasure chest rewards (global/tag scaling, not synergy cross-links).
+## Legacy serialized category retained for old resources; passive state is no longer applied.
 
 enum Category {
 	SIDEARM,
 	BALL_ENHANCEMENT,
 	BOARD_UPGRADE,
 	BOSS_AMPLIFIER,
-	## Passive tag / global board scaling from treasure chest (onboard), not conquest synergies.
+	## Legacy serialized category; current chest rewards are physical relic items.
 	ONBOARD_PASSIVE
 }
 

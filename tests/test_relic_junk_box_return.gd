@@ -82,7 +82,7 @@ func test_pegboard_grid_and_peg_restoration() -> void:
 	board.free()
 
 func test_passive_effect_removal_on_return() -> void:
-	begin("Relic passive effects are removed from GameState when returned to inventory")
+	begin("Returning a relic keeps passive compatibility state empty")
 	var board: Node2D = Node2D.new()
 	board.set_script(BoardScript)
 	var jb := JunkBoxData.new()
@@ -101,13 +101,13 @@ func test_passive_effect_removal_on_return() -> void:
 	board.place_module(item, Vector2i(1, 1))
 	if GameState != null:
 		var placed_stacks: int = GameState.get_wall_break_upgrade_stacks(&"supernova_peg")
-		assert_eq(placed_stacks, initial_stacks + 1, "Passive stack added on placement")
+		assert_eq(placed_stacks, initial_stacks, "No passive stack is added on placement")
 
 	board.return_module_to_junk_box(item.instance_id, jb)
 
 	if GameState != null:
 		var returned_stacks: int = GameState.get_wall_break_upgrade_stacks(&"supernova_peg")
-		assert_eq(returned_stacks, initial_stacks, "Passive stack removed on return to junk box")
+		assert_eq(returned_stacks, initial_stacks, "No passive stack remains after return")
 
 	board.free()
 

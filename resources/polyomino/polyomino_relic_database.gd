@@ -225,33 +225,13 @@ static func format_relic_tooltip(item: JunkBoxItem, progress_string: String = ""
 
 	return text.strip_edges()
 
-## Applies board slotting registry to GameState when a relic module is slotted onto the board.
+## Legacy compatibility hook. Physical placement has no global passive side effect.
 static func apply_relic_effects_to_game_state(relic_id: StringName) -> void:
-	if not Engine.has_singleton("GameState") and not ClassDB.class_exists("GameState"):
-		pass
-	var uid: StringName = _resolve_id(relic_id)
-	if not has_relic_definition(uid):
-		return
+	pass
 
-	var tier: int = get_relic_tier(uid)
-	if tier == 3:
-		GameState.add_boss_upgrade(uid, 1)
-	else:
-		GameState.add_wall_break_upgrade(uid, 1)
-
-## Reverts board slotting registry from GameState when a relic module is unslotted from the board.
+## Legacy compatibility hook. Physical removal has no global passive side effect.
 static func remove_relic_effects_from_game_state(relic_id: StringName) -> void:
-	if not Engine.has_singleton("GameState") and not ClassDB.class_exists("GameState"):
-		pass
-	var uid: StringName = _resolve_id(relic_id)
-	if not has_relic_definition(uid):
-		return
-
-	var tier: int = get_relic_tier(uid)
-	if tier == 3:
-		GameState.remove_boss_upgrade_entry(uid)
-	else:
-		GameState.remove_wall_break_upgrade_stack(uid, 1)
+	pass
 
 static func _parse_vector2i(s: String) -> Vector2i:
 	var parts := s.split(",")
@@ -396,7 +376,7 @@ static func _build_all_definitions() -> void:
 	_build_boss_amplifiers()
 	_build_wall_break_cross_links()
 	_build_single_ball_enhancements()
-	_build_treasure_chest_passives()
+	_build_treasure_chest_relics()
 	_build_multi_peg_machinery()
 
 static func _build_multi_peg_machinery() -> void:
@@ -477,7 +457,7 @@ static func _build_single_ball_enhancements() -> void:
 	_def(&"plain_momentum", "Plain Momentum", 1, "2x3 Vertical Bar", "1 Orbit Loop + 1 Boost Roller + 3 Open Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2)], {Vector2i(0,0): CellType.ORBIT_LOOP, Vector2i(0,2): CellType.ACCELERATOR}, {})
 	_def(&"volt_primer", "Volt Primer", 1, "3x2 Horizontal Bar", "3 Rollover Switches (G-O-B) + Divided Lanes + 1 Guide Rail", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1)], {Vector2i(0,0): CellType.ROLLOVER_SWITCH, Vector2i(1,0): CellType.ROLLOVER_SWITCH, Vector2i(2,0): CellType.ROLLOVER_SWITCH, Vector2i(0,1): CellType.GUIDE_RAIL}, {}, {}, PolyominoModuleData.EnclosureType.DIVIDED_LANES, {}, {Vector2i(0,0): "G", Vector2i(1,0): "O", Vector2i(2,0): "B"})
 
-static func _build_treasure_chest_passives() -> void:
+static func _build_treasure_chest_relics() -> void:
 	_def(&"explosion_radius", "Bigger Blasts", 1, "2x2 Box Chamber", "1 Slingshot + 1 Pop Bumper + 2 Free Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {Vector2i(0,0): CellType.SLINGSHOT, Vector2i(1,1): CellType.ROTARY_BOOSTER}, {})
 	_def(&"explosion_peg_hit_count", "More Explosion Hits", 1, "3x2 Horizontal Bar", "1 Ball Lock + 1 Pop Bumper + 3 Free Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1)], {Vector2i(0,0): CellType.BALL_LOCK, Vector2i(2,0): CellType.POP_BUMPER}, {})
 	_def(&"explosion_impulse", "Stronger Blast Push", 1, "2x3 Vertical Bar", "1 Vertical Up Kicker + 1 Pop Bumper + 3 Free Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2)], {Vector2i(0,0): CellType.VERTICAL_UP_KICKER, Vector2i(0,2): CellType.BUMPER}, {Vector2i(0,0): Vector2i.UP})
