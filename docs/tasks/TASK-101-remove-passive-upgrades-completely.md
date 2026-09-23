@@ -1,6 +1,6 @@
 # TASK-101: Remove Passive Upgrades Completely
 
-- **Status:** READY
+- **Status:** IN_REVIEW
 - **Priority:** P1
 - **Category:** Systems / Cleanup
 - **Target Branch:** `fix/remove-passive-upgrades`
@@ -36,3 +36,26 @@ Completely remove passive upgrades from the current playable game for now. This 
 - [ ] Ordinary ball/peg behavior and physical activation rewards continue to function.
 - [ ] Tests prove former passive effects stay absent even when legacy IDs/data are supplied.
 - [ ] Required directory maintenance, lint/file-length checks, headless tests, independent PR review, merge, and learning capture complete when implemented.
+
+
+## Execution note
+
+The consumer inventory and migration baseline are recorded in [Passive removal baseline](../knowledge/passive-removal-baseline.md). Repeated local Qwen attempts produced invalid or incomplete edits. Rejected code was removed. No gameplay changes have shipped. The user authorized a lower-grade Codex fallback after three consecutive Qwen review failures. That threshold was met for this implementation. A GPT-5.6 Luna agent is implementing the task; independent review and all quality checks still apply. TASK-102 remains queued after this task.
+
+
+
+## Allowance checkpoint — 2026-09-22
+
+The included weekly allowance refreshed and work resumed. The shorter usage window then reached 88% used. Work paused before credits were needed. The credit balance did not change. Resume is scheduled for 2026-09-23 at 00:30 America/Denver, after the 00:25 reset.
+
+The lower-grade fallback implementation is saved on this branch. It removes passive gameplay consumers, ignores old passive state, preserves physical reward items, updates physical inventory counts, and updates regression tests. The full local audit passed after the final edits: directory sync, GDScript lint, file lengths, and headless Godot tests.
+
+Remaining: inspect the final diff and test coverage, open the PR, obtain independent review, resolve findings, merge, and record learnings. No TASK-101 gameplay changes have shipped. TASK-102 remains queued. TASK-100 remains plan-only.
+
+## Review checkpoint — 2026-09-23
+
+PR: https://github.com/foxhollowgames/Goblin-Cannon/pull/82. Independent review found one remaining glossary correction. No other gameplay defect was found. The full audit passed before review. The glossary correction is in progress. Merge and learning capture remain.
+
+
+Independent reviewer approved the glossary correction. The complete quality audit passed again on 2026-09-23. Ready to merge PR #82.
+

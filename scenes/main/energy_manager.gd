@@ -43,11 +43,8 @@ func add_display_energy(amount_display: int, _alignment: int) -> void:
 	_energy_router.route_energy(internal, 0)
 
 func _on_energy_allocated(main: int, _sidearm: int, _shield: int) -> void:
-	var main_effective: int = main
-	if GameState:
-		main_effective = int(main * (1.0 + GameState.main_charge_bonus))
 	if _main_cannon and _main_cannon.has_method("add_energy"):
-		_main_cannon.add_energy(main_effective)
+		_main_cannon.add_energy(main)
 
 func _update_debug_overlay() -> void:
 	if not _debug_overlay or not _debug_overlay.has_method("set_energy"):

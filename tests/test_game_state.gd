@@ -10,8 +10,8 @@ func run() -> void:
 	test_record_ball_ability_no_duplicates()
 	test_record_ball_ability_ignores_empty()
 	test_has_ball_ability()
-	test_wall_break_upgrade_stacking()
-	test_has_wall_break_upgrade()
+	test_legacy_wall_break_upgrade_ignored()
+	test_legacy_wall_break_upgrade_flag_ignored()
 	test_run_flow_state_fighting()
 	test_run_flow_state_reward_paused()
 	test_start_run_clears_upgrades()
@@ -30,8 +30,8 @@ func test_get_leech_duration_and_drain() -> void:
 	assert_eq(GameState.get_leech_drain_per_second_display(), Constants.LEECH_DRAIN_PER_SECOND, "base drain")
 	GameState.chest_leech_duration_stacks = 2
 	GameState.chest_leech_drain_stacks = 1
-	assert_eq(GameState.get_leech_duration_sec(), Constants.LEECH_DURATION_SEC + 2, "+2s duration")
-	assert_eq(GameState.get_leech_drain_per_second_display(), Constants.LEECH_DRAIN_PER_SECOND + 1, "+1 drain")
+	assert_eq(GameState.get_leech_duration_sec(), Constants.LEECH_DURATION_SEC, "legacy duration is ignored")
+	assert_eq(GameState.get_leech_drain_per_second_display(), Constants.LEECH_DRAIN_PER_SECOND, "legacy drain is ignored")
 
 func test_chest_stacks_reset_on_start_run() -> void:
 	begin("treasure chest passive stacks reset on start_run")
@@ -92,20 +92,20 @@ func test_has_ball_ability() -> void:
 	GameState.record_ball_ability_in_run("Phantom")
 	assert_true(GameState.has_ball_ability_in_run("Phantom"), "now recorded")
 
-func test_wall_break_upgrade_stacking() -> void:
-	begin("add_wall_break_upgrade stacks correctly")
+func test_legacy_wall_break_upgrade_ignored() -> void:
+	begin("legacy wall break upgrade writes are ignored")
 	GameState.start_run(1)
 	GameState.add_wall_break_upgrade(&"impact_burst", 1)
-	assert_eq(GameState.get_wall_break_upgrade_stacks(&"impact_burst"), 1, "first stack")
+	assert_eq(GameState.get_wall_break_upgrade_stacks(&"impact_burst"), 0, "legacy stack is ignored")
 	GameState.add_wall_break_upgrade(&"impact_burst", 1)
-	assert_eq(GameState.get_wall_break_upgrade_stacks(&"impact_burst"), 2, "second stack")
+	assert_eq(GameState.get_wall_break_upgrade_stacks(&"impact_burst"), 0, "legacy stack remains ignored")
 
-func test_has_wall_break_upgrade() -> void:
-	begin("has_wall_break_upgrade checks > 0 stacks")
+func test_legacy_wall_break_upgrade_flag_ignored() -> void:
+	begin("legacy wall break upgrade flag remains false")
 	GameState.start_run(1)
 	assert_false(GameState.has_wall_break_upgrade(&"blast_lift"), "no stacks = false")
 	GameState.add_wall_break_upgrade(&"blast_lift", 1)
-	assert_true(GameState.has_wall_break_upgrade(&"blast_lift"), "1 stack = true")
+	assert_false(GameState.has_wall_break_upgrade(&"blast_lift"), "legacy stack remains false")
 
 func test_run_flow_state_fighting() -> void:
 	begin("set_run_flow_state FIGHTING restores sim_speed and paused")

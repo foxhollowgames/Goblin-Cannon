@@ -97,12 +97,12 @@ func test_summary_shows_balls() -> void:
 	_reset_scenario()
 
 func test_summary_shows_upgrades() -> void:
-	begin("get_summary includes upgrade info")
+	begin("get_summary omits ignored passive upgrade info")
 	_reset_scenario()
 	TestScenario.enabled = true
 	TestScenario.starting_upgrades = ["explosions_apply_energize"]
 	var summary: String = TestScenario.get_summary()
-	assert_true(summary.find("explosions_apply_energize") >= 0, "summary mentions upgrade")
+	assert_true(summary.find("explosions_apply_energize") < 0, "summary omits ignored upgrade")
 	_reset_scenario()
 
 func test_summary_shows_timer_infinite() -> void:
@@ -167,9 +167,9 @@ func test_apply_scenario_stat_overrides() -> void:
 				GameState.cannon_charge_reduction += Constants.legacy_internal_energy_to_current(int(value))
 			"main_charge":
 				GameState.main_charge_bonus += float(value)
-	assert_eq(GameState.cannon_base_damage_bonus, 20, "cannon damage +20")
-	assert_eq(GameState.cannon_charge_reduction, Constants.legacy_internal_energy_to_current(4000), "cannon energy scaled reduction")
-	assert_approx(GameState.main_charge_bonus, 0.15, 0.001, "main charge +15%")
+	assert_eq(GameState.cannon_base_damage_bonus, 0, "legacy cannon damage is ignored")
+	assert_eq(GameState.cannon_charge_reduction, 0, "legacy cannon energy is ignored")
+	assert_approx(GameState.main_charge_bonus, 0.0, 0.001, "legacy main charge is ignored")
 	_reset_scenario()
 
 func test_apply_scenario_plain_swarm_stats() -> void:
@@ -186,9 +186,9 @@ func test_apply_scenario_plain_swarm_stats() -> void:
 				GameState.plain_horde_stacks = mini(3, GameState.plain_horde_stacks + int(value))
 			"plain_momentum":
 				GameState.plain_momentum_stacks = mini(3, GameState.plain_momentum_stacks + int(value))
-	assert_eq(GameState.plain_surge_stacks, 5, "plain_surge capped at 5")
-	assert_eq(GameState.plain_horde_stacks, 3, "plain_horde capped at 3")
-	assert_eq(GameState.plain_momentum_stacks, 3, "plain_momentum capped at 3")
+	assert_eq(GameState.plain_surge_stacks, 0, "legacy plain_surge is ignored")
+	assert_eq(GameState.plain_horde_stacks, 0, "legacy plain_horde is ignored")
+	assert_eq(GameState.plain_momentum_stacks, 0, "legacy plain_momentum is ignored")
 	_reset_scenario()
 
 func test_apply_scenario_upgrade_string() -> void:
@@ -199,7 +199,7 @@ func test_apply_scenario_upgrade_string() -> void:
 	for entry in TestScenario.starting_upgrades:
 		if entry is String:
 			GameState.add_wall_break_upgrade(StringName(entry), 1)
-	assert_eq(GameState.get_wall_break_upgrade_stacks(&"explosions_apply_energize"), 1, "1 stack applied")
+	assert_eq(GameState.get_wall_break_upgrade_stacks(&"explosions_apply_energize"), 0, "legacy upgrade is ignored")
 	_reset_scenario()
 
 func test_apply_scenario_upgrade_dict_with_stacks() -> void:
@@ -210,7 +210,7 @@ func test_apply_scenario_upgrade_dict_with_stacks() -> void:
 	for entry in TestScenario.starting_upgrades:
 		if entry is Dictionary:
 			GameState.add_wall_break_upgrade(StringName(entry.get("id", "")), entry.get("stacks", 1))
-	assert_eq(GameState.get_wall_break_upgrade_stacks(&"impact_burst"), 2, "2 stacks applied")
+	assert_eq(GameState.get_wall_break_upgrade_stacks(&"impact_burst"), 0, "legacy upgrade is ignored")
 	_reset_scenario()
 
 func test_apply_scenario_peg_counts() -> void:

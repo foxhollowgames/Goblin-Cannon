@@ -57,7 +57,7 @@ func _ready() -> void:
 	_gate_blocker = get_node_or_null("BinCollision/GateBlocker") as CollisionShape2D
 	_bin_area = get_node_or_null("BinInterior") as Area2D
 	_catchment_area = get_node_or_null("HopperCatchment") as Area2D
-	scale.x = GameState.hopper_width_scale
+	scale.x = 1.0
 
 func _physics_process(delta: float) -> void:
 	if GameState and GameState.paused:
@@ -309,19 +309,7 @@ func set_width_scale(s: float) -> void:
 func refresh_width_from_game_state() -> void:
 	if _width_pulse_tween and _width_pulse_tween.is_valid():
 		return
-	if GameState:
-		scale.x = clampf(GameState.hopper_width_scale, 0.5, 2.0)
+	scale.x = 1.0
 
 func pulse_width_temporarily(width_multiplier: float, hold_sec: float) -> void:
-	if not GameState:
-		return
-	if _width_pulse_tween and _width_pulse_tween.is_valid():
-		_width_pulse_tween.kill()
-	var base: float = clampf(GameState.hopper_width_scale, 0.5, 2.0)
-	var peak: float = clampf(base * width_multiplier, 0.5, 2.0)
-	scale.x = base
-	_width_pulse_tween = create_tween()
-	_width_pulse_tween.tween_property(self, "scale", Vector2(peak, scale.y), 0.22).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	_width_pulse_tween.tween_interval(hold_sec)
-	_width_pulse_tween.tween_property(self, "scale", Vector2(base, scale.y), 0.38).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	_width_pulse_tween.tween_callback(refresh_width_from_game_state)
+	scale.x = 1.0

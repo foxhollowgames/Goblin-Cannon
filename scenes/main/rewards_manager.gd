@@ -1,5 +1,5 @@
 extends Node
-## RewardsManager. Milestone rewards (balls + stats), wall-break synergies, and onboard treasure chest.
+## RewardsManager. Milestone rewards, physical relic drafts, and city rewards.
 
 signal wall_break_reward_completed
 signal boss_reward_completed
@@ -185,7 +185,7 @@ func _show_onboard_effect_draft() -> void:
 		if _major_draft_panel.has_method("set_show_skip_visible"):
 			_major_draft_panel.set_show_skip_visible(true)
 		if _major_draft_panel.has_method("set_title"):
-			_major_draft_panel.set_title("Treasure found \u2013 Choose an onboard upgrade")
+			_major_draft_panel.set_title("Treasure found \u2013 Choose a physical relic")
 		if _modal_layer:
 			_modal_layer.move_child(_major_draft_panel, _modal_layer.get_child_count() - 1)
 		_major_draft_panel.z_index = 100

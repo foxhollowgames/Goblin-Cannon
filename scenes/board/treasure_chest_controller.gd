@@ -1,5 +1,5 @@
 extends "res://scenes/board/base_board_event_controller.gd"
-## Spawns durable treasure chest pegs; breaking one opens the onboard passive upgrade draft.
+## Spawns durable treasure chest pegs; breaking one opens a physical relic draft.
 
 func _init() -> void:
 	active_duration_sec = 120.0

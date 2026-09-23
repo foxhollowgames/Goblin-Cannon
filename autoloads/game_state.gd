@@ -32,44 +32,96 @@ var current_city_id: int = 0
 var endless_mode: bool = false
 ## Spendable gold for milestone shop (earned from stash pegs, etc.).
 var run_gold: int = 0
-var hopper_width_scale: float = 1.0
-var conduit_open_duration_scale: float = 1.0
-var cannon_charge_reduction: int = 0
-## Volt Primer: extra threshold reduction until next main shot (internal units); stacks on energize, cleared on fire.
-var main_cannon_volt_primer_discount: int = 0
-var cannon_base_damage_bonus: int = 0
-## Milestone stat upgrades. Stacking bonuses.
-var main_charge_bonus: float = 0.0
-## Plain-ball swarm (archetype C): balls with empty ability_name only; see RewardHandler.apply_stat_upgrade.
-var plain_surge_stacks: int = 0  ## +1 energy per peg hit per stack, max 5 from wall rewards / tests
-var plain_momentum_stacks: int = 0  ## After 6+ hits in one fall: +1 per stack per hit, max 3
-var plain_horde_stacks: int = 0  ## +floor(plain_count/5)*stacks per hit, bonus capped at +3
-var conduit_wave_interval_scale: float = 1.0
+## Legacy passive fields remain as inert compatibility properties for old debug data.
+## They always read as the baseline and discard writes.
+var hopper_width_scale: float:
+	get: return 1.0
+	set(_value): pass
+var conduit_open_duration_scale: float:
+	get: return 1.0
+	set(_value): pass
+var cannon_charge_reduction: int:
+	get: return 0
+	set(_value): pass
+var main_cannon_volt_primer_discount: int:
+	get: return 0
+	set(_value): pass
+var cannon_base_damage_bonus: int:
+	get: return 0
+	set(_value): pass
+var main_charge_bonus: float:
+	get: return 0.0
+	set(_value): pass
+var plain_surge_stacks: int:
+	get: return 0
+	set(_value): pass
+var plain_momentum_stacks: int:
+	get: return 0
+	set(_value): pass
+var plain_horde_stacks: int:
+	get: return 0
+	set(_value): pass
+var conduit_wave_interval_scale: float:
+	get: return 1.0
+	set(_value): pass
 var ball_ability_names_in_run: Array = []
-## Wall break: applied upgrade_id -> stack count. Board/ball/peg logic reads via has_wall_break_upgrade / get_wall_break_upgrade_stacks.
-var applied_wall_break_upgrades: Dictionary = {}
-## Board/peg scaling from treasure chest and conquest picks (tag upgrades, global durability, etc.).
-var explosion_radius_bonus: int = 0
-var explosion_peg_hit_count_bonus: int = 0
-var explosion_impulse_bonus: float = 0.0
-var chain_arc_bonus: int = 0
-var chain_range_bonus: int = 0
-var max_energize_stacks_per_peg: int = 3
-var energize_decay_scale: float = 1.0
-var energized_peg_repair_scale: float = 1.0
-var global_peg_durability_bonus: int = 0
-var peg_recovery_speed_scale: float = 1.0
-## Treasure chest numeric passives (not wall-break upgrade IDs).
-var chest_leech_drain_stacks: int = 0
-var chest_leech_duration_stacks: int = 0
-var chest_phantom_energy_stacks: int = 0
-var chest_rubbery_energy_stacks: int = 0
-var chest_bounce_energy_stacks: int = 0
-var chest_split_energy_stacks: int = 0
-## Treasure chest: main cannon +10 wall damage (once per run).
-var chest_devastating_barrage_taken: bool = false
-## Treasure chest: main cannon charge reduction tier (once per run; same magnitude as milestone cannon_energy).
-var chest_compressed_charge_taken: bool = false
+var applied_wall_break_upgrades: Dictionary:
+	get: return {}
+	set(_value): pass
+var explosion_radius_bonus: int:
+	get: return 0
+	set(_value): pass
+var explosion_peg_hit_count_bonus: int:
+	get: return 0
+	set(_value): pass
+var explosion_impulse_bonus: float:
+	get: return 0.0
+	set(_value): pass
+var chain_arc_bonus: int:
+	get: return 0
+	set(_value): pass
+var chain_range_bonus: int:
+	get: return 0
+	set(_value): pass
+var max_energize_stacks_per_peg: int:
+	get: return 3
+	set(_value): pass
+var energize_decay_scale: float:
+	get: return 1.0
+	set(_value): pass
+var energized_peg_repair_scale: float:
+	get: return 1.0
+	set(_value): pass
+var global_peg_durability_bonus: int:
+	get: return 0
+	set(_value): pass
+var peg_recovery_speed_scale: float:
+	get: return 1.0
+	set(_value): pass
+var chest_leech_drain_stacks: int:
+	get: return 0
+	set(_value): pass
+var chest_leech_duration_stacks: int:
+	get: return 0
+	set(_value): pass
+var chest_phantom_energy_stacks: int:
+	get: return 0
+	set(_value): pass
+var chest_rubbery_energy_stacks: int:
+	get: return 0
+	set(_value): pass
+var chest_bounce_energy_stacks: int:
+	get: return 0
+	set(_value): pass
+var chest_split_energy_stacks: int:
+	get: return 0
+	set(_value): pass
+var chest_devastating_barrage_taken: bool:
+	get: return false
+	set(_value): pass
+var chest_compressed_charge_taken: bool:
+	get: return false
+	set(_value): pass
 var bomb_peg_count: int = 0
 var trampoline_peg_count: int = 0
 var goblin_reset_node_count: int = 0
@@ -84,7 +136,9 @@ var gravity_well_peg_count: int = 0
 var phase_peg_count: int = 0
 var wrench_peg_count: int = 0
 ## Boss amplifier upgrades: upgrade_id -> stack count. Applied after clearing a city.
-var applied_boss_upgrades: Dictionary = {}
+var applied_boss_upgrades: Dictionary:
+	get: return {}
+	set(_value): pass
 ## Junk Box backpack inventory
 var junk_box: JunkBoxData = null
 
@@ -173,49 +227,35 @@ func has_ball_ability_in_run(ability_name: String) -> bool:
 	return ability_name in ball_ability_names_in_run
 
 func has_wall_break_upgrade(upgrade_id: StringName) -> bool:
-	return applied_wall_break_upgrades.get(upgrade_id, 0) > 0
+	return false
 
 func get_wall_break_upgrade_stacks(upgrade_id: StringName) -> int:
-	return applied_wall_break_upgrades.get(upgrade_id, 0)
+	return 0
 
 func add_wall_break_upgrade(upgrade_id: StringName, stacks: int = 1) -> void:
-	applied_wall_break_upgrades[upgrade_id] = applied_wall_break_upgrades.get(upgrade_id, 0) + stacks
+	pass
 
 func remove_wall_break_upgrade_stack(upgrade_id: StringName, stacks: int = 1) -> void:
-	var v: int = applied_wall_break_upgrades.get(upgrade_id, 0) - stacks
-	if v <= 0:
-		applied_wall_break_upgrades.erase(upgrade_id)
-	else:
-		applied_wall_break_upgrades[upgrade_id] = v
+	pass
 
 ## Remove one boss pick (almanac / debug). Reverses side effects that apply_boss_upgrade applied.
 func remove_boss_upgrade_entry(upgrade_id: StringName) -> void:
-	if not has_boss_upgrade(upgrade_id):
-		return
-	match upgrade_id:
-		&"renewal_pact":
-			peg_recovery_speed_scale = maxf(1.0, peg_recovery_speed_scale - 0.12)
-	applied_boss_upgrades.erase(upgrade_id)
+	pass
 
 func apply_volt_primer_on_energize() -> void:
-	if not has_wall_break_upgrade(&"volt_primer"):
-		return
-	var inc: int = Constants.main_cannon_volt_primer_discount_internal()
-	var base: int = Constants.main_cannon_charge_internal()
-	var max_disc: int = maxi(0, base - cannon_charge_reduction - 1)
-	main_cannon_volt_primer_discount = mini(max_disc, main_cannon_volt_primer_discount + inc)
+	pass
 
 func has_boss_upgrade(upgrade_id: StringName) -> bool:
-	return applied_boss_upgrades.get(upgrade_id, 0) > 0
+	return false
 
 func add_boss_upgrade(upgrade_id: StringName, stacks: int = 1) -> void:
-	applied_boss_upgrades[upgrade_id] = applied_boss_upgrades.get(upgrade_id, 0) + stacks
+	pass
 
 func get_leech_duration_sec() -> int:
-	return Constants.LEECH_DURATION_SEC + chest_leech_duration_stacks
+	return Constants.LEECH_DURATION_SEC
 
 func get_leech_drain_per_second_display() -> int:
-	return Constants.LEECH_DRAIN_PER_SECOND + chest_leech_drain_stacks
+	return Constants.LEECH_DRAIN_PER_SECOND
 
 func add_run_gold(amount: int) -> void:
 	run_gold = maxi(0, run_gold + amount)

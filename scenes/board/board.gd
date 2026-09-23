@@ -4,7 +4,7 @@ extends Node2D
 signal ball_reached_bottom(ball_id: int, total_energy_display: int, alignment: int, exit_position: Vector2, status_effects: Dictionary)
 signal ball_ability_on_peg_hit(status_effects: Dictionary)  ## GDD §8: ball ability triggered on peg hit; apply status to minions.
 signal ball_exited_board(ball: Node, reason: int)
-## When a ball finishes returning to the top play line (goblin grab, fragment echo, …). Hook upgrades here; peg types only drive the motion.
+## When a ball finishes returning to the top play line. Peg types drive the motion.
 signal ball_reset_to_top(ball: Node, reason: StringName)
 signal leech_drain(amount_display: int, alignment: int, peg_id: int)  ## Leech status on peg: periodic energy drain (5/sec for 10 sec).
 signal gold_gained(amount: int, origin_position: Vector2)
@@ -82,14 +82,12 @@ var _ball_scene: PackedScene
 var _next_split_ball_id: int = 100000
 ## Leech status: each entry { peg_id, alignment, drains_remaining }; drain 5 energy/sec for 10 sec per peg hit.
 var _leeched_pegs: Array = []
-## Hard caps (GDD): 1 explosion per peg per sim tick; 1 supernova per peg per sim tick; conduction once per chain event.
+## Hard cap: one explosion per peg per sim tick.
 var _explosion_triggered_pegs_this_tick: Dictionary = {}  # peg_id -> true
-var _supernova_triggered_pegs_this_tick: Dictionary = {}
-var _chain_conduction_done_this_event: bool = false
 ## Empty checkerboard positions for wall-break extra pegs; count already spawned so we can add more mid-run.
 var _layout_empty_slots: Array = []
 var _extra_pegs_spawned_count: int = 0
-## Per-ball hit counts for cross-link upgrades (ricochet_blast, static_bounce, overdrive).
+## Per-ball hit counts for ordinary Split and Bloom behavior.
 var _ball_hit_count_this_visit: Dictionary = {}
 ## Per-ball splitter trigger flag (each ball can only be split once per visit by a Splitter peg).
 var _splitter_triggered_this_visit: Dictionary = {}
@@ -111,22 +109,8 @@ var _ball_stuck_on_sticky_peg: Dictionary = {}  # ball_id -> peg_id
 var _hopper: Node = null
 ## Last sim_tick passed to run_ball_steps / flush_tick (for tween callbacks that need a reference tick).
 var _board_sim_tick: int = 0
-## Phantom peg-pass counts for phase_detonation.
+## Phantom peg-pass counts for ordinary visit tracking.
 var _phantom_pegs_visited: Dictionary = {}
-## Phantom trail positions for spectral_conduit: Array of { position: Vector2, tick: int }.
-var _phantom_trail: Array = []
-## Ghost Trail (wall break): peg_id -> expiry sim_tick. Pegs in trail grant +1 energy on hit.
-var _ghost_trail_pegs: Dictionary = {}
-## Recently chain-hit peg ticks for phantom_resonance: peg_id -> sim_tick.
-var _chain_hit_peg_ticks: Dictionary = {}
-## Overdrive Cascade boss: all balls gain +1 energy per hit until this tick.
-var _overdrive_cascade_end_tick: int = 0
-## Storm Feedback: temporary energy boost when chain lightning arcs between energized pegs.
-var _storm_feedback_end_tick: int = 0
-## Mass Cascade: temporary energy bonus while two split fragments are near each other.
-var _mass_cascade_end_tick: int = 0
-## Storm of Fragments (boss): per-fragment count of energized pegs hit. ball_id -> count.
-var _ball_energized_pegs_hit: Dictionary = {}
 ## Dynamic pegs (e.g. milestone board event) use ids >= this after layout spawn.
 var _next_dynamic_peg_id: int = 500000
 ## Volatile reagent gas: { "id", "center": Vector2, "radius", "end_tick", "is_damage" } in global space.
@@ -356,7 +340,7 @@ func _complete_milestone_event_peg(peg_id: int, grant_reward: bool) -> void:
 	if bec and bec.has_method("on_milestone_event_ended"):
 		bec.on_milestone_event_ended(grant_reward)
 
-## Treasure chest: durable peg; breaking grants onboard passive upgrade draft.
+## Treasure chest: durable peg; breaking grants a physical relic draft.
 func spawn_treasure_chest_peg_at(local_pos: Vector2, x_min: float = 100.0, x_max: float = 860.0) -> int:
 	if not _peg_scene:
 		return -1
@@ -728,7 +712,6 @@ func _release_volatile_ball(ball: Node, world_pos: Vector2, sim_tick: int) -> vo
 	_active_balls.erase(ball)
 	_ball_hit_count_this_visit.erase(bid)
 	_phantom_pegs_visited.erase(bid)
-	_ball_energized_pegs_hit.erase(bid)
 	_splitter_triggered_this_visit.erase(bid)
 	if is_instance_valid(ball):
 		ball_exited_board.emit(ball, REASON_VOLATILE_BREAK)
@@ -746,7 +729,6 @@ func run_ball_steps(sim_tick: int) -> void:
 	_prune_expired_gas_clouds(sim_tick)
 	_apply_gas_cloud_overlap(sim_tick)
 	_explosion_triggered_pegs_this_tick.clear()
-	_supernova_triggered_pegs_this_tick.clear()
 	for p in get_children():
 		if p.has_method("sim_tick"):
 			p.sim_tick(sim_tick)
@@ -809,119 +791,19 @@ func run_ball_steps(sim_tick: int) -> void:
 					var energy_this_hit: int = PEG_DISPLAY_ENERGY_PER_HIT
 					if ek_early == "gold" or ek_early == "lucky_gold":
 						energy_this_hit *= Constants.GOLD_PEG_ENERGY_MULTIPLIER
-						var gold_gain: int = 1
-						if GameState and GameState.has_boss_upgrade(&"gilded_covenant"):
-							gold_gain += 1
-						gold_gained.emit(gold_gain, peg.global_position)
-					# Overdrive Cascade (boss): all balls gain +1 legacy-display energy per hit during active window
-					if _overdrive_cascade_end_tick > 0 and sim_tick <= _overdrive_cascade_end_tick:
-						energy_this_hit += Constants.legacy_display_energy_to_current(1)
-					# Ghost Trail: pegs in phantom trail grant +1 energy
-					if GameState and GameState.has_wall_break_upgrade(&"ghost_trail") and _ghost_trail_pegs.has(pid):
-						energy_this_hit += Constants.legacy_display_energy_to_current(1)
-					# Resonant Bounce: plain balls on energized pegs gain +1 energy per energize stack
-					if ability_key.is_empty() and GameState and GameState.has_wall_break_upgrade(&"resonant_bounce"):
-						if peg.has_method("get_energize_stacks"):
-							energy_this_hit += peg.get_energize_stacks() * Constants.legacy_display_energy_to_current(1)
-					# Crown Ricochet (boss): plain balls after 4 peg hits in this fall get extra energy on later hits
-					if ability_key.is_empty() and GameState and GameState.has_boss_upgrade(&"crown_ricochet"):
-						if _ball_hit_count_this_visit.get(bid, 0) >= 5:
-							energy_this_hit += Constants.legacy_display_energy_to_current(2)
-					# Resonant Well (boss): Energize balls get flat bonus on every peg hit
-					if ability_key == "Energize" and GameState and GameState.has_boss_upgrade(&"resonant_well"):
-						energy_this_hit += Constants.legacy_display_energy_to_current(2)
-					# Phantom Resonance (boss): Phantom through recently chain-hit pegs gain double energy
-					if ability_key == "Phantom" and GameState and GameState.has_boss_upgrade(&"phantom_resonance"):
-						if _chain_hit_peg_ticks.get(pid, 0) > 0 and (sim_tick - _chain_hit_peg_ticks.get(pid, 0)) < Constants.SIM_TICKS_PER_SECOND * 2:
-							energy_this_hit *= 2
-					# Phase Sovereign (boss): Phantom peg hits pay more energy
-					if ability_key == "Phantom" and GameState and GameState.has_boss_upgrade(&"phase_sovereign"):
-						energy_this_hit = int(round(float(energy_this_hit) * 1.22))
-					# Overdrive Hits: after 5 peg hits in one fall, double energy per hit
-					if GameState and GameState.has_wall_break_upgrade(&"overdrive_hits"):
-						if _ball_hit_count_this_visit.get(bid, 0) > 5:
-							energy_this_hit *= 2
-					# Storm Feedback: temporary energy boost from chain-energize synergy
-					if _storm_feedback_end_tick > 0 and sim_tick <= _storm_feedback_end_tick:
-						energy_this_hit += Constants.legacy_display_energy_to_current(2)
-					# Mass Cascade: temporary bonus while fragments are near each other
-					if _mass_cascade_end_tick > 0 and sim_tick <= _mass_cascade_end_tick:
-						energy_this_hit += Constants.legacy_display_energy_to_current(1)
-					# Kinetic Charge: Rubbery on energized pegs gain speed + extra energy
-					if ability_key == "Rubbery" and GameState and GameState.has_wall_break_upgrade(&"kinetic_charge"):
-						if peg.has_method("has_energized_stacks") and peg.has_energized_stacks():
-							energy_this_hit += Constants.legacy_display_energy_to_current(3)
-							if "linear_velocity" in b:
-								b.linear_velocity *= 1.15
-					# Velocity Dividend (boss): mid–high speed Rubbery peg hits, no chain lightning
-					if ability_key == "Rubbery" and GameState and GameState.has_boss_upgrade(&"velocity_dividend") and "linear_velocity" in b:
-						var spd: float = b.linear_velocity.length()
-						var v_lo: float = Constants.MAX_BALL_SPEED * 0.65
-						var v_hi: float = Constants.MAX_BALL_SPEED * 0.85
-						if spd >= v_lo and spd < v_hi:
-							energy_this_hit += Constants.legacy_display_energy_to_current(3)
+						gold_gained.emit(1, peg.global_position)
 					if ability_key == "Leech":
-						var _ldur: int = GameState.get_leech_duration_sec() if GameState else Constants.LEECH_DURATION_SEC
-						_leeched_pegs.append({ "peg_id": pid, "alignment": bdef.alignment, "drains_remaining": _ldur })
+						_leeched_pegs.append({ "peg_id": pid, "alignment": bdef.alignment, "drains_remaining": Constants.LEECH_DURATION_SEC })
 						if peg.has_method("add_leech_stack"):
 							peg.add_leech_stack()
-					# Draining Fragments: Split twins apply mini-leech (half duration) on hit
-					if GameState and GameState.has_wall_break_upgrade(&"draining_fragments"):
-						if b.has_method("is_split_twin") and b.is_split_twin() and ability_key != "Leech":
-							var _ldur_half: int = maxi(1, (GameState.get_leech_duration_sec() if GameState else Constants.LEECH_DURATION_SEC) / 2)
-							_leeched_pegs.append({ "peg_id": pid, "alignment": bdef.alignment if bdef else 0, "drains_remaining": _ldur_half })
-							if peg.has_method("add_leech_stack"):
-								peg.add_leech_stack()
-					# Plain-ball swarm milestone stats (empty ability_name only).
-					if ability_key.is_empty() and GameState:
-						energy_this_hit += GameState.plain_surge_stacks * Constants.legacy_display_energy_to_current(1)
-						if _ball_hit_count_this_visit.get(bid, 0) > 5:
-							energy_this_hit += GameState.plain_momentum_stacks * Constants.legacy_display_energy_to_current(1)
-						if GameState.plain_horde_stacks > 0:
-							var horde_n: int = _count_plain_balls_for_horde_bonus()
-							var horde_bonus: int = mini((horde_n / 5) * GameState.plain_horde_stacks, 3)
-							energy_this_hit += horde_bonus * Constants.legacy_display_energy_to_current(1)
-					# Treasure chest: % bonus to peg-hit energy (numeric passives)
-					if GameState:
-						if ability_key == "Phantom" and GameState.chest_phantom_energy_stacks > 0:
-							energy_this_hit = int(round(energy_this_hit * (1.0 + 0.05 * float(GameState.chest_phantom_energy_stacks))))
-						if ability_key == "Rubbery" and GameState.chest_rubbery_energy_stacks > 0:
-							energy_this_hit = int(round(energy_this_hit * (1.0 + 0.05 * float(GameState.chest_rubbery_energy_stacks))))
-						if ability_key.is_empty() and GameState.chest_bounce_energy_stacks > 0:
-							energy_this_hit = int(round(energy_this_hit * (1.0 + 0.05 * float(GameState.chest_bounce_energy_stacks))))
-						if GameState.chest_split_energy_stacks > 0 and b.has_method("is_split_twin") and b.is_split_twin():
-							energy_this_hit = int(round(energy_this_hit * (1.0 + 0.05 * float(GameState.chest_split_energy_stacks))))
-					# Twin Mandate (boss): split fragments deal more peg-hit energy
-					if GameState and GameState.has_boss_upgrade(&"twin_mandate") and b.has_method("is_split_twin") and b.is_split_twin():
-						energy_this_hit = int(round(float(energy_this_hit) * 1.18))
 					if b.has_method("get_gas_energy_stack_count"):
 						energy_this_hit += b.get_gas_energy_stack_count() * Constants.legacy_display_energy_to_current(Constants.GAS_BUFF_ENERGY_LEGACY_PER_STACK)
 					if b.has_method("add_peg_energy"):
 						b.add_peg_energy(energy_this_hit)
 					var has_attribute: bool = bdef != null and (not bdef.status_effects.is_empty() or not ability_key.is_empty())
 					var is_energize: bool = (ability_key == "Energize")
-					# Energized Fragments: Split twins energize every peg they touch
-					var apply_energize_from_fragment: bool = false
-					if GameState and GameState.has_wall_break_upgrade(&"energized_fragments"):
-						if b.has_method("is_split_twin") and b.is_split_twin():
-							apply_energize_from_fragment = true
-					# Phase Siphon: Phantom balls drain 1 energize stack from energized pegs for +50% energy
-					if ability_key == "Phantom" and GameState and GameState.has_wall_break_upgrade(&"phase_siphon"):
-						if peg.has_method("has_energized_stacks") and peg.has_energized_stacks():
-							if peg.has_method("consume_energize_stack"):
-								peg.consume_energize_stack()
-							if b.has_method("add_peg_energy"):
-								b.add_peg_energy(energy_this_hit / 2)
 					if ability_key == "Phantom":
 						_phantom_pegs_visited[bid] = _phantom_pegs_visited.get(bid, 0) + 1
-						# Spectral Conduit: Phantom balls leave a trail for chain lightning
-						if GameState and GameState.has_wall_break_upgrade(&"spectral_conduit"):
-							_phantom_trail.append({ "position": peg.global_position, "tick": sim_tick })
-						# Ghost Trail: mark peg as trailed (pegs in trail grant +1 energy)
-						if GameState and GameState.has_wall_break_upgrade(&"ghost_trail"):
-							_ghost_trail_pegs[pid] = sim_tick + Constants.SIM_TICKS_PER_SECOND * 3
-							if peg.has_method("set_ghost_trail"):
-								peg.set_ghost_trail(true)
 					# Phantom skips apply_hit except Goblin Reset: that peg must take damage and enter recovery or Phantom overlap retriggers grab every few ticks.
 					var ek: String = str(peg.get("peg_extra_kind")) if peg.get("peg_extra_kind") != null else ""
 					var apply_peg_hit: bool = (ability_key != "Phantom") or (ek == "goblin_reset" or ek == "milestone_event" or ek == "treasure_chest" or ek == "buffet_table" or ek == "sticky_slime")
@@ -931,39 +813,15 @@ func run_ball_steps(sim_tick: int) -> void:
 						if b.has_method("get_gas_damage_stack_count"):
 							gas_extra = b.get_gas_damage_stack_count() * Constants.GAS_BUFF_DAMAGE_PER_CLOUD_STACK
 						var peg_accepts_energize: bool = not Constants.peg_extra_kind_blocks_energize(ek)
-						peg.apply_hit(not has_attribute, base_hit_dmg + gas_extra, (is_energize or apply_energize_from_fragment) and peg_accepts_energize)
-					# Overclock Network: energized peg gains +1 durability per adjacent energized peg
-					if (is_energize or apply_energize_from_fragment) and not Constants.peg_extra_kind_blocks_energize(ek) and GameState and GameState.has_wall_break_upgrade(&"overclock_network"):
-						_apply_overclock_network_bonus(pid)
-					# Storm of Fragments (boss): track energized pegs hit by split fragments
-					if GameState and GameState.has_boss_upgrade(&"storm_of_fragments"):
-						if b.has_method("is_split_twin") and b.is_split_twin():
-							if peg.has_method("has_energized_stacks") and peg.has_energized_stacks():
-								_ball_energized_pegs_hit[bid] = _ball_energized_pegs_hit.get(bid, 0) + 1
-								if _ball_energized_pegs_hit[bid] == 3:
-									_trigger_storm_of_fragments(bid, b, b.get_definition() as BallDefinition if b.has_method("get_definition") else null, sim_tick)
+						peg.apply_hit(not has_attribute, base_hit_dmg + gas_extra, is_energize and peg_accepts_energize)
 					if str(peg.get("peg_extra_kind")) == "trampoline":
 						_spawn_trampoline_bounce_effect(peg.global_position)
 						if b.has_method("schedule_trampoline_upward_boost"):
 							b.schedule_trampoline_upward_boost()
-					# Hyper Elastic: Rubbery balls bouncing strongly upward gain speed boost
-					if ability_key == "Rubbery" and GameState and GameState.has_wall_break_upgrade(&"hyper_elastic"):
-						if "linear_velocity" in b and b.linear_velocity.y < -150.0:
-							b.linear_velocity *= Constants.HYPER_ELASTIC_SPEED_MULTIPLIER
-					# Bomb peg: trigger primary explosion. Shrapnel Split: double radius for split twins.
+					# Bomb peg: trigger the primary explosion.
 					if peg.get("peg_extra_kind") == "bomb":
-						var is_split_twin_ball: bool = b.has_method("is_split_twin") and b.is_split_twin()
-						var shrapnel_active: bool = is_split_twin_ball and GameState != null and GameState.has_wall_break_upgrade(&"shrapnel_split")
-						if shrapnel_active:
-							GameState.explosion_radius_bonus += 4
 						_apply_explosive_hits(pid, b, bdef, sim_tick, 0)
 						_spawn_explosive_effect_at_ball(peg.global_position)
-						if shrapnel_active:
-							GameState.explosion_radius_bonus -= 4
-						# Fragment Swarm (boss): fragments can re-split on bomb peg
-						if is_split_twin_ball and GameState and GameState.has_boss_upgrade(&"fragment_swarm"):
-							if b.has_method("has_split_triggered"):
-								b._split_triggered = false
 					# Goblin Reset: grab ball and send it back to the top
 					if peg.get("peg_extra_kind") == "goblin_reset":
 						_apply_goblin_reset_ball(b)
@@ -987,38 +845,6 @@ func run_ball_steps(sim_tick: int) -> void:
 								_active_balls.append(frag)
 								_ball_hit_count_this_visit[frag.get_ball_id()] = 0
 								_splitter_triggered_this_visit[frag.get_ball_id()] = true
-					# Supernova Peg (hard cap: 1 per peg per sim tick)
-					if is_energize and GameState and GameState.has_wall_break_upgrade(&"supernova_peg") and peg.has_method("get_energized_durability") and peg.has_method("get_max_durability") and peg.get_energized_durability() >= peg.get_max_durability() and not _supernova_triggered_pegs_this_tick.get(pid, false):
-						_trigger_supernova(pid, b, bdef, sim_tick)
-					# Impact Burst: High-speed Rubbery hits trigger mini-explosions
-					if ability_key == "Rubbery" and GameState and GameState.has_wall_break_upgrade(&"impact_burst"):
-						if "linear_velocity" in b and b.linear_velocity.length() > Constants.MAX_BALL_SPEED * 0.7:
-							if not _explosion_triggered_pegs_this_tick.get(pid, false):
-								_apply_explosive_hits(pid, b, bdef, sim_tick, 1)
-								_spawn_explosive_effect_at_ball(peg.global_position)
-					# Static Bounce: Rubbery balls that hit 4+ pegs emit chain lightning from the 4th peg
-					if ability_key == "Rubbery" and GameState and GameState.has_wall_break_upgrade(&"static_bounce"):
-						var hits: int = _ball_hit_count_this_visit.get(bid, 0)
-						if hits == 4:
-							_chain_conduction_done_this_event = false
-							_apply_chain_lightning_hits(pid, b, bdef, sim_tick)
-					# Rubber Storm (boss): max speed Rubbery emits chain on every bounce
-					if ability_key == "Rubbery" and GameState and GameState.has_boss_upgrade(&"rubber_storm"):
-						if "linear_velocity" in b and b.linear_velocity.length() > Constants.MAX_BALL_SPEED * 0.85:
-							_chain_conduction_done_this_event = false
-							_apply_chain_lightning_hits(pid, b, bdef, sim_tick)
-					# Ricochet Blast: plain ball after 6+ hits, next hit triggers explosion
-					if ability_key.is_empty() and GameState and GameState.has_wall_break_upgrade(&"ricochet_blast"):
-						var hits: int = _ball_hit_count_this_visit.get(bid, 0)
-						if hits >= 6 and not _explosion_triggered_pegs_this_tick.get(pid, false):
-							_apply_explosive_hits(pid, b, bdef, sim_tick, 1)
-							_spawn_explosive_effect_at_ball(peg.global_position)
-							_ball_hit_count_this_visit[bid] = 0
-					# Overdrive Cascade (boss): trigger after any ball hits 5 pegs
-					if GameState and GameState.has_boss_upgrade(&"overdrive_cascade"):
-						var hits: int = _ball_hit_count_this_visit.get(bid, 0)
-						if hits == 5:
-							_overdrive_cascade_end_tick = sim_tick + Constants.SIM_TICKS_PER_SECOND * 3
 					# Bloom: every 5 peg hits on this ball (same counter as visit hits). Spawn is at the
 					# Bloom ball’s position; repeats at 10, 15, … (counter not zeroed). Spawns a random catalog ball.
 					if ability_key == "Bloom":
@@ -1035,12 +861,12 @@ func run_ball_steps(sim_tick: int) -> void:
 						var allow_split_effect: bool = (ability_key == "Split" and b.has_method("has_split_triggered") and not b.has_split_triggered())
 						if ability_key != "Explosive" and ability_key != "Chain Lightning":
 							_spawn_hit_effect(peg.global_position, bdef.status_effects, ability_key, allow_split_effect)
-						# Split: spawn second ball. Fragment Swarm (boss): split into 3 instead of 2.
+						# Split: spawn the second ball.
 						if ability_key == "Split" and b.has_method("has_split_triggered") and not b.has_split_triggered():
 							b.mark_split_triggered()
 							var ball_vel: Vector2 = b.linear_velocity if "linear_velocity" in b else Vector2.ZERO
 							var total: int = b.get_total_energy() if b.has_method("get_total_energy") else Constants.legacy_display_energy_to_current(20)
-							var split_count: int = 3 if (GameState and GameState.has_boss_upgrade(&"fragment_swarm")) else 2
+							var split_count: int = 2
 							var share: int = total / split_count
 							b.set_total_energy_display(share)
 							for split_i in range(split_count - 1):
@@ -1057,7 +883,6 @@ func run_ball_steps(sim_tick: int) -> void:
 							_apply_explosive_hits(pid, b, bdef, sim_tick, 0)
 							_spawn_explosive_effect_at_ball(b.global_position)
 						elif ability_key == "Chain Lightning":
-							_chain_conduction_done_this_event = false
 							_apply_chain_lightning_hits(pid, b, bdef, sim_tick)
 		# Polyomino module kinetic machinery interaction
 		if not _placed_module_nodes.is_empty():
@@ -1065,7 +890,6 @@ func run_ball_steps(sim_tick: int) -> void:
 				if is_instance_valid(mod_node) and mod_node.has_method("check_ball_collision"):
 					mod_node.check_ball_collision(b, sim_tick)
 	_process_binary_ball_on_ball_splits(sim_tick)
-	_check_peg_destruction_upgrades(sim_tick)
 	_process_milestone_event_pegs(sim_tick)
 	_process_treasure_chest_pegs(sim_tick)
 	_process_ghost_states(sim_tick)
@@ -1076,40 +900,6 @@ func flush_tick(sim_tick: int) -> void:
 	_remove_freed_active_balls()
 	_apply_constellation_laser_hits(sim_tick)
 	_process_leech_drains(sim_tick)
-	# Clean stale phantom trail entries (older than 3 seconds)
-	_phantom_trail = _phantom_trail.filter(func(e): return (sim_tick - e.get("tick", 0)) < Constants.SIM_TICKS_PER_SECOND * 3)
-	# Clean expired ghost trail pegs and remove their visual glow
-	var expired_ghost: Array = []
-	for gp_id in _ghost_trail_pegs:
-		if sim_tick >= _ghost_trail_pegs[gp_id]:
-			expired_ghost.append(gp_id)
-	for gp_id in expired_ghost:
-		_ghost_trail_pegs.erase(gp_id)
-		var gp: Node = _peg_by_id.get(gp_id)
-		if gp and gp.has_method("set_ghost_trail"):
-			gp.set_ghost_trail(false)
-	# Mass Cascade: two fragments near each other activate temporary energy bonus
-	if GameState and GameState.has_wall_break_upgrade(&"mass_cascade"):
-		var mc_twins: Array = []
-		for ab in _active_balls:
-			if ab.has_method("is_split_twin") and ab.is_split_twin():
-				mc_twins.append(ab)
-		for mc_i in range(mc_twins.size()):
-			for mc_j in range(mc_i + 1, mc_twins.size()):
-				if mc_twins[mc_i].global_position.distance_to(mc_twins[mc_j].global_position) <= Constants.MASS_CASCADE_PROXIMITY_PX:
-					_mass_cascade_end_tick = sim_tick + Constants.MASS_CASCADE_DURATION_TICKS
-	# Arc Twins: when both split fragments exist simultaneously, chain lightning arcs between them
-	if GameState and GameState.has_wall_break_upgrade(&"arc_twins"):
-		var twins: Array = []
-		for ab in _active_balls:
-			if ab.has_method("is_split_twin") and ab.is_split_twin():
-				twins.append(ab)
-		if twins.size() >= 2:
-			var positions: Array = []
-			for tw in twins:
-				positions.append(tw.global_position)
-			if positions.size() >= 2:
-				_spawn_chain_lightning_arcs(positions)
 	for b in _active_balls.duplicate():
 		if not is_instance_valid(b) or b.is_queued_for_deletion():
 			while _active_balls.has(b): _active_balls.erase(b)
@@ -1139,23 +929,6 @@ func flush_tick(sim_tick: int) -> void:
 					ability_name = _ability_key(bd)
 					if bd.status_effects != null and not bd.status_effects.is_empty():
 						status_effects = bd.status_effects
-			# Phase Detonation: phantom ball passing through 5+ pegs triggers explosion at exit
-			if ability_name == "Phantom" and GameState and GameState.has_wall_break_upgrade(&"phase_detonation"):
-				if _phantom_pegs_visited.get(ball_id, 0) >= 5:
-					var nearest_peg_id: int = get_nearest_normal_peg_id(pos, 200.0)
-					if nearest_peg_id >= 0 and not _explosion_triggered_pegs_this_tick.get(nearest_peg_id, false):
-						_apply_explosive_hits(nearest_peg_id, b, b.get_definition() as BallDefinition if b.has_method("get_definition") else null, sim_tick, 0)
-						_spawn_explosive_effect_at_ball(pos)
-			# Phase Instability: phantom with 0 peg hits re-enters top with bonus energy (once)
-			if ability_name == "Phantom" and GameState and GameState.has_wall_break_upgrade(&"phase_instability"):
-				if _phantom_pegs_visited.get(ball_id, 0) == 0:
-					if b.has_method("add_peg_energy"):
-						b.add_peg_energy(PEG_DISPLAY_ENERGY_PER_HIT * 3)
-					b.global_position = _spawn_position
-					if "linear_velocity" in b:
-						b.linear_velocity = Vector2.ZERO
-					_phantom_pegs_visited[ball_id] = -1
-					continue
 			if b.has_method("clear_gas_buffs_on_score"):
 				b.clear_gas_buffs_on_score()
 			_spawn_hit_effect(pos, status_effects, ability_name, false)
@@ -1163,7 +936,6 @@ func flush_tick(sim_tick: int) -> void:
 			while _active_balls.has(b): _active_balls.erase(b)
 			_ball_hit_count_this_visit.erase(ball_id)
 			_phantom_pegs_visited.erase(ball_id)
-			_ball_energized_pegs_hit.erase(ball_id)
 			_splitter_triggered_this_visit.erase(ball_id)
 			if b.has_method("reset_energy_to_base"):
 				b.reset_energy_to_base()
@@ -1173,7 +945,6 @@ func flush_tick(sim_tick: int) -> void:
 			while _active_balls.has(b): _active_balls.erase(b)
 			_ball_hit_count_this_visit.erase(ball_id)
 			_phantom_pegs_visited.erase(ball_id)
-			_ball_energized_pegs_hit.erase(ball_id)
 			_splitter_triggered_this_visit.erase(ball_id)
 			if b.has_method("reset_energy_to_base"):
 				b.reset_energy_to_base()
@@ -1224,7 +995,7 @@ func explode_at(_peg_id: int) -> void:
 	pass  # future: bomb peg or external trigger; ball-triggered explosive uses _apply_explosive_hits
 
 ## GDD: Explosive ball — apply hit to all pegs within radius. Hard cap: 1 explosion per peg per sim tick. Cluster depth cap = 1.
-func _apply_explosive_hits(center_peg_id: int, ball: Node, bdef: BallDefinition, sim_tick: int, cluster_depth: int = 0) -> void:
+func _apply_explosive_hits(center_peg_id: int, ball: Node, _bdef: BallDefinition, sim_tick: int, _cluster_depth: int = 0) -> void:
 	if _explosion_triggered_pegs_this_tick.get(center_peg_id, false):
 		return
 	_explosion_triggered_pegs_this_tick[center_peg_id] = true
@@ -1232,13 +1003,6 @@ func _apply_explosive_hits(center_peg_id: int, ball: Node, bdef: BallDefinition,
 	if not center_peg or not center_peg.get("global_position"):
 		return
 	var center_pos: Vector2 = center_peg.global_position
-	var radius_px: float = Constants.EXPLOSIVE_RADIUS_PX
-	if GameState:
-		radius_px += float(GameState.explosion_radius_bonus) * 12.0
-	var damage_per_hit: int = 1 + (GameState.explosion_peg_hit_count_bonus if GameState else 0)
-	if GameState and GameState.has_wall_break_upgrade(&"fragmentation_tag"):
-		damage_per_hit += GameState.get_wall_break_upgrade_stacks(&"fragmentation_tag")
-	var add_energize: bool = GameState.has_wall_break_upgrade(&"explosions_apply_energize") if GameState else false
 	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else 0
 	for other_id in _peg_by_id:
 		if other_id == center_peg_id:
@@ -1246,246 +1010,13 @@ func _apply_explosive_hits(center_peg_id: int, ball: Node, bdef: BallDefinition,
 		var other_peg: Node = _peg_by_id[other_id]
 		if not other_peg or not other_peg.get("global_position"):
 			continue
-		if center_pos.distance_to(other_peg.global_position) > radius_px:
+		if center_pos.distance_to(other_peg.global_position) > Constants.EXPLOSIVE_RADIUS_PX:
 			continue
 		if not _hit_cooldown.cooldown_ok(bid, other_id, sim_tick, Constants.HIT_COOLDOWN_SIM_TICKS):
 			continue
 		_hit_cooldown.record_hit(bid, other_id, sim_tick)
 		if ball.has_method("add_peg_energy"):
 			ball.add_peg_energy(PEG_DISPLAY_ENERGY_PER_HIT)
-		if other_peg.has_method("apply_hit"):
-			var ek_expl: String = str(other_peg.get("peg_extra_kind")) if other_peg.get("peg_extra_kind") != null else ""
-			other_peg.apply_hit(true, damage_per_hit, add_energize and not Constants.peg_extra_kind_blocks_energize(ek_expl))
-		if other_peg.has_method("play_wobble"):
-			other_peg.play_wobble()
-		_spawn_energy_popup(other_peg, PEG_DISPLAY_ENERGY_PER_HIT)
-	if center_peg.has_method("play_wobble"):
-		center_peg.play_wobble()
-	# Explosive Contagion (boss): all pegs hit by explosions gain 1 leech stack
-	if GameState and GameState.has_boss_upgrade(&"explosive_contagion"):
-		for other_id in _peg_by_id:
-			if other_id == center_peg_id:
-				continue
-			var ep: Node = _peg_by_id[other_id]
-			if not ep or not ep.get("global_position"):
-				continue
-			if center_pos.distance_to(ep.global_position) > radius_px:
-				continue
-			var _ldur_ec: int = GameState.get_leech_duration_sec() if GameState else Constants.LEECH_DURATION_SEC
-			_leeched_pegs.append({ "peg_id": other_id, "alignment": bdef.alignment if bdef else 0, "drains_remaining": _ldur_ec })
-			if ep.has_method("add_leech_stack"):
-				ep.add_leech_stack()
-	# Blast Launch: explosions near trampoline pegs launch ALL nearby balls upward
-	if GameState and GameState.has_wall_break_upgrade(&"blast_launch"):
-		var has_nearby_trampoline: bool = false
-		for tp_id in _peg_by_id:
-			var tp: Node = _peg_by_id[tp_id]
-			if tp.get("peg_extra_kind") == "trampoline" and center_pos.distance_to(tp.global_position) <= radius_px * 1.5:
-				has_nearby_trampoline = true
-				break
-		if has_nearby_trampoline:
-			for active_ball in _active_balls:
-				if "global_position" in active_ball and active_ball.has_method("schedule_trampoline_upward_boost"):
-					if center_pos.distance_to(active_ball.global_position) <= radius_px * 2.0:
-						active_ball.schedule_trampoline_upward_boost()
-	# Blast Lift: any explosion pushes nearby balls upward (stackable)
-	if GameState and GameState.has_wall_break_upgrade(&"blast_lift"):
-		var lift_stacks: int = GameState.get_wall_break_upgrade_stacks(&"blast_lift")
-		for active_ball in _active_balls:
-			if "linear_velocity" in active_ball and "global_position" in active_ball:
-				if center_pos.distance_to(active_ball.global_position) <= radius_px * 1.5:
-					active_ball.linear_velocity.y -= 80.0 * float(lift_stacks)
-	# Explosion Impulse: push nearby balls outward from explosion center
-	if GameState and GameState.explosion_impulse_bonus > 0.0:
-		for active_ball in _active_balls:
-			if "linear_velocity" in active_ball and "global_position" in active_ball:
-				var dist: float = center_pos.distance_to(active_ball.global_position)
-				if dist <= radius_px * 1.5 and dist > 0.1:
-					var dir: Vector2 = (active_ball.global_position - center_pos).normalized()
-					active_ball.linear_velocity += dir * 100.0 * GameState.explosion_impulse_bonus
-	# Cluster Grenade (depth cap = 1): primary only; secondary explosions do not spawn further clusters.
-	if cluster_depth == 0 and GameState and GameState.has_wall_break_upgrade(&"cluster_grenade"):
-		var nearest: Array = _get_nearest_pegs(center_peg_id, 2)
-		var cluster_secondary_radius: float = Constants.EXPLOSIVE_RADIUS_PX * 0.55
-		for i in range(mini(nearest.size(), 2)):
-			var p: Node = nearest[i]
-			var pid: int = p.peg_id if p.get("peg_id") != null else -1
-			if pid >= 0 and not _explosion_triggered_pegs_this_tick.get(pid, false):
-				_apply_explosive_hits(pid, ball, bdef, sim_tick, 1)
-				_spawn_explosive_effect_at_ball(p.global_position, cluster_secondary_radius)
-
-## GDD: Chain Lightning ball — apply hit to up to CHAIN_LIGHTNING_COUNT + bonus nearest pegs; conduction once per chain event.
-func _apply_chain_lightning_hits(center_peg_id: int, ball: Node, bdef: BallDefinition, sim_tick: int) -> void:
-	var center_peg: Node = _peg_by_id.get(center_peg_id)
-	if not center_peg or not center_peg.get("global_position"):
-		return
-	var chain_count: int = Constants.CHAIN_LIGHTNING_COUNT + (GameState.chain_arc_bonus if GameState else 0)
-	var nearest: Array = _get_nearest_pegs(center_peg_id, chain_count)
-	if GameState and GameState.chain_range_bonus > 0:
-		var center_pos: Vector2 = center_peg.global_position
-		var max_dist: float = 200.0 + float(GameState.chain_range_bonus) * 30.0
-		nearest = nearest.filter(func(p): return center_pos.distance_to(p.global_position) <= max_dist)
-	var add_energize: bool = GameState.has_wall_break_upgrade(&"chain_hits_apply_energize") if GameState else false
-	var lightning_status: Dictionary = { Constants.STATUS_LIGHTNING: 1 }
-	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else 0
-	var chain_positions: Array = [center_peg.global_position]
-	if center_peg.has_method("play_lightning_shock"):
-		center_peg.play_lightning_shock()
-	for other_peg in nearest:
-		var other_id: int = other_peg.peg_id if other_peg.get("peg_id") != null else -1
-		if other_id < 0:
-			continue
-		if not _hit_cooldown.cooldown_ok(bid, other_id, sim_tick, Constants.HIT_COOLDOWN_SIM_TICKS):
-			continue
-		_hit_cooldown.record_hit(bid, other_id, sim_tick)
-		if ball.has_method("add_peg_energy"):
-			ball.add_peg_energy(PEG_DISPLAY_ENERGY_PER_HIT)
-		if other_peg.has_method("apply_hit"):
-			var ek_chain: String = str(other_peg.get("peg_extra_kind")) if other_peg.get("peg_extra_kind") != null else ""
-			other_peg.apply_hit(true, 1, add_energize and not Constants.peg_extra_kind_blocks_energize(ek_chain))
-		if other_peg.has_method("play_lightning_shock"):
-			other_peg.play_lightning_shock()
-		ball_ability_on_peg_hit.emit(lightning_status)
-		_spawn_energy_popup(other_peg, PEG_DISPLAY_ENERGY_PER_HIT)
-		chain_positions.append(other_peg.global_position)
-	# Track chain-hit pegs for phantom_resonance boss upgrade
-	for cp in nearest:
-		var cp_id: int = cp.peg_id if cp.get("peg_id") != null else -1
-		if cp_id >= 0:
-			# Overcurrent Surge: chain hitting already-chain-hit peg refreshes and generates extra energy
-			if GameState and GameState.has_wall_break_upgrade(&"overcurrent_surge"):
-				if _chain_hit_peg_ticks.get(cp_id, 0) == sim_tick:
-					if cp.has_method("reset_to_full"):
-						cp.reset_to_full()
-					if ball.has_method("add_peg_energy"):
-						ball.add_peg_energy(PEG_DISPLAY_ENERGY_PER_HIT)
-			_chain_hit_peg_ticks[cp_id] = sim_tick
-	# Storm Feedback: chain arcing between 2+ energized pegs activates temporary energy boost
-	if GameState and GameState.has_wall_break_upgrade(&"storm_feedback"):
-		var energized_chain_count: int = 0
-		for cp in nearest:
-			if cp.has_method("has_energized_stacks") and cp.has_energized_stacks():
-				energized_chain_count += 1
-		if energized_chain_count >= 2:
-			_storm_feedback_end_tick = sim_tick + Constants.STORM_FEEDBACK_DURATION_TICKS
-	# Parasitic Arc: chain hitting a leeched peg spreads leech to all chain targets
-	if GameState and GameState.has_wall_break_upgrade(&"parasitic_arc"):
-		var has_leeched_target: bool = false
-		for cp in nearest:
-			var cp_leech: int = cp.get_leech_stack_count() if cp.has_method("get_leech_stack_count") else 0
-			if cp_leech > 0:
-				has_leeched_target = true
-				break
-		if has_leeched_target:
-			for cp in nearest:
-				var cp_id: int = cp.peg_id if cp.get("peg_id") != null else -1
-				if cp_id >= 0:
-					var _ldur_pa: int = GameState.get_leech_duration_sec() if GameState else Constants.LEECH_DURATION_SEC
-					_leeched_pegs.append({ "peg_id": cp_id, "alignment": bdef.alignment if bdef else 0, "drains_remaining": _ldur_pa })
-					if cp.has_method("add_leech_stack"):
-						cp.add_leech_stack()
-	# Final Arc Detonation: last chain target triggers mini explosion
-	if GameState and GameState.has_wall_break_upgrade(&"final_arc_detonation") and nearest.size() > 0:
-		var last_peg: Node = nearest[nearest.size() - 1]
-		var last_pid: int = last_peg.peg_id if last_peg.get("peg_id") != null else -1
-		if last_pid >= 0 and not _explosion_triggered_pegs_this_tick.get(last_pid, false):
-			_apply_explosive_hits(last_pid, ball, bdef, sim_tick, 1)
-			_spawn_explosive_effect_at_ball(last_peg.global_position)
-	# Chain Conduction: once per chain event, arc to all energized pegs not already in this chain.
-	var conduction_hit_nodes: Array = []
-	if GameState and GameState.has_wall_break_upgrade(&"chain_conduction") and not _chain_conduction_done_this_event:
-		var chain_peg_ids: Array = [center_peg_id]
-		for other_peg in nearest:
-			var oid: int = other_peg.peg_id if other_peg.get("peg_id") != null else -1
-			if oid >= 0:
-				chain_peg_ids.append(oid)
-		var energized_pegs: Array = []
-		for pid in _peg_by_id:
-			var p: Node = _peg_by_id[pid]
-			if p.has_method("has_energized_stacks") and p.has_energized_stacks() and pid not in chain_peg_ids:
-				energized_pegs.append(p)
-		if energized_pegs.size() > 0:
-			_chain_conduction_done_this_event = true
-			for other_peg in energized_pegs:
-				var other_id: int = other_peg.peg_id if other_peg.get("peg_id") != null else -1
-				if other_id < 0 or not _hit_cooldown.cooldown_ok(bid, other_id, sim_tick, Constants.HIT_COOLDOWN_SIM_TICKS):
-					continue
-				_hit_cooldown.record_hit(bid, other_id, sim_tick)
-				if ball.has_method("add_peg_energy"):
-					ball.add_peg_energy(PEG_DISPLAY_ENERGY_PER_HIT)
-				if other_peg.has_method("apply_hit"):
-					other_peg.apply_hit(true, 1, false)
-				if other_peg.has_method("play_lightning_shock"):
-					other_peg.play_lightning_shock()
-				chain_positions.append(other_peg.global_position)
-				conduction_hit_nodes.append(other_peg)
-	# Spectral Conduit: chain lightning can arc to phantom trail positions as virtual pegs
-	if GameState and GameState.has_wall_break_upgrade(&"spectral_conduit") and _phantom_trail.size() > 0:
-		for trail_entry in _phantom_trail:
-			if chain_positions.size() > 0:
-				var trail_pos: Vector2 = trail_entry.get("position", Vector2.ZERO)
-				var last_pos: Vector2 = chain_positions[chain_positions.size() - 1]
-				if last_pos.distance_to(trail_pos) < 200.0:
-					chain_positions.append(trail_pos)
-	# Superconductor (boss): chain conduction triggers secondary chain from furthest energized peg
-	if GameState and GameState.has_boss_upgrade(&"superconductor") and _chain_conduction_done_this_event:
-		var furthest_pos: Vector2 = Vector2.ZERO
-		var furthest_dist: float = 0.0
-		var furthest_pid: int = -1
-		var center_pos: Vector2 = center_peg.global_position
-		for s_pid in _peg_by_id:
-			var sp: Node = _peg_by_id[s_pid]
-			if sp.has_method("has_energized_stacks") and sp.has_energized_stacks():
-				var d: float = center_pos.distance_to(sp.global_position)
-				if d > furthest_dist:
-					furthest_dist = d
-					furthest_pid = s_pid
-					furthest_pos = sp.global_position
-		if furthest_pid >= 0:
-			var secondary_chain: Array = [furthest_pos]
-			var secondary_nearest: Array = _get_nearest_pegs(furthest_pid, 3)
-			for sn in secondary_nearest:
-				var sn_id: int = sn.peg_id if sn.get("peg_id") != null else -1
-				if sn_id >= 0 and _hit_cooldown.cooldown_ok(bid, sn_id, sim_tick, Constants.HIT_COOLDOWN_SIM_TICKS):
-					_hit_cooldown.record_hit(bid, sn_id, sim_tick)
-					if ball.has_method("add_peg_energy"):
-						ball.add_peg_energy(PEG_DISPLAY_ENERGY_PER_HIT)
-					if sn.has_method("apply_hit"):
-						sn.apply_hit(true, 1, false)
-					if sn.has_method("play_lightning_shock"):
-						sn.play_lightning_shock()
-					secondary_chain.append(sn.global_position)
-			if secondary_chain.size() > 1:
-				_spawn_chain_lightning_arcs(secondary_chain)
-	_apply_chain_lightning_cross_link_effects(center_peg, nearest, conduction_hit_nodes)
-	_spawn_chain_lightning_arcs(chain_positions)
-
-## Supernova Peg: large explosion, release energy, hit nearby pegs, reset center peg. Hard cap: 1 per peg per sim tick.
-func _trigger_supernova(center_peg_id: int, ball: Node, bdef: BallDefinition, sim_tick: int) -> void:
-	_supernova_triggered_pegs_this_tick[center_peg_id] = true
-	var center_peg: Node = _peg_by_id.get(center_peg_id)
-	if not center_peg or not center_peg.get("global_position"):
-		return
-	var center_pos: Vector2 = center_peg.global_position
-	var radius_px: float = Constants.EXPLOSIVE_RADIUS_PX * 1.5
-	if GameState:
-		radius_px += float(GameState.explosion_radius_bonus) * 12.0
-	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else 0
-	for other_id in _peg_by_id:
-		var other_peg: Node = _peg_by_id[other_id]
-		if not other_peg or not other_peg.get("global_position"):
-			continue
-		if center_pos.distance_to(other_peg.global_position) > radius_px:
-			continue
-		if other_id == center_peg_id:
-			if other_peg.has_method("reset_to_full"):
-				other_peg.reset_to_full()
-			continue
-		if not _hit_cooldown.cooldown_ok(bid, other_id, sim_tick, Constants.HIT_COOLDOWN_SIM_TICKS):
-			continue
-		_hit_cooldown.record_hit(bid, other_id, sim_tick)
-		if ball.has_method("add_peg_energy"):
-			ball.add_peg_energy(PEG_DISPLAY_ENERGY_PER_HIT * 2)
 		if other_peg.has_method("apply_hit"):
 			other_peg.apply_hit(true, 1, false)
 		if other_peg.has_method("play_wobble"):
@@ -1493,29 +1024,34 @@ func _trigger_supernova(center_peg_id: int, ball: Node, bdef: BallDefinition, si
 		_spawn_energy_popup(other_peg, PEG_DISPLAY_ENERGY_PER_HIT)
 	if center_peg.has_method("play_wobble"):
 		center_peg.play_wobble()
-	# Cascade Reactor (boss): supernova triggers chain lightning to ALL leeched pegs
-	if GameState and GameState.has_boss_upgrade(&"cascade_reactor"):
-		var leeched_peg_positions: Array = [center_peg.global_position]
-		for lp_pid in _peg_by_id:
-			var lp: Node = _peg_by_id[lp_pid]
-			if not lp or not lp.get("global_position"):
-				continue
-			if not lp.has_method("get_leech_stack_count") or lp.get_leech_stack_count() <= 0:
-				continue
-			var lp_id: int = lp.peg_id if lp.get("peg_id") != null else -1
-			if lp_id >= 0 and _hit_cooldown.cooldown_ok(bid, lp_id, sim_tick, Constants.HIT_COOLDOWN_SIM_TICKS):
-				_hit_cooldown.record_hit(bid, lp_id, sim_tick)
-				if ball.has_method("add_peg_energy"):
-					ball.add_peg_energy(PEG_DISPLAY_ENERGY_PER_HIT)
-				if lp.has_method("apply_hit"):
-					lp.apply_hit(true, 1, false)
-				if lp.has_method("play_lightning_shock"):
-					lp.play_lightning_shock()
-				leeched_peg_positions.append(lp.global_position)
-		if leeched_peg_positions.size() > 1:
-			_spawn_chain_lightning_arcs(leeched_peg_positions)
 
-## Wrench peg: restore all recovering pegs within radius to full durability, then reset the wrench peg itself.
+## GDD: Chain Lightning ball — apply hits to up to CHAIN_LIGHTNING_COUNT nearest pegs.
+func _apply_chain_lightning_hits(center_peg_id: int, ball: Node, _bdef: BallDefinition, sim_tick: int) -> void:
+	var center_peg: Node = _peg_by_id.get(center_peg_id)
+	if not center_peg or not center_peg.get("global_position"):
+		return
+	var nearest: Array = _get_nearest_pegs(center_peg_id, Constants.CHAIN_LIGHTNING_COUNT)
+	var lightning_status: Dictionary = { Constants.STATUS_LIGHTNING: 1 }
+	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else 0
+	var chain_positions: Array = [center_peg.global_position]
+	if center_peg.has_method("play_lightning_shock"):
+		center_peg.play_lightning_shock()
+	for other_peg in nearest:
+		var other_id: int = other_peg.peg_id if other_peg.get("peg_id") != null else -1
+		if other_id < 0 or not _hit_cooldown.cooldown_ok(bid, other_id, sim_tick, Constants.HIT_COOLDOWN_SIM_TICKS):
+			continue
+		_hit_cooldown.record_hit(bid, other_id, sim_tick)
+		if ball.has_method("add_peg_energy"):
+			ball.add_peg_energy(PEG_DISPLAY_ENERGY_PER_HIT)
+		if other_peg.has_method("apply_hit"):
+			other_peg.apply_hit(true, 1, false)
+		if other_peg.has_method("play_lightning_shock"):
+			other_peg.play_lightning_shock()
+		ball_ability_on_peg_hit.emit(lightning_status)
+		_spawn_energy_popup(other_peg, PEG_DISPLAY_ENERGY_PER_HIT)
+		chain_positions.append(other_peg.global_position)
+	_spawn_chain_lightning_arcs(chain_positions)
+
 func _apply_wrench_repair(center_peg_id: int, center_peg: Node) -> void:
 	if not center_peg or not center_peg.get("global_position"):
 		return
@@ -1559,52 +1095,6 @@ func _repair_random_damaged_pegs(count: int) -> void:
 		if peg.has_method("play_wobble"):
 			peg.play_wobble()
 
-func _chain_lightning_touches_peg_kind(center_peg: Node, nearest: Array, conduction_nodes: Array, kind: String) -> bool:
-	if center_peg and str(center_peg.get("peg_extra_kind")) == kind and _peg_extra_effects_active(center_peg):
-		return true
-	for p in nearest:
-		if p and str(p.get("peg_extra_kind")) == kind and _peg_extra_effects_active(p):
-			return true
-	for p in conduction_nodes:
-		if p and str(p.get("peg_extra_kind")) == kind and _peg_extra_effects_active(p):
-			return true
-	return false
-
-func _first_peg_kind_in_chain(center_peg: Node, nearest: Array, conduction_nodes: Array, kind: String) -> Node:
-	if center_peg and str(center_peg.get("peg_extra_kind")) == kind and _peg_extra_effects_active(center_peg):
-		return center_peg
-	for p in nearest:
-		if p and str(p.get("peg_extra_kind")) == kind and _peg_extra_effects_active(p):
-			return p
-	for p in conduction_nodes:
-		if p and str(p.get("peg_extra_kind")) == kind and _peg_extra_effects_active(p):
-			return p
-	return null
-
-## Single hook for “chain lightning resolved” — each upgrade implements its own effect (may still require a magnet/trampoline/wrench in the arc).
-func _apply_chain_lightning_cross_link_effects(center_peg: Node, nearest: Array, conduction_hit_nodes: Array) -> void:
-	if not GameState:
-		return
-	if GameState.has_wall_break_upgrade(&"chain_surge_wrench"):
-		if _chain_lightning_touches_peg_kind(center_peg, nearest, conduction_hit_nodes, "wrench"):
-			var surge_n: int = 10
-			if GameState.has_boss_upgrade(&"echoes_of_wrench"):
-				surge_n += 5
-			_repair_random_damaged_pegs(surge_n)
-	if GameState.has_wall_break_upgrade(&"magnet_arc_snare"):
-		var mag_peg: Node = _first_peg_kind_in_chain(center_peg, nearest, conduction_hit_nodes, "magnet")
-		if mag_peg:
-			var pull: float = 140.0
-			if GameState.has_boss_upgrade(&"stormgrid_coupling"):
-				pull *= 1.6
-			_pull_active_balls_toward(mag_peg.global_position, pull)
-			if GameState.has_boss_upgrade(&"stormgrid_coupling"):
-				_damp_active_balls_spin(0.88)
-	if GameState.has_wall_break_upgrade(&"spark_trampoline"):
-		var tramp_peg: Node = _first_peg_kind_in_chain(center_peg, nearest, conduction_hit_nodes, "trampoline")
-		if tramp_peg:
-			_boost_balls_near_trampoline_spark(tramp_peg.global_position)
-
 func _pull_active_balls_toward(target: Vector2, impulse: float) -> void:
 	for b in _active_balls:
 		if not b or not b.get("linear_velocity"):
@@ -1630,30 +1120,7 @@ func _emit_ball_reset_to_top(ball: Node, reason: StringName) -> void:
 	if not ball or not is_instance_valid(ball):
 		return
 	ball_reset_to_top.emit(ball, reason)
-	_apply_ball_reset_to_top_upgrade_effects(ball, reason)
 
-func _apply_ball_reset_to_top_upgrade_effects(_ball: Node, _reason: StringName) -> void:
-	_trigger_goblin_hopper_pulse_if_upgraded()
-
-func _trigger_goblin_hopper_pulse_if_upgraded() -> void:
-	if not GameState:
-		return
-	var mult: float = 1.0
-	var hold: float = 0.0
-	if GameState.has_boss_upgrade(&"goblin_width_tempest"):
-		mult = 1.45
-		hold = 10.0
-	elif GameState.has_wall_break_upgrade(&"goblin_width_pulse"):
-		mult = 1.25
-		hold = 6.0
-	else:
-		return
-	var main: Node = get_parent()
-	var hopper: Node = main.get_node_or_null("Hopper") if main else null
-	if hopper and hopper.has_method("pulse_width_temporarily"):
-		hopper.pulse_width_temporarily(mult, hold)
-
-## Leech periodic drain: peg extras that only need the peg (not a ball). Skips goblin_reset, bomb, splitter, trampoline, etc.
 func _apply_peg_extra_on_leech_tick(peg_id: int, peg: Node) -> void:
 	if not peg or not is_instance_valid(peg) or not (peg is Node2D):
 		return
@@ -2001,7 +1468,6 @@ func _process_leech_drains(sim_tick: int) -> void:
 	if sim_tick <= 0 or (sim_tick % Constants.SIM_TICKS_PER_SECOND) != 0:
 		return
 	var to_remove: Array[int] = []
-	var pending_rot_leeches: Array = []
 	var leech_visual_budget: int = LEECH_VISUAL_BUDGET_PER_TICK
 	for i in _leeched_pegs.size():
 		var entry: Dictionary = _leeched_pegs[i]
@@ -2011,14 +1477,7 @@ func _process_leech_drains(sim_tick: int) -> void:
 		var pid: int = entry.get("peg_id", -1)
 		var align: int = entry.get("alignment", Constants.ALIGNMENT_MAIN)
 		var peg: Node = _peg_by_id.get(pid)
-		var drain_amount: int = GameState.get_leech_drain_per_second_display() if GameState else Constants.LEECH_DRAIN_PER_SECOND
-		# Blood Tithe (boss): leech ticks pay more display energy
-		if GameState and GameState.has_boss_upgrade(&"blood_tithe"):
-			drain_amount += Constants.legacy_display_energy_to_current(1)
-		# Overcharged Drain: leech on energized peg generates double energy
-		if GameState and GameState.has_wall_break_upgrade(&"overcharged_drain") and peg:
-			if peg.has_method("has_energized_stacks") and peg.has_energized_stacks():
-				drain_amount *= 2
+		var drain_amount: int = Constants.LEECH_DRAIN_PER_SECOND
 		if peg:
 			if leech_visual_budget > 0:
 				_spawn_leech_popup(peg, drain_amount)
@@ -2027,43 +1486,14 @@ func _process_leech_drains(sim_tick: int) -> void:
 				leech_visual_budget -= 1
 			_apply_peg_extra_on_leech_tick(pid, peg)
 		leech_drain.emit(drain_amount, align, pid)
-		# Leech Singularity (boss): peg with 3+ leech stacks AND energized implodes
-		if GameState and GameState.has_boss_upgrade(&"leech_singularity") and peg:
-			var leech_stack_count: int = peg.get_leech_stack_count() if peg.has_method("get_leech_stack_count") else 0
-			if leech_stack_count >= 3 and peg.has_method("has_energized_stacks") and peg.has_energized_stacks():
-				var nearest_pegs: Array = _get_nearest_pegs(pid, 4)
-				for np in nearest_pegs:
-					var np_id: int = np.peg_id if np.get("peg_id") != null else -1
-					if np_id >= 0 and np.has_method("apply_hit"):
-						np.apply_hit(true, 3, false)
-					leech_drain.emit(drain_amount * 3, align, np_id)
-				if peg.has_method("apply_hit"):
-					peg.apply_hit(true, 10, false)
 		entry["drains_remaining"] = entry["drains_remaining"] - 1
 		if entry["drains_remaining"] <= 0:
-			# Spreading Rot: expired leech spreads mini-leech to adjacent pegs
-			if GameState and GameState.has_wall_break_upgrade(&"spreading_rot") and peg:
-				var adj_pegs: Array = _get_adjacent_pegs_within_radius(pid, 3)
-				for adj in adj_pegs:
-					var adj_id: int = adj.peg_id if adj.get("peg_id") != null else -1
-					if adj_id >= 0:
-						var _ldur_rot: int = maxi(1, (GameState.get_leech_duration_sec() if GameState else Constants.LEECH_DURATION_SEC) / 3)
-						pending_rot_leeches.append({ "peg_id": adj_id, "alignment": align, "drains_remaining": _ldur_rot })
-						if adj.has_method("add_leech_stack"):
-							adj.add_leech_stack()
 			if peg and peg.has_method("remove_leech_stack"):
 				peg.remove_leech_stack()
 			to_remove.append(i)
 	to_remove.sort()
 	for i in range(to_remove.size() - 1, -1, -1):
 		_leeched_pegs.remove_at(to_remove[i])
-	if not pending_rot_leeches.is_empty():
-		_leeched_pegs.append_array(pending_rot_leeches)
-
-func _count_plain_balls_for_horde_bonus() -> int:
-	if _game_coordinator and _game_coordinator.has_method("count_plain_balls_in_play"):
-		return _game_coordinator.count_plain_balls_in_play()
-	return 0
 
 func _ability_key(bdef: BallDefinition) -> String:
 	if bdef == null:
@@ -2315,7 +1745,6 @@ func _release_black_hole_ball(ball: Node, _sim_tick: int) -> void:
 	_active_balls.erase(ball)
 	_ball_hit_count_this_visit.erase(bid)
 	_phantom_pegs_visited.erase(bid)
-	_ball_energized_pegs_hit.erase(bid)
 	_splitter_triggered_this_visit.erase(bid)
 	ball_exited_board.emit(ball, REASON_BLACK_HOLE)
 
@@ -2340,8 +1769,6 @@ func _apply_magnet_and_gravity_well_forces() -> void:
 				var t: float = clampf((dist - 5.0) / span, 0.0, 1.0)
 				var falloff: float = lerpf(1.0, 0.4, t)
 				var pull_str: float = Constants.MAGNET_PEG_PULL_STRENGTH
-				if GameState and GameState.has_boss_upgrade(&"iron_bloom"):
-					pull_str *= 1.35
 				ball.linear_velocity += dir * (pull_str * falloff)
 			elif kind == "gravity_well" and dist < Constants.GRAVITY_WELL_RADIUS_PX:
 				ball.linear_velocity *= Constants.GRAVITY_WELL_DRAG
@@ -2470,8 +1897,7 @@ func _spawn_peg_layout() -> void:
 func _apply_test_scenario_leech_all_pegs() -> void:
 	var align: int = Constants.ALIGNMENT_MAIN
 	for pid in _peg_by_id:
-		var _ldur_ts: int = GameState.get_leech_duration_sec() if GameState else Constants.LEECH_DURATION_SEC
-		_leeched_pegs.append({ "peg_id": pid, "alignment": align, "drains_remaining": _ldur_ts })
+		_leeched_pegs.append({ "peg_id": pid, "alignment": align, "drains_remaining": Constants.LEECH_DURATION_SEC })
 		var peg: Node = _peg_by_id[pid]
 		if peg.has_method("add_leech_stack"):
 			peg.add_leech_stack()
@@ -2591,125 +2017,6 @@ func add_extra_pegs_if_needed() -> void:
 	for k in want:
 		total_special += want[k]
 	_extra_pegs_spawned_count = total_special
-
-## Overclock Network: grant +1 energized durability per adjacent energized peg.
-func _apply_overclock_network_bonus(center_peg_id: int) -> void:
-	var center: Node = _peg_by_id.get(center_peg_id)
-	if not center or not center.get("global_position"):
-		return
-	var pos: Vector2 = center.global_position
-	var bonus: int = 0
-	for other_id in _peg_by_id:
-		if other_id == center_peg_id:
-			continue
-		var other: Node = _peg_by_id[other_id]
-		if not other or not other.get("global_position"):
-			continue
-		if other.has_method("has_energized_stacks") and other.has_energized_stacks():
-			if pos.distance_to(other.global_position) <= Constants.ADJACENT_PEG_RADIUS_PX:
-				bonus += 1
-	if bonus > 0 and center.has_method("add_overclock_durability"):
-		center.add_overclock_durability(bonus)
-
-## Check all pegs for destruction upgrades (energy_collapse, perpetual_engine).
-func _check_peg_destruction_upgrades(sim_tick: int) -> void:
-	var has_energy_collapse: bool = GameState != null and GameState.has_wall_break_upgrade(&"energy_collapse")
-	var has_perpetual_engine: bool = GameState != null and GameState.has_boss_upgrade(&"perpetual_engine")
-	if not has_energy_collapse and not has_perpetual_engine:
-		return
-	for pid in _peg_by_id:
-		var peg: Node = _peg_by_id[pid]
-		var ek_chk: String = str(peg.get("peg_extra_kind")) if peg.get("peg_extra_kind") != null else ""
-		if ek_chk == "milestone_event" or ek_chk == "treasure_chest" or ek_chk == "buffet_table" or ek_chk == "sticky_slime":
-			continue
-		if not peg.has_method("was_just_destroyed") or not peg.was_just_destroyed():
-			continue
-		if has_energy_collapse:
-			var leech_count: int = peg.get_leech_stack_count() if peg.has_method("get_leech_stack_count") else 0
-			if leech_count >= 3:
-				_trigger_energy_collapse(pid, sim_tick)
-		if has_perpetual_engine:
-			if peg.has_method("had_energize_on_destroy") and peg.had_energize_on_destroy():
-				_spawn_perpetual_engine_phantom(peg.global_position)
-
-## Energy Collapse: peg with 3+ leech stacks destroyed triggers explosion at its location.
-func _trigger_energy_collapse(peg_id: int, sim_tick: int) -> void:
-	if _explosion_triggered_pegs_this_tick.get(peg_id, false):
-		return
-	_explosion_triggered_pegs_this_tick[peg_id] = true
-	var peg: Node = _peg_by_id.get(peg_id)
-	if not peg or not peg.get("global_position"):
-		return
-	var center_pos: Vector2 = peg.global_position
-	var radius_px: float = Constants.EXPLOSIVE_RADIUS_PX
-	if GameState:
-		radius_px += float(GameState.explosion_radius_bonus) * 12.0
-	for other_id in _peg_by_id:
-		if other_id == peg_id:
-			continue
-		var other: Node = _peg_by_id[other_id]
-		if not other or not other.get("global_position"):
-			continue
-		if center_pos.distance_to(other.global_position) > radius_px:
-			continue
-		if other.has_method("apply_hit"):
-			other.apply_hit(true, 1, false)
-		if other.has_method("play_wobble"):
-			other.play_wobble()
-		_spawn_energy_popup(other, PEG_DISPLAY_ENERGY_PER_HIT)
-	_spawn_explosive_effect_at_ball(center_pos)
-
-## Perpetual Engine (boss): energized peg destroyed spawns a temporary Phantom ball.
-func _spawn_perpetual_engine_phantom(spawn_pos: Vector2) -> void:
-	if not _ball_scene or not _balls_container:
-		return
-	var phantom_def: BallDefinition = BallDefinition.new()
-	phantom_def.ability_name = "Phantom"
-	phantom_def.alignment = Constants.ALIGNMENT_MAIN
-	phantom_def.base_energy = Constants.legacy_display_energy_to_current(20)
-	phantom_def.tier = 1
-	phantom_def.rarity = Constants.RARITY_UNCOMMON
-	phantom_def.city_weights = {}
-	phantom_def.status_effects = {}
-	phantom_def.shape_type = BallVisuals.ShapeType.HEXAGON
-	var new_ball: Node = _ball_scene.instantiate()
-	if not new_ball:
-		return
-	_next_split_ball_id += 1
-	new_ball.set_ball_id(_next_split_ball_id)
-	new_ball.set_definition(phantom_def)
-	if new_ball.has_method("mark_as_split_twin"):
-		new_ball.mark_as_split_twin()
-	_balls_container.add_child(new_ball)
-	new_ball.global_position = spawn_pos
-	_active_balls.append(new_ball)
-	_ball_hit_count_this_visit[new_ball.get_ball_id()] = 0
-	_phantom_pegs_visited[new_ball.get_ball_id()] = 0
-
-## Storm of Fragments (boss): split fragment hit 3+ energized pegs — chain lightning from all energized.
-func _trigger_storm_of_fragments(ball_id: int, ball: Node, bdef: BallDefinition, sim_tick: int) -> void:
-	var energized_positions: Array = []
-	for pid in _peg_by_id:
-		var p: Node = _peg_by_id[pid]
-		if not p or not p.get("global_position"):
-			continue
-		if p.has_method("has_energized_stacks") and p.has_energized_stacks():
-			energized_positions.append(p.global_position)
-			var p_id: int = p.peg_id if p.get("peg_id") != null else -1
-			if p_id >= 0 and _hit_cooldown.cooldown_ok(ball_id, p_id, sim_tick, Constants.HIT_COOLDOWN_SIM_TICKS):
-				_hit_cooldown.record_hit(ball_id, p_id, sim_tick)
-				if ball.has_method("add_peg_energy"):
-					ball.add_peg_energy(PEG_DISPLAY_ENERGY_PER_HIT)
-				if p.has_method("apply_hit"):
-					p.apply_hit(true, 1, false)
-				if p.has_method("play_lightning_shock"):
-					p.play_lightning_shock()
-	if energized_positions.size() > 1:
-		_spawn_chain_lightning_arcs(energized_positions)
-
-# ==============================================================================
-# POLYOMINO MODULE PLACEMENT & BOARD GRID SYSTEM (TASK-025)
-# ==============================================================================
 
 func set_drag_controller(controller: Node) -> void:
 	_drag_controller = controller
@@ -2959,14 +2266,6 @@ func place_module(item: Resource, grid_pos: Vector2i, rotation: int = -1) -> boo
 		ghost_state_changed.emit(item, false)
 		module_solidified.emit(item)
 
-	var relic_id: StringName = &""
-	if "custom_payload" in item and item.custom_payload is Dictionary:
-		relic_id = StringName(item.custom_payload.get("relic_id", ""))
-	if relic_id == &"" and "module_data" in item and item.module_data != null:
-		relic_id = item.module_data.module_id
-	if relic_id != &"":
-		PolyominoRelicDatabase.apply_relic_effects_to_game_state(relic_id)
-
 	module_placed_on_board.emit(item, grid_pos, item.rotation_step)
 	return true
 
@@ -3000,15 +2299,6 @@ func unslot_module(instance_id: StringName) -> Resource:
 		if is_instance_valid(node):
 			node.queue_free()
 		_placed_module_nodes.erase(instance_id)
-
-	var relic_id: StringName = &""
-	if item != null:
-		if "custom_payload" in item and item.custom_payload is Dictionary:
-			relic_id = StringName(item.custom_payload.get("relic_id", ""))
-		if relic_id == &"" and "module_data" in item and item.module_data != null:
-			relic_id = item.module_data.module_id
-	if relic_id != &"":
-		PolyominoRelicDatabase.remove_relic_effects_from_game_state(relic_id)
 
 	module_unslotted_from_board.emit(item)
 	return item

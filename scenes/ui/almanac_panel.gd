@@ -3,6 +3,9 @@ extends Control
 
 signal closed
 
+const RewardCardCatalog = preload("res://scenes/rewards/reward_card_catalog.gd")
+const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
+
 var _game_coordinator: Node
 var _reward_handler: Node
 var _paused_before_open: bool = false
@@ -103,7 +106,7 @@ func _rebuild() -> void:
 	title_row.add_child(close_btn)
 
 	var hint: Label = Label.new()
-	hint.text = "Catalog of all run content. Quantities show owned balls, unlocked pegs, or upgrade stacks."
+	hint.text = "Catalog of balls, pegs, and physical relic inventory."
 	hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	hint.add_theme_font_size_override("font_size", 11)
 	hint.add_theme_color_override("font_color", MonsterPalette.TAN())
@@ -126,8 +129,7 @@ func _rebuild() -> void:
 
 	_build_balls_section(content)
 	_build_pegs_section(content)
-	_build_wall_section(content)
-	_build_boss_section(content)
+	_build_physical_relics_section(content)
 
 func _build_balls_section(parent: VBoxContainer) -> void:
 	_add_section_header(parent, "BALLS")
@@ -193,74 +195,44 @@ func _build_pegs_section(parent: VBoxContainer) -> void:
 				_rebuild()
 		_add_tally_row(parent, label, n, remove_cb)
 
-func _build_wall_section(parent: VBoxContainer) -> void:
-	_add_section_header(parent, "RELICS")
-	var list: Array = []
+func _build_physical_relics_section(parent: VBoxContainer) -> void:
+	_add_section_header(parent, "PHYSICAL RELICS")
+	var definitions: Array = []
 	if _reward_handler and _reward_handler.has_method("get_catalog_wall_break_major_definitions"):
-		list = _reward_handler.get_catalog_wall_break_major_definitions()
-	list.sort_custom(func(a: Variant, b: Variant) -> bool:
-		var ma: MajorUpgradeDefinition = a as MajorUpgradeDefinition
-		var mb: MajorUpgradeDefinition = b as MajorUpgradeDefinition
-		if not ma or not mb:
-			return false
-		return String(ma.upgrade_id) < String(mb.upgrade_id)
-	)
-	for item in list:
-		if not item is MajorUpgradeDefinition:
-			continue
-		var def: MajorUpgradeDefinition = item as MajorUpgradeDefinition
-		var stacks: int = _wall_break_display_count(def)
-		var label: String = def.display_name
-		var remove_cb: Callable = Callable()
-		if stacks > 0:
-			var uid: StringName = def.upgrade_id
-			remove_cb = func():
-				if _game_coordinator and _game_coordinator.has_method("remove_one_wall_break_for_almanac"):
-					_game_coordinator.remove_one_wall_break_for_almanac(uid)
-				_rebuild()
-		_add_tally_row(parent, label, stacks, remove_cb)
-
-func _wall_break_display_count(def: MajorUpgradeDefinition) -> int:
-	if not def or not GameState:
-		return 0
-	var uid: StringName = def.upgrade_id
-	match uid:
-		&"plain_surge":
-			return GameState.plain_surge_stacks
-		&"plain_horde":
-			return GameState.plain_horde_stacks
-		&"plain_momentum":
-			return GameState.plain_momentum_stacks
-		_:
-			return GameState.get_wall_break_upgrade_stacks(uid)
-
-func _build_boss_section(parent: VBoxContainer) -> void:
-	_add_section_header(parent, "BOSS RELICS")
-	var list: Array = []
+		definitions.append_array(_reward_handler.get_catalog_wall_break_major_definitions())
 	if _reward_handler and _reward_handler.has_method("get_catalog_boss_definitions"):
-		list = _reward_handler.get_catalog_boss_definitions()
-	list.sort_custom(func(a: Variant, b: Variant) -> bool:
-		var ma: MajorUpgradeDefinition = a as MajorUpgradeDefinition
-		var mb: MajorUpgradeDefinition = b as MajorUpgradeDefinition
-		if not ma or not mb:
-			return false
-		return String(ma.upgrade_id) < String(mb.upgrade_id)
-	)
-	for item in list:
+		definitions.append_array(_reward_handler.get_catalog_boss_definitions())
+	if _reward_handler and _reward_handler.has_method("get_catalog_onboard_effect_definitions"):
+		definitions.append_array(_reward_handler.get_catalog_onboard_effect_definitions())
+	definitions.append_array(RewardCardCatalog.build_deliberate_relic_candidates())
+	var seen: Dictionary = {}
+	for item in definitions:
 		if not item is MajorUpgradeDefinition:
 			continue
 		var def: MajorUpgradeDefinition = item as MajorUpgradeDefinition
-		var stacks: int = 0
-		if GameState:
-			stacks = GameState.applied_boss_upgrades.get(def.upgrade_id, 0)
-		var remove_cb: Callable = Callable()
-		if stacks > 0:
-			var uid: StringName = def.upgrade_id
-			remove_cb = func():
-				if _game_coordinator and _game_coordinator.has_method("remove_one_boss_for_almanac"):
-					_game_coordinator.remove_one_boss_for_almanac(uid)
-				_rebuild()
-		_add_tally_row(parent, def.display_name, stacks, remove_cb)
+		if seen.has(def.upgrade_id):
+			continue
+		seen[def.upgrade_id] = true
+		_add_tally_row(parent, def.display_name, _physical_relic_count(def.upgrade_id))
+
+func _physical_relic_count(relic_id: StringName) -> int:
+	var total: int = 0
+	if GameState and GameState.junk_box:
+		for item in GameState.junk_box.get_all_items():
+			if item.custom_payload.get("relic_id", "") == str(relic_id):
+				total += 1
+	var board: Node = _get_board()
+	if board and board.has_method("get_all_placed_modules"):
+		for item in board.get_all_placed_modules():
+			if item is JunkBoxItem and item.custom_payload.get("relic_id", "") == str(relic_id):
+				total += 1
+	return total
+
+func _get_board() -> Node:
+	if not _game_coordinator:
+		return null
+	var main: Node = _game_coordinator.get_parent()
+	return main.get_node_or_null("Board") if main else null
 
 func _peg_unlock_count(kind: String) -> int:
 	if not GameState:

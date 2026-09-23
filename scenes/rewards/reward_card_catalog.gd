@@ -3,6 +3,7 @@ extends RefCounted
 ## Static catalog definition builders for RewardHandler candidates.
 
 const DeliberateRelicCatalog = preload("res://resources/polyomino/deliberate_relic_catalog.gd")
+const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
 
 static func create_ball_def(ability_name: String, alignment: int, tier: int, rarity: int, city_weights: Dictionary, shape_type: int = -1, status_effects: Dictionary = {}) -> BallDefinition:
 	var d: BallDefinition = BallDefinition.new()
@@ -65,7 +66,7 @@ static func build_ball_candidates() -> Array:
 static func mk(def_name: String, desc: String, uid: StringName, cat: int, ball_t: String = "") -> MajorUpgradeDefinition:
 	var u: MajorUpgradeDefinition = MajorUpgradeDefinition.new()
 	u.display_name = def_name
-	u.description = desc
+	u.description = _physical_relic_description(uid, desc)
 	u.upgrade_id = StringName(uid)
 	u.category = cat
 	u.ball_type = ball_t
@@ -74,7 +75,7 @@ static func mk(def_name: String, desc: String, uid: StringName, cat: int, ball_t
 static func mk_cross(def_name: String, desc: String, uid: StringName, req_types: Array[String]) -> MajorUpgradeDefinition:
 	var u: MajorUpgradeDefinition = MajorUpgradeDefinition.new()
 	u.display_name = def_name
-	u.description = desc
+	u.description = _physical_relic_description(uid, desc)
 	u.upgrade_id = StringName(uid)
 	u.category = MajorUpgradeDefinition.Category.BALL_ENHANCEMENT
 	u.required_ball_types = req_types
@@ -83,34 +84,48 @@ static func mk_cross(def_name: String, desc: String, uid: StringName, req_types:
 static func mk_boss(def_name: String, desc: String, uid: StringName, req_types: Array[String] = []) -> MajorUpgradeDefinition:
 	var u: MajorUpgradeDefinition = MajorUpgradeDefinition.new()
 	u.display_name = def_name
-	u.description = desc
+	u.description = _physical_relic_description(uid, desc)
 	u.upgrade_id = StringName(uid)
 	u.category = MajorUpgradeDefinition.Category.BALL_ENHANCEMENT
 	u.required_ball_types = req_types
 	return u
 
 static func build_onboard_effect_candidates() -> Array:
-	var list: Array = []
-	var cat_on: int = MajorUpgradeDefinition.Category.ONBOARD_PASSIVE
-	list.append(mk("Bigger Blasts", "Explosions: Blast radius +1.", &"explosion_radius", cat_on))
-	list.append(mk("More Explosion Hits", "Explosions: Damages +1 additional peg.", &"explosion_peg_hit_count", cat_on))
-	list.append(mk("Stronger Blast Push", "Explosions: +25% push force on nearby balls.", &"explosion_impulse", cat_on))
-	list.append(mk("+1 Chain Jump", "Chain Lightning: +1 lightning jump arc.", &"chain_arc", cat_on))
-	list.append(mk("Longer Chains", "Chain Lightning: Increases jump distance between pegs.", &"chain_range", cat_on))
-	list.append(mk("Deeper Energize", "Energize: Maximum peg stacks +1.", &"max_energize_stacks", cat_on))
-	list.append(mk("Slower Energize Fade", "Energize: Decays 15% slower on pegs.", &"energize_decays_slower", cat_on))
-	list.append(mk("Fast Heal (Energized)", "Energize: Energized pegs repair +20% faster.", &"energized_pegs_repair_faster", cat_on))
-	list.append(mk("Tough Pegs", "All Pegs: Durability +1 hit.", &"global_peg_durability", cat_on))
-	list.append(mk("Faster Peg Recovery", "All Pegs: Broken pegs recover +15% faster.", &"peg_recovery_speed", cat_on))
-	list.append(mk("Devastating Barrage", "Main Cannon: +10 damage per shot. (Max 1 stack)", &"devastating_barrage", cat_on))
-	list.append(mk("Compressed Charge", "Main Cannon: Requires less Energy to fire. (Max 1 stack)", &"compressed_charge", cat_on))
-	list.append(mk("Leech Drain Up", "Drain: +1 Energy drained per second per leeched peg.", &"chest_leech_drain", cat_on))
-	list.append(mk("Longer Leech", "Drain: Duration +1 second.", &"chest_leech_duration", cat_on))
-	list.append(mk("Phantom Energy", "Phantom: +5% Energy generated per peg pass.", &"chest_phantom_energy", cat_on))
-	list.append(mk("Rubbery Energy", "Rubbery: +5% Energy generated per peg hit.", &"chest_rubbery_energy", cat_on))
-	list.append(mk("Plain Energy", "Plain: +5% Energy generated per peg hit.", &"chest_bounce_energy", cat_on))
-	list.append(mk("Split Energy", "Split: +5% Energy generated per fragment peg hit.", &"chest_split_energy", cat_on))
-	return list
+	var candidates: Array = []
+	var cat: int = MajorUpgradeDefinition.Category.BOARD_UPGRADE
+	var chest_relics: Array[StringName] = [
+		&"explosion_radius",
+		&"explosion_peg_hit_count",
+		&"explosion_impulse",
+		&"chain_arc",
+		&"chain_range",
+		&"max_energize_stacks",
+		&"energize_decays_slower",
+		&"energized_pegs_repair_faster",
+		&"global_peg_durability",
+		&"peg_recovery_speed",
+		&"devastating_barrage",
+		&"compressed_charge",
+		&"chest_random_ball",
+		&"chest_leech_drain",
+		&"chest_leech_duration",
+		&"chest_phantom_energy",
+		&"chest_rubbery_energy",
+		&"chest_bounce_energy",
+		&"chest_split_energy"
+	]
+	for uid in chest_relics:
+		var display_name: String = str(uid).replace("_", " ").capitalize()
+		candidates.append(mk(display_name, "", uid, cat))
+	return candidates
+
+static func _physical_relic_description(uid: StringName, _legacy_desc: String) -> String:
+	var kinetic: String = PolyominoRelicDatabase.get_relic_kinetic_description(uid)
+	var trigger: String = PolyominoRelicDatabase.get_relic_activation_requirement(uid)
+	var reward: String = PolyominoRelicDatabase.get_relic_reward_description(uid)
+	if kinetic.is_empty() and trigger.is_empty() and reward.is_empty():
+		return "Physical pinball relic. Complete its on-board device goal."
+	return "Physical device: %s\nTrigger: %s\nReward: %s" % [kinetic, trigger, reward]
 
 static func build_wall_break_candidates() -> Dictionary:
 	var cross: Array = []
@@ -119,9 +134,7 @@ static func build_wall_break_candidates() -> Dictionary:
 	var cat_b: int = MajorUpgradeDefinition.Category.BALL_ENHANCEMENT
 	var cat_board: int = MajorUpgradeDefinition.Category.BOARD_UPGRADE
 
-	cross.append(mk_cross("Explosions Apply Energize", "Explosions: Applies 1 Energize stack to all damaged pegs.", &"explosions_apply_energize", ["Explosive", "Energize"]))
 	cross.append(mk_cross("Supernova Peg", "Supernova: Triggers a large explosion that damages nearby pegs.", &"supernova_peg", ["Explosive", "Energize"]))
-	cross.append(mk_cross("Chain Hits Apply Energize", "Chain Lightning: Applies 1 Energize stack to struck pegs.", &"chain_hits_apply_energize", ["Chain Lightning", "Energize"]))
 	cross.append(mk_cross("Chain Conduction", "Chain Lightning: Also strikes every energized peg on the board.", &"chain_conduction", ["Chain Lightning", "Energize"]))
 	cross.append(mk_cross("Overcharged Drain", "Drain: Draining an energized peg generates 2× Energy.", &"overcharged_drain", ["Leech", "Energize"]))
 	cross.append(mk_cross("Final Arc Detonation", "Chain Lightning: Final lightning jump triggers a small explosion.", &"final_arc_detonation", ["Chain Lightning", "Explosive"]))

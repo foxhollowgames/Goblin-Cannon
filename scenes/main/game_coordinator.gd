@@ -282,10 +282,8 @@ func notify_milestone_reward_from_board() -> void:
 	if _milestone_tracker and _milestone_tracker.has_method("register_milestone_reward"):
 		_milestone_tracker.register_milestone_reward()
 
-## Treasure chest peg destroyed; queues onboard passive upgrade draft (same modal as conquest, different pool).
+## Treasure chest peg destroyed; queues a physical relic draft from the chest pool.
 func notify_onboard_effect_from_board() -> void:
-	if GameState and GameState.has_wall_break_upgrade(&"chest_random_ball") and _reward_handler and _reward_handler.has_method("grant_random_ball_from_city_pool"):
-		_reward_handler.grant_random_ball_from_city_pool()
 	if _rewards_manager and _rewards_manager.has_method("on_onboard_effect"):
 		_rewards_manager.on_onboard_effect()
 

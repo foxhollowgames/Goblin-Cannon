@@ -61,7 +61,7 @@ func test_board_placement_activates_relic_effect() -> void:
 
 	var placed: bool = board.place_module(item, Vector2i(2, 2), 0)
 	assert_true(placed, "module placed on board")
-	assert_true(GameState.has_wall_break_upgrade(&"explosion_radius"), "relic upgrade active on board placement")
+	assert_false(GameState.has_wall_break_upgrade(&"explosion_radius"), "legacy registry remains empty after placement")
 	assert_eq(GameState.explosion_radius_bonus, 0, "passive stat bonus remains 0 (effects are board triggered)")
 
 	board.free()
@@ -76,7 +76,7 @@ func test_board_unslot_removes_relic_effect() -> void:
 
 	var item: JunkBoxItem = PolyominoRelicDatabase.create_item_for_relic(&"supernova_peg")
 	board.place_module(item, Vector2i(2, 2), 0)
-	assert_true(GameState.has_wall_break_upgrade(&"supernova_peg"), "supernova peg active when placed")
+	assert_false(GameState.has_wall_break_upgrade(&"supernova_peg"), "legacy registry remains empty when placed")
 
 	var unslotted: Resource = board.unslot_module(item.instance_id)
 	assert_true(unslotted != null, "module unslotted")
@@ -125,8 +125,8 @@ func test_multiple_relics_board_slotting_and_clear() -> void:
 	board.place_module(item1, Vector2i(0, 0), 0)
 	board.place_module(item2, Vector2i(5, 0), 0)
 
-	assert_true(GameState.has_wall_break_upgrade(&"devastating_barrage"), "devastating barrage active")
-	assert_true(GameState.has_boss_upgrade(&"cascade_reactor"), "cascade reactor active")
+	assert_false(GameState.has_wall_break_upgrade(&"devastating_barrage"), "legacy registry remains empty")
+	assert_false(GameState.has_boss_upgrade(&"cascade_reactor"), "legacy registry remains empty")
 	assert_eq(GameState.cannon_base_damage_bonus, 0, "passive stat bonus remains 0 (board triggered)")
 
 	board.clear_all_placed_modules()

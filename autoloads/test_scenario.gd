@@ -61,43 +61,14 @@ var timer_override_seconds: int = -1
 ## ──────────────────────────────────────────────
 ## PRE-APPLIED WALL BREAK UPGRADES
 ## ──────────────────────────────────────────────
-## Upgrade IDs to grant at run start.
-## Simple string = 1 stack.  Dictionary = custom stack count.
-##
-## Examples:
-##   ["explosions_apply_energize", "chain_arc"]
-##   [{"id": "impact_burst", "stacks": 2}]
-##   Legacy peg IDs (add_bomb_peg, etc.) still grant peg counts at run start; pegs are bought in the milestone shop.
-##
-## Full list of upgrade IDs:
-##   Ball enhancements: impact_burst, hyper_elastic, overdrive_hits,
-##     supernova_peg, chain_conduction, overclock_network,
-##     overcharged_drain, spreading_rot, energy_collapse,
-##     cluster_grenade, blast_lift, fragmentation_tag,
-##     storm_feedback, final_arc_detonation, overcurrent_surge,
-##     fragment_echo, mass_cascade, ghost_trail, phase_instability, chest_random_ball
-##   Tag / global scaling (treasure chest onboard rewards): explosion_radius, explosion_peg_hit_count,
-##     explosion_impulse, chain_arc, chain_range,
-##     max_energize_stacks, energize_decays_slower,
-##     energized_pegs_repair_faster, global_peg_durability, peg_recovery_speed
-##   Synergy upgrades (conquest / wall break): explosions_apply_energize, chain_hits_apply_energize, cross-links, etc.
-##   Plain board (wall break): plain_surge, plain_horde, plain_momentum, volt_primer
+## Legacy passive upgrade IDs are accepted for compatibility and ignored.
+## Legacy peg IDs still grant normal peg counts at run start.
 var starting_upgrades: Array = []
 
 ## ──────────────────────────────────────────────
-## STAT BONUSES
+## LEGACY STAT INPUT
 ## ──────────────────────────────────────────────
-## Pre-applied stat bonuses (additive on top of base).
-## Keys: "cannon_damage"  (int, +N base damage per shot)
-##        "cannon_energy"  (int, legacy internal charge reduction; scaled to current 100-display cannon)
-##        "main_charge"    (float, +N% bonus to energy routed to main)
-##        "door_interval"  (float, −N from conduit_wave_interval_scale, min 0.5)
-##        "door_duration"  (float, +N to conduit_open_duration_scale)
-##        "plain_surge" / "plain_horde" / "plain_momentum"  (int, +N stacks to plain-swarm caps)
-##
-## Example:
-##   {"cannon_damage": 20, "main_charge": 0.2}
-##   {"plain_surge": 2, "plain_horde": 1}
+## Legacy stat values are accepted for compatibility and ignored.
 var starting_stats: Dictionary = {}
 
 ## ──────────────────────────────────────────────
@@ -192,16 +163,6 @@ func get_summary() -> String:
 		parts.append("timer: infinite")
 	elif timer_override_seconds > 0:
 		parts.append("timer: %ds" % timer_override_seconds)
-	if not starting_upgrades.is_empty():
-		var ids: Array[String] = []
-		for entry in starting_upgrades:
-			if entry is String:
-				ids.append(entry)
-			elif entry is Dictionary:
-				ids.append(str(entry.get("id", "?")))
-		parts.append("upgrades: %s" % ", ".join(ids))
-	if not starting_stats.is_empty():
-		parts.append("stats: %s" % str(starting_stats))
 	if all_pegs_bombs:
 		parts.append("ALL pegs = bombs")
 	elif all_pegs_trampolines:
