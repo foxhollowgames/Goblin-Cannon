@@ -1,6 +1,6 @@
 # TASK-101: Remove Passive Upgrades Completely
 
-- **Status:** IN_PROGRESS
+- **Status:** IN_REVIEW
 - **Priority:** P1
 - **Category:** Systems / Cleanup
 - **Target Branch:** `fix/remove-passive-upgrades`
@@ -51,3 +51,11 @@ The included weekly allowance refreshed and work resumed. The shorter usage wind
 The lower-grade fallback implementation is saved on this branch. It removes passive gameplay consumers, ignores old passive state, preserves physical reward items, updates physical inventory counts, and updates regression tests. The full local audit passed after the final edits: directory sync, GDScript lint, file lengths, and headless Godot tests.
 
 Remaining: inspect the final diff and test coverage, open the PR, obtain independent review, resolve findings, merge, and record learnings. No TASK-101 gameplay changes have shipped. TASK-102 remains queued. TASK-100 remains plan-only.
+
+## Review checkpoint — 2026-09-23
+
+PR: https://github.com/foxhollowgames/Goblin-Cannon/pull/82. Independent review found one remaining glossary correction. No other gameplay defect was found. The full audit passed before review. The glossary correction is in progress. Merge and learning capture remain.
+
+
+Independent reviewer approved the glossary correction. The complete quality audit passed again on 2026-09-23. Ready to merge PR #82.
+

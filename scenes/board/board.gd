@@ -4,7 +4,7 @@ extends Node2D
 signal ball_reached_bottom(ball_id: int, total_energy_display: int, alignment: int, exit_position: Vector2, status_effects: Dictionary)
 signal ball_ability_on_peg_hit(status_effects: Dictionary)  ## GDD §8: ball ability triggered on peg hit; apply status to minions.
 signal ball_exited_board(ball: Node, reason: int)
-## When a ball finishes returning to the top play line (goblin grab, fragment echo, …). Hook upgrades here; peg types only drive the motion.
+## When a ball finishes returning to the top play line. Peg types drive the motion.
 signal ball_reset_to_top(ball: Node, reason: StringName)
 signal leech_drain(amount_display: int, alignment: int, peg_id: int)  ## Leech status on peg: periodic energy drain (5/sec for 10 sec).
 signal gold_gained(amount: int, origin_position: Vector2)
@@ -1025,7 +1025,7 @@ func _apply_explosive_hits(center_peg_id: int, ball: Node, _bdef: BallDefinition
 	if center_peg.has_method("play_wobble"):
 		center_peg.play_wobble()
 
-## GDD: Chain Lightning ball — apply hit to up to CHAIN_LIGHTNING_COUNT + bonus nearest pegs; conduction once per chain event.
+## GDD: Chain Lightning ball — apply hits to up to CHAIN_LIGHTNING_COUNT nearest pegs.
 func _apply_chain_lightning_hits(center_peg_id: int, ball: Node, _bdef: BallDefinition, sim_tick: int) -> void:
 	var center_peg: Node = _peg_by_id.get(center_peg_id)
 	if not center_peg or not center_peg.get("global_position"):
@@ -1052,7 +1052,6 @@ func _apply_chain_lightning_hits(center_peg_id: int, ball: Node, _bdef: BallDefi
 		chain_positions.append(other_peg.global_position)
 	_spawn_chain_lightning_arcs(chain_positions)
 
-## Supernova Peg: large explosion, release energy, hit nearby pegs, reset center peg. Hard cap: 1 per peg per sim tick.
 func _apply_wrench_repair(center_peg_id: int, center_peg: Node) -> void:
 	if not center_peg or not center_peg.get("global_position"):
 		return
@@ -2019,7 +2018,6 @@ func add_extra_pegs_if_needed() -> void:
 		total_special += want[k]
 	_extra_pegs_spawned_count = total_special
 
-## Overclock Network: grant +1 energized durability per adjacent energized peg.
 func set_drag_controller(controller: Node) -> void:
 	_drag_controller = controller
 

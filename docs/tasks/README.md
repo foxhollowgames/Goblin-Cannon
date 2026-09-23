@@ -131,7 +131,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-098](TASK-098-triangle-bumper-rotation-with-polyomino.md) | Triangle Bumper Rotation with Polyomino | Physics / Systems / Visuals | P0 | DONE | `fix/triangle-bumper-polyomino-rotation` |
 | [TASK-099](TASK-099-restore-junk-box-physical-relic-visuals-and-flow-r.md) | Restore Junk Box Physical Relic Visuals and Flow Representation | UI / Visuals / Relics | P1 | DONE | `fix/junk-box-physical-relic-visuals` |
 | [TASK-100](TASK-100-design-temporary-special-ball-relic-rewards.md) | Design Temporary Special Ball Relic Rewards | Design / Relics | P1 | READY | `feature/temporary-special-ball-reward-design` |
-| [TASK-101](TASK-101-remove-passive-upgrades-completely.md) | Remove Passive Upgrades Completely | Systems / Cleanup | P1 | IN_PROGRESS | `fix/remove-passive-upgrades` |
+| [TASK-101](TASK-101-remove-passive-upgrades-completely.md) | Remove Passive Upgrades Completely | Systems / Cleanup | P1 | IN_REVIEW | `fix/remove-passive-upgrades` |
 | [TASK-102](TASK-102-unlock-tier-3-relics-in-the-third-city.md) | Unlock Tier 3 Relics in the Third City | Progression / Rewards | P1 | READY | `feature/third-city-tier-three-relics` |
 | [TASK-103](TASK-103-validate-relic-variant-choices-in-reward-redesign.md) | Validate Relic Variant Choices in Reward Redesign | Design / Relics | P1 | BACKLOG | `feature/relic-variant-design-validation` |
 | [TASK-104](TASK-104-balance-siege-timer-wall-health-and-cannon-damage.md) | Balance Siege Timer Wall Health and Cannon Damage | Balance / Gameplay | P1 | BACKLOG | `feature/siege-and-cannon-balance` |
@@ -146,5 +146,6 @@ Every pull request must complete an independent sub-agent review cycle:
 2. Invoke an independent `pr_reviewer` sub-agent without conversational context.
 3. If the sub-agent reports major findings, address them and repeat review.
 4. Merge the Pull Request into `main` after receiving approval.
+
 
 

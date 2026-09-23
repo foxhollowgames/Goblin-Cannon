@@ -194,7 +194,7 @@ func _release_stash_gold_if_any() -> void:
 	elif GameState:
 		GameState.add_run_gold(amount)
 
-## Goblin Reset pegs are always 1 hit then recovery (not affected by global durability bonus).
+## Goblin Reset pegs are always 1 hit then recovery.
 func refresh_goblin_reset_durability() -> void:
 	if peg_extra_kind != "goblin_reset":
 		return
@@ -338,15 +338,15 @@ func consume_energize_stack() -> void:
 func get_durability() -> int:
 	return _durability
 
-## Current energized HP (for Supernova Peg threshold check).
+## Current temporary durability added by Energize.
 func get_energized_durability() -> int:
 	return _energized_durability
 
-## Max base durability (for Supernova threshold and display).
+## Max base durability for damage and display.
 func get_max_durability() -> int:
 	return _max_durability
 
-## Supernova Peg: reset to full durability and clear energized (called after supernova triggers).
+## Reset the peg to full durability and clear temporary Energize durability.
 func reset_to_full() -> void:
 	_durability = _max_durability
 	_energized_durability = 0

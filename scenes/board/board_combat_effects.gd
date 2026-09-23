@@ -4,7 +4,6 @@ extends Node2D
 #region State and References
 var _leeched_pegs: Array = []  ## Array[Dictionary]: { peg_id, alignment, drains_remaining }
 var _explosion_triggered_pegs_this_tick: Dictionary = {}  ## int -> bool
-var _supernova_triggered_pegs_this_tick: Dictionary = {}  ## int -> bool
 var _chain_conduction_done_this_event: bool = false
 var _board_root: Node2D = null
 #endregion
@@ -17,7 +16,6 @@ func setup(board_root: Node2D) -> void:
 ## Resets per-tick hard caps on explosive hit cascades and chain conduction.
 func reset_per_tick_caps() -> void:
 	_explosion_triggered_pegs_this_tick.clear()
-	_supernova_triggered_pegs_this_tick.clear()
 	_chain_conduction_done_this_event = false
 #endregion
 
@@ -29,14 +27,6 @@ func has_explosion_triggered(peg_id: int) -> bool:
 ## Marks target peg as having triggered an explosion this sim tick.
 func mark_explosion_triggered(peg_id: int) -> void:
 	_explosion_triggered_pegs_this_tick[peg_id] = true
-
-## Returns true if supernova was already triggered for target peg this sim tick.
-func has_supernova_triggered(peg_id: int) -> bool:
-	return _supernova_triggered_pegs_this_tick.get(peg_id, false)
-
-## Marks target peg as having triggered supernova this sim tick.
-func mark_supernova_triggered(peg_id: int) -> void:
-	_supernova_triggered_pegs_this_tick[peg_id] = true
 
 ## Adds a new leeched peg entry to the active leech drain list.
 func add_leeched_peg(peg_id: int, alignment: int, duration_sec: int) -> void:
