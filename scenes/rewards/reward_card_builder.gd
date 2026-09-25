@@ -2,6 +2,9 @@ class_name RewardCardBuilder
 extends RefCounted
 ## Static helper class for constructing and styling shop card UI components in RewardDraftPanel.
 
+const RelicBallReward = preload("res://resources/polyomino/relic_ball_reward.gd")
+const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
+
 ## Renders a centered polyomino relic shape preview with tier frame and component glyphs.
 static func make_relic_shop_preview(relic_id: StringName, preview_h: float = 38.0) -> Control:
 	var holder: CenterContainer = CenterContainer.new()
@@ -41,7 +44,24 @@ static func make_relic_shop_preview(relic_id: StringName, preview_h: float = 38.
 	var req_w: float = float(cols) * preview.cell_size + 4.0
 	preview.custom_minimum_size = Vector2(req_w, preview_h)
 	holder.add_child(preview)
+	var reward_badge: Label = make_relic_reward_badge(relic_id)
+	if reward_badge != null:
+		holder.add_child(reward_badge)
 	return holder
+
+## Shows the authored type and exact count beside the shared physical preview.
+static func make_relic_reward_badge(relic_id: StringName) -> Label:
+	var reward: RelicBallReward = RelicBallReward.for_relic(relic_id, PolyominoRelicDatabase.get_relic_tier(relic_id))
+	if reward == null:
+		return null
+	var badge: Label = Label.new()
+	badge.name = "RewardBadge"
+	badge.text = "%d × %s" % [reward.count, reward.ball_type]
+	badge.tooltip_text = reward.get_description()
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.add_theme_font_size_override("font_size", 10)
+	badge.add_theme_color_override("font_color", Color(0.55, 1.0, 0.72, 1.0))
+	return badge
 
 	
 ## Create a purchased overlay for an already-bought card.

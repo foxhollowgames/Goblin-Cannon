@@ -1,6 +1,6 @@
 # TASK-100: Design Temporary Special Ball Relic Rewards
 
-- **Status:** READY
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Design / Relics
 - **Target Branch:** `feature/temporary-special-ball-reward-design`
@@ -53,15 +53,43 @@ Design and plan a relic reward system centered on different temporary special ba
 
 ## Acceptance Criteria
 
-- [ ] A repository design document maps every production relic to a specified temporary special-ball reward or an explicit retain/merge/retire decision.
-- [ ] Special-ball behavior, lifetime, reward recipients, routing, recursion, population limits, and cleanup are unambiguous.
-- [ ] All identified reward-contract defects have an explicit disposition and planned outcome-level verification.
-- [ ] [TASK-103](TASK-103-validate-relic-variant-choices-in-reward-redesign.md) and [TASK-105](TASK-105-validate-relic-reward-variety-through-special-ball.md) checks are resolved in this design with traceable examples.
-- [ ] No passive upgrade system is reintroduced.
-- [ ] UI requirements, open decisions, implementation sequence, and balance handoff are documented.
-- [ ] Completion of this packet is design/planning completion, not an assertion that gameplay changes shipped.
+- [x] A repository design document maps every production relic to a specified temporary special-ball reward or an explicit retain/merge/retire decision.
+- [x] Special-ball behavior, lifetime, reward recipients, routing, recursion, population limits, and cleanup are unambiguous.
+- [x] All identified reward-contract defects have an explicit disposition and planned outcome-level verification.
+- [x] [TASK-103](TASK-103-validate-relic-variant-choices-in-reward-redesign.md) and [TASK-105](TASK-105-validate-relic-reward-variety-through-special-ball.md) checks are resolved in this design with traceable examples.
+- [x] No passive upgrade system is reintroduced.
+- [x] UI requirements, open decisions, implementation sequence, and balance handoff are documented.
+- [x] Completion of this packet is design/planning completion, not an assertion that gameplay changes shipped.
 
 ## Discussion draft
 
 Implementation proposal: [Temporary relic balls](../knowledge/temporary-relic-ball-plan.md). Runtime inventory covers 122 IDs. Gameplay implementation is on hold for user discussion. Acceptance checks remain open until review.
+
+
+## Design direction — 2026-09-23
+
+Add Chain Lightning as the sixth proposed temporary ball type. The draft defines a bounded, single-discharge chain and proposes Bank 2 and Spinner 3 mappings. Buffing gas is deferred as a possible mechanic for another character. This remains a design revision; gameplay implementation is still on hold.
+
+
+## Revised ball roster
+
+Remove Drive. Volley releases exactly the relic offer count, without a pair multiplier. Add Split and Drain from the existing ball types. Update proposed relic assignments, examples, temporary ownership rules, and verification accordingly. Buffing gas remains deferred. Gameplay implementation stays on hold.
+
+
+Naming correction: use Leech for the proposed ball type. Drain remains the name of its peg effect. No other ball types are added by this naming correction.
+
+
+## Current class allocation
+
+Use existing names and abilities: Plain, Rubbery, Energize, Explosive, Chain Lightning, Split, and Binary. Plain rewards use the exact offered count; Volley is no longer a separate type. Reserve Leech, Phantom, Constellation, Bloom, and Volatile for future classes. Earlier roster notes are superseded. Existing ball implementations remain intact; gameplay changes are still on hold.
+
+
+## Tier-scaled visible rewards
+
+Remove all relic activation energy-surge rewards. Scale rewards by ball rarity or explicit quantity, with visible physical effects as a possible separately specified alternative. Common relics cannot reward Binary; the current proposal restricts Binary to Tier 3. The updated 42-entry mapping uses tier-specific counts, including 10 Rubbery balls from selected Tier 3 relics. The former one/two/three-ball count rule is superseded. Ordinary ball energy and bottom collection remain. Counts are proposed tuning; this is still plan-only.
+
+
+## Design approval — 2026-09-23
+
+The user approved the revised plan for execution. The approved document contains the full 42-entry reward mapping, same-tier choices, physical roles, chain examples, lifecycle rules, and verification requirements. Earlier discussion notes are historical. Implementation is tracked in TASK-106. Final balance and comparative playtesting remain in TASK-104; this completion records design acceptance only.
 

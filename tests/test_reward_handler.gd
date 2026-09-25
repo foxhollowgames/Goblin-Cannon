@@ -122,7 +122,7 @@ func test_onboard_effect_candidates_are_physical_relics() -> void:
 		if def is MajorUpgradeDefinition and def.upgrade_id == &"global_peg_durability":
 			seen_global = true
 			break
-	assert_true(seen_global, "includes global peg durability")
+	assert_false(seen_global, "retired global peg durability is excluded")
 
 func test_onboard_effect_picks_are_physical_relics() -> void:
 	begin("onboard reward picks resolve to physical relic items")
@@ -281,7 +281,7 @@ func test_onboard_effect_picks_exclude_devastating_barrage_when_taken() -> void:
 	for p in picks:
 		if p is MajorUpgradeDefinition and (p as MajorUpgradeDefinition).upgrade_id == &"devastating_barrage":
 			found = true
-	assert_true(found, "physical relic remains eligible")
+	assert_false(found, "retired cannon relic is excluded")
 
 func test_onboard_effect_picks_exclude_compressed_charge_when_taken() -> void:
 	begin("get_onboard_effect_picks keeps physical charge relic after legacy flag")
@@ -293,7 +293,7 @@ func test_onboard_effect_picks_exclude_compressed_charge_when_taken() -> void:
 	for p in picks:
 		if p is MajorUpgradeDefinition and (p as MajorUpgradeDefinition).upgrade_id == &"compressed_charge":
 			found = true
-	assert_true(found, "physical relic remains eligible")
+	assert_false(found, "retired charge relic is excluded")
 
 func test_apply_major_upgrade_plain_horde_delegates() -> void:
 	begin("apply_major_upgrade plain_horde adds relic to junk box")
@@ -318,7 +318,7 @@ func test_major_upgrade_picks_exclude_plain_swarm_at_cap() -> void:
 	for p in picks:
 		if p is MajorUpgradeDefinition and (p as MajorUpgradeDefinition).upgrade_id == &"plain_horde":
 			found = true
-	assert_true(found, "physical relic remains eligible")
+	assert_false(found, "retired plain relic is excluded")
 
 func test_apply_major_upgrade_stack_cap_respected() -> void:
 	begin("apply_major_upgrade adds relic item to junk box")
@@ -410,7 +410,7 @@ func test_major_upgrade_picks_respect_stack_cap() -> void:
 	for p in picks:
 		if p is MajorUpgradeDefinition and p.upgrade_id == &"hyper_elastic":
 			found = true
-	assert_true(found, "physical relic remains eligible")
+	assert_false(found, "retired elastic relic is excluded")
 
 func test_boss_upgrade_picks_returns_requested_count() -> void:
 	begin("boss reward returns requested pick count when pool is large enough")

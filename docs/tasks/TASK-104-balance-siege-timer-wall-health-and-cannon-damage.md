@@ -35,3 +35,17 @@ Address audit point 5 within a comprehensive balance suite covering siege timer 
 - [ ] A repeatable balance suite and before/after results support the selected tuning.
 - [ ] Playtest evidence checks both challenge and waiting time; no unmeasured claim of a universal sweet spot.
 - [ ] Any implemented tuning completes required quality checks and the PR/review/merge/learning workflow.
+
+## Approved reward baseline for measurements
+
+TASK-106 implements the approved [temporary relic ball contract](../knowledge/temporary-relic-ball-plan.md). Treat its values as starting values, not proven balance.
+
+- Compare all 21 same-tier family pairs with matched seeds, permanent balls, and occupied area. Include a no-relic control.
+- Test sparse and dense peg layouts, slow and fast feeds, and high and low placements.
+- Record activation time, temporary survival, collected energy, cannon shots, blocked count, canceled count, and peak active or reserved population.
+- Test the ten-Rubbery and twelve-Plain Tier 3 rewards with other active relics. Check whether the 24-slot cap regularly prevents their advertised output.
+- Record the peg opportunities lost to each device footprint. A reliable small device can outperform a larger reward with a difficult route.
+- Keep the initial 720-tick life and six-tick spacing visible in the report. Compare changes to these values separately from reward type or quantity changes.
+- Keep normal city gates and prices from TASK-102. The new acquisition roster contains only the 42 deliberate relics; legacy physical items are retained only for existing inventory compatibility.
+
+Do not merge same-tier variants based only on equal energy totals. Require measured use cases and player feedback before changing retained geometry or migrating existing items.

@@ -38,6 +38,8 @@ static func get_ball_definition_counts(parent_node: Node, hopper: Node, bag_queu
 		for ball in balls_container.get_children():
 			if not is_instance_valid(ball):
 				continue
+			if _is_temporary_ball(ball):
+				continue
 			if ball.has_method("is_split_twin") and ball.is_split_twin():
 				continue
 			var def2: Resource = ball.get_definition() if ball.has_method("get_definition") else null
@@ -70,7 +72,7 @@ func get_all_ability_names() -> Array:
 
 ## Converts a ball instance to use a new ability definition.
 func convert_ball_ability(ball: Node, new_ability: StringName) -> void:
-	if not ball or not is_instance_valid(ball):
+	if not ball or not is_instance_valid(ball) or _is_temporary_ball(ball):
 		return
 	var bdef: Resource = get_ball_definition(new_ability)
 	if bdef and ball.has_method("set_ball_definition"):
@@ -95,6 +97,8 @@ static func get_ball_inventory(parent_node: Node) -> Dictionary:
 	for ball in balls_container.get_children():
 		if not is_instance_valid(ball):
 			continue
+		if _is_temporary_ball(ball):
+			continue
 		if ball.has_method("is_split_twin") and ball.is_split_twin():
 			continue
 		var ball_def: Resource = ball.get_definition() if ball.has_method("get_definition") else null
@@ -117,6 +121,8 @@ static func remove_one_ball_matching_definition(parent_node: Node, hopper: Node,
 			prune_ball_ability_record_after_remove(parent_node, hopper, bag_queue, key)
 			return true
 	var match_pred: Callable = func(ball: Node) -> bool:
+		if _is_temporary_ball(ball):
+			return false
 		var def: Resource = ball.get_definition() if ball.has_method("get_definition") else null
 		if not def is BallDefinition:
 			return false
@@ -145,6 +151,8 @@ static func remove_one_ball_for_ability(parent_node: Node, hopper: Node, bag_que
 			prune_ball_ability_record_after_remove(parent_node, hopper, bag_queue, lk + "|1")
 			return true
 	var match_pred: Callable = func(ball: Node) -> bool:
+		if _is_temporary_ball(ball):
+			return false
 		var def: Resource = ball.get_definition() if ball.has_method("get_definition") else null
 		if not def is BallDefinition:
 			return false
@@ -181,6 +189,9 @@ static func is_plain_ball_def(def: Resource) -> bool:
 		return bd.ability_name.is_empty() or bd.ability_name == "Plain"
 	return false
 
+static func _is_temporary_ball(ball: Node) -> bool:
+	return is_instance_valid(ball) and ball.has_method("is_temporary_relic_ball") and ball.is_temporary_relic_ball()
+
 ## Adds plain balls (hopper first, rest queued for bag).
 static func add_basic_balls(hopper: Node, bag_queue: Array, start_balls: int, max_balls: int) -> void:
 	if start_balls <= 0:
@@ -211,6 +222,8 @@ static func count_plain_balls_in_play(parent_node: Node, hopper: Node, bag_queue
 	if balls_container:
 		for ball in balls_container.get_children():
 			if not is_instance_valid(ball):
+				continue
+			if _is_temporary_ball(ball):
 				continue
 			if ball.has_method("is_split_twin") and ball.is_split_twin():
 				continue
@@ -243,6 +256,8 @@ static func apply_ball_upgrade_conversion(parent_node: Node, hopper: Node, bag_q
 		for ball in balls_container.get_children():
 			if not is_instance_valid(ball):
 				continue
+			if _is_temporary_ball(ball):
+				continue
 			if ball.has_method("is_split_twin") and ball.is_split_twin():
 				continue
 			if not ball.has_method("get_definition") or not ball.has_method("set_definition"):
@@ -265,6 +280,13 @@ static func apply_ball_upgrade_conversion(parent_node: Node, hopper: Node, bag_q
 ## Handles ball exiting board (return to hopper or queue into bag).
 static func on_ball_exited_board(c: Node, ball: Node, reason: int) -> void:
 	if not ball or not is_instance_valid(ball) or ball.is_queued_for_deletion():
+		return
+	if ball.has_method("is_temporary_relic_ball") and ball.is_temporary_relic_ball():
+		if c.has_method("discard_temporary_relic_ball"):
+			c.discard_temporary_relic_ball(ball)
+		elif ball.has_method("clear_temporary_relic_state"):
+			ball.clear_temporary_relic_state()
+			ball.queue_free()
 		return
 	if reason == 1:
 		return
@@ -298,6 +320,10 @@ static func on_ball_exited_board(c: Node, ball: Node, reason: int) -> void:
 ## Handles ball destroyed by black hole with delayed respawn timer.
 static func on_ball_exited_black_hole(c: Node, ball: Node) -> void:
 	if not ball or not is_instance_valid(ball) or ball.is_queued_for_deletion():
+		return
+	if _is_temporary_ball(ball):
+		ball.clear_temporary_relic_state()
+		ball.queue_free()
 		return
 	if ball.has_method("is_bloom_spawn") and ball.is_bloom_spawn():
 		ball.queue_free()
@@ -373,6 +399,9 @@ static func spawn_test_scenario_balls(c: Node) -> void:
 
 ## Clears bag queue and hopper and re-spawns initial starting balls.
 static func reset_starting_ball_pool(c: Node) -> void:
+	var board: Node = c.get_node_or_null("Board") if c else null
+	if board and board.has_method("discard_temporary_relic_state"):
+		board.discard_temporary_relic_state()
 	c._bag_queue.clear()
 	if c._hopper and c._hopper.has_method("clear_stored_balls"):
 		c._hopper.clear_stored_balls()

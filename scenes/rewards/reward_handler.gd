@@ -98,7 +98,7 @@ func _add_peg_shop_template(kind: String, rarity: int) -> void:
 
 func _build_relic_shop_candidates() -> void:
 	_relic_shop_candidates.clear()
-	for id in PolyominoRelicDatabase.get_all_relic_ids():
+	for id in PolyominoRelicDatabase.get_offerable_relic_ids():
 		var opt: MilestoneOption = MilestoneOption.new()
 		opt.option_type = MilestoneOption.Type.RELIC
 		opt.relic_id = id
@@ -353,6 +353,8 @@ func _normal_relic_pool(candidates: Array) -> Array:
 		var def: MajorUpgradeDefinition = candidate as MajorUpgradeDefinition
 		if def == null or not PolyominoRelicDatabase.has_relic_definition(def.upgrade_id):
 			continue
+		if not PolyominoRelicDatabase.is_relic_offerable(def.upgrade_id):
+			continue
 		if GameState.current_city_id < 2 and PolyominoRelicDatabase.get_relic_tier(def.upgrade_id) >= 3:
 			continue
 		out.append(def)
@@ -362,7 +364,7 @@ func _third_city_relic_candidates() -> Array:
 	var out: Array = []
 	if GameState.current_city_id < 2:
 		return out
-	for uid in PolyominoRelicDatabase.get_all_relic_ids():
+	for uid in PolyominoRelicDatabase.get_offerable_relic_ids():
 		if PolyominoRelicDatabase.get_relic_tier(uid) != 3:
 			continue
 		out.append(RewardCardCatalog.mk(PolyominoRelicDatabase.get_relic_display_name(uid), "", uid, MajorUpgradeDefinition.Category.BOARD_UPGRADE))

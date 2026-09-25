@@ -1,15 +1,15 @@
-# Temporary relic balls: implementation proposal
+# Temporary relic balls: approved implementation plan
 
-Task: TASK-100. Status: proposal for user discussion. No gameplay authorization.
+Design: TASK-100. Implementation: TASK-106. Status: approved by the user on 2026-09-23.
 Baseline: main 91e596a. Runtime inventory: 122 unique relic IDs, including 42 deliberate relics.
 TASK-101 removes passives independently. TASK-102 repairs acquisition independently.
 All values below are candidates for TASK-104, not final balance.
 
-## Proposed contract
+## Approved contract
 
 Use new temporary balls. Do not replace permanent balls or their abilities.
-An activation creates one special ball by default. Tier 2 creates two and Tier 3 creates three.
-The exceptions in the variant table override this count. All spawned balls use the same lifetime.
+An activation grants an explicit reward selected for the relic tier. Scale ball rarity or quantity, not an invisible energy bonus.
+Each relic states its exact ball type and count. The reward budgets below replace the former one/two/three-ball tier rule. All spawned balls use the same lifetime.
 Each special ball lasts one board visit, with a maximum of 720 simulation ticks (12 seconds).
 Its age advances while captured. Pause stops age; slow motion uses the same simulation clock.
 At the bottom, collect its earned energy once, then delete it. It never returns to the hopper.
@@ -34,26 +34,52 @@ Temporary balls may operate machinery, but their contacts do not advance reward 
 They can complete a physical route, open a gate, or turn a spinner without producing more reward balls.
 For shared counters, only permanent-ball contacts count. Spinner reward charge uses a separate speed accumulator fed only by permanent-ball impulses. Temporary contacts can turn the visible rotor but cannot raise this reward accumulator.
 All children of temporary balls inherit temporary status, expiration, and the population budget.
-The proposed types below do not split. Future splitting requires a separate bounded design change.
+Split balls may split once into two fragments using the existing Split trigger. Both fragments inherit the original expiration and cannot split again. Divide the existing energy between them without duplication; preserve any integer remainder on one fragment. Splitting needs one extra population slot. If no slot is free, consume the split trigger and keep the original ball and its energy. Splitter pegs must also honor this one-split limit for temporary balls.
 A ball has only one capture owner. Retention and transfer use the existing relic_ball_flow contract.
 
-## Small ball vocabulary
+## Ball reward roster
 
-| Type | Proposed behavior | Routing decision | Visible cue |
-| --- | --- | --- | --- |
-| Bounce | Higher restitution for its first four physical impacts, then ordinary motion | Stay in a dense chamber or cross to an adjacent device | Ring outline with four marks |
-| Charge | Adds one Energize stack to each of its first three distinct ordinary peg contacts | Prepare a lane for later permanent balls | Lightning outline with three marks |
-| Blast | On first ordinary peg contact, hit pegs in a two-cell radius once, then become ordinary | Aim at dense pegs; do not fire inside the source | Star outline; remove star after burst |
-| Drive | At its first free flight after emission, use a fixed launch speed for that direction | Reach a distant inlet; collision then uses normal physics | Arrow outline |
-| Volley | Ordinary-energy ball, emitted as a timed pair instead of a single ball | Feed a spinner or fill a reservoir with a short pulse | Paired dots |
+Use the existing ball names and their ordinary abilities. Remove the earlier custom impact counts, one-shot explosive behavior, and three-target chain variant. Temporary lifetime, collection, and population rules still apply.
 
-All five types use baseline ball energy and ordinary peg energy. No global cannon multiplier applies.
-Charge honors existing peg exclusions and stack limits. Blast uses Board hit resolution and cooldowns.
-Blast does not synthesize machinery contacts or reward completions. Drive does not override capture motion.
-Volley uses two slots per count shown in the table. If fewer slots remain, emit only the available number.
-No old direct surge, global knock, supercharge, or compound blast reward accompanies these balls.
-Normal component hit energy and ordinary ball abilities remain unchanged.
-Energy belongs to the reward ball. Only bottom collection routes it to the cannon through Board.
+| Type | Effect | Placement choice |
+| --- | --- | --- |
+| Plain | Ordinary ball energy and peg hits; no special ability | Release exactly the relic's offered number of balls into nearby machinery |
+| Rubbery | Existing higher bounce throughout its board visit | Keep balls moving through chambers and nearby devices |
+| Energize | Add temporary peg durability on eligible peg hits, using the existing stack limit | Support peg lanes that receive repeated traffic |
+| Explosive | Trigger the existing nearby-peg explosion on peg contact | Route through dense peg clusters |
+| Chain Lightning | Hit two additional nearby pegs on peg contact, using the existing targeting and cooldown rules | Reach pegs beyond the direct contact |
+| Split | Split into two on the first peg hit, sharing stored energy | Spread fragments across adjacent lanes |
+| Binary | Split another ball on ball-to-ball contact, using the existing collision rules | Place near routes where multiple balls meet |
+
+Use the existing visuals for each type, with a shared temporary-lifetime outline and an exact reward-count badge.
+All seven types use baseline ball energy and ordinary peg energy. No global cannon multiplier applies.
+Energize honors existing peg exclusions and stack limits. Explosive and Chain Lightning use Board hit resolution and cooldowns. Their extra peg hits do not synthesize machinery contacts, secondary ability activations, or reward completions.
+Plain replaces the earlier Volley label. It uses one population slot per offered ball. An offer of three releases three balls, not six. If fewer slots remain, emit only the available number. Emission spacing does not multiply the count.
+Remove energy surge as a relic reward across all retained relics. Do not add energy to a triggering ball, its stored total, or the cannon as an activation bonus. Do not replace it with an invisible energy multiplier. Existing surge descriptions in the runtime appendix are historical behavior to replace. Ordinary peg-hit energy, ball abilities, and bottom collection remain. No old direct surge, global knock, supercharge, or compound blast reward accompanies these balls.
+Normal component hit energy and permanent ball abilities remain unchanged.
+Energy belongs to each temporary ball. Only bottom collection routes it to the cannon through Board.
+
+Binary ownership rule: preserve the contacted ball and divide its existing energy with one new fragment. A new fragment caused by a temporary Binary ball is also temporary, even when the contacted ball is permanent. Its expiration cannot exceed the Binary source's remaining lifetime or a temporary target's remaining lifetime. The permanent original stays permanent. Reserve one slot before dividing energy; if no slot is available, make no split and transfer no energy. Use the existing pair cooldown and fragment exclusions. This rule prevents permanent inventory growth.
+
+## Reward budgets by relic tier
+
+A rarer relic can offer a rarer ball or more lower-rarity balls. The following counts are proposed starting values, not equal-value claims. Reward frequency, geometry, reliability, remaining lifetime, and occupied space must also be measured.
+
+Relic tiers and ball rarity labels are separate systems. Plain is a common ball. Rubbery, Energize, and Split are uncommon balls in the existing catalog. Explosive, Chain Lightning, and Binary are legendary balls there. Do not relabel the existing ball catalog to force a one-to-one match with the three relic tiers.
+
+| Relic tier | Lower-rarity quantity options | Higher-rarity options |
+| --- | --- | --- |
+| Tier 1 / common relic | 3 Plain; or 1 Rubbery, Energize, or Split | No Explosive, Chain Lightning, or Binary |
+| Tier 2 | 6 Plain; 4 Rubbery; 3 Energize; or 2 Split | 1 Explosive or 1 Chain Lightning; no Binary |
+| Tier 3 | 12 Plain; 10 Rubbery; 6 Energize; or 4 Split | 3 Explosive, 3 Chain Lightning, or 1 Binary |
+
+Binary is restricted to Tier 3 in this proposal because it creates additional balls through collisions. Tier 1 may offer one existing uncommon ball, but cannot offer any of the three legendary ball types. Tier 2 introduces Explosive and Chain Lightning in small counts. Tier 3 can specialize in quality or quantity. The ten-Rubbery reward is an explicit quantity option.
+
+These are authored rewards, not a new random choice on every activation. The player sees the type and exact count before choosing or placing a relic. Mixed rewards would need a separate budget; do not add the full quantities from multiple columns together.
+
+Other rewards must produce a visible board effect and state its area, duration, or count. A gate opening, a physical ball release, or a visible peg repair could be considered later, with tier-scaled limits. These are options for discussion, not additional approved rewards. No such effect may hide an energy-surge bonus.
+
+High-count rewards must fit the population and emission rules. Test ten-Rubbery and twelve-Plain rewards alongside other active relics. Show the actual emitted count and any canceled remainder if the shared limit blocks part of a reward. Do not convert blocked balls into surge energy. Revisit the proposed 24-ball limit if it routinely prevents advertised quantity rewards.
 
 ## Family roles and same-tier choices
 
@@ -64,31 +90,31 @@ Reservoirs have upper entry and gated outlet. Spinners have a funnel and lower o
 Wedges and bash toys have exposed impact faces and open bypass space.
 Tracks use the runtime ordered path and rotated arrowed ports.
 The inventory appendix gives exact runtime cells, triggers, and tiers for each ID.
-For all rows, life is one visit / 720 ticks. Counts follow the tier rule unless stated.
+For all rows, life is one visit / 720 ticks. The following exact counts use the proposed tier budgets above.
 
 | Family / tier | First variant | Second variant | Choice and cost |
 | --- | --- | --- | --- |
-| Chamber 1 | bumper_vessel_twin: Bounce | bumper_vessel_stagger: Charge | Same 2x3 frame; four versus five hits. Recirculate a ball or prepare a downstream peg lane. |
-| Chamber 2 | pachinko_bumper_vessel: Bounce | bumper_vessel_pinball: Drive | Same 3x3 frame and eight hits. Local residence or a longer outlet shot. |
-| Chamber 3 | mega_pop_bumper: Drive | cyclone_bounce_vault: Bounce | Compact 2x2 impact core versus 4x3 chamber. Save space or collect broad traffic. |
-| Bank 1 | word_bank_gob: Charge | word_bank_pop: Volley, one pair | Identical 3x2 lanes and three switches. Prepare pegs or produce a short traffic pulse. |
-| Bank 2 | word_bank_win: Drive | word_bank_bam: Blast | Identical 3x2 lanes. Feed a remote device or target nearby peg clusters. |
-| Bank 3 | word_bank_boom: Blast | word_bank_loot: Volley, two pairs | Identical 4x3 lanes. Burst against pegs or fill downstream retention. |
-| Reservoir 1 | wire_gate_cup: Charge | wire_gate_funnel: Volley, one pair | Same 2x2 cup; needs two versus three balls. Earlier preparation or denser release. |
-| Reservoir 2 | wire_gate_reservoir: Volley, two pairs | abyssal_maw: Drive | 3x2 four-ball cup versus compact 2x2 three-ball trap. Timed burst or focused exit. |
-| Reservoir 3 | wire_gate_armory: Blast | fragment_swarm: Volley, three pairs | Same 3x3 frame; five versus three retained balls. Dense peg burst or downstream traffic. |
-| Wedge 1 | detonation_triangle_wedge: Drive | detonation_triangle_acute: Blast | Mirrored three-cell faces; two versus three contacts. Remote feed or local burst. |
-| Wedge 2 | detonation_triangle_twin: Blast | corner_slingshot: Drive | Six-cell pincers versus three-cell corner. Catch wider traffic or fit a tight turn. |
-| Wedge 3 | detonation_triangle_bastion: Blast | detonation_triangle_apex: Bounce | Nine-cell faces, five hits. Clear a peg cluster or sustain local bouncing. |
-| Bash 1 | bash_toy_idol: Blast | bash_toy_anvil: Drive | Four versus six cells, four hits. Cluster attack or launch toward another inlet. |
-| Bash 2 | bash_toy_bell: Charge | golem_effigy: Blast | Seven versus four cells; six versus five hits. Prepare survivors or immediate area hits. |
-| Bash 3 | blood_tithe: Blast | gilded_covenant: Volley, two pairs | Ten versus eleven cells; eight hits. Burst on pegs or a traffic pulse. |
-| Spinner 1 | funneled_spinner_chute: Drive | funneled_spinner_v: Charge | Same 3x2 runtime funnel, one spinner, speed goal and cooldown. Remote inlet or peg preparation. |
-| Spinner 2 | funneled_spinner: Drive | funneled_spinner_dual: Volley, two pairs | Same 3x3 runtime geometry; dual name does not imply two blades. Rename second to Pulse Spinner. |
-| Spinner 3 | resonant_well: Charge | funneled_spinner_vortex: Bounce | Same 4x3 funnel and speed goal. Feed a charged lane or a nearby bounce chamber. |
-| Track 1 | track_stairs_step: Charge | track_right_angle: Drive | Four-cell paths with different bends. Prepare a lower lane or extend the exit reach. |
-| Track 2 | track_u_turn: Bounce | track_zigzag_chute: Charge | Five-cell return versus descending route. Return traffic upward or prepare lower pegs. |
-| Track 3 | track_grand_orbit: Drive | track_cascade_switchback: Volley, two pairs | Ten-cell outer circuit versus eight-cell stepped route. Long shot or timed downstream pulse. |
+| Chamber 1 | bumper_vessel_twin: 1 Rubbery | bumper_vessel_stagger: 1 Energize | Same 2x3 frame; four versus five hits. Recirculate a ball or prepare a downstream peg lane. |
+| Chamber 2 | pachinko_bumper_vessel: 4 Rubbery | bumper_vessel_pinball: 2 Split | Same 3x3 frame and eight hits. Keep traffic nearby or spread fragments across lanes. |
+| Chamber 3 | mega_pop_bumper: 3 Chain Lightning | cyclone_bounce_vault: 10 Rubbery | Compact 2x2 impact core versus 4x3 chamber. Reach separated pegs or sustain broad traffic. |
+| Bank 1 | word_bank_gob: 1 Energize | word_bank_pop: 3 Plain | Identical 3x2 lanes and three switches. Prepare pegs or produce a short traffic pulse. |
+| Bank 2 | word_bank_win: 1 Chain Lightning | word_bank_bam: 1 Explosive | Identical 3x2 lanes. Hit nearby extra pegs with lightning or a compact cluster with an explosion. |
+| Bank 3 | word_bank_boom: 3 Explosive | word_bank_loot: 12 Plain | Identical 4x3 lanes. Burst against pegs or fill downstream retention. |
+| Reservoir 1 | wire_gate_cup: 1 Energize | wire_gate_funnel: 3 Plain | Same 2x2 cup; needs two versus three balls. Earlier preparation or denser release. |
+| Reservoir 2 | wire_gate_reservoir: 6 Plain | abyssal_maw: 2 Split | 3x2 four-ball cup versus compact 2x2 three-ball trap. Release six ordinary balls or two balls that split on peg contact. |
+| Reservoir 3 | wire_gate_armory: 3 Explosive | fragment_swarm: 4 Split | Same 3x3 frame; five versus three retained balls. Dense peg burst or fragments spread downstream. |
+| Wedge 1 | detonation_triangle_wedge: 1 Split | detonation_triangle_acute: 1 Rubbery | Mirrored three-cell faces; two versus three contacts. Spread fragments or sustain nearby bouncing. |
+| Wedge 2 | detonation_triangle_twin: 1 Explosive | corner_slingshot: 3 Energize | Six-cell pincers versus three-cell corner. Immediate area hits or peg durability in a compact layout. |
+| Wedge 3 | detonation_triangle_bastion: 3 Explosive | detonation_triangle_apex: 10 Rubbery | Nine-cell faces, five hits. Clear a peg cluster or sustain local bouncing. |
+| Bash 1 | bash_toy_idol: 1 Rubbery | bash_toy_anvil: 1 Split | Four versus six cells, four hits. Sustain nearby bouncing or spread fragments across lanes. |
+| Bash 2 | bash_toy_bell: 3 Energize | golem_effigy: 1 Explosive | Seven versus four cells; six versus five hits. Prepare survivors or immediate area hits. |
+| Bash 3 | blood_tithe: 1 Binary | gilded_covenant: 12 Plain | Ten versus eleven cells; eight hits. Split contacted balls or release the offered number of ordinary balls. |
+| Spinner 1 | funneled_spinner_chute: 1 Split | funneled_spinner_v: 1 Energize | Same 3x2 runtime funnel, one spinner, speed goal and cooldown. Split into fragments or prepare peg durability. |
+| Spinner 2 | funneled_spinner: 2 Split | funneled_spinner_dual: 6 Plain | Same 3x3 runtime geometry; dual name does not imply two blades or double the reward count. Fragments after contact or the stated ordinary-ball count. Rename second to Pulse Spinner. |
+| Spinner 3 | resonant_well: 3 Chain Lightning | funneled_spinner_vortex: 10 Rubbery | Same 4x3 funnel and speed goal. Reach a spread of downstream pegs or sustain a nearby bounce chamber. |
+| Track 1 | track_stairs_step: 1 Energize | track_right_angle: 1 Split | Four-cell paths with different bends. Prepare a lower lane or split into fragments on peg contact. |
+| Track 2 | track_u_turn: 4 Rubbery | track_zigzag_chute: 3 Energize | Five-cell return versus descending route. Return traffic upward or prepare lower pegs. |
+| Track 3 | track_grand_orbit: 4 Split | track_cascade_switchback: 12 Plain | Ten-cell outer circuit versus eight-cell stepped route. Spread fragments after contact or release the stated ordinary-ball count. |
 
 If matched tests find no useful choice for a pair, merge the second ID into the first at inventory load.
 Preserve item instance ID and position; require manual placement if the replacement footprint does not fit.
@@ -97,38 +123,38 @@ The table proposes distinct jobs; it does not claim that all pairs have passed p
 
 ## Chains and competing layouts
 
-1. Early G-O-B above an ordinary peg lane: Charge prepares three pegs for following permanent balls.
-   P-O-P in the same space instead sends a pair into a nearby spinner. It sacrifices preparation for traffic.
-2. A full reservoir releases its permanent contents, then emits a Volley into a spinner.
+1. Early G-O-B above an ordinary peg lane: Energize adds durability to contacted pegs for following balls.
+   P-O-P in the same space instead sends its stated ball count into a nearby spinner. It sacrifices preparation for traffic.
+2. A full reservoir releases its permanent contents, then emits its stated Plain-ball count into a spinner.
    Temporary contacts turn the spinner but cannot award a second reward. Permanent contents can still award it once.
-3. A Drive track points at a remote reservoir inlet. A Bounce track points back into a chamber.
-   The first uses a short flight; the second risks expiration during recirculation.
-4. A Blast wedge sits above a dense peg cluster. A Drive wedge instead feeds a Charge bank above the same cluster. That layout preserves the cluster for later hits but needs more space.
+3. A Split track releases balls above branching peg lanes. A Rubbery track points back into a chamber.
+   The first spreads fragments after contact; the second keeps traffic nearby but risks expiration during recirculation.
+4. An Explosive wedge sits above a dense peg cluster. A Split wedge uses its fragments to cover separate lanes. An Energize corner adds durability to contacted pegs.
    Compare cannon output and retained peg value, not just the first burst.
-5. A Charge spinner above a chamber supports sustained output. A Volley spinner above a trap supports a timed release.
+5. A Split spinner above branching lanes spreads fragments after contact. A Plain spinner above a trap supports a timed release.
    Captured temporary balls still expire. A full trap must never keep a stale ownership reference.
 
 ## Known reward defects: explicit disposition
 
 | Current defect | Proposed disposition | Required outcome test |
 | --- | --- | --- |
-| B-O-O-M advertises knock but dispatches surge only | Replace both promises with Blast balls | Ball contacts produce the documented local peg hits, exactly once |
-| Armory advertises energy absent from knock dispatch | Replace compound reward with Blast balls | Correct count, outlet direction, peg results, bottom energy |
-| Grand Switchback advertises energy absent from multiball dispatch | Replace with two Volley pairs | Four temporary balls, one collection each, no hopper growth |
-| Bastion promises an unclear board blast | Replace with explicit Blast behavior | No immediate board-wide hit; one local burst per emitted ball |
+| B-O-O-M advertises knock but dispatches surge only | Replace both promises with Explosive balls | Each valid contact produces the documented peg hits under ordinary cooldown rules |
+| Armory advertises energy absent from knock dispatch | Replace compound reward with Explosive balls | Correct count, outlet direction, peg results, bottom energy |
+| Grand Switchback advertises energy absent from multiball dispatch | Replace with Plain at its stated reward count | Exactly the offered number of temporary balls, one collection each, no hopper growth |
+| Bastion promises an unclear board blast | Replace with explicit Explosive behavior | No immediate board-wide hit; ordinary local explosions follow eligible peg contacts |
 | Global Knock calls nonexistent GameState.add_energy | Remove old dispatch after all callers migrate | No remaining call; Board routes actual collected energy to cannon |
 
 ## Implementation sequence after design approval
 
-1. Freeze the 42-entry production roster and legacy decisions. Review this proposal with the user.
+1. Freeze the approved 42-entry production roster and legacy decisions.
 2. Add a typed special-ball reward definition beside polyomino_module_data.gd.
-   Store ball type, count, emission spacing, life ticks, and source identity. Version serialization.
+   Store ball type, exact count, minimum relic tier, emission spacing, life ticks, and source identity. Version serialization. Validate tier eligibility before an offer is shown.
 3. Add a Board-owned temporary-ball controller with spawn reservations, activation keys, expiry, and cleanup.
    Integrate scenes/balls/ball.gd, scenes/main/game_ball_manager.gd, and the bottom collection path.
    Keep each new source file under 500 lines. Use the existing local Ollama authoring workflow.
 4. Replace polyomino_goal_reward_handler.gd dispatch. Carry the real rotated outlet and completing ball.
-   Integrate relic_ball_flow.gd ownership and module removal. Preserve physical paths and component rewards.
-5. Add the five effects through Board hit resolution. Separate physical machinery motion from reward-goal credit.
+   Integrate relic_ball_flow.gd ownership and module removal. Preserve physical paths and ordinary contact energy. Replace every activation-time energy surge with its authored tier reward.
+5. Add the seven effects through Board hit resolution. Separate physical machinery motion from reward-goal credit.
    Use deterministic event order and fixed simulation ticks. Never use global random emission directions.
 6. Apply the mapping in deliberate_relic_catalog.gd. Remove obsolete direct-reward branches only after all IDs migrate.
    Reconcile reward_card_catalog.gd and acquisition with TASK-101 and TASK-102 without restoring passives.
@@ -139,7 +165,7 @@ The table proposes distinct jobs; it does not claim that all pairs have passed p
 ## UI wording
 
 Example Trigger: Light each G-O-B lane once.
-Example Effect: Release 1 Charge ball. It charges the next 3 different pegs. Lasts one fall, up to 12 seconds.
+Example Effect: Release 1 Energize ball. It adds durability to eligible pegs it hits. Lasts one fall, up to 12 seconds.
 Show remaining life as a shrinking outline. Use shape as well as color to distinguish types.
 Show blocked or population-limited emission on the source device with a short neutral indicator.
 Preview the physical device and its outlet. Do not show an energy promise that ignores route or expiration.
@@ -152,27 +178,37 @@ Cover pause, slow motion, wall/city transition, reset, occupied removal, and sav
 Inject legacy passive IDs and verify they grant no effect. Keep ordinary abilities and peg mechanics covered.
 Run real physics with all four rotations and fast entry for each representative chain above.
 Assert one owner, restored gravity, no permanent-ball loss, and no reward recursion.
-Test the full production roster against the mapping, acquisition tier, nonempty text, and output type.
+Test the full production roster against the mapping, acquisition tier, nonempty text, and output type. Reject forbidden ball/relic tier combinations, including Binary on Tier 1 or 2. Verify there is no activation-time energy injection and no energy payment for blocked emissions. Test the explicit ten-Rubbery Tier 3 reward and its exact count when capacity permits.
+Test exact Plain counts with no pair multiplier. Test Split energy conservation, inherited expiration, no repeated splitting, and a full population limit. Test Binary collisions with permanent and temporary targets, pair cooldowns, fragment exclusions, energy conservation, lifetime inheritance, and a full population limit.
+For Chain Lightning, test the existing two-target selection and cooldowns, including repeated contacts and too few eligible targets. For Rubbery, Energize, and Explosive, compare temporary behavior with ordinary balls of the same type. All extra effects must leave reward-goal credit unchanged.
 
 TASK-104 should compare matched seeds and identical permanent balls for each same-tier pair.
 Record time to activation, temporary survival, bottom energy, cannon shots, lost peg opportunities,
 blocked emissions, cap pressure, city completion, and purchase timing. Include a no-relic control.
 Vary sparse/dense pegs, slow/fast feeds, and high/low device placements.
-Proposed tuning inputs: 720-tick life, 24 slots, six-tick spacing, counts above, equal same-tier prices.
+Proposed tuning inputs: 720-tick life, 24 slots, six-tick spacing, tier-specific quality and quantity budgets above, equal same-tier prices.
 Do not declare the variants balanced from equal energy totals. Physical reliability and occupied space matter.
 
-## Decisions for discussion
+## User direction — Existing types and future classes
 
-- Are new disposable balls preferable to temporary changes on the triggering permanent ball?
-- Should temporary balls contribute to reward goals? This proposal says no to prevent reproduction loops.
-- Is a one-fall lifetime with a time cap readable enough? Should timeout collect energy instead?
-- Are five ball types enough? Begin with these before adding unique types for every relic.
-- Retire legacy IDs from new offers, or preserve more as distinct physical devices?
+The current relic reward roster is Plain, Rubbery, Energize, Explosive, Chain Lightning, Split, and Binary. Use their existing names and abilities. Drive is removed. Volley is an amount of Plain balls, not a separate ball type or a count multiplier.
 
-The appendix proposes retiring all non-deliberate IDs from new offers in the later redesign.
+Retain Leech, Phantom, Constellation, Bloom, and Volatile for future classes. Do not assign them to this relic reward roster. Leech applies the Drain effect; these are not two separate ball types. Buffing gas belongs to the deferred Volatile discussion. This is a design allocation, not a request to delete those existing ball implementations or change their current availability.
+
+Energy surge is removed from relic rewards. Reward quality and quantity scale with relic tier; high-tier relics may offer many lower-rarity balls. The user approved the revised counts, assignments, and Binary lifetime rules for implementation. Other physical reward effects remain deferred until separately specified.
+
+## Approved decisions
+
+- Spawn new temporary balls. Keep permanent balls and their abilities.
+- Temporary balls operate devices but do not advance reward goals.
+- Lifetime is one fall, with a 720-tick cap. Timeout grants no energy.
+- Start with the seven listed types. Keep other types for future classes.
+- Offer only the 42 deliberate relic IDs. Preserve existing legacy physical items and their geometry. Remove their obsolete activation rewards and label them as retired.
+
+The appendix records the decision to retire all non-deliberate IDs from new offers.
 Existing legacy items remain physical devices until converted by an explicit migration.
 TASK-101 may preserve those physical items and active rewards while removing their passive effects.
-This plan does not authorize retiring them now. TASK-103 and TASK-105 remain pending user review.
+The user's execution approval authorizes this roster change under TASK-106. TASK-103 and TASK-105 supply the design comparisons. TASK-104 retains final balance work.
 
 ## Runtime inventory appendix
 
@@ -308,4 +344,3 @@ Tier is the data tier, not proof of current normal reachability. TASK-102 audits
 
 
 Spinner regression: one permanent contact followed by temporary contacts may rotate the rotor, but must not complete reward charge. A later sufficient permanent-only contribution may complete it once.
-

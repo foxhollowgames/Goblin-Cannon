@@ -12,6 +12,7 @@ const VERTICAL_VELOCITY_THRESHOLD: float = 15.0  ## px/s; below this horizontal 
 const ANTI_VERTICAL_NUDGE: float = 35.0  ## px/s; small horizontal nudge to break perfect vertical bounces
 const SPLIT_SPIN_DURATION_SEC: float = 0.35  ## When Split happens, both balls spin rapidly for a moment
 const SPLIT_SPIN_RATE: float = TAU * 18.0  ## radians per second during split spin
+const TEMPORARY_RELIC_LIFE_TICKS: int = 720
 
 var _ball_id: int = 0
 var _total_energy_display: int = 3
@@ -35,6 +36,12 @@ var _phantom_trail_particles: CPUParticles2D
 ## Soft dot for phantom trail wisps (avoids default square quads reading as a stretched sprite).
 static var _phantom_trail_particle_tex: ImageTexture
 var _in_hopper_bin: bool = false
+var _temporary_relic_expiration_tick: int = -1
+var _temporary_relic_source: StringName = &""
+var _temporary_relic_collected: bool = false
+var _temporary_relic_started_tick: int = -1
+var _temporary_relic_current_tick: int = -1
+var _temporary_relic_life_ticks: int = TEMPORARY_RELIC_LIFE_TICKS
 ## Reagent gas (Volatile clouds): stack counts from distinct clouds entered this visit; cleared when scoring at bottom.
 var _gas_damage_cloud_stacks: int = 0
 var _gas_energy_cloud_stacks: int = 0
@@ -59,7 +66,7 @@ func _ready() -> void:
 	_rubbery_material = PhysicsMaterial.new()
 	_rubbery_material.bounce = Constants.RUBBERY_RESTITUTION
 	_rubbery_material.friction = Constants.TANGENTIAL_FRICTION
-	physics_material_override = _board_material
+	physics_material_override = _rubbery_material if _is_rubbery else _board_material
 
 func _physics_process(delta: float) -> void:
 	if _is_phantom and _phantom_trail_particles:
@@ -118,6 +125,18 @@ func _draw() -> void:
 	if _is_split_twin:
 		shape_override = BallVisuals.ShapeType.HALF_CIRCLE
 	BallVisuals.draw_ball(self, Vector2.ZERO, Constants.BALL_RADIUS, alignment, shape_override, ability_name)
+	_draw_temporary_relic_life()
+
+func _draw_temporary_relic_life() -> void:
+	if not is_temporary_relic_ball():
+		return
+	var remaining: int = maxi(0, _temporary_relic_expiration_tick - _temporary_relic_current_tick)
+	var ratio: float = clampf(float(remaining) / float(maxi(1, _temporary_relic_life_ticks)), 0.0, 1.0)
+	if ratio <= 0.0:
+		return
+	var start: float = -PI * 0.5
+	draw_arc(Vector2.ZERO, Constants.BALL_RADIUS + 3.0, start, start + TAU * ratio,
+		24, Color(1.0, 0.82, 0.22, 0.95), 2.0, true)
 
 ## Called once per sim tick by Board. Ball does NOT move here – physics engine does.
 ## Returns one peg we're colliding with (for Board hit/energy).
@@ -198,7 +217,68 @@ func set_definition(def: Resource) -> void:
 		modulate = Color(1.0, 1.0, 1.0, 0.7)
 	else:
 		collision_mask = 3
+	if _board_material != null:
+		physics_material_override = _rubbery_material if _is_rubbery else _board_material
 	queue_redraw()
+
+## Marks this ball as a one-visit relic reward with an absolute simulation expiry.
+func mark_temporary_relic_ball(expiration_tick: int, source_id: StringName, started_tick: int = -1, life_ticks: int = TEMPORARY_RELIC_LIFE_TICKS) -> void:
+	_temporary_relic_expiration_tick = expiration_tick
+	_temporary_relic_source = source_id
+	_temporary_relic_collected = false
+	_temporary_relic_life_ticks = maxi(1, life_ticks)
+	_temporary_relic_started_tick = started_tick if started_tick >= 0 else expiration_tick - _temporary_relic_life_ticks
+	_temporary_relic_current_tick = _temporary_relic_started_tick
+	set_meta("temporary_relic_ball", true)
+	set_meta("temporary_relic_source", source_id)
+	queue_redraw()
+
+## Returns true for balls that must never enter the hopper or permanent inventory.
+func is_temporary_relic_ball() -> bool:
+	return _temporary_relic_expiration_tick >= 0
+
+## Returns the absolute simulation tick at which this temporary ball expires.
+func get_temporary_relic_expiration_tick() -> int:
+	return _temporary_relic_expiration_tick
+
+## Returns the authored relic that emitted this temporary ball.
+func get_temporary_relic_source() -> StringName:
+	return _temporary_relic_source
+
+func get_temporary_relic_started_tick() -> int:
+	return _temporary_relic_started_tick
+
+func get_temporary_relic_life_ticks() -> int:
+	return _temporary_relic_life_ticks
+
+func update_temporary_relic_age(sim_tick: int) -> void:
+	if not is_temporary_relic_ball() or sim_tick == _temporary_relic_current_tick:
+		return
+	_temporary_relic_current_tick = sim_tick
+	queue_redraw()
+
+## Marks bottom payout as consumed and clears temporary ownership metadata.
+func mark_temporary_relic_collected() -> bool:
+	if not is_temporary_relic_ball() or _temporary_relic_collected:
+		return false
+	_temporary_relic_collected = true
+	_temporary_relic_expiration_tick = -1
+	_temporary_relic_source = &""
+	_temporary_relic_started_tick = -1
+	_temporary_relic_current_tick = -1
+	remove_meta("temporary_relic_ball")
+	remove_meta("temporary_relic_source")
+	return true
+
+## Clears temporary state before a wall or city transition.
+func clear_temporary_relic_state() -> void:
+	_temporary_relic_expiration_tick = -1
+	_temporary_relic_source = &""
+	_temporary_relic_started_tick = -1
+	_temporary_relic_current_tick = -1
+	_temporary_relic_collected = true
+	remove_meta("temporary_relic_ball")
+	remove_meta("temporary_relic_source")
 
 func has_split_triggered() -> bool:
 	return _split_triggered

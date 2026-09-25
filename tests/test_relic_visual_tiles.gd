@@ -43,7 +43,7 @@ func test_relic_shop_description_format() -> void:
 	assert_false(desc.is_empty(), "Shop description is not empty")
 	assert_true(desc.contains("3 Rollover Switches"), "Contains kinetic device description")
 	assert_true(desc.contains("Spell G-O-B"), "Contains trigger condition")
-	assert_true(desc.contains("+40 Energy Surge"), "Contains reward effect")
+	assert_true(desc.contains("Release 1 Energize ball"), "Contains temporary ball reward effect")
 	assert_true(desc.contains("→"), "Contains arrow connector")
 
 func test_all_deliberate_relics_preview_and_description() -> void:

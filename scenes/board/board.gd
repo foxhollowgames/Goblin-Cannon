@@ -15,10 +15,13 @@ signal module_solidified(item: Resource)
 signal peg_solidified(peg: Node)
 signal ghost_state_changed(component: Variant, is_ghost: bool)
 signal relic_goal_achieved(module_node: Node, goal_type: int, reward_type: int, triggering_ball: Node, reward_data: Dictionary)
+signal temporary_relic_reward_status(source_id: StringName, offered_count: int, emitted_count: int, canceled_count: int, blocked: bool)
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
 const PolyominoModuleNode = preload("res://scenes/board/machinery/polyomino_module_node.gd")
 const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_relic_database.gd")
 const PolyominoGoalRewardHandler = preload("res://scenes/board/machinery/polyomino_goal_reward_handler.gd")
+const RelicBallReward = preload("res://resources/polyomino/relic_ball_reward.gd")
+const TemporaryRelicBallController = preload("res://scenes/board/temporary_relic_ball_controller.gd")
 const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 const BoardMachineryShowcase = preload("res://scenes/board/machinery/board_machinery_showcase.gd")
 const BOARD_GRID_COLS: int = 15
@@ -127,6 +130,8 @@ var _binary_ball_pair_last_split_tick: Dictionary = {}
 var _constellation_laser_peg_last_tick: Dictionary = {}
 ## When true, next frame must redraw to erase beams after the last pair of Constellation balls is gone.
 var _had_constellation_laser_visual: bool = false
+var _temporary_reward_controller: TemporaryRelicBallController = null
+var _temporary_relic_balls: Array[Node] = []
 
 func _ready() -> void:
 	_hit_cooldown = HitCooldown.new()
@@ -144,6 +149,9 @@ func _ready() -> void:
 	_coin_burst_scene = load("res://scenes/board/coin_burst_vfx.tscn") as PackedScene
 	_chain_lightning_arc_scene = load("res://scenes/board/chain_lightning_arc_effect.tscn") as PackedScene
 	_ball_scene = load("res://scenes/balls/ball.tscn") as PackedScene
+	_temporary_reward_controller = TemporaryRelicBallController.new()
+	_temporary_reward_controller.setup(self)
+	_temporary_reward_controller.reward_status.connect(_on_temporary_reward_status)
 	_goblin_grab_scene = load("res://scenes/board/goblin_grab_effect.gd") as GDScript
 	_buffet_break_script = load("res://scenes/board/buffet_table_break_effect.gd") as GDScript
 	_warm_energy_popup_pool()
@@ -165,6 +173,34 @@ func _process(_delta: float) -> void:
 
 func get_active_ball_count() -> int:
 	return _active_balls.size()
+
+func _on_temporary_reward_status(source_id: StringName, offered_count: int, emitted_count: int, canceled_count: int, blocked: bool) -> void:
+	temporary_relic_reward_status.emit(source_id, offered_count, emitted_count, canceled_count, blocked)
+
+## Queues one authored temporary reward and consumes its activation key before emission.
+func queue_temporary_relic_reward(module_node: Node, reward: RelicBallReward, triggering_ball: Node, activation_sequence: int = -1) -> bool:
+	return _temporary_reward_controller != null and _temporary_reward_controller.queue_reward(module_node, reward, triggering_ball, _board_sim_tick, activation_sequence)
+
+## Removes every temporary reward ball and pending emission during wall or city transitions.
+func discard_temporary_relic_state() -> void:
+	if _temporary_reward_controller != null:
+		_temporary_reward_controller.discard()
+
+## Discards one temporary ball and clears its capture ownership.
+func discard_temporary_relic_ball(ball: Node) -> void:
+	if _temporary_reward_controller != null:
+		_temporary_reward_controller.discard_ball(ball)
+
+func _process_temporary_reward_emissions(sim_tick: int) -> void:
+	if _temporary_reward_controller != null:
+		_temporary_reward_controller.process(sim_tick)
+
+func _expire_temporary_relic_balls(sim_tick: int) -> void:
+	if _temporary_reward_controller != null:
+		_temporary_reward_controller.expire(sim_tick)
+
+func _spawn_temporary_reward_ball(reward: RelicBallReward, outlet: Vector2, direction: Vector2, sim_tick: int) -> Node:
+	return _temporary_reward_controller._spawn(reward, outlet, direction, 170.0, sim_tick) if _temporary_reward_controller != null else null
 
 ## Destroy one ball on the board for which predicate returns true (e.g. almanac remove).
 func remove_and_destroy_one_ball_if(predicate: Callable) -> bool:
@@ -726,6 +762,8 @@ func _remove_freed_active_balls() -> void:
 
 func run_ball_steps(sim_tick: int) -> void:
 	_board_sim_tick = sim_tick
+	_expire_temporary_relic_balls(sim_tick)
+	_process_temporary_reward_emissions(sim_tick)
 	_prune_expired_gas_clouds(sim_tick)
 	_apply_gas_cloud_overlap(sim_tick)
 	_explosion_triggered_pegs_this_tick.clear()
@@ -834,14 +872,20 @@ func run_ball_steps(sim_tick: int) -> void:
 							b.linear_velocity *= Constants.EXTREME_BOUNCER_SPEED_MULTIPLIER
 					# Splitter Peg: split any ball that hits it (once per ball per visit)
 					if peg.get("peg_extra_kind") == "splitter":
-						if not _splitter_triggered_this_visit.get(bid, false):
+						var is_temporary_splitter_ball: bool = b.has_method("is_temporary_relic_ball") and b.is_temporary_relic_ball()
+						var temporary_already_split: bool = is_temporary_splitter_ball and b.has_method("has_split_triggered") and b.has_split_triggered()
+						if not _splitter_triggered_this_visit.get(bid, false) and not temporary_already_split:
 							_splitter_triggered_this_visit[bid] = true
+							if is_temporary_splitter_ball and b.has_method("mark_split_triggered"):
+								b.mark_split_triggered()
+							if is_temporary_splitter_ball and not _temporary_slot_available():
+								continue
 							var split_vel: Vector2 = b.linear_velocity if "linear_velocity" in b else Vector2.ZERO
 							var split_total: int = b.get_total_energy() if b.has_method("get_total_energy") else Constants.legacy_display_energy_to_current(20)
 							var half_e: int = split_total / 2
-							b.set_total_energy_display(half_e)
-							var frag: Node = _spawn_split_ball(b.global_position, split_vel.rotated(Constants.SPLITTER_PEG_SPLIT_ANGLE), bdef, half_e)
+							var frag: Node = _spawn_split_ball(b.global_position, split_vel.rotated(Constants.SPLITTER_PEG_SPLIT_ANGLE), bdef, half_e, b)
 							if frag != null:
+								b.set_total_energy_display(split_total - half_e)
 								_active_balls.append(frag)
 								_ball_hit_count_this_visit[frag.get_ball_id()] = 0
 								_splitter_triggered_this_visit[frag.get_ball_id()] = true
@@ -864,16 +908,18 @@ func run_ball_steps(sim_tick: int) -> void:
 						# Split: spawn the second ball.
 						if ability_key == "Split" and b.has_method("has_split_triggered") and not b.has_split_triggered():
 							b.mark_split_triggered()
+							if b.has_method("is_temporary_relic_ball") and b.is_temporary_relic_ball() and not _temporary_slot_available():
+								continue
 							var ball_vel: Vector2 = b.linear_velocity if "linear_velocity" in b else Vector2.ZERO
 							var total: int = b.get_total_energy() if b.has_method("get_total_energy") else Constants.legacy_display_energy_to_current(20)
 							var split_count: int = 2
 							var share: int = total / split_count
-							b.set_total_energy_display(share)
 							for split_i in range(split_count - 1):
 								var angle_offset: float = (TAU / float(split_count)) * float(split_i + 1)
 								var rotated_vel: Vector2 = ball_vel.rotated(angle_offset)
-								var frag: Node = _spawn_split_ball(b.global_position, rotated_vel, bdef, share)
+								var frag: Node = _spawn_split_ball(b.global_position, rotated_vel, bdef, share, b)
 								if frag != null:
+									b.set_total_energy_display(total - share)
 									_active_balls.append(frag)
 									_ball_hit_count_this_visit[frag.get_ball_id()] = 0
 									if frag.has_method("start_split_spin"):
@@ -896,6 +942,7 @@ func run_ball_steps(sim_tick: int) -> void:
 
 func flush_tick(sim_tick: int) -> void:
 	_board_sim_tick = sim_tick
+	_expire_temporary_relic_balls(sim_tick)
 	_prune_expired_gas_clouds(sim_tick)
 	_remove_freed_active_balls()
 	_apply_constellation_laser_hits(sim_tick)
@@ -932,12 +979,15 @@ func flush_tick(sim_tick: int) -> void:
 			if b.has_method("clear_gas_buffs_on_score"):
 				b.clear_gas_buffs_on_score()
 			_spawn_hit_effect(pos, status_effects, ability_name, false)
+			var is_temporary: bool = b.has_method("is_temporary_relic_ball") and b.is_temporary_relic_ball()
+			if is_temporary and (_temporary_reward_controller == null or not _temporary_reward_controller.collect_ball(b)):
+				continue
 			ball_reached_bottom.emit(ball_id, total, alignment, pos, status_effects)
 			while _active_balls.has(b): _active_balls.erase(b)
 			_ball_hit_count_this_visit.erase(ball_id)
 			_phantom_pegs_visited.erase(ball_id)
 			_splitter_triggered_this_visit.erase(ball_id)
-			if b.has_method("reset_energy_to_base"):
+			if not is_temporary and b.has_method("reset_energy_to_base"):
 				b.reset_energy_to_base()
 			ball_exited_board.emit(b, REASON_BOTTOM)
 		elif pos.y > OFF_SCREEN_Y or pos.x < OFF_SCREEN_X_LEFT or pos.x > OFF_SCREEN_X_RIGHT:
@@ -946,7 +996,9 @@ func flush_tick(sim_tick: int) -> void:
 			_ball_hit_count_this_visit.erase(ball_id)
 			_phantom_pegs_visited.erase(ball_id)
 			_splitter_triggered_this_visit.erase(ball_id)
-			if b.has_method("reset_energy_to_base"):
+			if b.has_method("is_temporary_relic_ball") and b.is_temporary_relic_ball():
+				discard_temporary_relic_ball(b)
+			elif b.has_method("reset_energy_to_base"):
 				b.reset_energy_to_base()
 			ball_exited_board.emit(b, REASON_OFF_SCREEN)
 	_update_constellation_laser_visual_state()
@@ -1179,7 +1231,8 @@ func _finish_goblin_grab(ball: Node, hand: Node2D) -> void:
 		ball.lock_rotation = true
 	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else 0
 	_ball_hit_count_this_visit[bid] = 0
-	_splitter_triggered_this_visit[bid] = false
+	if not (ball.has_method("is_temporary_relic_ball") and ball.is_temporary_relic_ball()):
+		_splitter_triggered_this_visit[bid] = false
 	_active_balls.erase(ball)
 	_active_balls.append(ball)
 	_emit_ball_reset_to_top(ball, BALL_RESET_REASON_GOBLIN_GRAB)
@@ -1250,7 +1303,7 @@ func _get_adjacent_pegs_within_radius(center_peg_id: int, max_count: int) -> Arr
 	return out
 
 ## Spawn a real second ball when Split triggers; add to BallsContainer and return it. Caller adds to _active_balls.
-func _spawn_split_ball(global_pos: Vector2, velocity: Vector2, definition: BallDefinition, energy_half: int) -> Node:
+func _spawn_split_ball(global_pos: Vector2, velocity: Vector2, definition: BallDefinition, energy_half: int, source_ball: Node = null) -> Node:
 	if not _ball_scene or not _balls_container:
 		return null
 	var new_ball: Node = _ball_scene.instantiate()
@@ -1268,7 +1321,16 @@ func _spawn_split_ball(global_pos: Vector2, velocity: Vector2, definition: BallD
 	new_ball.set_total_energy_display(energy_half)
 	new_ball.global_position = global_pos
 	new_ball.linear_velocity = velocity
+	if source_ball != null and source_ball.has_method("is_temporary_relic_ball") and source_ball.is_temporary_relic_ball():
+		var started_tick: int = source_ball.get_temporary_relic_started_tick() if source_ball.has_method("get_temporary_relic_started_tick") else _board_sim_tick
+		var life_ticks: int = source_ball.get_temporary_relic_life_ticks() if source_ball.has_method("get_temporary_relic_life_ticks") else 720
+		new_ball.mark_temporary_relic_ball(source_ball.get_temporary_relic_expiration_tick(), source_ball.get_temporary_relic_source(), started_tick, life_ticks)
+		if _temporary_reward_controller != null:
+			_temporary_reward_controller.register_ball(new_ball)
 	return new_ball
+
+func _temporary_slot_available() -> bool:
+	return _temporary_reward_controller != null and _temporary_reward_controller.slot_available()
 
 ## Squared distance from point `p` to segment a–b (for Constellation laser vs peg circles).
 func _segment_point_distance_squared(a: Vector2, b: Vector2, p: Vector2) -> float:
@@ -1313,12 +1375,21 @@ func _try_binary_split_victim_from_collision(attacker: Node, victim: Node, sim_t
 	if not vdef is BallDefinition:
 		return
 	var vbdef: BallDefinition = vdef as BallDefinition
+	var attacker_temporary: bool = attacker.has_method("is_temporary_relic_ball") and attacker.is_temporary_relic_ball()
+	var victim_temporary: bool = victim.has_method("is_temporary_relic_ball") and victim.is_temporary_relic_ball()
+	if (attacker_temporary or victim_temporary) and not _temporary_slot_available():
+		return
 	var split_vel: Vector2 = victim.linear_velocity if "linear_velocity" in victim else Vector2.ZERO
 	var split_total: int = victim.get_total_energy() if victim.has_method("get_total_energy") else Constants.legacy_display_energy_to_current(20)
-	var half_e: int = maxi(1, split_total / 2)
-	victim.set_total_energy_display(half_e)
-	var frag: Node = _spawn_split_ball(victim.global_position, split_vel.rotated(Constants.SPLITTER_PEG_SPLIT_ANGLE), vbdef, half_e)
+	var half_e: int = split_total / 2
+	var inheritance_source: Node = attacker if attacker.has_method("is_temporary_relic_ball") and attacker.is_temporary_relic_ball() else victim
+	var frag: Node = _spawn_split_ball(victim.global_position, split_vel.rotated(Constants.SPLITTER_PEG_SPLIT_ANGLE), vbdef, half_e, inheritance_source)
 	if frag != null:
+		victim.set_total_energy_display(split_total - half_e)
+		if frag.has_method("is_temporary_relic_ball") and frag.is_temporary_relic_ball() and victim.has_method("is_temporary_relic_ball") and victim.is_temporary_relic_ball():
+			var expiry: int = mini(frag.get_temporary_relic_expiration_tick(), victim.get_temporary_relic_expiration_tick())
+			var started: int = frag.get_temporary_relic_started_tick() if frag.has_method("get_temporary_relic_started_tick") else sim_tick
+			frag.mark_temporary_relic_ball(expiry, frag.get_temporary_relic_source(), started, maxi(1, expiry - started))
 		_active_balls.append(frag)
 		_ball_hit_count_this_visit[frag.get_ball_id()] = 0
 		_splitter_triggered_this_visit[frag.get_ball_id()] = true

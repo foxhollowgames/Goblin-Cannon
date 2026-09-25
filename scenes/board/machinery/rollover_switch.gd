@@ -31,8 +31,10 @@ func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 	var bid: int = ball.get_ball_id() if ball.has_method("get_ball_id") else ball.get_instance_id()
 	if not can_activate_for_ball(bid, sim_tick):
 		return { "activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO, "type": cell_type }
+	var is_temporary: bool = ball.has_method("is_temporary_relic_ball") and ball.is_temporary_relic_ball()
 	var was_unlit: bool = not is_lit
-	set_lit(true)
+	if not is_temporary:
+		set_lit(true)
 	var granted_energy: int = base_energy
 	if was_unlit:
 		granted_energy += switch_energy_bonus

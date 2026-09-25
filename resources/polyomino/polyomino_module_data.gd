@@ -3,6 +3,8 @@ extends Resource
 class_name PolyominoModuleData
 ## Polyomino module shape, kinetic machinery, and metadata definition.
 
+const RelicBallReward = preload("res://resources/polyomino/relic_ball_reward.gd")
+
 enum CellType {
 	EMPTY = 0,
 	GUIDE_RAIL = 1,
@@ -63,7 +65,8 @@ enum RewardType {
 	BOARD_SUPERCHARGE = 2,
 	MULTIBALL_CASCADE = 3,
 	GLOBAL_BOARD_KNOCK = 4,
-	CONCUSSIVE_OVERDRIVE = 5
+	CONCUSSIVE_OVERDRIVE = 5,
+	TEMPORARY_BALLS = 6
 }
 
 @export var module_id: StringName = &""
@@ -104,11 +107,22 @@ enum RewardType {
 @export var activation_requirement: String = ""
 @export var required_widget_type: int = CellType.EMPTY
 @export var activation_threshold: int = 0
+## Authored temporary ball reward. Kept beside the module data for save/load.
+@export var relic_ball_reward: RelicBallReward = null
+var temporary_ball_reward: RelicBallReward:
+	get: return relic_ball_reward
+	set(value): relic_ball_reward = value
 
 func get_activation_requirement() -> String:
 	if not activation_requirement.is_empty():
 		return activation_requirement
 	return goal_description
+
+func get_relic_ball_reward() -> RelicBallReward:
+	return relic_ball_reward
+
+func get_temporary_ball_reward() -> RelicBallReward:
+	return relic_ball_reward
 
 func get_cell_count() -> int:
 	return cells.size()
@@ -323,6 +337,7 @@ func serialize() -> Dictionary:
 		"activation_requirement": activation_requirement, "required_widget_type": required_widget_type,
 		"activation_threshold": activation_threshold, "layout_mode": layout_mode,
 		"unified_component_type": unified_component_type,
+		"relic_ball_reward": relic_ball_reward.serialize() if relic_ball_reward != null else {},
 	}
 
 func deserialize(dict: Dictionary) -> void:
@@ -346,6 +361,7 @@ func deserialize(dict: Dictionary) -> void:
 	activation_requirement = str(dict.get("activation_requirement", ""))
 	required_widget_type = int(dict.get("required_widget_type", CellType.EMPTY))
 	activation_threshold = int(dict.get("activation_threshold", 0))
+	relic_ball_reward = _deserialize_reward(dict)
 
 	custom_wall_edges.clear()
 	var raw_walls = dict.get("custom_wall_edges", {})
@@ -384,6 +400,31 @@ func deserialize(dict: Dictionary) -> void:
 	var raw_energies = dict.get("energy_values", {})
 	if raw_energies is Dictionary:
 		for k in raw_energies: energy_values[_parse_vector2i_key(k)] = int(raw_energies[k])
+	_migrate_reward_data(dict)
+
+## Converts old activation rewards to the canonical temporary reward or retires them.
+func _migrate_reward_data(_saved: Dictionary) -> void:
+	var canonical: RelicBallReward = RelicBallReward.for_relic(module_id, tier)
+	if canonical != null:
+		relic_ball_reward = canonical
+		reward_type = RewardType.TEMPORARY_BALLS
+		reward_energy = 0
+		reward_ball_count = canonical.count
+		reward_description = canonical.get_description()
+		return
+	if not module_id.is_empty():
+		reward_type = RewardType.NONE
+		reward_energy = 0
+		reward_ball_count = 0
+		reward_description = "Retired relic. Physical geometry preserved; no activation reward."
+
+func _deserialize_reward(dict: Dictionary) -> RelicBallReward:
+	var raw_reward = dict.get("relic_ball_reward", {})
+	if not raw_reward is Dictionary or raw_reward.is_empty():
+		return null
+	var reward: RelicBallReward = RelicBallReward.new()
+	reward.deserialize(raw_reward)
+	return reward
 
 static func from_dictionary(dict: Dictionary) -> Resource:
 	var script: GDScript = load("res://resources/polyomino/polyomino_module_data.gd") as GDScript

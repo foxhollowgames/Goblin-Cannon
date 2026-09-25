@@ -1,6 +1,6 @@
 # TASK-105: Validate Relic Reward Variety Through Special Balls
 
-- **Status:** BACKLOG
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Design / Relics
 - **Target Branch:** `feature/relic-reward-variety-validation`
@@ -27,8 +27,12 @@ Track audit point 6 as a required workstream inside [TASK-100](TASK-100-design-t
 
 ## Acceptance Criteria
 
-- [ ] The parent design includes a seven-family reward-role matrix with explicit temporary special-ball behavior.
-- [ ] Early-game relic choices include meaningfully different reward behavior and clear explanations.
-- [ ] Concrete chain/layout examples demonstrate different decisions, not only different energy totals.
-- [ ] Lifetimes, limits, and feedback are consistent with the parent lifecycle design.
-- [ ] Findings feed [TASK-100](TASK-100-design-temporary-special-ball-relic-rewards.md) and [TASK-103](TASK-103-validate-relic-variant-choices-in-reward-redesign.md) directly, without separate redesign or passive-upgrade reintroduction.
+- [x] The parent design includes a seven-family reward-role matrix with explicit temporary special-ball behavior.
+- [x] Early-game relic choices include meaningfully different reward behavior and clear explanations.
+- [x] Concrete chain/layout examples demonstrate different decisions, not only different energy totals.
+- [x] Lifetimes, limits, and feedback are consistent with the parent lifecycle design.
+- [x] Findings feed [TASK-100](TASK-100-design-temporary-special-ball-relic-rewards.md) and [TASK-103](TASK-103-validate-relic-variant-choices-in-reward-redesign.md) directly, without separate redesign or passive-upgrade reintroduction.
+
+## Design approval — 2026-09-23
+
+The user approved the revised plan for execution. The approved document contains the full 42-entry reward mapping, same-tier choices, physical roles, chain examples, lifecycle rules, and verification requirements. Earlier discussion notes are historical. Implementation is tracked in TASK-106. Final balance and comparative playtesting remain in TASK-104; this completion records design acceptance only.

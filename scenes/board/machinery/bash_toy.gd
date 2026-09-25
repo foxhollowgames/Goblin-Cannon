@@ -68,6 +68,8 @@ func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 	base_energy = orig_base_energy
 
 	if res.get("activated", false):
+		if ball.has_method("is_temporary_relic_ball") and ball.is_temporary_relic_ball():
+			return res
 		current_hits += 1
 		_wobble_offset = Vector2(randf_range(-4.0, 4.0), randf_range(-4.0, 4.0))
 		bash_hit.emit(self, current_hits)

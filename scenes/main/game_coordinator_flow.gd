@@ -4,6 +4,8 @@ extends Node
 
 ## Initiates wall destroyed transition and schedules timer for transition end.
 static func handle_wall_destroyed(c: Node) -> void:
+	if c._board and c._board.has_method("discard_temporary_relic_state"):
+		c._board.discard_temporary_relic_state()
 	c._wall_break_is_last_wall = false
 	if c._combat_manager and c._combat_manager.has_method("get_current_wall_index") and c._combat_manager.has_method("get_wall_names"):
 		var idx: int = c._combat_manager.get_current_wall_index()
@@ -52,6 +54,8 @@ static func handle_wall_break_reward_completed(c: Node) -> void:
 
 ## Advances city or triggers victory screen when boss reward completes.
 static func handle_boss_reward_completed(c: Node) -> void:
+	if c._board and c._board.has_method("discard_temporary_relic_state"):
+		c._board.discard_temporary_relic_state()
 	var is_last_city: bool = (GameState.current_city_id >= Constants.CITY_DEFINITION_PATHS.size() - 1)
 	if is_last_city:
 		c._victory = true
