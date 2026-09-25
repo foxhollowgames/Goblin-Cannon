@@ -4,6 +4,8 @@ This directory contains the canonical task packets and backlog for Goblin Cannon
 All tasks use structured Markdown with status, priority, and clear acceptance criteria.
 | [TASK-106](TASK-106-implement-approved-temporary-relic-ball-rewards.md) | Implement approved temporary relic ball rewards | Systems / Gameplay / Relics | P1 | DONE | `feature/temporary-relic-ball-rewards` |
 | [TASK-107](TASK-107-refactor-temporary-ball-lifecycle-and-board-reward.md) | Refactor temporary ball lifecycle and Board reward flow | Systems / Gameplay / Refactor | P1 | DONE | `feature/temporary-relic-ball-rewards` |
+| [TASK-108](TASK-108-simplify-relic-reward-card-descriptions.md) | Simplify relic reward card descriptions | UI / Visuals | P1 | IN_PROGRESS | `fix/simplify-relic-reward-descriptions` |
+| [TASK-109](TASK-109-thematic-and-descriptive-relic-names.md) | Thematic and Descriptive Relic Names | Design / Relics | P2 | BACKLOG | `feature/thematic-and-descriptive-relic-names` |
 
 ---
 

@@ -56,7 +56,7 @@ static func make_relic_reward_badge(relic_id: StringName) -> Label:
 		return null
 	var badge: Label = Label.new()
 	badge.name = "RewardBadge"
-	badge.text = "%d × %s" % [reward.count, reward.ball_type]
+	badge.text = "Reward: %d %s" % [reward.count, reward.ball_type]
 	badge.tooltip_text = reward.get_description()
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	badge.add_theme_font_size_override("font_size", 10)
