@@ -62,7 +62,7 @@ func test_all_deliberate_relics_preview_and_description() -> void:
 		assert_true(desc.contains("→"), "Description has flow arrow for %s" % id)
 
 func test_reward_draft_panel_relic_card_structure() -> void:
-	begin("RewardDraftPanel._make_relic_card includes preview tile and structured description")
+	begin("RewardDraftPanel._make_relic_card includes preview tile and concise reward")
 	var panel: Control = RewardDraftPanelScript.new() as Control
 	autofree(panel)
 
@@ -76,17 +76,21 @@ func test_reward_draft_panel_relic_card_structure() -> void:
 	assert_true(card != null, "Relic card instantiated cleanly")
 
 	var found_preview: bool = false
+	var found_reward_badge: bool = false
 	var found_rich_text: bool = false
 	var stack: Array = [card]
 	while not stack.is_empty():
 		var node: Node = stack.pop_back()
 		if node is RelicLayoutPreview:
 			found_preview = true
+		if node is Label and (node as Label).text == "Reward: 1 Rubbery":
+			found_reward_badge = true
 		if node is RichTextLabel:
 			found_rich_text = true
 		for c in node.get_children():
 			stack.append(c)
 
 	assert_true(found_preview, "Relic card contains RelicLayoutPreview tile")
-	assert_true(found_rich_text, "Relic card contains RichTextLabel description")
+	assert_true(found_reward_badge, "Offerable relic card contains concise reward badge")
+	assert_false(found_rich_text, "Offerable relic card omits verbose description")
 

@@ -32,6 +32,7 @@ Simplify relic reward card descriptions
 ## Checkpoint — concise reward card text
 
 - Changed `scenes/rewards/major_upgrade_draft_panel.gd` to suppress duplicated trigger and effect blocks for offerable relics.
+- Changed `scenes/rewards/reward_draft_panel.gd` to remove the verbose Merchant description for offerable relics.
 - Changed `scenes/rewards/reward_card_builder.gd` to use `Reward: <count> <ball type>` in shared badges.
-- Added a card hierarchy test for `Twin Core Bumper Vessel`.
-- Raw Godot result: `18,180 passed, 0 failed`.
+- Added card hierarchy checks for `Twin Core Bumper Vessel` in both reward card paths.
+- Raw Godot result: `18,181 passed, 0 failed`.
