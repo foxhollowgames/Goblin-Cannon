@@ -1,6 +1,6 @@
 # TASK-110: Fix Merchant peg and relic card descriptions
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Visuals
 - **Target Branch:** `fix/merchant-card-description-layout`
@@ -26,7 +26,7 @@ Fix Merchant peg and relic card descriptions
 - [x] Requirements implemented and verified.
 - [x] Tests pass cleanly.
 - [x] File lengths adhere to the 500-line repository limit.
-- [ ] Pull Request opened, audited by independent PR reviewer, and merged.
+- [x] Pull Request opened, audited by independent PR reviewer, and merged.
 
 ## Checkpoint — separated Merchant preview and reward rows
 

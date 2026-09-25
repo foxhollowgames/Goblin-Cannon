@@ -155,6 +155,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-144`](#lrn-144) | TASK-102 | `gameplay` | Gate relic tiers across every normal source | 2026-09-23 |
 | [`LRN-145`](#lrn-145) | TASK-107 | `testing` | Temporary relic ball lifecycle needs outcome tests | 2026-09-24 |
 | [`LRN-146`](#lrn-146) | TASK-108 | `ui` | Offerable relic cards should show one reward line | 2026-09-24 |
+| [`LRN-147`](#lrn-147) | TASK-110 | `ui` | Stack preview and reward rows in Merchant relic cards | 2026-09-24 |
 
 ---
 
@@ -2493,5 +2494,21 @@ Offerable relic cards should render the shared concise reward badge and omit ver
 
 #### Actionable Guideline for Future Agents
 When changing relic card presentation, test both Merchant and major upgrade card builders.
+
+---
+
+### <a id="lrn-147"></a> LRN-147: Stack preview and reward rows in Merchant relic cards
+- **Task:** `TASK-110`
+- **Category:** `ui`
+- **Created:** `2026-09-24T20:09:12.163344`
+
+#### Context & Problem
+Relic image and reward label shared a CenterContainer, so both were centered at the same position and reward text floated over the image.
+
+#### Key Insight & Learning
+Use separate vertical rows for a relic preview and its reward label. Shared preview builders must own the spacing so Merchant cards cannot overlap their reward text.
+
+#### Actionable Guideline for Future Agents
+When adding labels to visual previews, test the container hierarchy and assert the label is a sibling row below the image.
 
 ---
