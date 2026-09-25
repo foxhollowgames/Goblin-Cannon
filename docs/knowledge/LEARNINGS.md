@@ -153,6 +153,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-142`](#lrn-142) | TASK-100 | `tooling` | Runtime relic variant audit | 2026-09-20 |
 | [`LRN-143`](#lrn-143) | TASK-101 | `architecture` | Separate physical relic ownership from passive effects | 2026-09-23 |
 | [`LRN-144`](#lrn-144) | TASK-102 | `gameplay` | Gate relic tiers across every normal source | 2026-09-23 |
+| [`LRN-145`](#lrn-145) | TASK-107 | `testing` | Temporary relic ball lifecycle needs outcome tests | 2026-09-24 |
 
 ---
 
@@ -2459,5 +2460,21 @@ A shared eligibility filter and complete physical roster give every retained Tie
 
 #### Actionable Guideline for Future Agents
 Test every normal reward source, every retained high-tier ID, and actual purchase flow. Distinguish acquisition probability from guaranteed income, and use small reviewed Qwen fragments for local code generation.
+
+---
+
+### <a id="lrn-145"></a> LRN-145: Temporary relic ball lifecycle needs outcome tests
+- **Task:** `TASK-107`
+- **Category:** `testing`
+- **Created:** `2026-09-24T18:40:57.841918`
+
+#### Context & Problem
+The first lifecycle extraction passed mapping and marker tests, but review found that direct spawn tests did not exercise queue allocation, cancellation, capture cleanup, or split behavior.
+
+#### Key Insight & Learning
+Temporary reward tests must drive queue_reward and controller process ticks, verify cancellation counts and blocked timeouts, route exits through controller cleanup, and assert energy and expiry inheritance for temporary Binary fragments.
+
+#### Actionable Guideline for Future Agents
+For temporary ball changes, add production queue, blocked outlet, one-time collection, capture-owner, and odd-energy conservation tests before marking the task complete. Use the raw Godot exit code and final total as the authority.
 
 ---

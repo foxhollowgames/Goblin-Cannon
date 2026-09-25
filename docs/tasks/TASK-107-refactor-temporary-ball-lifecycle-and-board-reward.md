@@ -1,6 +1,6 @@
 # TASK-107: Refactor temporary ball lifecycle and Board reward flow
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay / Refactor
 - **Target Branch:** `feature/temporary-relic-ball-rewards`
@@ -39,14 +39,14 @@ Extract the temporary-ball lifecycle and relic reward flow from the large Board 
 ## Acceptance Criteria
 
 - [x] The first Plain/Rubbery vertical slice passes the focused temporary reward suite.
-- [ ] Temporary lifecycle and outlet helpers are independently testable and each source file is under 500 lines.
-- [ ] Board remains the sole simulation authority with thin delegation methods.
-- [ ] Capture ownership, expiry, transitions, reset, and inventory exclusion pass tests.
-- [ ] Split and Binary conserve energy and respect the temporary population cap.
-- [ ] Existing permanent ball behavior passes regression tests.
-- [ ] Tests pass cleanly with zero failures in the raw Godot runner.
-- [ ] File lengths adhere to the 500-line repository limit.
-- [ ] Pull Request opened, audited by independent PR reviewer, and merged.
+- [x] Temporary lifecycle and outlet helpers are independently testable and each source file is under 500 lines.
+- [x] Board remains the sole simulation authority with thin delegation methods.
+- [x] Capture ownership, expiry, transitions, reset, and inventory exclusion pass tests.
+- [x] Split and Binary conserve energy and respect the temporary population cap.
+- [x] Existing permanent ball behavior passes regression tests.
+- [x] Tests pass cleanly with zero failures in the raw Godot runner.
+- [x] File lengths adhere to the 500-line repository limit.
+- [x] Pull Request opened, audited by independent PR reviewer, and merged.
 
 ## Usage guardrails
 

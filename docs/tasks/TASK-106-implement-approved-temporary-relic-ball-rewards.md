@@ -1,6 +1,6 @@
 # TASK-106: Implement approved temporary relic ball rewards
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Systems / Gameplay / Relics
 - **Target Branch:** `feature/temporary-relic-ball-rewards`
