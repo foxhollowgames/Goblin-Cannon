@@ -6,6 +6,7 @@ class_name PolyominoRelicDatabase
 const PolyominoModuleData = preload("res://resources/polyomino/polyomino_module_data.gd")
 const JunkBoxItem = preload("res://resources/inventory/junk_box_item.gd")
 const DeliberateRelicCatalog = preload("res://resources/polyomino/deliberate_relic_catalog.gd")
+const RelicBallReward = preload("res://resources/polyomino/relic_ball_reward.gd")
 
 const CellType = PolyominoModuleData.CellType
 const GoalArchetype = PolyominoModuleData.GoalArchetype
@@ -46,6 +47,10 @@ static func has_relic_definition(relic_id: StringName) -> bool:
 
 static func get_deliberate_relic_ids() -> Array[StringName]:
 	return DeliberateRelicCatalog.get_all_ids()
+
+static func get_offerable_relic_ids() -> Array[StringName]: return get_deliberate_relic_ids()
+static func is_relic_offerable(relic_id: StringName) -> bool: return DeliberateRelicCatalog.has_relic(_resolve_id(relic_id))
+static func get_retired_relic_label() -> String: return "Retired relic. Physical geometry preserved; no activation reward."
 
 static func get_all_relic_ids() -> Array[StringName]:
 	var defs := _get_defs()
@@ -90,8 +95,11 @@ static func get_relic_activation_requirement(relic_id: StringName) -> String:
 	return ""
 
 static func get_relic_reward_description(relic_id: StringName) -> String:
+	if not is_relic_offerable(relic_id):
+		return get_retired_relic_label()
 	var g: Dictionary = _get_goal_def(relic_id)
-	return str(g.get("reward_desc", "+100 Energy Surge"))
+	var reward: RelicBallReward = RelicBallReward.for_relic(_resolve_id(relic_id), get_relic_tier(relic_id))
+	return reward.get_description() if reward != null else str(g.get("reward_desc", "Temporary ball reward"))
 
 static func get_relic_shop_description(relic_id: StringName) -> String:
 	var m_desc: String = get_relic_kinetic_description(relic_id)
@@ -99,9 +107,10 @@ static func get_relic_shop_description(relic_id: StringName) -> String:
 	var g_rew: String = get_relic_reward_description(relic_id)
 	if g_req.is_empty() and g_rew.is_empty():
 		return m_desc
+	var shared: String = "[u]Trigger[/u]\n%s\n\n[u]Effect[/u]\n%s" % [g_req, g_rew]
 	if m_desc.is_empty():
-		return "[color=#80d0ff]%s[/color] → [color=#55ffaa]%s[/color]" % [g_req, g_rew]
-	return "%s\n[color=#80d0ff]%s[/color] → [color=#55ffaa]%s[/color]" % [m_desc, g_req, g_rew]
+		return "%s\n[color=#80d0ff]%s[/color] → [color=#55ffaa]%s[/color]" % [shared, g_req, g_rew]
+	return "%s\n%s\n[color=#80d0ff]%s[/color] → [color=#55ffaa]%s[/color]" % [m_desc, shared, g_req, g_rew]
 
 static func create_module_for_relic(relic_id: StringName) -> PolyominoModuleData:
 	var resolved_id: StringName = _resolve_id(relic_id)
@@ -175,6 +184,15 @@ static func create_module_for_relic(relic_id: StringName) -> PolyominoModuleData
 				typed_seq.append(s)
 		mod.goal_target_sequence = typed_seq
 
+	if is_relic_offerable(resolved_id):
+		mod.relic_ball_reward = RelicBallReward.for_relic(resolved_id, mod.tier)
+		if mod.relic_ball_reward:
+			mod.reward_type = RewardType.TEMPORARY_BALLS; mod.reward_energy = 0
+			mod.reward_ball_count = mod.relic_ball_reward.count; mod.reward_description = mod.relic_ball_reward.get_description()
+	else:
+		mod.reward_type = RewardType.NONE; mod.reward_energy = 0; mod.reward_ball_count = 0
+		mod.reward_description = get_retired_relic_label()
+
 	preload("res://resources/polyomino/relic_flow_layouts.gd").apply(mod)
 	return mod
 
@@ -193,7 +211,8 @@ static func create_item_for_relic(relic_id: StringName) -> JunkBoxItem:
 		"goal_title": mod.goal_title,
 		"goal_desc": mod.goal_description,
 		"activation_requirement": mod.activation_requirement,
-		"reward_desc": mod.reward_description
+		"reward_desc": mod.reward_description,
+		"retired": not is_relic_offerable(mod.module_id)
 	}
 	return item
 
@@ -476,4 +495,3 @@ static func _build_treasure_chest_relics() -> void:
 	_def(&"chest_rubbery_energy", "Rubbery Energy", 1, "3x2 Horizontal Bar", "1 Spinner + 1 Boost Roller + 3 Free Cells", [Vector2i(0,0), Vector2i(1,0), Vector2i(2,0), Vector2i(0,1), Vector2i(2,1)], {Vector2i(0,0): CellType.SPINNER, Vector2i(2,0): CellType.ACCELERATOR}, {})
 	_def(&"chest_bounce_energy", "Plain Energy", 1, "2x2 Box Chamber", "1 Pop Bumper + 1 Rotary Sensor + 2 Free Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1)], {Vector2i(0,0): CellType.POP_BUMPER, Vector2i(1,1): CellType.ROTARY_BOOSTER}, {})
 	_def(&"chest_split_energy", "Split Energy", 1, "2x3 Vertical Bar", "1 Mechanical Diverter + 1 Boost Roller + 3 Free Spaces", [Vector2i(0,0), Vector2i(1,0), Vector2i(0,1), Vector2i(1,1), Vector2i(0,2)], {Vector2i(0,0): CellType.MECHANICAL_DIVERTER, Vector2i(0,2): CellType.ACCELERATOR}, {Vector2i(0,0): Vector2i.DOWN, Vector2i(0,2): Vector2i.DOWN})
-

@@ -2,6 +2,8 @@
 
 This directory contains the canonical task packets and backlog for Goblin Cannon.
 All tasks use structured Markdown with status, priority, and clear acceptance criteria.
+| [TASK-106](TASK-106-implement-approved-temporary-relic-ball-rewards.md) | Implement approved temporary relic ball rewards | Systems / Gameplay / Relics | P1 | IN_PROGRESS | `feature/temporary-relic-ball-rewards` |
+| [TASK-107](TASK-107-refactor-temporary-ball-lifecycle-and-board-reward.md) | Refactor temporary ball lifecycle and Board reward flow | Systems / Gameplay / Refactor | P1 | IN_PROGRESS | `feature/temporary-relic-ball-rewards` |
 
 ---
 
@@ -130,12 +132,12 @@ python scripts/generate_task_dashboard.py
 | [TASK-097](TASK-097-relic-visual-tiles-and-description-updates.md) | Relic Visual Tiles on Modals and Description Updates | UI / Visuals / Relics | P1 | DONE | `feature/relic-visual-tiles-and-description-updates` |
 | [TASK-098](TASK-098-triangle-bumper-rotation-with-polyomino.md) | Triangle Bumper Rotation with Polyomino | Physics / Systems / Visuals | P0 | DONE | `fix/triangle-bumper-polyomino-rotation` |
 | [TASK-099](TASK-099-restore-junk-box-physical-relic-visuals-and-flow-r.md) | Restore Junk Box Physical Relic Visuals and Flow Representation | UI / Visuals / Relics | P1 | DONE | `fix/junk-box-physical-relic-visuals` |
-| [TASK-100](TASK-100-design-temporary-special-ball-relic-rewards.md) | Design Temporary Special Ball Relic Rewards | Design / Relics | P1 | READY | `feature/temporary-special-ball-reward-design` |
+| [TASK-100](TASK-100-design-temporary-special-ball-relic-rewards.md) | Design Temporary Special Ball Relic Rewards | Design / Relics | P1 | DONE | `feature/temporary-special-ball-reward-design` |
 | [TASK-101](TASK-101-remove-passive-upgrades-completely.md) | Remove Passive Upgrades Completely | Systems / Cleanup | P1 | DONE | `fix/remove-passive-upgrades` |
 | [TASK-102](TASK-102-unlock-tier-3-relics-in-the-third-city.md) | Unlock Tier 3 Relics in the Third City | Progression / Rewards | P1 | DONE | `feature/third-city-tier-three-relics` |
-| [TASK-103](TASK-103-validate-relic-variant-choices-in-reward-redesign.md) | Validate Relic Variant Choices in Reward Redesign | Design / Relics | P1 | BACKLOG | `feature/relic-variant-design-validation` |
+| [TASK-103](TASK-103-validate-relic-variant-choices-in-reward-redesign.md) | Validate Relic Variant Choices in Reward Redesign | Design / Relics | P1 | DONE | `feature/relic-variant-design-validation` |
 | [TASK-104](TASK-104-balance-siege-timer-wall-health-and-cannon-damage.md) | Balance Siege Timer Wall Health and Cannon Damage | Balance / Gameplay | P1 | BACKLOG | `feature/siege-and-cannon-balance` |
-| [TASK-105](TASK-105-validate-relic-reward-variety-through-special-ball.md) | Validate Relic Reward Variety Through Special Balls | Design / Relics | P1 | BACKLOG | `feature/relic-reward-variety-validation` |
+| [TASK-105](TASK-105-validate-relic-reward-variety-through-special-ball.md) | Validate Relic Reward Variety Through Special Balls | Design / Relics | P1 | DONE | `feature/relic-reward-variety-validation` |
 
 ---
 
@@ -146,10 +148,3 @@ Every pull request must complete an independent sub-agent review cycle:
 2. Invoke an independent `pr_reviewer` sub-agent without conversational context.
 3. If the sub-agent reports major findings, address them and repeat review.
 4. Merge the Pull Request into `main` after receiving approval.
-
-
-
-
-
-
-

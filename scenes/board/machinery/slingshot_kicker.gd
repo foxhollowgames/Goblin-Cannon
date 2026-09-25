@@ -105,6 +105,8 @@ func _compute_impulse(_ball: Node) -> Vector2:
 func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 	var res: Dictionary = super.trigger_activation(ball, sim_tick)
 	if res.get("activated", false):
+		if ball.has_method("is_temporary_relic_ball") and ball.is_temporary_relic_ball():
+			return res
 		current_charge += 1
 		_refresh_lightning()
 		if current_charge >= hits_to_detonate:

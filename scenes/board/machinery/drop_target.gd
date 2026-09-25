@@ -22,6 +22,8 @@ func trigger_activation(ball: Node, sim_tick: int) -> Dictionary:
 		return {"activated": false, "energy_granted": 0, "impulse_applied": Vector2.ZERO}
 	var res: Dictionary = super.trigger_activation(ball, sim_tick)
 	if res.get("activated", false):
+		if ball.has_method("is_temporary_relic_ball") and ball.is_temporary_relic_ball():
+			return res
 		is_dropped = true
 		is_permeable = true
 		target_dropped.emit(self)

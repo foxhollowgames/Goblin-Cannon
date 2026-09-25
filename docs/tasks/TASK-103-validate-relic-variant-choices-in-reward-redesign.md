@@ -1,6 +1,6 @@
 # TASK-103: Validate Relic Variant Choices in Reward Redesign
 
-- **Status:** BACKLOG
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** Design / Relics
 - **Target Branch:** `feature/relic-variant-design-validation`
@@ -27,8 +27,12 @@ Track audit point 4 as a required design-validation workstream inside [TASK-100]
 
 ## Acceptance Criteria
 
-- [ ] The [TASK-100](TASK-100-design-temporary-special-ball-relic-rewards.md) design contains a complete same-tier variant comparison.
-- [ ] The named word-bank/spinner pairs have explicit differentiation or merge/retire decisions.
-- [ ] Every retained alternative has an explainable use case and tradeoff using the proposed temporary-ball system.
-- [ ] No intended choice is justified solely by a cosmetic label or unopposed higher payout.
-- [ ] Comparative validation scenarios are handed to the parent implementation plan and balance suite.
+- [x] The [TASK-100](TASK-100-design-temporary-special-ball-relic-rewards.md) design contains a complete same-tier variant comparison.
+- [x] The named word-bank/spinner pairs have explicit differentiation or merge/retire decisions.
+- [x] Every retained alternative has an explainable use case and tradeoff using the proposed temporary-ball system.
+- [x] No intended choice is justified solely by a cosmetic label or unopposed higher payout.
+- [x] Comparative validation scenarios are handed to the parent implementation plan and balance suite.
+
+## Design approval — 2026-09-23
+
+The user approved the revised plan for execution. The approved document contains the full 42-entry reward mapping, same-tier choices, physical roles, chain examples, lifecycle rules, and verification requirements. Earlier discussion notes are historical. Implementation is tracked in TASK-106. Final balance and comparative playtesting remain in TASK-104; this completion records design acceptance only.

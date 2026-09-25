@@ -38,7 +38,7 @@ func test_on_board_relic_tooltip_includes_activation_and_effect() -> void:
 	assert_true(tooltip_body.contains("[u]Trigger[/u]"), "Contains Trigger header")
 	assert_true(tooltip_body.contains("Hit all 4 corner boosters"), "Contains trigger text")
 	assert_true(tooltip_body.contains("[u]Effect[/u]"), "Contains Effect header")
-	assert_true(tooltip_body.contains("Board Supercharge"), "Contains effect text")
+	assert_true(tooltip_body.contains("Retired relic"), "Contains retirement text")
 	board_inst.free()
 
 func test_junk_box_inventory_tooltip_omits_metadata() -> void:

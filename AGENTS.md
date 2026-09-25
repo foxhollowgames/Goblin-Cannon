@@ -26,5 +26,17 @@ Do not duplicate long exploration: follow that order before opening unrelated pa
 8. **Directory Maintenance & Coding Standards**: Follow `docs/CODING_STANDARDS.md`. Maintain `docs/DIRECTORY.md` via `python scripts/generate_directory.py`.
 9. **Automatic Task Dashboard Maintenance**: Any time a task is created, updated, status-changed, or deleted (CRUD operations), you MUST run `python scripts/generate_task_dashboard.py` to regenerate the visual task board (`docs/tasks/dashboard.html`).
 
+## Scope and Usage Guardrails
+
+10. **Separate feature work from refactoring**: A feature task may add only the smallest seams needed for its behavior. Broad extraction, renaming, file movement, and cleanup belong in a separate task packet with its own acceptance tests.
+11. **Vertical slice before expansion**: Start with one representative source, one output path, and one complete outcome test. Do not add more ball types, relic families, UI surfaces, or acquisition sources until that slice passes.
+12. **One implementation owner**: Use one coding agent for a shared gameplay slice. Review agents may inspect completed work, but multiple agents must not edit the same gameplay files at the same time.
+13. **Review at usage gates**: Check included usage before work, at 50% of the five-hour window, and at 70%. Stop at a gate to checkpoint unless the remaining work is small and already verified. Never use paid/API credits or reset redemption.
+14. **Focused verification order**: Run focused outcome tests first, then real-physics tests, then the full quality audit. Do not spend a full audit run on a slice whose focused tests already fail.
+15. **Raw test result is authoritative**: Accept a test pass only when the raw Godot process exits with code 0, has no script errors, and reports zero failed assertions. Wrapper output that contains a misleading pass string is not evidence.
+16. **Outcome tests before breadth**: Every new gameplay path must test its observable result, including exact counts, energy conservation, ownership cleanup, expiry, population limits, and one-time collection. A parser check or signal emission alone is insufficient.
+17. **Checkpoint on architectural drift**: Stop and create a follow-up task when a feature begins changing unrelated combat, UI, acquisition, or save systems. Record the reason and the last verified state in the active task packet.
+18. **Clean handoff**: Before pausing or switching agents, record changed files, test command and raw result, known failures, running processes, and remaining scope in the task packet. Remove rejected scratch outputs and stop delegated agents.
+
 
 

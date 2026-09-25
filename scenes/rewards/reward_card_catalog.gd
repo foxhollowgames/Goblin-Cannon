@@ -91,35 +91,11 @@ static func mk_boss(def_name: String, desc: String, uid: StringName, req_types: 
 	return u
 
 static func build_onboard_effect_candidates() -> Array:
-	var candidates: Array = []
-	var cat: int = MajorUpgradeDefinition.Category.BOARD_UPGRADE
-	var chest_relics: Array[StringName] = [
-		&"explosion_radius",
-		&"explosion_peg_hit_count",
-		&"explosion_impulse",
-		&"chain_arc",
-		&"chain_range",
-		&"max_energize_stacks",
-		&"energize_decays_slower",
-		&"energized_pegs_repair_faster",
-		&"global_peg_durability",
-		&"peg_recovery_speed",
-		&"devastating_barrage",
-		&"compressed_charge",
-		&"chest_random_ball",
-		&"chest_leech_drain",
-		&"chest_leech_duration",
-		&"chest_phantom_energy",
-		&"chest_rubbery_energy",
-		&"chest_bounce_energy",
-		&"chest_split_energy"
-	]
-	for uid in chest_relics:
-		var display_name: String = str(uid).replace("_", " ").capitalize()
-		candidates.append(mk(display_name, "", uid, cat))
-	return candidates
+	return build_deliberate_relic_candidates()
 
 static func _physical_relic_description(uid: StringName, _legacy_desc: String) -> String:
+	if not PolyominoRelicDatabase.is_relic_offerable(uid):
+		return PolyominoRelicDatabase.get_retired_relic_label()
 	var kinetic: String = PolyominoRelicDatabase.get_relic_kinetic_description(uid)
 	var trigger: String = PolyominoRelicDatabase.get_relic_activation_requirement(uid)
 	var reward: String = PolyominoRelicDatabase.get_relic_reward_description(uid)
@@ -128,6 +104,21 @@ static func _physical_relic_description(uid: StringName, _legacy_desc: String) -
 	return "Physical device: %s\nTrigger: %s\nReward: %s" % [kinetic, trigger, reward]
 
 static func build_wall_break_candidates() -> Dictionary:
+	var deliberate: Array = build_deliberate_relic_candidates()
+	var cross: Array = []
+	var ball_enh: Array = []
+	var board_cand: Array = []
+	for candidate in deliberate:
+		var tier: int = PolyominoRelicDatabase.get_relic_tier(candidate.upgrade_id)
+		if tier >= 3:
+			cross.append(candidate)
+		elif tier == 2:
+			ball_enh.append(candidate)
+		else:
+			board_cand.append(candidate)
+	return {"cross_link": cross, "ball_enhancement": ball_enh, "board": board_cand}
+
+static func _build_legacy_wall_break_candidates() -> Dictionary:
 	var cross: Array = []
 	var ball_enh: Array = []
 	var board_cand: Array = []
@@ -185,51 +176,17 @@ static func build_wall_break_candidates() -> Dictionary:
 	}
 
 static func build_boss_candidates() -> Array:
-	var list: Array = []
-	list.append(mk_boss("Cascade Reactor", "Supernova: Chain Lightning automatically strikes every peg with Drain.", &"cascade_reactor", ["Energize", "Chain Lightning", "Leech"]))
-	list.append(mk_boss("Perpetual Engine", "On Break (Energized): Spawns 1 Phantom ball at the top of the board.", &"perpetual_engine", ["Energize", "Phantom"]))
-	list.append(mk_boss("Storm of Fragments", "Split: Fragment hitting 3+ energized pegs fires Chain Lightning from each.", &"storm_of_fragments", ["Split", "Energize", "Chain Lightning"]))
-	list.append(mk_boss("Explosive Contagion", "Explosions: Each damaged peg gains 1 stack of Drain.", &"explosive_contagion", ["Explosive", "Leech"]))
-	list.append(mk_boss("Overdrive Cascade", "Overdrive 5: All balls gain +1 Energy per hit for 3 seconds.", &"overdrive_cascade", []))
-	list.append(mk_boss("Superconductor", "Chain Lightning: A second chain starts from the farthest energized peg.", &"superconductor", ["Energize", "Chain Lightning"]))
-	list.append(mk_boss("Leech Singularity", "Drain (3 stacks + Energize): Drain ticks damage the peg and neighbors.", &"leech_singularity", ["Leech", "Energize"]))
-	list.append(mk_boss("Phantom Resonance", "Phantom: Passing through recently zapped pegs grants 2× Energy.", &"phantom_resonance", ["Phantom", "Chain Lightning"]))
-	list.append(mk_boss("Rubber Storm", "Rubbery (Max Speed): Discharges Chain Lightning on every bounce.", &"rubber_storm", ["Rubbery", "Chain Lightning"]))
-	list.append(mk_boss("Fragment Swarm", "Split: Divides into 3 fragments. Fragments can split again on Bomb Pegs.", &"fragment_swarm", ["Split", "Explosive"]))
-	list.append(mk_boss("Goblin Width Tempest", "Hopper: Returning a ball greatly expands hopper width for longer.", &"goblin_width_tempest", []))
-	list.append(mk_boss("Echoes of the Wrench", "Wrench: Arc Surge Wrench repairs +5 additional broken pegs.", &"echoes_of_wrench", ["Chain Lightning"]))
-	list.append(mk_boss("Stormgrid Coupling", "Magnet Peg: +60% pull force and stabilizes ball motion.", &"stormgrid_coupling", ["Chain Lightning"]))
-	list.append(mk_boss("Blood Tithe", "Drain: Drains +1 additional Energy per second per leeched peg.", &"blood_tithe", ["Leech"]))
-	list.append(mk_boss("Crown Ricochet", "Overdrive 5 (Plain): Later bounces grant +2 Energy per peg hit.", &"crown_ricochet", ["Plain"]))
-	list.append(mk_boss("Twin Mandate", "Split: +18% Energy generated from all fragment peg hits.", &"twin_mandate", ["Split"]))
-	list.append(mk_boss("Velocity Dividend", "Rubbery (High Speed): Peg hits grant +3 Energy without lightning.", &"velocity_dividend", ["Rubbery"]))
-	list.append(mk_boss("Phase Sovereign", "Phantom: +22% Energy generated from all peg passes.", &"phase_sovereign", ["Phantom"]))
-	list.append(mk_boss("Resonant Well", "Energize: All hits on energized pegs grant +2 Energy.", &"resonant_well", ["Energize"]))
-	list.append(mk_boss("Renewal Pact", "All Pegs: Broken pegs recover +12% faster.", &"renewal_pact", []))
-	list.append(mk_boss("Gilded Covenant", "Gold Pegs: Hits on Gold or Lucky Gold pegs award +1 run Gold.", &"gilded_covenant", []))
-	list.append(mk_boss("Iron Bloom", "Magnet Peg: Ambient magnetic pull strength +35%.", &"iron_bloom", []))
-	return list
+	return build_deliberate_relic_candidates()
 
 static func build_deliberate_relic_candidates() -> Array:
 	var list: Array = []
 	var cat: Dictionary = DeliberateRelicCatalog.get_catalog()
-	var goals: Dictionary = DeliberateRelicCatalog.get_goals()
 	for id in DeliberateRelicCatalog.get_all_ids():
 		var d: Dictionary = cat[id]
-		var g: Dictionary = goals.get(id, {})
 		var u: MajorUpgradeDefinition = MajorUpgradeDefinition.new()
 		u.upgrade_id = id
 		u.display_name = str(d.get("display_name", id))
-		var m_desc: String = str(d.get("machinery_desc", ""))
-		var rew_desc: String = str(g.get("reward_desc", ""))
-		var desc: String = ""
-		if not m_desc.is_empty() and not rew_desc.is_empty():
-			desc = "%s: %s" % [m_desc, rew_desc]
-		elif not m_desc.is_empty():
-			desc = "%s: Kinetic pinball machinery." % m_desc
-		else:
-			desc = "Machinery: Deliberate pinball device."
-		u.description = desc
+		u.description = _physical_relic_description(id, "")
 		var tier: int = int(d.get("tier", 1))
 		if tier >= 3:
 			u.category = MajorUpgradeDefinition.Category.BALL_ENHANCEMENT

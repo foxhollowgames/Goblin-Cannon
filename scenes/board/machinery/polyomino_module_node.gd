@@ -40,7 +40,6 @@ var _components_by_cell: Dictionary = {} # Vector2i (anchored local cell) -> Pol
 var _anchored_cells: Array[Vector2i] = []
 var _accent_color: Color = Color(0.6, 0.6, 0.6)
 var _wall_body: StaticBody2D = null
-
 var _hit_cells: Dictionary = {} # Vector2i -> bool (for Target Bank)
 var _widget_hit_counts: Dictionary = {} # int (CellType) -> int (hit count)
 var _current_hit_counter: int = 0
@@ -54,6 +53,7 @@ var _goal_flash_timer: float = 0.0
 var _floating_banner_text: String = ""
 var _floating_banner_timer: float = 0.0
 var _goal_completed_in_current_activation: bool = false
+var _relic_activation_sequence: int = 0
 
 func setup_module(p_item: Resource, p_grid_pos: Vector2i, p_rotation: int = 0) -> void:
 	item = p_item
@@ -87,7 +87,6 @@ func _rebuild_components() -> void:
 		if is_instance_valid(comp): comp.queue_free()
 	_components.clear()
 	_components_by_cell.clear()
-
 	_anchored_cells = module_data.get_anchored_rotated_cells(rotation_step)
 	var orig_cells: Array[Vector2i] = module_data.cells
 
@@ -123,7 +122,6 @@ func _rebuild_components() -> void:
 		add_child(comp)
 		_components.append(comp)
 		_components_by_cell[local_c] = comp
-
 func _build_unified_component() -> void:
 	var u_type: int = module_data.unified_component_type
 	var comp: PolyominoMachineryComponent = _create_component_for_type(u_type)
@@ -147,7 +145,6 @@ func _build_unified_component() -> void:
 		for c in _anchored_cells:
 			_components_by_cell[c] = comp
 		return
-
 func _connect_component_signals(comp: PolyominoMachineryComponent, orig_c: Vector2i = Vector2i.ZERO) -> void:
 	comp.set_accent_color(_accent_color)
 	comp.component_activated.connect(_on_component_activated)
@@ -182,7 +179,6 @@ func _configure_gate(comp: Node) -> void:
 func _on_cascade_released(_gate: Node, balls: Array) -> void:
 	var lead_ball: Node = balls[0] if not balls.is_empty() else null
 	_complete_device(lead_ball)
-
 func _on_triangle_detonated(_tri: Node, _pos: Vector2, ball: Node = null) -> void:
 	_complete_device(ball)
 
@@ -191,6 +187,8 @@ func _on_spinner_overdrive(_sp: Node, ball: Node = null) -> void:
 		_complete_device(ball)
 
 func _complete_device(ball: Node) -> void:
+	if ball != null and ball.has_method("is_temporary_relic_ball") and ball.is_temporary_relic_ball():
+		return
 	_goal_completed_in_current_activation = false
 	_trigger_goal_completion(ball)
 
@@ -219,6 +217,8 @@ func _create_component_for_type(c_type: int) -> PolyominoMachineryComponent:
 func _on_component_activated(comp: PolyominoMachineryComponent, ball: Node, energy: int, impulse: Vector2) -> void:
 	_goal_completed_in_current_activation = false
 	machinery_triggered.emit(comp, ball, energy, impulse)
+	if ball != null and ball.has_method("is_temporary_relic_ball") and ball.is_temporary_relic_ball():
+		return
 	if comp:
 		var c_type: int = comp.cell_type
 		_widget_hit_counts[c_type] = _widget_hit_counts.get(c_type, 0) + 1
@@ -324,6 +324,7 @@ func _trigger_goal_completion(ball: Node, bonus_energy: int = 0) -> void:
 	if _goal_completed_in_current_activation:
 		return
 	_goal_completed_in_current_activation = true
+	_relic_activation_sequence += 1
 	var r_energy: int = bonus_energy if bonus_energy > 0 else module_data.reward_energy
 	var reward_data: Dictionary = {
 		"energy": r_energy,
@@ -332,7 +333,8 @@ func _trigger_goal_completion(ball: Node, bonus_energy: int = 0) -> void:
 		"goal_type": module_data.goal_type,
 		"reward_type": module_data.reward_type,
 		"reward_desc": module_data.reward_description,
-		"global_position": global_position
+		"global_position": global_position,
+		"activation_sequence": _relic_activation_sequence
 	}
 	goal_completed.emit(self, module_data.goal_type, module_data.reward_type, ball, reward_data)
 	for comp in _components:

@@ -88,7 +88,7 @@ func test_pop_bumper_hit_accumulation_and_trigger() -> void:
 
 	pop_bumper.trigger_activation(dummy_ball, 20)
 	assert_eq(goal_triggers.size(), 1, "goal completed on meeting threshold")
-	assert_eq(goal_triggers[0]["r_type"], RewardType.MULTIBALL_CASCADE, "reward is MULTIBALL_CASCADE")
+	assert_eq(goal_triggers[0]["r_type"], RewardType.NONE, "retired relic has no activation reward")
 
 	dummy_ball.free()
 	node.free()
@@ -121,7 +121,7 @@ func test_drop_target_hit_accumulation_and_trigger() -> void:
 
 	drop_targets[1].trigger_activation(dummy_ball, 10)
 	assert_eq(triggers.size(), 1, "triggered at 2 hits threshold")
-	assert_eq(triggers[0], RewardType.GLOBAL_BOARD_KNOCK, "reward is GLOBAL_BOARD_KNOCK")
+	assert_eq(triggers[0], RewardType.NONE, "retired relic has no activation reward")
 
 	dummy_ball.free()
 	node.free()
@@ -176,7 +176,7 @@ func test_rollover_switch_hit_accumulation() -> void:
 	for other in node.get_all_components():
 		if other != sw: other.trigger_activation(dummy_ball, 20)
 	assert_eq(triggers.size(), 1, "All letters complete the word")
-	assert_eq(triggers[0], RewardType.ENERGY_SURGE, "reward is ENERGY_SURGE")
+	assert_eq(triggers[0], RewardType.NONE, "retired relic has no activation reward")
 
 	dummy_ball.free()
 	node.free()
@@ -190,7 +190,7 @@ func test_junk_box_tooltip_exposes_activation_and_effect() -> void:
 	assert_true(tip.contains("[u]Trigger[/u]"), "Junk Box contains Trigger section")
 	assert_true(tip.contains("Hit all 3 pop bumpers"), "Junk Box contains trigger text")
 	assert_true(tip.contains("[u]Effect[/u]"), "Junk Box contains Effect section")
-	assert_true(tip.contains("Multiball Cascade"), "Junk Box contains effect text")
+	assert_true(tip.contains("Retired relic"), "Junk Box contains retirement text")
 	assert_false(tip.contains("Tier:"), "Junk Box omits Tier")
 	assert_false(tip.contains("Size:"), "Junk Box omits Size")
 	assert_false(tip.contains("Shape:"), "Junk Box omits Shape")

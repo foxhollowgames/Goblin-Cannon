@@ -200,7 +200,7 @@ func release_retained_balls(award_bonus: bool = true) -> Array:
 			var impulse: Vector2 = gate_dir.rotated(spread) * release_impulse_strength
 			_apply_ball_impulse(b, impulse)
 
-	if award_bonus and not released.is_empty():
+	if award_bonus and not released.is_empty() and _all_balls_are_permanent(released):
 		cascade_released.emit(self, released)
 
 	if _close_timer != null and _close_timer.is_inside_tree():
@@ -208,6 +208,12 @@ func release_retained_balls(award_bonus: bool = true) -> Array:
 
 	queue_redraw()
 	return released
+
+func _all_balls_are_permanent(balls: Array) -> bool:
+	for ball: Node in balls:
+		if is_instance_valid(ball) and ball.has_method("is_temporary_relic_ball") and ball.is_temporary_relic_ball():
+			return false
+	return true
 
 func reset_gate() -> void:
 	if not retained_balls.is_empty(): release_retained_balls(false)

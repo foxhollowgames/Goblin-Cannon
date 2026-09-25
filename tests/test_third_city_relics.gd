@@ -59,7 +59,7 @@ func test_reachability() -> void:
 		for pick in node.get_major_upgrade_picks(3):
 			seen_wall[pick.upgrade_id] = true
 
-	for uid in DB.get_all_relic_ids():
+	for uid in DB.get_deliberate_relic_ids():
 		if DB.get_relic_tier(uid) == 3:
 			assert_true(seen_shop.has(uid), str(uid))
 			assert_true(seen_wall.has(uid), str(uid))

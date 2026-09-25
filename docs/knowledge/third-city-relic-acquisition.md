@@ -2,6 +2,12 @@
 
 TASK-102. The third city is Elf Palace, with city index 2.
 
+## TASK-106 roster change
+
+The approved temporary-ball redesign limits new offers to the 42 deliberate relics listed in the [reward plan](temporary-relic-ball-plan.md). All 14 retained Tier 3 relics keep third-city merchant and free wall-reward routes. City gates and prices remain unchanged. Existing legacy physical items are preserved, but their old activation rewards are removed.
+
+The sections and 122-row inventory below record the TASK-102 baseline before that redesign. They are historical evidence, not the current offer roster after TASK-106.
+
 ## Eligibility and sources
 
 All retained production relic IDs remain physical items. This task does not adopt the proposed retirements or temporary-ball rewards in TASK-100.

@@ -39,7 +39,11 @@ func test_all_database_relics_have_valid_pinball_goals() -> void:
 		var mod: PolyominoModuleData = PolyominoRelicDatabase.create_module_for_relic(rid)
 		assert_true(mod != null, "module creates for %s" % rid)
 		assert_true(mod.goal_type != GoalArchetype.NONE, "%s has non-NONE goal_type (%d)" % [rid, mod.goal_type])
-		assert_true(mod.reward_type != RewardType.NONE, "%s has non-NONE reward_type (%d)" % [rid, mod.reward_type])
+		var is_deliberate: bool = rid in PolyominoRelicDatabase.get_deliberate_relic_ids()
+		if is_deliberate:
+			assert_eq(mod.reward_type, RewardType.TEMPORARY_BALLS, "%s uses temporary ball rewards" % rid)
+		else:
+			assert_eq(mod.reward_type, RewardType.NONE, "%s is retired and has no activation reward" % rid)
 		assert_false(mod.goal_title.is_empty(), "%s has goal_title" % rid)
 		assert_false(mod.goal_description.is_empty(), "%s has goal_description" % rid)
 		assert_false(mod.reward_description.is_empty(), "%s has reward_description" % rid)

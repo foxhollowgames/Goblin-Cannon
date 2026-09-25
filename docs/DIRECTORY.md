@@ -122,6 +122,7 @@
 | `test_slotted_relic_effects.gd` | `SlottedRelicEffects` | [tests/test_slotted_relic_effects.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_slotted_relic_effects.gd) |
 | `test_sticky_slime_event.gd` | `StickySlimeEvent` | [tests/test_sticky_slime_event.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_sticky_slime_event.gd) |
 | `test_story_campaign_architecture.gd` | `StoryCampaignArchitecture` | [tests/test_story_campaign_architecture.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_story_campaign_architecture.gd) |
+| `test_temporary_relic_ball_rewards.gd` | `TemporaryRelicBallRewards` | [tests/test_temporary_relic_ball_rewards.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_temporary_relic_ball_rewards.gd) |
 | `test_test_scenario.gd` | `TestScenario` | [tests/test_test_scenario.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_test_scenario.gd) |
 | `test_tetromino_module_fusion.gd` | `TetrominoModuleFusion` | [tests/test_tetromino_module_fusion.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_tetromino_module_fusion.gd) |
 | `test_third_city_relics.gd` | `ThirdCityRelics` | [tests/test_third_city_relics.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_third_city_relics.gd) |
