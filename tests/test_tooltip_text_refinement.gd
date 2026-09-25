@@ -20,7 +20,7 @@ func test_trampoline_shop_description_text() -> void:
 	begin("MilestoneShopData.PEG_SHOP_DISPLAY['trampoline'] description simplified")
 	var shop_data: Dictionary = MilestoneShopData.PEG_SHOP_DISPLAY.get("trampoline", {})
 	var desc: String = str(shop_data.get("desc", ""))
-	assert_eq(desc, "Launches balls. Place on any peg.", "Trampoline Peg shop desc is simplified")
+	assert_eq(desc, "Launches balls upwards.", "Trampoline Peg shop desc is simplified")
 
 func test_keyword_definitions_concise_and_non_empty() -> void:
 	begin("All KeywordDatabase definitions are non-empty and under 80 characters")
