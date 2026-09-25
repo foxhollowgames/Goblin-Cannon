@@ -37,6 +37,7 @@ const SHOP_CARD_FRAME_HEIGHT: int = 160
 const SHOP_CARD_DESC_TWO_LINES_H: int = 42
 const SHOP_CARD_TITLE_FONT: int = 12
 const SHOP_CARD_DESC_FONT: int = 10
+const SHOP_RELIC_PREVIEW_H: float = 72.0
 const SHOP_OFFER_HOVER_SCALE: float = 1.08
 ## Real-time seconds; tweens use ignore_time_scale so hover works while REWARD_PAUSED (Engine.time_scale = 0).
 const SHOP_OFFER_HOVER_TWEEN_SEC: float = 0.04
@@ -374,7 +375,7 @@ func _make_relic_card(opt: MilestoneOption, index: int, price: int) -> Control:
 	title_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	card_vbox.add_child(title_label)
 	card_vbox.add_child(_shop_category_label("RELIC (T%d)" % tier))
-	card_vbox.add_child(RewardCardBuilder.make_relic_shop_preview(rid, 38.0))
+	card_vbox.add_child(RewardCardBuilder.make_relic_shop_preview(rid, SHOP_RELIC_PREVIEW_H))
 	if not PolyominoRelicDatabase.is_relic_offerable(rid):
 		var desc_label: RichTextLabel = RichTextLabel.new()
 		_shop_style_desc_label(desc_label)

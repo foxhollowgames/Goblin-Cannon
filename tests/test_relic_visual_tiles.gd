@@ -39,7 +39,7 @@ func test_relic_shop_preview_builder() -> void:
 	assert_true(preview != null, "Preview child is RelicLayoutPreview")
 	if preview:
 		assert_true(preview.get_module_data() != null, "Module data is loaded in preview")
-		assert_true(preview.cell_size >= 7.0 and preview.cell_size <= 13.0, "Cell size is clamped reasonably")
+		assert_true(preview.cell_size >= 9.0 and preview.cell_size <= 18.0, "Cell size is clamped reasonably")
 		assert_eq(preview.mouse_filter, Control.MOUSE_FILTER_IGNORE, "Preview ignores mouse events")
 
 func test_relic_shop_description_format() -> void:
@@ -98,4 +98,16 @@ func test_reward_draft_panel_relic_card_structure() -> void:
 	assert_true(found_preview, "Relic card contains RelicLayoutPreview tile")
 	assert_true(found_reward_badge, "Offerable relic card contains concise reward badge")
 	assert_false(found_rich_text, "Offerable relic card omits verbose description")
+
+	var preview_holder: Control = null
+	var nodes: Array = [card]
+	while not nodes.is_empty():
+		var node: Node = nodes.pop_back()
+		if node is VBoxContainer and node.get_child_count() == 2 and node.get_child(1) is Label:
+			var candidate: Control = node as Control
+			if candidate.custom_minimum_size.y > 38.0:
+				preview_holder = candidate
+		for child in node.get_children():
+			nodes.append(child)
+	assert_true(preview_holder != null, "Merchant relic card reserves expanded preview space")
 
