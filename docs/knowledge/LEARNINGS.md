@@ -156,6 +156,9 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-145`](#lrn-145) | TASK-107 | `testing` | Temporary relic ball lifecycle needs outcome tests | 2026-09-24 |
 | [`LRN-146`](#lrn-146) | TASK-108 | `ui` | Offerable relic cards should show one reward line | 2026-09-24 |
 | [`LRN-147`](#lrn-147) | TASK-110 | `ui` | Stack preview and reward rows in Merchant relic cards | 2026-09-24 |
+| [`LRN-148`](#lrn-148) | TASK-111 | `ui` | Merchant relic previews need reserved image height | 2026-09-24 |
+| [`LRN-149`](#lrn-149) | TASK-112 | `ui` | Merchant peg copy should state one action | 2026-09-24 |
+| [`LRN-150`](#lrn-150) | TASK-113 | `ui` | Shared keyword labels must enable BBCode and hover input | 2026-09-24 |
 
 ---
 
@@ -2510,5 +2513,53 @@ Use separate vertical rows for a relic preview and its reward label. Shared prev
 
 #### Actionable Guideline for Future Agents
 When adding labels to visual previews, test the container hierarchy and assert the label is a sibling row below the image.
+
+---
+
+### <a id="lrn-148"></a> LRN-148: Merchant relic previews need reserved image height
+- **Task:** `TASK-111`
+- **Category:** `ui`
+- **Created:** `2026-09-24T20:25:13.600798`
+
+#### Context & Problem
+After reward text overlap was fixed, the relic images remained small because the shared preview used a 38 pixel height.
+
+#### Key Insight & Learning
+Reserve a larger preview row for Merchant relics and keep the reward line below it within the card frame.
+
+#### Actionable Guideline for Future Agents
+When card text is concise, spend the freed vertical space on the visual preview and assert the holder height.
+
+---
+
+### <a id="lrn-149"></a> LRN-149: Merchant peg copy should state one action
+- **Task:** `TASK-112`
+- **Category:** `ui`
+- **Created:** `2026-09-24T20:25:13.691202`
+
+#### Context & Problem
+Long peg copy repeated placement instructions and hid the main action.
+
+#### Key Insight & Learning
+Use one short action sentence for each Merchant peg. Keep exact player-facing wording in tests.
+
+#### Actionable Guideline for Future Agents
+Test requested shop copy exactly when UI text is part of the requirement.
+
+---
+
+### <a id="lrn-150"></a> LRN-150: Shared keyword labels must enable BBCode and hover input
+- **Task:** `TASK-113`
+- **Category:** `ui`
+- **Created:** `2026-09-24T20:25:13.779069`
+
+#### Context & Problem
+Keyword labels depended on callers to configure parsing and mouse input, so some descriptions showed plain text and no hover styling.
+
+#### Key Insight & Learning
+Make the shared keyword label helper enable BBCode parsing and accept hover input before attaching URL meta signals.
+
+#### Actionable Guideline for Future Agents
+Put essential RichTextLabel configuration in the shared tooltip helper and test the resulting label state.
 
 ---

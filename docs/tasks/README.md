@@ -7,9 +7,9 @@ All tasks use structured Markdown with status, priority, and clear acceptance cr
 | [TASK-108](TASK-108-simplify-relic-reward-card-descriptions.md) | Simplify relic reward card descriptions | UI / Visuals | P1 | DONE | `fix/simplify-relic-reward-descriptions` |
 | [TASK-109](TASK-109-thematic-and-descriptive-relic-names.md) | Thematic and Descriptive Relic Names | Design / Relics | P2 | BACKLOG | `feature/thematic-and-descriptive-relic-names` |
 | [TASK-110](TASK-110-fix-merchant-peg-and-relic-card-descriptions.md) | Fix Merchant peg and relic card descriptions | UI / Visuals | P1 | DONE | `fix/merchant-card-description-layout` |
-| [TASK-111](TASK-111-expand-merchant-relic-card-previews.md) | Expand Merchant relic card previews | UI / Visuals | P1 | IN_PROGRESS | `fix/expand-merchant-relic-previews` |
-| [TASK-112](TASK-112-simplify-merchant-peg-descriptions.md) | Simplify Merchant peg descriptions | UI / Text | P1 | IN_PROGRESS | `fix/simplify-merchant-peg-descriptions` |
-| [TASK-113](TASK-113-restore-keyword-hover-tooltips.md) | Restore keyword hover tooltips | UI / Tooltips | P1 | IN_PROGRESS | `fix/restore-keyword-hover-tooltips` |
+| [TASK-111](TASK-111-expand-merchant-relic-card-previews.md) | Expand Merchant relic card previews | UI / Visuals | P1 | DONE | `fix/expand-merchant-relic-previews` |
+| [TASK-112](TASK-112-simplify-merchant-peg-descriptions.md) | Simplify Merchant peg descriptions | UI / Text | P1 | DONE | `fix/simplify-merchant-peg-descriptions` |
+| [TASK-113](TASK-113-restore-keyword-hover-tooltips.md) | Restore keyword hover tooltips | UI / Tooltips | P1 | DONE | `fix/restore-keyword-hover-tooltips` |
 
 ---
 

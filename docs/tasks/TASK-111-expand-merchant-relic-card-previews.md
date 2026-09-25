@@ -1,6 +1,6 @@
 # TASK-111: Expand Merchant relic card previews
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Visuals
 - **Target Branch:** `fix/expand-merchant-relic-previews`
@@ -25,7 +25,7 @@ Expand Merchant relic card previews
 - [x] Requirements implemented and verified.
 - [x] Tests pass cleanly.
 - [x] File lengths adhere to the 500-line repository limit.
-- [ ] Pull Request opened, audited by independent PR reviewer, and merged.
+- [x] Pull Request opened, audited by independent PR reviewer, and merged.
 
 ## Checkpoint — expanded relic image area
 

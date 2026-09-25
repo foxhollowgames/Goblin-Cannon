@@ -1,6 +1,6 @@
 # TASK-113: Restore keyword hover tooltips
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Tooltips
 - **Target Branch:** `fix/restore-keyword-hover-tooltips`
@@ -25,7 +25,7 @@ Restore keyword hover tooltips
 - [x] Requirements implemented and verified.
 - [x] Tests pass cleanly.
 - [x] File lengths adhere to the 500-line repository limit.
-- [ ] Pull Request opened, audited by independent PR reviewer, and merged.
+- [x] Pull Request opened, audited by independent PR reviewer, and merged.
 
 ## Checkpoint — shared keyword label repair
 
