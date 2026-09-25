@@ -180,6 +180,7 @@ func _make_card(pick: Resource, index: int) -> Control:
 	var desc_str: String = pick.get("description") if pick else ""
 	var upgrade_id: StringName = StringName(pick.get("upgrade_id")) if (pick and "upgrade_id" in pick) else &""
 	var is_relic: bool = PolyominoRelicDatabase.has_relic_definition(upgrade_id)
+	var is_offerable_relic: bool = is_relic and PolyominoRelicDatabase.is_relic_offerable(upgrade_id)
 	var tier: int = PolyominoRelicDatabase.get_relic_tier(upgrade_id) if is_relic else 1
 	var style_info: Dictionary = RelicTierVisuals.get_tier_style(tier)
 
@@ -225,15 +226,15 @@ func _make_card(pick: Resource, index: int) -> Control:
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	card_vbox.add_child(name_label)
-	if PolyominoRelicDatabase.has_relic_definition(upgrade_id):
+	if is_relic:
 		var preview: RelicLayoutPreview = RelicLayoutPreview.new()
 		preview.setup_for_relic(upgrade_id)
 		card_vbox.add_child(preview)
 
-		var g_title: String = PolyominoRelicDatabase.get_relic_goal_title(upgrade_id)
-		var g_desc: String = PolyominoRelicDatabase.get_relic_goal_description(upgrade_id)
-		var r_desc: String = PolyominoRelicDatabase.get_relic_reward_description(upgrade_id)
-		if not g_title.is_empty():
+		if not is_offerable_relic:
+			var g_title: String = PolyominoRelicDatabase.get_relic_goal_title(upgrade_id)
+			var g_desc: String = PolyominoRelicDatabase.get_relic_goal_description(upgrade_id)
+			var r_desc: String = PolyominoRelicDatabase.get_relic_reward_description(upgrade_id)
 			var goal_label: RichTextLabel = RichTextLabel.new()
 			goal_label.bbcode_enabled = true
 			goal_label.fit_content = true
@@ -242,9 +243,8 @@ func _make_card(pick: Resource, index: int) -> Control:
 			goal_label.custom_minimum_size = Vector2(180, 0)
 			goal_label.add_theme_font_size_override("normal_font_size", 12)
 			goal_label.add_theme_font_size_override("bold_font_size", 12)
-			var f_desc: String = KeywordDatabase.format_bbcode(g_desc)
-			var f_reward: String = KeywordDatabase.format_bbcode(r_desc)
-			var goal_text: String = "[center][color=#ffcc44][b]★ %s[/b][/color]\n[color=#cfcfcf]%s[/color]\n[color=#44ffaa]%s[/color][/center]" % [g_title, f_desc, f_reward]
+			var retired_text: String = KeywordDatabase.format_bbcode(r_desc)
+			var goal_text: String = "[center][color=#ffcc44][b]★ %s[/b][/color]\n[color=#cfcfcf]%s[/color]\n[color=#44ffaa]%s[/color][/center]" % [g_title, KeywordDatabase.format_bbcode(g_desc), retired_text]
 			goal_label.text = goal_text
 			KeywordDatabase.attach_rich_text_label(goal_label)
 			card_vbox.add_child(goal_label)
@@ -254,6 +254,37 @@ func _make_card(pick: Resource, index: int) -> Control:
 		fallback_spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		card_vbox.add_child(fallback_spacer)
 
+	if is_offerable_relic:
+		var reward_label: Label = Label.new()
+		var reward: RelicBallReward = RelicBallReward.for_relic(upgrade_id, tier)
+		reward_label.text = "Reward: %d %s" % [reward.count, reward.ball_type] if reward != null else "Reward"
+		reward_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		reward_label.add_theme_font_size_override("font_size", 14)
+		reward_label.add_theme_color_override("font_color", Color(0.55, 1.0, 0.72, 1.0))
+		card_vbox.add_child(reward_label)
+	else:
+		_add_card_description(card_vbox, desc_str)
+	var spacer: Control = Control.new()
+	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	card_vbox.add_child(spacer)
+	var btn: Button = Button.new()
+	btn.text = "Select"
+	btn.pressed.connect(_on_pick_pressed.bind(index))
+	card_vbox.add_child(btn)
+	var default_border_color: Color = style.border_color
+	var default_bg_color: Color = style.bg_color
+	panel.mouse_entered.connect(func() -> void:
+		style.border_color = Color(1.0, 0.85, 0.35, 1.0)
+		style.bg_color = Color(0.16, 0.1, 0.22, 1.0)
+	)
+	panel.mouse_exited.connect(func() -> void:
+		style.border_color = default_border_color
+		style.bg_color = default_bg_color
+	)
+	return panel
+
+func _add_card_description(card_vbox: VBoxContainer, desc_str: String) -> void:
 	var desc_label: RichTextLabel = RichTextLabel.new()
 	desc_label.bbcode_enabled = true
 	desc_label.fit_content = true
@@ -268,26 +299,6 @@ func _make_card(pick: Resource, index: int) -> Control:
 	desc_label.add_theme_color_override("default_color", Color(0.8, 0.75, 0.85, 1))
 	KeywordDatabase.format_and_attach(desc_label, desc_str, KeywordDatabase.HIGHLIGHT_COLOR, "[center]", "[/center]")
 	card_vbox.add_child(desc_label)
-	var spacer: Control = Control.new()
-	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	card_vbox.add_child(spacer)
-	var btn: Button = Button.new()
-	btn.text = "Select"
-	btn.pressed.connect(_on_pick_pressed.bind(index))
-	card_vbox.add_child(btn)
-
-	var default_border_color: Color = style.border_color
-	var default_bg_color: Color = style.bg_color
-	panel.mouse_entered.connect(func() -> void:
-		style.border_color = Color(1.0, 0.85, 0.35, 1.0)
-		style.bg_color = Color(0.16, 0.1, 0.22, 1.0)
-	)
-	panel.mouse_exited.connect(func() -> void:
-		style.border_color = default_border_color
-		style.bg_color = default_bg_color
-	)
-	return panel
 
 func _on_pick_pressed(index: int) -> void:
 	if index >= 0 and index < _picks.size():

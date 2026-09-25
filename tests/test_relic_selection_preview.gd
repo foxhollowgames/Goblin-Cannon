@@ -14,6 +14,7 @@ func run() -> void:
 	test_kinetic_glyph_types_and_directions()
 	test_draft_card_construction_with_preview()
 	test_draft_card_fallback_without_relic_def()
+	test_offerable_relic_card_shows_only_reward()
 
 func test_preview_control_instantiation_and_properties() -> void:
 	begin("RelicLayoutPreview control instantiation and properties")
@@ -212,5 +213,27 @@ func test_draft_card_fallback_without_relic_def() -> void:
 				has_preview = true
 		assert_false(has_preview, "non-relic upgrade card does not instantiate RelicLayoutPreview")
 
+	card.free()
+	panel.free()
+
+func test_offerable_relic_card_shows_only_reward() -> void:
+	begin("Offerable relic card shows one concise reward line")
+	var panel_scene: PackedScene = load("res://scenes/rewards/major_upgrade_draft_panel.tscn") as PackedScene
+	var panel: Control = panel_scene.instantiate() as Control
+	var upgrade: MajorUpgradeDefinition = MajorUpgradeDefinition.new()
+	upgrade.display_name = "Twin Core Bumper Vessel"
+	upgrade.description = "Legacy trigger text must not be repeated."
+	upgrade.upgrade_id = &"bumper_vessel_twin"
+	var card: Control = panel._make_card(upgrade, 0)
+	var vbox: VBoxContainer = card.get_child(0) as VBoxContainer
+	var reward_text: String = ""
+	var rich_text_count: int = 0
+	for child: Node in vbox.get_children():
+		if child is Label and (child as Label).text.begins_with("Reward:"):
+			reward_text = (child as Label).text
+		if child is RichTextLabel:
+			rich_text_count += 1
+	assert_eq(reward_text, "Reward: 1 Rubbery")
+	assert_eq(rich_text_count, 0)
 	card.free()
 	panel.free()

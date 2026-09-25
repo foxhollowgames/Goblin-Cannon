@@ -375,11 +375,12 @@ func _make_relic_card(opt: MilestoneOption, index: int, price: int) -> Control:
 	card_vbox.add_child(title_label)
 	card_vbox.add_child(_shop_category_label("RELIC (T%d)" % tier))
 	card_vbox.add_child(RewardCardBuilder.make_relic_shop_preview(rid, 38.0))
-	var desc_label: RichTextLabel = RichTextLabel.new()
-	_shop_style_desc_label(desc_label)
-	var desc_text: String = PolyominoRelicDatabase.get_relic_shop_description(rid)
-	KeywordDatabase.format_and_attach(desc_label, desc_text, KeywordDatabase.HIGHLIGHT_COLOR, "[center]", "[/center]")
-	card_vbox.add_child(desc_label)
+	if not PolyominoRelicDatabase.is_relic_offerable(rid):
+		var desc_label: RichTextLabel = RichTextLabel.new()
+		_shop_style_desc_label(desc_label)
+		var desc_text: String = PolyominoRelicDatabase.get_relic_shop_description(rid)
+		KeywordDatabase.format_and_attach(desc_label, desc_text, KeywordDatabase.HIGHLIGHT_COLOR, "[center]", "[/center]")
+		card_vbox.add_child(desc_label)
 	card_vbox.add_child(_shop_vbox_fill_spacer())
 	return _finalize_shop_offer(panel, price, index)
 
