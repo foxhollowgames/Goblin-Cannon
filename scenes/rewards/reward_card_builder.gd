@@ -7,14 +7,20 @@ const PolyominoRelicDatabase = preload("res://resources/polyomino/polyomino_reli
 
 ## Renders a centered polyomino relic shape preview with tier frame and component glyphs.
 static func make_relic_shop_preview(relic_id: StringName, preview_h: float = 38.0) -> Control:
-	var holder: CenterContainer = CenterContainer.new()
+	var holder: VBoxContainer = VBoxContainer.new()
+	holder.alignment = BoxContainer.ALIGNMENT_CENTER
+	holder.add_theme_constant_override("separation", 2)
 	holder.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	holder.custom_minimum_size = Vector2(0, preview_h)
+	holder.custom_minimum_size = Vector2(0, preview_h + 14.0)
 	holder.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 
 	if not PolyominoRelicDatabase.has_relic_definition(relic_id):
 		return holder
 
+	var preview_center: CenterContainer = CenterContainer.new()
+	preview_center.custom_minimum_size = Vector2(0, preview_h)
+	preview_center.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	holder.add_child(preview_center)
 	var preview: RelicLayoutPreview = RelicLayoutPreview.new()
 	preview.setup_for_relic(relic_id)
 	preview.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -43,9 +49,11 @@ static func make_relic_shop_preview(relic_id: StringName, preview_h: float = 38.
 	preview.cell_pad = 1.0
 	var req_w: float = float(cols) * preview.cell_size + 4.0
 	preview.custom_minimum_size = Vector2(req_w, preview_h)
-	holder.add_child(preview)
+	preview_center.add_child(preview)
 	var reward_badge: Label = make_relic_reward_badge(relic_id)
 	if reward_badge != null:
+		reward_badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		reward_badge.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		holder.add_child(reward_badge)
 	return holder
 

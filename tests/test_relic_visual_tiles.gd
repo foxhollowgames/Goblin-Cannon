@@ -22,11 +22,16 @@ func test_relic_shop_preview_builder() -> void:
 	var preview_holder: Control = RewardCardBuilder.make_relic_shop_preview(&"corner_slingshot", 38.0)
 	autofree(preview_holder)
 	assert_true(preview_holder != null, "Preview holder is not null")
-	assert_eq(preview_holder.custom_minimum_size.y, 38.0, "Holder height matches requested height")
+	assert_true(preview_holder.custom_minimum_size.y >= 38.0, "Holder reserves image and reward height")
 	assert_eq(preview_holder.mouse_filter, Control.MOUSE_FILTER_IGNORE, "Holder ignores mouse events")
+	assert_true(preview_holder is VBoxContainer, "Preview holder stacks image and reward vertically")
+	assert_eq(preview_holder.get_child_count(), 2, "Preview holder has separate image and reward rows")
+	assert_true(preview_holder.get_child(0) is CenterContainer, "Image uses its own centered row")
+	assert_true(preview_holder.get_child(1) is Label, "Reward uses a separate label row")
 
 	var preview: RelicLayoutPreview = null
-	for child in preview_holder.get_children():
+	var image_row: Node = preview_holder.get_child(0)
+	for child in image_row.get_children():
 		if child is RelicLayoutPreview:
 			preview = child as RelicLayoutPreview
 			break
