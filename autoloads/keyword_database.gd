@@ -146,6 +146,9 @@ func update_rtl_text(rtl: RichTextLabel, hovered_key: String = "") -> void:
 func attach_rich_text_label(rtl: RichTextLabel, plain_text: String = "", prefix: String = "", suffix: String = "", color: String = HIGHLIGHT_COLOR) -> void:
 	if not rtl or not is_instance_valid(rtl):
 		return
+	# Every caller must use parsed BBCode so keyword colors and [url] meta spans render.
+	rtl.bbcode_enabled = true
+	rtl.mouse_filter = Control.MOUSE_FILTER_PASS
 	if not plain_text.is_empty():
 		rtl.set_meta("plain_text", plain_text)
 	if not prefix.is_empty():
