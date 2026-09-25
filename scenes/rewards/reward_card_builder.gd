@@ -41,11 +41,11 @@ static func make_relic_shop_preview(relic_id: StringName, preview_h: float = 38.
 		cols = maxi(1, max_x - min_x + 1)
 		rows = maxi(1, max_y - min_y + 1)
 
-	var max_w: float = 76.0
+	var max_w: float = 116.0
 	var max_h: float = preview_h - 4.0
 	var cell_w: float = max_w / float(cols)
 	var cell_h: float = max_h / float(rows)
-	preview.cell_size = clampf(minf(cell_w, cell_h), 7.0, 13.0)
+	preview.cell_size = clampf(minf(cell_w, cell_h), 9.0, 18.0)
 	preview.cell_pad = 1.0
 	var req_w: float = float(cols) * preview.cell_size + 4.0
 	preview.custom_minimum_size = Vector2(req_w, preview_h)
