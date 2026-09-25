@@ -110,6 +110,8 @@ func test_attach_rich_text_label_syncs_bold_font_size_and_handles_hover() -> voi
 	var rtl := RichTextLabel.new()
 	rtl.add_theme_font_size_override("normal_font_size", 10)
 	KeywordDatabase.format_and_attach(rtl, "Requires less Energy to fire.")
+	assert_true(rtl.bbcode_enabled, "keyword label enables BBCode parsing")
+	assert_eq(rtl.mouse_filter, Control.MOUSE_FILTER_PASS, "keyword label accepts hover input")
 	assert_false(rtl.meta_underlined, "meta_underlined is false to disable keyword underline")
 	assert_false(rtl.hint_underlined, "hint_underlined is false")
 	assert_eq(rtl.get_theme_font_size("bold_font_size"), 10, "bold font size matches normal font size")

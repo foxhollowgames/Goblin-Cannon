@@ -15,13 +15,19 @@ Restore keyword hover tooltips
 ## Requirements
 
 ### 1. Scope and Implementation
-- Implement specifications for Restore keyword hover tooltips.
+- Ensure every shared RichTextLabel keyword helper enables BBCode parsing.
+- Keep keyword labels hoverable and connected to the existing flyout signals.
 
 ---
 
 ## Acceptance Criteria
 
-- [ ] Requirements implemented and verified.
-- [ ] Tests pass cleanly.
-- [ ] File lengths adhere to the 500-line repository limit.
+- [x] Requirements implemented and verified.
+- [x] Tests pass cleanly.
+- [x] File lengths adhere to the 500-line repository limit.
 - [ ] Pull Request opened, audited by independent PR reviewer, and merged.
+
+## Checkpoint — shared keyword label repair
+
+- Enabled BBCode parsing and hover input in `KeywordDatabase.attach_rich_text_label`.
+- Added assertions that shared labels parse keyword markup and accept hover input.
