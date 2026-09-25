@@ -4,7 +4,7 @@
 - **Priority:** P1
 - **Category:** UI / Visuals
 - **Target Branch:** `fix/merchant-card-description-layout`
-- **Related Tasks:** 
+- **Related Tasks:**
 
 ## Description
 
