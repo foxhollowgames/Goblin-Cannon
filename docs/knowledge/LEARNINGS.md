@@ -154,6 +154,7 @@ This canonical knowledge base stores lessons, patterns, and optimization rules l
 | [`LRN-143`](#lrn-143) | TASK-101 | `architecture` | Separate physical relic ownership from passive effects | 2026-09-23 |
 | [`LRN-144`](#lrn-144) | TASK-102 | `gameplay` | Gate relic tiers across every normal source | 2026-09-23 |
 | [`LRN-145`](#lrn-145) | TASK-107 | `testing` | Temporary relic ball lifecycle needs outcome tests | 2026-09-24 |
+| [`LRN-146`](#lrn-146) | TASK-108 | `ui` | Offerable relic cards should show one reward line | 2026-09-24 |
 
 ---
 
@@ -2476,5 +2477,21 @@ Temporary reward tests must drive queue_reward and controller process ticks, ver
 
 #### Actionable Guideline for Future Agents
 For temporary ball changes, add production queue, blocked outlet, one-time collection, capture-owner, and odd-energy conservation tests before marking the task complete. Use the raw Godot exit code and final total as the authority.
+
+---
+
+### <a id="lrn-146"></a> LRN-146: Offerable relic cards should show one reward line
+- **Task:** `TASK-108`
+- **Category:** `ui`
+- **Created:** `2026-09-24T20:02:07.198081`
+
+#### Context & Problem
+Merchant and major upgrade relic cards repeated trigger and effect descriptions around the reward badge.
+
+#### Key Insight & Learning
+Offerable relic cards should render the shared concise reward badge and omit verbose shop descriptions. Keep verbose descriptions only for retired fallback content.
+
+#### Actionable Guideline for Future Agents
+When changing relic card presentation, test both Merchant and major upgrade card builders.
 
 ---
