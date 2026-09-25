@@ -6,6 +6,7 @@ func _init() -> void:
 func run() -> void:
 	test_trampoline_peg_tooltip_text()
 	test_trampoline_shop_description_text()
+	test_requested_peg_shop_descriptions()
 	test_keyword_definitions_concise_and_non_empty()
 	test_milestone_shop_peg_descriptions_concise_and_non_empty()
 	test_all_ball_abilities_have_keyword_glossary_entry()
@@ -21,6 +22,11 @@ func test_trampoline_shop_description_text() -> void:
 	var shop_data: Dictionary = MilestoneShopData.PEG_SHOP_DISPLAY.get("trampoline", {})
 	var desc: String = str(shop_data.get("desc", ""))
 	assert_eq(desc, "Launches balls upwards.", "Trampoline Peg shop desc is simplified")
+
+func test_requested_peg_shop_descriptions() -> void:
+	begin("Bomb, Trampoline, and Splitter shop descriptions use direct action text")
+	assert_eq(str(MilestoneShopData.PEG_SHOP_DISPLAY["bomb"].get("desc", "")), "Explodes.", "Bomb Peg copy is exact")
+	assert_eq(str(MilestoneShopData.PEG_SHOP_DISPLAY["splitter"].get("desc", "")), "Splits balls that hit it.", "Splitter Peg copy is exact")
 
 func test_keyword_definitions_concise_and_non_empty() -> void:
 	begin("All KeywordDatabase definitions are non-empty and under 80 characters")
