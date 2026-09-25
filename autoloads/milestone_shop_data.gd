@@ -23,18 +23,18 @@ const STAT_DISPLAY: Dictionary = {
 }
 
 const PEG_SHOP_DISPLAY: Dictionary = {
-	"bomb": {"name": "Bomb Peg", "desc": "Explodes on hit, damaging nearby pegs for bonus Energy. Place on any peg."},
-	"trampoline": {"name": "Trampoline Peg", "desc": "Launches balls. Place on any peg."},
-	"goblin_reset": {"name": "Goblin Reset", "desc": "Catches balls and returns them to the hopper. Place on any peg."},
-	"gold": {"name": "Gold Peg", "desc": "Grants 3× Energy when hit by a ball. Place on any peg."},
-	"splitter": {"name": "Splitter Peg", "desc": "Splits any ball that hits it into two balls. Place on any peg."},
-	"eternal": {"name": "Eternal Peg", "desc": "Instantly repairs its durability to full when broken. Place on any peg."},
-	"extreme_bouncer": {"name": "Extreme Bouncer", "desc": "Bounces balls with high speed. Place on any peg."},
-	"magnet": {"name": "Magnet Peg", "desc": "Pulls nearby balls toward itself. Place on any peg."},
-	"lucky_gold": {"name": "Lucky Gold Peg", "desc": "Grants +1 or +5 Gold when hit. Place on any peg."},
-	"phase": {"name": "Phase Peg", "desc": "Alternates between solid and ghost states on a timer. Place on any peg."},
-	"wrench": {"name": "Wrench Peg", "desc": "Instantly repairs nearby broken pegs when hit. Place on any peg."},
-	"gravity_well": {"name": "Gravity Well Peg", "desc": "Slows down balls that pass through its field. Place on any peg."}
+	"bomb": {"name": "Bomb Peg", "desc": "Explodes."},
+	"trampoline": {"name": "Trampoline Peg", "desc": "Launches balls upwards."},
+	"goblin_reset": {"name": "Goblin Reset", "desc": "Catches balls and returns them to the hopper."},
+	"gold": {"name": "Gold Peg", "desc": "Grants 3× Energy."},
+	"splitter": {"name": "Splitter Peg", "desc": "Splits balls that hit it."},
+	"eternal": {"name": "Eternal Peg", "desc": "Repairs itself when broken."},
+	"extreme_bouncer": {"name": "Extreme Bouncer", "desc": "Bounces balls at high speed."},
+	"magnet": {"name": "Magnet Peg", "desc": "Pulls nearby balls toward itself."},
+	"lucky_gold": {"name": "Lucky Gold Peg", "desc": "Grants 1 or 5 Gold."},
+	"phase": {"name": "Phase Peg", "desc": "Alternates between solid and ghost states."},
+	"wrench": {"name": "Wrench Peg", "desc": "Repairs nearby broken pegs."},
+	"gravity_well": {"name": "Gravity Well Peg", "desc": "Slows nearby balls."}
 }
 
 ## Peg kinds offered in the merchant shop pool (keep aligned with `RewardHandler._build_peg_shop_candidates`).
