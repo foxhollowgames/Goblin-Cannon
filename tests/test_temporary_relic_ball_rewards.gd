@@ -112,6 +112,7 @@ func test_queue_defers_allocation_and_rejects_duplicate_activation() -> void:
 	module.setup_module(item, Vector2i.ZERO, 0)
 	var triggering_ball: Node2D = Node2D.new()
 	var reward: RelicBallReward = RelicBallReward.for_relic(&"bumper_vessel_twin", 1)
+	reward.spawn_at_relic = true
 	assert_true(controller.queue_reward(module, reward, triggering_ball, 0, 7))
 	assert_false(controller.queue_reward(module, reward, triggering_ball, 0, 7))
 	controller.process(0)
@@ -167,6 +168,7 @@ func test_blocked_outlet_cancels_after_sixty_ticks() -> void:
 	module.setup_module(item, Vector2i.ZERO, 0)
 	var triggering_ball: Node2D = Node2D.new()
 	var reward: RelicBallReward = RelicBallReward.for_relic(&"bumper_vessel_twin", 1)
+	reward.spawn_at_relic = true
 	var status: Array = []
 	controller.reward_status.connect(func(source_id: StringName, offered: int, emitted: int, canceled: int, blocked: bool) -> void:
 		status.append({"canceled": canceled, "blocked": blocked})

@@ -154,3 +154,4 @@ Every pull request must complete an independent sub-agent review cycle:
 2. Invoke an independent `pr_reviewer` sub-agent without conversational context.
 3. If the sub-agent reports major findings, address them and repeat review.
 4. Merge the Pull Request into `main` after receiving approval.
+| [TASK-115](TASK-115-fix-temporary-ball-rewards-to-spawn-in-hopper.md) | Fix temporary ball rewards to spawn in hopper | Systems / Gameplay | P1 | IN_REVIEW | `fix/temporary-ball-reward-hopper` |
