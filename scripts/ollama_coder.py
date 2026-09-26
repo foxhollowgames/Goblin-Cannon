@@ -27,6 +27,12 @@ Strict Rules:
 7. Return only clean code without conversational filler.
 """
 
+SYSTEM_PROMPTS = {
+    "gdscript": GODOT4_SYSTEM_PROMPT,
+    "python": "Write valid Python 3 using the standard library. Follow the supplied specification. Return only the requested code or patch. Do not use GDScript syntax or Godot test classes.",
+    "text": "Follow the supplied specification. Return only the requested text or patch.",
+}
+
 def check_ollama_status(base_url: str = DEFAULT_OLLAMA_URL) -> dict:
     """Check if Ollama server is running and return available models."""
     clean_url = base_url.rstrip("/")
@@ -69,6 +75,8 @@ def query_ollama(
     try:
         with urllib.request.urlopen(req, timeout=600) as resp:
             res = json.loads(resp.read().decode("utf-8"))
+            if res.get("done_reason") == "length":
+                raise ValueError("Local response reached its output limit. Use a smaller change; no output was written.")
             return res.get("response", "")
     except urllib.error.URLError as e:
         print(f"Error: Unable to connect to Ollama at {clean_url}. Is the Ollama server running?", file=sys.stderr)
@@ -79,26 +87,12 @@ def query_ollama(
         sys.exit(1)
 
 def extract_code_block(text: str) -> str:
-    """Extract code from markdown code fences if present."""
-    lines = text.splitlines()
-    inside_block = False
-    extracted = []
-    has_code_block = False
-
-    for line in lines:
-        if line.strip().startswith("```"):
-            if not inside_block:
-                inside_block = True
-                has_code_block = True
-                continue
-            else:
-                inside_block = False
-                break
-        if inside_block:
-            extracted.append(line)
-
-    if has_code_block:
-        return "\n".join(extracted)
+    """Remove an outer fence without cutting fences inside source strings."""
+    lines = text.strip().splitlines()
+    if lines and lines[0].lstrip().startswith("```"):
+        if len(lines) < 2 or lines[-1].strip() != "```":
+            raise ValueError("Unclosed output fence; no output was written.")
+        return "\n".join(lines[1:-1])
     return text.strip()
 
 def cmd_status(args):
@@ -127,6 +121,7 @@ def cmd_generate(args):
 
     response = query_ollama(
         prompt=prompt,
+        system_prompt=SYSTEM_PROMPTS[args.language],
         model=args.model,
         base_url=args.url,
         temperature=args.temperature,
@@ -150,8 +145,8 @@ def cmd_edit(args):
     with open(args.file, "r", encoding="utf-8") as f:
         existing_code = f.read()
 
-    prompt = f"""Existing GDScript File ({args.file}):
-```gdscript
+    prompt = f"""Existing source file ({args.file}):
+```{args.language}
 {existing_code}
 ```
 
@@ -163,6 +158,7 @@ Provide the complete updated file code."""
     print(f"Editing {args.file} using {args.model}...")
     response = query_ollama(
         prompt=prompt,
+        system_prompt=SYSTEM_PROMPTS[args.language],
         model=args.model,
         base_url=args.url,
         temperature=args.temperature,
@@ -202,9 +198,17 @@ Requirements for the test:
 6. Make sure all created scene nodes are freed with .free() or .queue_free().
 7. Return only the GDScript test code."""
 
+    if args.language != "gdscript":
+        prompt = (
+            f"Write focused Python unittest tests for this source file ({args.file}). "
+            "Use temporary directories and mocks for external processes. Do not use Godot APIs. "
+            f"Return only Python code.\n\n{source_code}"
+        )
+
     print(f"Generating unit test for {args.file} using {args.model}...")
     response = query_ollama(
         prompt=prompt,
+        system_prompt=SYSTEM_PROMPTS[args.language],
         model=args.model,
         base_url=args.url,
         temperature=args.temperature,
@@ -224,6 +228,7 @@ def main():
     parser.add_argument("--url", default=DEFAULT_OLLAMA_URL, help=f"Ollama base URL (default: {DEFAULT_OLLAMA_URL})")
     parser.add_argument("--model", default=DEFAULT_MODEL, help=f"Model name (default: {DEFAULT_MODEL})")
     parser.add_argument("--temperature", type=float, default=0.2, help="Sampling temperature (default: 0.2)")
+    parser.add_argument("--language", choices=SYSTEM_PROMPTS, default="gdscript")
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
@@ -233,7 +238,9 @@ def main():
 
     # Generate command
     p_gen = subparsers.add_parser("generate", help="Generate GDScript from a prompt")
-    p_gen.add_argument("--prompt", "-p", required=True, help="Instruction/prompt for code generation")
+    gen_prompt = p_gen.add_mutually_exclusive_group(required=True)
+    gen_prompt.add_argument("--prompt", "-p", help="Instruction for code generation")
+    gen_prompt.add_argument("--prompt-file", help="UTF-8 instruction file")
     p_gen.add_argument("--output", "-o", help="Path to write the generated code")
     p_gen.add_argument("--context-file", "-c", help="Optional context/reference file to include")
     p_gen.add_argument("--strip-fences", action="store_true", help="Strip markdown fences from stdout")
@@ -242,7 +249,9 @@ def main():
     # Edit command
     p_edit = subparsers.add_parser("edit", help="Edit an existing GDScript file with instructions")
     p_edit.add_argument("--file", "-f", required=True, help="Source file to edit")
-    p_edit.add_argument("--prompt", "-p", required=True, help="Editing instructions")
+    edit_prompt = p_edit.add_mutually_exclusive_group(required=True)
+    edit_prompt.add_argument("--prompt", "-p", help="Editing instructions")
+    edit_prompt.add_argument("--prompt-file", help="UTF-8 instruction file")
     p_edit.add_argument("--output", "-o", help="Output file path (defaults to overwrite source file)")
     p_edit.set_defaults(func=cmd_edit)
 
@@ -253,6 +262,12 @@ def main():
     p_test.set_defaults(func=cmd_test)
 
     args = parser.parse_args()
+    if getattr(args, "prompt_file", None):
+        try:
+            with open(args.prompt_file, encoding="utf-8") as prompt_file:
+                args.prompt = prompt_file.read()
+        except OSError as error:
+            parser.error(str(error))
     args.func(args)
 
 if __name__ == "__main__":

@@ -25,11 +25,16 @@ Activate this skill when:
 
 Execute the consolidated audit suite:
 
+Follow [the shared workflow](../../../docs/AGENT_WORKFLOW.md).
+Run focused tests first. Run the full audit once after the final source changes.
+Do not also run the full Godot suite through the linter or a separate command.
+
 ```bash
 python scripts/audit_quality.py
 ```
 
 ### CLI Options:
+- `--baseline`: Record static results and the environment in `.godot/audit/baseline.json`. Does not run Godot.
 - `--skip-tests`: Run only static checks (directory generation, GDScript lint, and file lengths).
 - `--skip-directory`: Skip directory file regeneration if only tests or non-signature docs changed.
 
@@ -43,22 +48,26 @@ python scripts/audit_quality.py
 
 2. **Pass 2: GDScript Multi-Pass Linter**
    - Script: `scripts/lint_gdscript.py`
-   - Verifies explicit return types on public functions, maximum function lengths (<= 45 lines), and script syntax.
+   - Runs static checks. Existing custom-rule warnings remain advisory. Missing optional gdlint is reported as skipped.
+   - Script parsing occurs in the one full Godot run. Standalone lint can opt in with `--with-tests`.
 
 3. **Pass 3: File Length Audit**
    - Script: `scripts/lint_file_lengths.py`
-   - Strictly enforces the repository architectural rule: no source file may exceed 500 lines.
+   - Enforces 500 lines for new files and the listed limits for existing baseline files.
 
 4. **Pass 4: Headless Godot Unit Test Suite**
    - Script: `tests/run_tests.gd`
    - Discovers and runs all test suites headlessly via the Godot executable.
-   - Asserts 0 failures and 0 script compilation errors.
+   - Requires process exit 0, no SCRIPT ERROR, and a final Total with zero failures and positive passed assertions.
+   - Keeps stdout, stderr, result.json, and audit.json under `.godot/audit/`.
+   - Missing summaries and timeouts fail. A passing line never overrides a failed process.
+   - The audit also runs the focused Python tooling tests before Godot.
 
 ---
 
 ## Failure Resolution Runbook
 
-- **File Length Exceeded:** Decompose the script by delegating logic to helper classes or sub-components.
+- **File Length Exceeded:** Keep changes within the task scope. Put broad extraction in a separate task.
 - **Missing Return Type:** Add explicit return type annotations (`-> void`, `-> int`, etc.) to public methods.
 - **Function Exceeds 45 Lines:** Break large functions into smaller descriptive sub-functions.
-- **Godot Test Failure:** Inspect the failed assertion backtrace, fix the issue, and rerun `python scripts/audit_quality.py`.
+- **Godot Test Failure:** Inspect the raw failure, fix it, and run focused tests before repeating the audit.
