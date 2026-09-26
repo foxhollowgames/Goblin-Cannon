@@ -23,6 +23,20 @@ def records(count=60):
 
 
 class LearningTests(unittest.TestCase):
+    def test_rejected_add_rolls_back(self):
+        with tempfile.TemporaryDirectory() as folder:
+            db = Path(folder) / 'learnings.db'
+            with patch.object(learnings, 'DB_PATH', db), patch.object(learnings, 'KNOWLEDGE_DIR', folder):
+                with self.assertRaises(ValueError):
+                    learnings.add_learning('TASK-114', 'tooling', 'topic', '\n' * 500, 'insight', 'rule')
+                with contextlib.closing(sqlite3.connect(db)) as conn:
+                    self.assertEqual(conn.execute('SELECT COUNT(*) FROM learnings').fetchone()[0], 0)
+                entry_id = learnings.add_learning('TASK-114', 'tooling', 'topic', 'ok', 'insight', 'rule')
+                self.assertEqual(entry_id, 'LRN-001')
+                with contextlib.closing(sqlite3.connect(db)) as conn:
+                    self.assertEqual(conn.execute('SELECT COUNT(*) FROM learnings').fetchone()[0], 1)
+                self.assertTrue((Path(folder) / 'LEARNINGS.md').is_file())
+
     def test_export_retains_records_links_and_page_limits(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)

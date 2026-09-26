@@ -39,9 +39,9 @@ Restore the quality gate without changing gameplay. TASK-109 found two existing 
 
 ## Acceptance Criteria
 
-- [ ] Requirements implemented and verified.
-- [ ] Tests pass cleanly.
-- [ ] File lengths adhere to the 500-line repository limit.
+- [x] Requirements implemented and verified.
+- [x] Tests pass cleanly.
+- [x] File lengths adhere to the 500-line repository limit.
 - [ ] Pull Request opened, audited by independent PR reviewer, and merged.
 
 ## Previous implementation checkpoint
@@ -74,3 +74,20 @@ This section supersedes the previous checkpoint.
 - No separate physics or rendered game checks apply to these tooling changes. Imports and all tracked test/generation sessions have exited. No agents were started. Parent TASK-109 remains unchanged.
 - Remaining: inspect the final diff, resolve the generated DIRECTORY.md extra EOF blank line, prepare PR, run independent pr_reviewer, resolve findings, merge, and record the post-merge learning. No commit or PR yet. Do not rerun the full audit without a source change, failure, or new risk.
 - Usage: primary 52%, weekly 39%, reset window 1790448611. The 50% gate is handled for this window; 70% remains. Ordinary usage is available. Pause before PR/review phase. Explicit continuation resumes past the handled gate. No credits or reset were requested.
+
+## PR review checkpoint
+
+- Commit 5c144a2 is pushed. PR: https://github.com/foxhollowgames/Goblin-Cannon/pull/92. Main was current at the start of this resume. PR is mergeable and has no remote checks configured.
+- Fixed the directory generator's extra EOF blank line using a reviewed local generation. Regenerated output; git diff --check passed. No gameplay source changed.
+- Independent pr_reviewer found one P2: add_learning commits before export validates an oversized entry. Rejected additions can remain in SQLite and block later exports. Reviewer completed and was interrupted after receipt; no review agent remains running.
+- Required fix: keep INSERT and sync_to_markdown inside the same connection transaction, close in finally, and test that oversized add leaves the database unchanged and a later valid add succeeds. First local attempt saved add114_fix.py outside the checkout; rejected because it uses table learning instead of learnings and SQL %s placeholders instead of ?. One correction attempt remains before direct fallback for this fix. No fix is applied yet.
+- Remaining: apply and test the review fix, request focused re-review, update task status, merge PR, and record post-merge learning. Do not mark complete or merge before resolving the finding.
+- Usage: primary 75%, weekly 43%, reset window 1790448611. Both 50% and 70% gates are now handled. Pause at this checkpoint. Explicit continuation resumes without stopping at these same gates. Ordinary usage remains available. No paid credits or resets requested.
+- No running test or generation sessions. The approved push succeeded after verifying the existing origin repository and ADMIN permission; no publication approval is pending.
+
+## Review resolution
+
+- Fixed the P2: INSERT and export now share one transaction; failure rolls back and finally closes the connection. The second local implementation attempt succeeded after correcting the SQL. The regression test required the approved fallback after two failed local attempts.
+- Independent focused re-review approved the fix with no remaining findings. Reviewer was interrupted after completion.
+- Final audit at 2026-09-26T21:16:03.648613+00:00: exit 0, 18249 Godot assertions passed, zero failed, no script errors; all 11 Python tests pass; length checks pass. Existing advisory warnings are unchanged.
+- PR #92 is ready to merge. Post-merge learning recording remains. No running task processes.

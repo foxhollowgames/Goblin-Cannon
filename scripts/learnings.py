@@ -69,16 +69,18 @@ def sync_to_markdown(conn: sqlite3.Connection) -> None:
 
 def add_learning(task_id: str, category: str, topic: str, context: str, learning: str, guideline: str, tags: str = '') -> str:
     conn = get_db_connection()
-    new_id = get_next_id(conn)
-    now = datetime.now().isoformat()
-    with conn:
-        conn.execute("""
-            INSERT INTO learnings (id, task_id, category, topic, context, learning, guideline, created_at, tags)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (new_id, task_id, category, topic, context, learning, guideline, now, tags))
-    sync_to_markdown(conn)
-    conn.close()
-    return new_id
+    try:
+        with conn:
+            new_id = get_next_id(conn)
+            now = datetime.now().isoformat()
+            conn.execute("""
+                INSERT INTO learnings (id, task_id, category, topic, context, learning, guideline, created_at, tags)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (new_id, task_id, category, topic, context, learning, guideline, now, tags))
+            sync_to_markdown(conn)
+        return new_id
+    finally:
+        conn.close()
 
 
 def query_learnings(query_str: str = "", category: str = "", limit: int = 10, offset: int = 0) -> None:
