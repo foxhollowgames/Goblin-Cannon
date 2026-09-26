@@ -144,6 +144,7 @@ python scripts/generate_task_dashboard.py
 | [TASK-103](TASK-103-validate-relic-variant-choices-in-reward-redesign.md) | Validate Relic Variant Choices in Reward Redesign | Design / Relics | P1 | DONE | `feature/relic-variant-design-validation` |
 | [TASK-104](TASK-104-balance-siege-timer-wall-health-and-cannon-damage.md) | Balance Siege Timer Wall Health and Cannon Damage | Balance / Gameplay | P1 | BACKLOG | `feature/siege-and-cannon-balance` |
 | [TASK-105](TASK-105-validate-relic-reward-variety-through-special-ball.md) | Validate Relic Reward Variety Through Special Balls | Design / Relics | P1 | DONE | `feature/relic-reward-variety-validation` |
+| [TASK-116](TASK-116-fix-relic-draw-order-below-balls.md) | Fix relic draw order below balls | UI / Visuals | P1 | IN_PROGRESS | `fix/relic-draw-order` |
 
 ---
 
@@ -154,4 +155,3 @@ Every pull request must complete an independent sub-agent review cycle:
 2. Invoke an independent `pr_reviewer` sub-agent without conversational context.
 3. If the sub-agent reports major findings, address them and repeat review.
 4. Merge the Pull Request into `main` after receiving approval.
-| [TASK-116](TASK-116-fix-relic-draw-order-below-balls.md) | Fix relic draw order below balls | UI / Visuals | P1 | IN_PROGRESS | `fix/relic-draw-order` |

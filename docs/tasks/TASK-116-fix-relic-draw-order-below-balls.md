@@ -45,3 +45,5 @@ Fix relic draw order below balls
 - Main is current as of this resumed check.
 - Publish a draft PR with the known TASK-114 audit blockers. Do not merge until the required audit passes.
 
+
+- Draft PR #90: https://github.com/foxhollowgames/Goblin-Cannon/pull/90. Final reviewer confirmed the code and requested moving the README row into its table; corrected. Merge remains blocked by TASK-114.
