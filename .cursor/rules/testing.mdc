@@ -8,7 +8,7 @@ alwaysApply: true
 
 ## When to Run Tests
 
-Run the full test suite **after completing any major feature work, bug fix, or significant refactor**. This includes:
+Follow `docs/AGENT_WORKFLOW.md`. Run focused tests first, then one full audit after the final source change. This includes:
 
 - Adding or removing game systems
 - Changing energy routing, combat, rewards, or game state logic
@@ -21,10 +21,12 @@ Run the full test suite **after completing any major feature work, bug fix, or s
 Execute from the project root:
 
 ```
-godot --headless -s tests/run_tests.gd
+python scripts/audit_quality.py
 ```
 
 The runner executes scripts listed in `tests/run_tests.gd` (`TEST_SCRIPTS`), runs them, and exits with code 0 (all pass) or 1 (any failure). Add new suites to that array.
+
+The audit owns the full Godot run. Do not repeat it through the linter. A valid pass requires exit 0, no script errors, and a final total with zero failed assertions and at least one passed assertion. Use `.godot/audit/` for raw logs. Use `--baseline` for static checks only.
 
 ## After Running Tests
 

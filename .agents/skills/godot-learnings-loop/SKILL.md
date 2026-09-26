@@ -22,6 +22,14 @@ Activate this skill:
 
 ## Pre-Task Knowledge Retrieval
 
+Follow [the shared workflow](../../../docs/AGENT_WORKFLOW.md). Search a specific topic first.
+Queries return at most ten short results by default. Use `--limit 5 --offset 10` to page.
+Use `python scripts/learnings.py show LRN-030` to read one full entry.
+Use [the index](../../../docs/knowledge/LEARNINGS.md) only to find relevant categories.
+Do not load every category page. Existing records keep their IDs and old index anchors.
+SQLite remains the source of truth. Do not edit generated category pages.
+Old learnings describe past behavior; current project rules take precedence.
+
 Query the knowledge database by topic or keyword:
 
 ```bash
@@ -43,10 +51,11 @@ python scripts/learnings.py query "<keyword>"
 After merging a PR into `main`:
 
 ```bash
-python scripts/learnings.py add
+python scripts/learnings.py add --task TASK-114 --category tooling --topic "Short topic" --context "Problem" --learning "Finding" --guideline "Action" --tags "testing,workflow"
 ```
 
 ### Standard Tags Taxonomy:
+Choose one primary category. Use comma-separated `--tags` for other relevant topics.
 - `physics`: Ball trajectories, collisions, bounces, gravity, energy states.
 - `machinery`: Kinetic devices, bumpers, wire gates, kickers, loops, traps.
 - `ui`: HUD, junk box, modal dialogs, layouts, anchors, tooltips.
