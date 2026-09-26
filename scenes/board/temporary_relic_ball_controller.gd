@@ -36,7 +36,7 @@ func queue_reward(module: Node, reward: RelicBallReward, triggering_ball: Node, 
 		return false
 	_consumed[key] = true
 	_activation_sequence = maxi(_activation_sequence + 1, sequence + 1)
-	var port: Dictionary = _port_for(module, triggering_ball)
+	var port: Dictionary = _port_for(module, triggering_ball) if reward.spawn_at_relic else {"valid": true, "position": Vector2.ZERO, "direction": Vector2.DOWN}
 	_queue.append({"module": module, "reward": reward, "offered": reward.count,
 		"remaining": 0, "emitted": 0, "canceled": 0, "allocated": false,
 		"blocked_ticks": 0, "next_emit_tick": sim_tick + 1,
@@ -71,12 +71,12 @@ func process(sim_tick: int) -> void:
 			_cancel_entry(entry, reward, true)
 			continue
 		var outlet: Vector2 = port.position
-		if _outlet_blocked(outlet):
+		if reward.spawn_at_relic and _outlet_blocked(outlet):
 			entry.blocked_ticks = int(entry.get("blocked_ticks", 0)) + 1
 			if int(entry.blocked_ticks) >= BLOCKED_TICKS:
 				_cancel_entry(entry, reward, true)
 			continue
-		var new_ball: Node = _spawn(reward, outlet, port.direction, float(port.get("speed", 170.0)), sim_tick)
+		var new_ball: Node = _emit_ball(reward, port, sim_tick)
 		if new_ball == null:
 			_cancel_entry(entry, reward, true)
 			continue
@@ -87,6 +87,19 @@ func process(sim_tick: int) -> void:
 		_emit_entry_status(entry, reward, false)
 		if int(entry.remaining) <= 0:
 			_queue.erase(entry)
+
+func _emit_ball(reward: RelicBallReward, port: Dictionary, sim_tick: int) -> Node:
+	if not reward.spawn_at_relic and (not is_instance_valid(_board._hopper) or not _board._hopper.has_method("accept_temporary_ball")):
+		return null
+
+	var ball: Node = _spawn(reward, port.position, port.direction, float(port.get("speed", 170.0)), sim_tick)
+
+	if ball != null and not reward.spawn_at_relic:
+		_board._active_balls.erase(ball)
+		_board._hopper.accept_temporary_ball(ball)
+
+	return ball
+
 
 func _allocate_entry(entry: Dictionary) -> void:
 	entry.allocated = true
@@ -178,6 +191,8 @@ func _prune_balls() -> void:
 
 func _remove_ball(ball: Node, collected: bool, already_marked: bool = false) -> void:
 	_balls.erase(ball)
+	if is_instance_valid(_board) and is_instance_valid(_board._hopper):
+		_board._hopper.forget_temporary_ball(ball)
 	if _board != null and "_active_balls" in _board:
 		_board._active_balls.erase(ball)
 	_detach_capture(ball)

@@ -123,6 +123,7 @@
 | `test_sticky_slime_event.gd` | `StickySlimeEvent` | [tests/test_sticky_slime_event.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_sticky_slime_event.gd) |
 | `test_story_campaign_architecture.gd` | `StoryCampaignArchitecture` | [tests/test_story_campaign_architecture.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_story_campaign_architecture.gd) |
 | `test_temporary_relic_ball_rewards.gd` | `TemporaryRelicBallRewards` | [tests/test_temporary_relic_ball_rewards.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_temporary_relic_ball_rewards.gd) |
+| `test_temporary_reward_hopper.gd` | `TemporaryRewardHopper` | [tests/test_temporary_reward_hopper.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_temporary_reward_hopper.gd) |
 | `test_test_scenario.gd` | `TestScenario` | [tests/test_test_scenario.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_test_scenario.gd) |
 | `test_tetromino_module_fusion.gd` | `TetrominoModuleFusion` | [tests/test_tetromino_module_fusion.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_tetromino_module_fusion.gd) |
 | `test_third_city_relics.gd` | `ThirdCityRelics` | [tests/test_third_city_relics.gd](file:///C:/Users/josep/Desktop/Games/Goblin-Cannon/tests/test_third_city_relics.gd) |
@@ -157,4 +158,3 @@
 | Change color palette | `autoloads/constants.gd`, `autoloads/monster_palette.gd` |
 | Change conquest/campaign flow | `scenes/main/game_coordinator.gd`, `scenes/main/combat_manager.gd` |
 | Change junk box / inventory | `resources/inventory/junk_box_data.gd`, `scenes/ui/junk_box/` |
-
