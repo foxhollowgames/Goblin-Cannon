@@ -1,6 +1,6 @@
 # TASK-114: Repair quality audit result handling and learnings file length
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** DevOps / Tooling
 - **Target Branch:** `fix/quality-audit-baseline`
@@ -42,7 +42,7 @@ Restore the quality gate without changing gameplay. TASK-109 found two existing 
 - [x] Requirements implemented and verified.
 - [x] Tests pass cleanly.
 - [x] File lengths adhere to the 500-line repository limit.
-- [ ] Pull Request opened, audited by independent PR reviewer, and merged.
+- [x] Pull Request opened, audited by independent PR reviewer, and merged.
 
 ## Previous implementation checkpoint
 
@@ -91,3 +91,9 @@ This section supersedes the previous checkpoint.
 - Independent focused re-review approved the fix with no remaining findings. Reviewer was interrupted after completion.
 - Final audit at 2026-09-26T21:16:03.648613+00:00: exit 0, 18249 Godot assertions passed, zero failed, no script errors; all 11 Python tests pass; length checks pass. Existing advisory warnings are unchanged.
 - PR #92 is ready to merge. Post-merge learning recording remains. No running task processes.
+
+## Completion
+
+- PR #92 merged at 2026-09-26T21:16:58Z, merge commit 55a62daa86fbc4c08df12618b630be02e2ac4f88.
+- Independent review approved after the rollback fix. Final audit: 18249 Godot assertions passed, zero failures; 11 Python tests passed; process exit 0.
+- Recorded post-merge learning LRN-151 and regenerated the learning pages and task dashboard. No remaining task scope. Parent TASK-109 work remains untouched.

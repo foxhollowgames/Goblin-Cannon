@@ -197,3 +197,18 @@ G-O-B and P-O-P share runtime lanes; spinner pairs also share normalized layouts
 ### Guideline
 Audit create_module_for_relic output when comparing variant geometry; keep proposed reward changes separate from gameplay approval.
 
+## <a id="lrn-151"></a> LRN-151: Use one authoritative process result and bounded learning retrieval
+- **Task:** TASK-114
+- **Category:** tooling
+- **Created:** 2026-09-26T15:17:25.818767
+- **Tags:** testing,workflow,sqlite
+
+### Context
+The audit repeated Godot and could accept a failing process after an earlier passing line; the learning export exceeded its file limit.
+
+### Learning
+A full audit must use the actual process exit, script-error check, and final assertion summary. Generated category pages can preserve records while keeping task reads small. Rejected learning exports must roll back their database inserts.
+
+### Guideline
+Query specific topics and show only needed IDs. Run focused tests before one final audit. Keep export validation inside the save transaction. Use the shared agent workflow and stop local repair after two failed attempts.
+
