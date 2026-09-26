@@ -7,7 +7,7 @@ Runs:
 3. Directory freshness check (docs/DIRECTORY.md)
 4. Function length audit (45 lines max per function)
 5. Type annotation check on public function signatures
-6. Godot test suite and script compilation parse smoke test
+6. Optional Godot suite (--with-tests); the final audit owns this run by default.
 """
 
 import argparse
@@ -147,39 +147,26 @@ def check_custom_rules():
 
 
 def check_script_parse_smoke():
-    print("Pass 5: Checking Godot test suite and script compilation parse smoke test...", flush=True)
-    candidates = [
-        r"C:\Users\josep\Desktop\Coding Projects\Godot_v4.6.2-stable_win64.exe",
-        r"C:\Users\josep\Desktop\Games\Godot_v4.6.1-stable_win64.exe",
-    ]
-    godot_bin = "godot"
-    for c in candidates:
-        if os.path.exists(c):
-            godot_bin = c
-            break
-
-    cmd = f'cmd.exe /c ""{godot_bin}" --headless -s tests/run_tests.gd"'
-    code, stdout, stderr = run_cmd(cmd, timeout=45)
-    if code == 0 and "SCRIPT ERROR" not in stdout and "SCRIPT ERROR" not in stderr:
-        print("  [PASS] Godot test suite and script parse smoke test passed", flush=True)
-        return 0
-    else:
-        print("  [FAIL] Godot script parse smoke test failed:", flush=True)
-        print(stdout, flush=True)
-        print(stderr, flush=True)
-        return 1
+    from godot_test_runner import run_tests
+    result = run_tests(PROJECT_ROOT)
+    print(result)
+    return 0 if result['passed'] else 1
 
 
 def main():
     parser = argparse.ArgumentParser(description="Multi-pass GDScript Quality Linter")
+    parser.add_argument('--with-tests', action='store_true')
+    parser.add_argument('--skip-directory', action='store_true')
     args = parser.parse_args()
 
     results = []
     results.append(check_gdlint())
     results.append(check_file_lengths())
-    results.append(check_directory_freshness())
+    if not args.skip_directory:
+        results.append(check_directory_freshness())
     results.append(check_custom_rules())
-    results.append(check_script_parse_smoke())
+    if args.with_tests and not any(results):
+        results.append(check_script_parse_smoke())
 
     if any(r != 0 for r in results):
         print("\nGDScript Linting FAILED.", flush=True)
