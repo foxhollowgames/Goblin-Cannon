@@ -154,3 +154,4 @@ Every pull request must complete an independent sub-agent review cycle:
 2. Invoke an independent `pr_reviewer` sub-agent without conversational context.
 3. If the sub-agent reports major findings, address them and repeat review.
 4. Merge the Pull Request into `main` after receiving approval.
+| [TASK-116](TASK-116-fix-relic-draw-order-below-balls.md) | Fix relic draw order below balls | UI / Visuals | P1 | IN_PROGRESS | `fix/relic-draw-order` |
