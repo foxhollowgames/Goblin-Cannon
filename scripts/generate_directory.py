@@ -91,7 +91,7 @@ def generate_directory_markdown():
     lines.append("| Autoload | File | Purpose |")
     lines.append("|:---|:---|:---|")
     for name, rel_path, desc in AUTOLOADS:
-        lines.append(f"| `{name}` | [{rel_path}](file:///{PROJECT_ROOT.replace('\\', '/')}/{rel_path}) | {desc} |")
+        lines.append(f"| `{name}` | [{rel_path}](../{rel_path}) | {desc} |")
     lines.append("")
 
     lines.append("## 2. Simulation Modules (Pure Logic)")
@@ -99,7 +99,7 @@ def generate_directory_markdown():
     lines.append("| File | Purpose |")
     lines.append("|:---|:---|")
     for rel_path, desc in SIMULATION_MODULES:
-        lines.append(f"| [{rel_path}](file:///{PROJECT_ROOT.replace('\\', '/')}/{rel_path}) | {desc} |")
+        lines.append(f"| [{rel_path}](../{rel_path}) | {desc} |")
     lines.append("")
 
     lines.append("## 3. Tooling Scripts")
@@ -107,7 +107,7 @@ def generate_directory_markdown():
     lines.append("| Script | Purpose | Usage |")
     lines.append("|:---|:---|:---|")
     for rel_path, desc, usage in PYTHON_SCRIPTS:
-        lines.append(f"| [{rel_path}](file:///{PROJECT_ROOT.replace('\\', '/')}/{rel_path}) | {desc} | `{usage}` |")
+        lines.append(f"| [{rel_path}](../{rel_path}) | {desc} | `{usage}` |")
     lines.append("")
 
     lines.append("## 4. Test Suite")
@@ -115,7 +115,7 @@ def generate_directory_markdown():
     lines.append("| Test File | Suite Name | Link |")
     lines.append("|:---|:---|:---|")
     for fname, rel_path, suite in scan_tests():
-        lines.append(f"| `{fname}` | `{suite}` | [{rel_path}](file:///{PROJECT_ROOT.replace('\\', '/')}/{rel_path}) |")
+        lines.append(f"| `{fname}` | `{suite}` | [{rel_path}](../{rel_path}) |")
     lines.append("")
 
     lines.append("## 5. Quick Reference: Where Do I Find...?")
@@ -147,7 +147,7 @@ def main():
     os.makedirs(os.path.dirname(DIRECTORY_MD_PATH), exist_ok=True)
     content = generate_directory_markdown()
     with open(DIRECTORY_MD_PATH, "w", encoding="utf-8") as f:
-        f.write(content + "\n")
+        f.write(content.rstrip() + '\n')
     print(f"Successfully generated {DIRECTORY_MD_PATH}")
 
 

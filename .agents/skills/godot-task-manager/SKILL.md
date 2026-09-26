@@ -50,6 +50,8 @@ python scripts/create_task.py "Short Descriptive Task Title" --category "Systems
 
 ## Manual Fallback Procedure
 
+Follow [the shared workflow](../../../docs/AGENT_WORKFLOW.md) for scope, usage gates, and checkpoint content. Reuse an existing task packet when it already covers the request. Record the last verified state before pausing and regenerate the dashboard after each task update.
+
 If running scripts is unavailable:
 1. Examine `docs/tasks/` to identify the next sequential number (`TASK-XXX`).
 2. Create `docs/tasks/TASK-XXX-<slug>.md` using the standard header (Status, Priority, Category, Target Branch).

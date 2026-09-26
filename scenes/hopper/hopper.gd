@@ -313,3 +313,16 @@ func refresh_width_from_game_state() -> void:
 
 func pulse_width_temporarily(width_multiplier: float, hold_sec: float) -> void:
 	scale.x = 1.0
+
+## Accepts a new temporary reward ball into the hopper.
+func accept_temporary_ball(ball: Node) -> void:
+	return_ball(ball)
+	ball.apply_hopper_physics(true)
+
+## Removes all hopper references before a temporary ball is freed.
+func forget_temporary_ball(ball: Node) -> void:
+	_stored_balls.erase(ball)
+	_released_balls.erase(ball)
+	_outside_bin_frames.erase(ball)
+	_falling_carry_until.erase(ball)
+	_prev_catchment_bodies.erase(ball)

@@ -21,6 +21,7 @@ const TIER_BUDGETS: Dictionary = {
 @export var spacing_ticks: int = DEFAULT_SPACING_TICKS
 @export var life_ticks: int = DEFAULT_LIFE_TICKS
 @export var source_id: StringName = &""
+@export var spawn_at_relic: bool = false
 
 static var _REWARDS: Dictionary = {}
 
@@ -51,13 +52,14 @@ func is_valid_for_tier(tier: int) -> bool:
 ## Returns the player-facing exact-count description.
 func get_description() -> String:
 	var suffix: String = "" if count == 1 else "s"
-	return "Release %d %s ball%s through the device outlet. Lasts one visit, up to 12 seconds." % [count, ball_type, suffix]
+	var location: String = "through the device outlet" if spawn_at_relic else "in the hopper"
+	return "Release %d %s ball%s %s. Lasts one visit, up to 12 seconds." % [count, ball_type, suffix, location]
 
 ## Serializes authored data for future item saves and migration tools.
 func serialize() -> Dictionary:
 	return {"version": VERSION, "ball_type": ball_type, "count": count,
 		"minimum_relic_tier": minimum_relic_tier, "spacing_ticks": spacing_ticks,
-		"life_ticks": life_ticks, "source_id": str(source_id)}
+		"life_ticks": life_ticks, "source_id": str(source_id), "spawn_at_relic": spawn_at_relic}
 
 ## Loads authored data while keeping safe defaults for old records.
 func deserialize(data: Dictionary) -> void:
@@ -69,6 +71,7 @@ func deserialize(data: Dictionary) -> void:
 	spacing_ticks = int(data.get("spacing_ticks", DEFAULT_SPACING_TICKS))
 	life_ticks = int(data.get("life_ticks", DEFAULT_LIFE_TICKS))
 	source_id = StringName(str(data.get("source_id", "")))
+	spawn_at_relic = bool(data.get("spawn_at_relic", false))
 	_migrate_saved_values(saved_version)
 
 ## Migrates the first saved format without accepting obsolete reward promises.
