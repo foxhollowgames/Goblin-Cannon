@@ -1,6 +1,6 @@
 # TASK-118: Reduce agent workflow overhead
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** DevOps / Tooling
 - **Target Branch:** `fix/reduce-agent-workflow-overhead`
@@ -18,7 +18,7 @@ Reduce repeated agent setup, generation retries, full audits, and closure review
 - [x] Shorten entry instructions and align skills, testing rules, and task templates.
 - [x] Add one command to verify a merged PR and update task, index, and dashboard.
 - [x] Cover closure rejection, repeat calls, and rollback with focused tests.
-- [ ] Merge implementation PR and publish the verified task closure.
+- [x] Merge implementation PR and publish the verified task closure.
 
 ## Verification
 
@@ -27,3 +27,12 @@ Reduce repeated agent setup, generation retries, full audits, and closure review
 - New source: scripts/close_task.py and scripts/tests/test_close_task.py. The command requires merge evidence and validation text; it does not commit, merge, or change billing settings.
 - Standard mode and connections remain unchanged. Earlier usage interruption is resolved; ordinary usage is available on resume.
 - No owned background processes or review agents remain.
+
+<!-- verified-closure -->
+## Verified completion
+
+- Merged PR: https://github.com/foxhollowgames/Goblin-Cannon/pull/96
+- Merge commit: `f43d05930fd2e5dfb97cd1f1778a5f213bdbdce3`
+- Merged at: 2026-09-27T13:32:34Z
+- Validation: 15 Python tooling tests passed (exit 0); file-length audit passed; diff checks passed. Light workflow, no gameplay changes.
+<!-- /verified-closure -->
