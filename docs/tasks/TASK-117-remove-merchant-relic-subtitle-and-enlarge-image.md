@@ -1,6 +1,6 @@
 # TASK-117: Remove Merchant relic subtitle and enlarge image
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P2
 - **Category:** UI / Visuals
 - **Target Branch:** `fix/merchant-relic-image`
@@ -21,10 +21,10 @@ Remove Merchant relic subtitle and enlarge image
 
 ## Acceptance Criteria
 
-- [ ] Requirements implemented and verified.
-- [ ] Tests pass cleanly.
-- [ ] File lengths adhere to the 500-line repository limit.
-- [ ] Pull Request opened, audited by independent PR reviewer, and merged.
+- [x] Requirements implemented and verified.
+- [x] Tests pass cleanly.
+- [x] File lengths adhere to the 500-line repository limit.
+- [x] Pull Request opened, audited by independent PR reviewer, and merged.
 
 ## Verification
 
@@ -37,3 +37,5 @@ Remove Merchant relic subtitle and enlarge image
 - Physics checks do not apply to this layout-only change.
 - Changed source: reward_draft_panel.gd and reward_card_builder.gd. No background processes remain.
 - Usage window 1790494983: 50% gate observed. Only verified review and merge work remains.
+
+`nIndependent pr_reviewer approved PR #95 without findings. Review agent stopped. All checks complete; merge authorized by project workflow.
