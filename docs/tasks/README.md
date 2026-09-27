@@ -11,6 +11,7 @@ All tasks use structured Markdown with status, priority, and clear acceptance cr
 | [TASK-111](TASK-111-expand-merchant-relic-card-previews.md) | Expand Merchant relic card previews | UI / Visuals | P1 | DONE | `fix/expand-merchant-relic-previews` |
 | [TASK-112](TASK-112-simplify-merchant-peg-descriptions.md) | Simplify Merchant peg descriptions | UI / Text | P1 | DONE | `fix/simplify-merchant-peg-descriptions` |
 | [TASK-113](TASK-113-restore-keyword-hover-tooltips.md) | Restore keyword hover tooltips | UI / Tooltips | P1 | DONE | `fix/restore-keyword-hover-tooltips` |
+| [TASK-117](TASK-117-remove-merchant-relic-subtitle-and-enlarge-image.md) | Remove Merchant relic subtitle and enlarge image | UI / Visuals | P2 | IN_PROGRESS | `fix/merchant-relic-image` |
 
 ---
 
