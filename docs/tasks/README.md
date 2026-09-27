@@ -6,7 +6,7 @@ All tasks use structured Markdown with status, priority, and clear acceptance cr
 | [TASK-106](TASK-106-implement-approved-temporary-relic-ball-rewards.md) | Implement approved temporary relic ball rewards | Systems / Gameplay / Relics | P1 | DONE | `feature/temporary-relic-ball-rewards` |
 | [TASK-107](TASK-107-refactor-temporary-ball-lifecycle-and-board-reward.md) | Refactor temporary ball lifecycle and Board reward flow | Systems / Gameplay / Refactor | P1 | DONE | `feature/temporary-relic-ball-rewards` |
 | [TASK-108](TASK-108-simplify-relic-reward-card-descriptions.md) | Simplify relic reward card descriptions | UI / Visuals | P1 | DONE | `fix/simplify-relic-reward-descriptions` |
-| [TASK-109](TASK-109-thematic-and-descriptive-relic-names.md) | Thematic and Descriptive Relic Names | Design / Relics | P2 | IN_PROGRESS | `feature/thematic-and-descriptive-relic-names` |
+| [TASK-109](TASK-109-thematic-and-descriptive-relic-names.md) | Thematic and Descriptive Relic Names | Design / Relics | P2 | DONE | `feature/thematic-and-descriptive-relic-names` |
 | [TASK-110](TASK-110-fix-merchant-peg-and-relic-card-descriptions.md) | Fix Merchant peg and relic card descriptions | UI / Visuals | P1 | DONE | `fix/merchant-card-description-layout` |
 | [TASK-111](TASK-111-expand-merchant-relic-card-previews.md) | Expand Merchant relic card previews | UI / Visuals | P1 | DONE | `fix/expand-merchant-relic-previews` |
 | [TASK-112](TASK-112-simplify-merchant-peg-descriptions.md) | Simplify Merchant peg descriptions | UI / Text | P1 | DONE | `fix/simplify-merchant-peg-descriptions` |
