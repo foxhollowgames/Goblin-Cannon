@@ -105,9 +105,12 @@
 | `test_relic_board_triggers.gd` | `RelicBoardTriggers` | [tests/test_relic_board_triggers.gd](../tests/test_relic_board_triggers.gd) |
 | `test_relic_enclosures.gd` | `Relic Enclosures` | [tests/test_relic_enclosures.gd](../tests/test_relic_enclosures.gd) |
 | `test_relic_flow_contract.gd` | `RelicFlowContract` | [tests/test_relic_flow_contract.gd](../tests/test_relic_flow_contract.gd) |
+| `test_relic_goal_names.gd` | `RelicGoalNames` | [tests/test_relic_goal_names.gd](../tests/test_relic_goal_names.gd) |
 | `test_relic_junk_box_return.gd` | `RelicJunkBoxReturn` | [tests/test_relic_junk_box_return.gd](../tests/test_relic_junk_box_return.gd) |
 | `test_relic_machinery_rotation.gd` | `RelicMachineryRotation` | [tests/test_relic_machinery_rotation.gd](../tests/test_relic_machinery_rotation.gd) |
 | `test_relic_machinery_trigger_safeguards.gd` | `RelicMachineryTriggerSafeguards` | [tests/test_relic_machinery_trigger_safeguards.gd](../tests/test_relic_machinery_trigger_safeguards.gd) |
+| `test_relic_name_paths.gd` | `RelicNamePaths` | [tests/test_relic_name_paths.gd](../tests/test_relic_name_paths.gd) |
+| `test_relic_names.gd` | `RelicNames` | [tests/test_relic_names.gd](../tests/test_relic_names.gd) |
 | `test_relic_pinball_activation.gd` | `RelicPinballActivation` | [tests/test_relic_pinball_activation.gd](../tests/test_relic_pinball_activation.gd) |
 | `test_relic_pinball_goals.gd` | `RelicPinballGoals` | [tests/test_relic_pinball_goals.gd](../tests/test_relic_pinball_goals.gd) |
 | `test_relic_selection_preview.gd` | `RelicSelectionPreview` | [tests/test_relic_selection_preview.gd](../tests/test_relic_selection_preview.gd) |

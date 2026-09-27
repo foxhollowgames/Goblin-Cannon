@@ -65,7 +65,7 @@ static func build_ball_candidates() -> Array:
 
 static func mk(def_name: String, desc: String, uid: StringName, cat: int, ball_t: String = "") -> MajorUpgradeDefinition:
 	var u: MajorUpgradeDefinition = MajorUpgradeDefinition.new()
-	u.display_name = def_name
+	u.display_name = preload("res://resources/polyomino/relic_names.gd").resolve(uid, def_name)
 	u.description = _physical_relic_description(uid, desc)
 	u.upgrade_id = StringName(uid)
 	u.category = cat
@@ -74,7 +74,7 @@ static func mk(def_name: String, desc: String, uid: StringName, cat: int, ball_t
 
 static func mk_cross(def_name: String, desc: String, uid: StringName, req_types: Array[String]) -> MajorUpgradeDefinition:
 	var u: MajorUpgradeDefinition = MajorUpgradeDefinition.new()
-	u.display_name = def_name
+	u.display_name = preload("res://resources/polyomino/relic_names.gd").resolve(uid, def_name)
 	u.description = _physical_relic_description(uid, desc)
 	u.upgrade_id = StringName(uid)
 	u.category = MajorUpgradeDefinition.Category.BALL_ENHANCEMENT
@@ -83,7 +83,7 @@ static func mk_cross(def_name: String, desc: String, uid: StringName, req_types:
 
 static func mk_boss(def_name: String, desc: String, uid: StringName, req_types: Array[String] = []) -> MajorUpgradeDefinition:
 	var u: MajorUpgradeDefinition = MajorUpgradeDefinition.new()
-	u.display_name = def_name
+	u.display_name = preload("res://resources/polyomino/relic_names.gd").resolve(uid, def_name)
 	u.description = _physical_relic_description(uid, desc)
 	u.upgrade_id = StringName(uid)
 	u.category = MajorUpgradeDefinition.Category.BALL_ENHANCEMENT

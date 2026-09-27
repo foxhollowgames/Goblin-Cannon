@@ -74,7 +74,7 @@ func test_polyomino_module_data_serialization() -> void:
 	var restored := PolyominoModuleData.from_dictionary(dict)
 
 	assert_eq(restored.module_id, &"cascade_reactor", "module_id matches")
-	assert_eq(restored.display_name, "Cascade Reactor", "display_name matches")
+	assert_eq(restored.display_name, "Scrap Bumpers", "saved relic title refreshes")
 	assert_eq(restored.tier, 3, "tier matches")
 	assert_eq(restored.cells.size(), 4, "cells size matches")
 	assert_eq(restored.cell_types[Vector2i(0, 0)], PolyominoModuleData.CellType.BUMPER, "cell_type bumper")

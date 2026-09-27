@@ -89,4 +89,7 @@ static func deserialize(dict: Dictionary) -> Resource:
 	if payload is Dictionary:
 		item.custom_payload = payload.duplicate(true)
 
+	if item.item_type == ItemType.POLYOMINO_MODULE and not item.custom_payload.get("is_debug_showcase", false):
+		var relic_id: StringName = item.module_data.module_id if item.module_data != null else StringName(item.custom_payload.get("relic_id", ""))
+		item.display_name = preload("res://resources/polyomino/relic_names.gd").resolve(relic_id, item.display_name)
 	return item

@@ -45,7 +45,7 @@ static func get_all_ids() -> Array[StringName]:
 
 static func _def(id: StringName, name: String, tier: int, shape: String, m_desc: String, cells: Array[Vector2i], types: Dictionary = {}, dirs: Dictionary = {}, enclosure: int = EnclosureType.OPEN_FRAME, letters: Dictionary = {}, layout_mode: int = MachineryLayoutMode.PER_CELL, unified_type: int = CellType.EMPTY, goal: Dictionary = {}) -> void:
 	_CATALOG[id] = {
-		"display_name": name, "tier": tier, "shape_name": shape, "machinery_desc": m_desc,
+		"display_name": preload("res://resources/polyomino/relic_names.gd").resolve(id, name), "tier": tier, "shape_name": shape, "machinery_desc": m_desc,
 		"cells": cells, "cell_types": types, "cell_directions": dirs, "energy_values": {},
 		"cell_letters": letters, "bumper_durability": 0, "enclosure_type": enclosure,
 		"custom_wall_edges": {}, "layout_mode": layout_mode, "unified_component_type": unified_type
