@@ -8,7 +8,7 @@ alwaysApply: true
 
 ## When to Run Tests
 
-Follow `docs/AGENT_WORKFLOW.md`. Run focused tests first, then one full audit after the final source change. This includes:
+Use the light/full classification in `docs/AGENT_WORKFLOW.md`. Light changes need focused checks only. For full changes, run focused tests first, then one full audit. Full changes include:
 
 - Adding or removing game systems
 - Changing energy routing, combat, rewards, or game state logic

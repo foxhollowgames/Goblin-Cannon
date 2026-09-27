@@ -68,3 +68,7 @@ Choose one primary category. Use comma-separated `--tags` for other relevant top
 - Frame the guideline as a general rule ("Always do X when Y" or "Avoid A because B").
 - Link code pointers to canonical files.
 - Mention the related task ID (e.g. `TASK-095`).
+
+## Closure scope
+
+Record only reusable new findings. Skip entries that repeat existing guidance. Routine post-merge learning records follow the light closure path in docs/AGENT_WORKFLOW.md and do not require another independent review.

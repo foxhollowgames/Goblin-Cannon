@@ -79,7 +79,7 @@ def build_task_markdown(
 - [ ] Requirements implemented and verified.
 - [ ] Tests pass cleanly.
 - [ ] File lengths adhere to the 500-line repository limit.
-- [ ] Pull Request opened, audited by independent PR reviewer, and merged.
+- [ ] Required checks and review for the chosen workflow passed; Pull Request merged.
 """
 
 
