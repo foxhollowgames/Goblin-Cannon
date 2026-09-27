@@ -47,3 +47,21 @@ Fix relic draw order below balls
 
 
 - Draft PR #90: https://github.com/foxhollowgames/Goblin-Cannon/pull/90. Final reviewer confirmed the code and requested moving the README row into its table; corrected. Merge remains blocked by TASK-114.
+
+## Resumed checkpoint — 2026-09-26
+
+- Merged main revision 2ff43dc, including TASK-114, into this branch. Merge commit: 69082cb. Regenerated the dashboard to resolve its only conflict.
+- Independent reviewer approved the one-line scene change again with no actionable findings. Reviewer completed and was interrupted for teardown.
+- Static baseline: python scripts/audit_quality.py --baseline passed, including lengths and 11 tooling tests. Existing custom-rule warnings remain advisory; optional gdlint is absent.
+- A subsequent full audit was blocked by sandbox access to temporary test directories before Godot ran. Run the final audit with normal host access. Do not treat that attempt as a test pass.
+- Imported art assets into this isolated checkout. Import reached DONE and the launched process has exited. The assets directory is a junction to the primary checkout assets.
+- Worktree moved to C:/Users/josep/Desktop/Games/Goblin-Cannon/goblin-cannon-agent-task_116 so the main checkout length audit does not scan it as project source.
+- Remaining: run final full audit, update PR #90, mark ready, merge, record post-merge learning, and set DONE. No new gameplay changes are required.
+- Usage checkpoint: 54% five-hour usage; reset timestamp 1790474412. The 50% gate is handled. No task-owned processes or active review agents remain.
+
+## Final audit and review — 2026-09-26
+
+- Restored 17 missing imported art cache files and 11 icon import records from the primary checkout. These ignored local files are not part of the PR.
+- Final python scripts/audit_quality.py passed. Raw Godot exit 0, 18249 passed, 0 failed, no SCRIPT ERROR. Static lint, file lengths, and 11 tooling tests passed. Logs are in .godot/audit/.
+- Independent PR review approved the one-line draw-order change with no actionable findings. Physics settings are unchanged; no separate physics check is required.
+- All prior blockers are resolved. Ready to merge PR #90. No task-owned processes or active review agents remain.
