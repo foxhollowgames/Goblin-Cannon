@@ -38,4 +38,5 @@ Remove Merchant relic subtitle and enlarge image
 - Changed source: reward_draft_panel.gd and reward_card_builder.gd. No background processes remain.
 - Usage window 1790494983: 50% gate observed. Only verified review and merge work remains.
 
-`nIndependent pr_reviewer approved PR #95 without findings. Review agent stopped. All checks complete; merge authorized by project workflow.
+Independent pr_reviewer approved PR #95 without findings. Review agent stopped. Merged as PR #95. Post-merge learning: LRN-154.
+
