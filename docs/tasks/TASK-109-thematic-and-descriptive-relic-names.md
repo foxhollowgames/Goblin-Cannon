@@ -1,6 +1,6 @@
 # TASK-109: Thematic and Descriptive Relic Names
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P2
 - **Category:** Design / Relics
 - **Target Branch:** `feature/thematic-and-descriptive-relic-names`
@@ -42,13 +42,13 @@ Rename all relics to feel more like objects from the Goblin Cannon world and les
 
 ## Acceptance Criteria
 
-- [ ] Every relic, tier, and variant has an entry in the old-to-new name table.
-- [ ] All relics have thematic names that still suggest their effect or physical action.
-- [ ] Titles contain exactly two words, with consistent ball adjectives across device families and reviewed progressions for output volume.
-- [ ] Names are distinct, readable, and consistent across all player-facing displays.
-- [ ] Trigger and Effect text remains accurate and contains no stale name references.
-- [ ] Stable IDs, saved relic references, and gameplay behavior are unchanged.
-- [ ] Relevant checks and the required quality audit pass before implementation is merged.
+- [x] Every relic, tier, and variant has an entry in the old-to-new name table.
+- [x] All relics have thematic names that still suggest their effect or physical action.
+- [x] Titles contain exactly two words, with consistent ball adjectives across device families and reviewed progressions for output volume.
+- [x] Names are distinct, readable, and consistent across all player-facing displays.
+- [x] Trigger and Effect text remains accurate and contains no stale name references.
+- [x] Stable IDs, saved relic references, and gameplay behavior are unchanged.
+- [x] Relevant checks and the required quality audit pass before implementation is merged.
 
 ## Implementation Handoff
 
@@ -94,3 +94,10 @@ Rename all relics to feel more like objects from the Goblin Cannon world and les
 - PR #93: https://github.com/foxhollowgames/Goblin-Cannon/pull/93.
 - Independent reviewer approved source revision 31a6bac with no actionable findings. Review covered catalog completeness, saved data, cards, goal-title migration, and unchanged gameplay fields. Reviewer completed and was interrupted.
 - Integrated the independently tested task 116 merge. Task 109 source is unchanged from the reviewed revision.
+
+## Completion
+
+- PR #93 merged into main at 81047536accf6ad16a85d496788778c799ffb3c0 on 2026-09-27 UTC.
+- All acceptance criteria are complete. Full audit passed with raw exit 0, 20710 passed, zero failed, and no script errors. Independent review approved.
+- Earlier handoff and checkpoint sections are historical. No naming gap, audit blocker, or remaining implementation work is open.
+- Post-merge learning recorded. No task-owned processes or active review agents remain.
