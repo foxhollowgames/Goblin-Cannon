@@ -11,6 +11,7 @@ All tasks use structured Markdown with status, priority, and clear acceptance cr
 | [TASK-111](TASK-111-expand-merchant-relic-card-previews.md) | Expand Merchant relic card previews | UI / Visuals | P1 | DONE | `fix/expand-merchant-relic-previews` |
 | [TASK-112](TASK-112-simplify-merchant-peg-descriptions.md) | Simplify Merchant peg descriptions | UI / Text | P1 | DONE | `fix/simplify-merchant-peg-descriptions` |
 | [TASK-113](TASK-113-restore-keyword-hover-tooltips.md) | Restore keyword hover tooltips | UI / Tooltips | P1 | DONE | `fix/restore-keyword-hover-tooltips` |
+| [TASK-117](TASK-117-remove-merchant-relic-subtitle-and-enlarge-image.md) | Remove Merchant relic subtitle and enlarge image | UI / Visuals | P2 | DONE | `fix/merchant-relic-image` |
 
 ---
 
@@ -157,3 +158,4 @@ Every pull request must complete an independent sub-agent review cycle:
 3. If the sub-agent reports major findings, address them and repeat review.
 4. Merge the Pull Request into `main` after receiving approval.
 | [TASK-115](TASK-115-fix-temporary-ball-rewards-to-spawn-in-hopper.md) | Fix temporary ball rewards to spawn in hopper | Systems / Gameplay | P1 | IN_REVIEW | `fix/temporary-ball-reward-hopper` |
+
