@@ -1,43 +1,14 @@
 # Agent instructions
 
-**Start with [`CLAUDE.md`](./CLAUDE.md)** at the repository root. It defines the reading order for this project (Godot config → architecture → tests → optional orchestration workflow) and a compact map of where gameplay code lives.
+Start with [CLAUDE.md](CLAUDE.md). It is a short file map, not a required reading list.
+The single workflow policy is [docs/AGENT_WORKFLOW.md](docs/AGENT_WORKFLOW.md).
 
-Do not duplicate long exploration: follow that order before opening unrelated paths.
-
-## Project Rules
-1. **Always be up to date with `main`**: Before making any changes in this project, make sure that we're up to date with `main` (`git pull origin main`).
-2. **Automatic Task Packet Creation on User Requests**: Whenever the user asks for something to be fixed, improved, added, or resolved and there is no existing task packet in `docs/tasks/`, the agent MUST immediately create a new task packet (`docs/tasks/TASK-XXX-<name>.md`), register it in `docs/tasks/README.md`, and regenerate the task dashboard (`python scripts/generate_task_dashboard.py`) before beginning implementation. Never handle ad-hoc user instructions without creating and tracking a dashboard task packet.
-3. **Sub-Agent Lifecycle & Immediate Teardown**: When delegating work to sub-agents, the orchestrating agent must explicitly terminate them (`manage_subagents(Action="kill")` or `manage_subagents(Action="kill_all")`) immediately after their deliverables are received and verified. Never leave finished sub-agents lingering in `idle` or `waiting_for_dependents` states.
-4. **Clean Process Exits**: Ensure test scripts and background processes exit cleanly without holding DLL or file locks open.
-5. **Mandatory Feature & Fix Workflow Cycle**: For any bug fix, improvement, or feature work:
-   1. Task Packet Verification/Creation (if none exists, create `docs/tasks/TASK-XXX-<name>.md`, register in `docs/tasks/README.md`, run `python scripts/generate_task_dashboard.py`).
-   2. Pre-Task Knowledge Retrieval (`python scripts/learnings.py query <topic>`).
-   3. Branch and implement changes on a dedicated feature branch (`feature/...` or `fix/...`).
-   4. Update AI directory (`python scripts/generate_directory.py`) if files or signatures changed.
-   5. Run focused tests for the changed behavior.
-   6. Run `python scripts/audit_quality.py` once. It runs static lint, length checks, tooling tests, and the full Godot suite.
-   7. Open a GitHub Pull Request (`gh pr create`).
-   8. Invoke an independent `pr_reviewer` sub-agent to audit code quality and test coverage.
-   9. Resolve any findings, get approval, and merge into `main` (`gh pr merge`).
-   10. Terminate all sub-agents immediately (`manage_subagents(Action="kill_all")`).
-   11. Run the post-merge learning loop (`python scripts/learnings.py add`).
-6. **Local generation with a bounded fallback**: Use `python scripts/ollama_coder.py [generate|edit|test]` with local Qwen 2.5 Coder first. Use the correct language and file-based instructions. After two failed attempts on the same small change, record the failure and use direct Codex edits. The user approved this fallback. See [the workflow](docs/AGENT_WORKFLOW.md).
-7. **Maximum File Length (500 lines)**: Source files must not exceed 500 lines. Run `python scripts/lint_file_lengths.py` to audit file lengths across the repository.
-8. **Directory Maintenance & Coding Standards**: Follow `docs/CODING_STANDARDS.md`. Maintain `docs/DIRECTORY.md` via `python scripts/generate_directory.py`.
-9. **Automatic Task Dashboard Maintenance**: Any time a task is created, updated, status-changed, or deleted (CRUD operations), you MUST run `python scripts/generate_task_dashboard.py` to regenerate the visual task board (`docs/tasks/dashboard.html`).
-
-## Scope and Usage Guardrails
-
-10. **Separate feature work from refactoring**: A feature task may add only the smallest seams needed for its behavior. Broad extraction, renaming, file movement, and cleanup belong in a separate task packet with its own acceptance tests.
-11. **Vertical slice before expansion**: Start with one representative source, one output path, and one complete outcome test. Do not add more ball types, relic families, UI surfaces, or acquisition sources until that slice passes.
-12. **One implementation owner**: Use one coding agent for a shared gameplay slice. Review agents may inspect completed work, but multiple agents must not edit the same gameplay files at the same time.
-13. **Review at usage gates**: Check included usage before work, before each phase, after a failed generation pair, and at least every ten tool calls or ten minutes. Handle the 50% and 70% gates once per reset window. Checkpoint unless only small, verified closing work remains. Explicit user continuation resumes the checkpoint without immediately repeating the same gate. Never use paid/API credits or reset redemption. See [the workflow](docs/AGENT_WORKFLOW.md).
-14. **Focused verification order**: Run focused outcome tests first, then real-physics tests, then the full quality audit. Do not spend a full audit run on a slice whose focused tests already fail.
-15. **Raw test result is authoritative**: Accept a test pass only when the raw Godot process exits with code 0, has no script errors, and reports zero failed assertions. Wrapper output that contains a misleading pass string is not evidence.
-16. **Outcome tests before breadth**: Every new gameplay path must test its observable result, including exact counts, energy conservation, ownership cleanup, expiry, population limits, and one-time collection. A parser check or signal emission alone is insufficient.
-17. **Checkpoint on architectural drift**: Stop and create a follow-up task when a feature begins changing unrelated combat, UI, acquisition, or save systems. Record the reason and the last verified state in the active task packet.
-18. **Clean handoff**: Before pausing or switching agents, record changed files, test command and raw result, known failures, running processes, and remaining scope in the task packet. Remove rejected scratch outputs and stop delegated agents.
-19. **Efficient execution**: Follow [docs/AGENT_WORKFLOW.md](docs/AGENT_WORKFLOW.md) for targeted reading, baseline checks, path inventory, generation limits, and one authoritative final audit. Do not run the full Godot suite both inside the linter and again outside it.
-
-
-
+- Sync with main before changes. Preserve unrelated work. Use a dedicated branch.
+- Reuse the task packet; create one for new implementation work. Routine closure uses the existing packet.
+- Select light or full verification by risk. Do not run full gameplay audits or spawn reviewers for routine documentation and closure.
+- Direct edits are allowed. Local Qwen is optional for proven repetitive jobs.
+- Use one implementation owner. Required reviewers receive a small brief and diff, not full conversation history.
+- Keep source files within 500 lines, subject to the existing audited baselines. Follow docs/CODING_STANDARDS.md for GDScript.
+- Preserve stable IDs, saved data, deterministic gameplay, and observable outcome tests.
+- Keep raw test evidence. Regenerate the dashboard after task changes.
+- Use included usage only. Follow the workflow's usage checkpoints. Stop owned processes and review agents before handoff.

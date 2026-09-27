@@ -116,7 +116,6 @@ Scripts must not call `get_node()` or `$` to reach nodes in unrelated scene-tree
 
 ## 10. Automated Quality & Directory Checks
 
-Before submitting a PR:
-1. Run `python scripts/generate_directory.py` if file structure or signatures changed.
-2. Run `python scripts/lint_gdscript.py`.
-3. Run `godot --headless -s tests/run_tests.gd`.
+Choose light or full verification under docs/AGENT_WORKFLOW.md.
+Update docs/DIRECTORY.md when files or public signatures change.
+For light work, run relevant focused checks. For full work, run focused tests then python scripts/audit_quality.py once. Do not run the full suite again through a separate linter command.

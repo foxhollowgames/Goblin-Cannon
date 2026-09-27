@@ -57,3 +57,7 @@ If running scripts is unavailable:
 2. Create `docs/tasks/TASK-XXX-<slug>.md` using the standard header (Status, Priority, Category, Target Branch).
 3. Add the row to the table in `docs/tasks/README.md`.
 4. Run `python scripts/generate_task_dashboard.py`.
+
+## Routine closure
+
+After the implementation PR merges, use python scripts/close_task.py TASK-XXX --pr NUMBER --validation 'Checks and raw results'. It updates the packet, index, and dashboard together. Follow docs/AGENT_WORKFLOW.md for direct closure commits; no new task packet or review agent is needed.
