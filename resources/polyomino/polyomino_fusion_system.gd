@@ -64,6 +64,7 @@ static func fuse_modules(item_a: JunkBoxItem, item_b: JunkBoxItem) -> JunkBoxIte
 			fused_data.cell_types[k] = item_b.module_data.cell_types[k]
 
 	var fused_item := JunkBoxItem.new(output_id, JunkBoxItem.POLYOMINO_MODULE)
-	fused_item.display_name = "Fused Module Tier %d" % fused_data.tier
+	fused_item.display_name = "Fused Device"
+	fused_data.display_name = fused_item.display_name
 	fused_item.module_data = fused_data
 	return fused_item

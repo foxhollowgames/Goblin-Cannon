@@ -100,7 +100,7 @@ func test_board_hover_shows_and_hides_tooltip() -> void:
 
 	assert_eq(board._hovered_module_instance_id, item.instance_id, "hovered module instance tracked")
 	assert_true(KeywordDatabase._flyout_panel != null and KeywordDatabase._flyout_panel.visible, "flyout tooltip is visible")
-	assert_true(KeywordDatabase._flyout_title.text.contains("Chain Conduction"), "flyout title contains relic name")
+	assert_true(KeywordDatabase._flyout_title.text.contains("Copper Bumpers"), "flyout title contains relic name")
 
 	# Move mouse away to empty cell
 	var empty_world_pos: Vector2 = board.board_cell_to_world(Vector2i(0, 0))

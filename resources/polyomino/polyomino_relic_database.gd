@@ -83,7 +83,7 @@ static func get_relic_display_name(relic_id: StringName) -> String:
 
 static func get_relic_goal_title(relic_id: StringName) -> String:
 	var g: Dictionary = _get_goal_def(relic_id)
-	return str(g.get("title", "Bank Clear"))
+	return preload("res://resources/polyomino/relic_names.gd").resolve_goal_title(relic_id, str(g.get("title", "Bank Clear")))
 
 static func get_relic_goal_description(relic_id: StringName) -> String:
 	var g: Dictionary = _get_goal_def(relic_id)
@@ -167,7 +167,7 @@ static func create_module_for_relic(relic_id: StringName) -> PolyominoModuleData
 	if not g.is_empty():
 		mod.goal_type = int(g.get("type", GoalArchetype.TARGET_BANK))
 		mod.reward_type = int(g.get("reward", RewardType.ENERGY_SURGE))
-		mod.goal_title = str(g.get("title", ""))
+		mod.goal_title = preload("res://resources/polyomino/relic_names.gd").resolve_goal_title(resolved_id, str(g.get("title", "")))
 		mod.goal_description = str(g.get("desc", ""))
 		mod.reward_description = str(g.get("reward_desc", ""))
 		mod.reward_energy = int(g.get("energy", 0))
@@ -356,7 +356,7 @@ static func _get_goal_def(id: StringName) -> Dictionary:
 
 static func _def(id: StringName, name: String, tier: int, shape_name: String, machinery_desc: String, cells: Array[Vector2i], types: Dictionary = {}, dirs: Dictionary = {}, energies: Dictionary = {}, enclosure: int = PolyominoModuleData.EnclosureType.OPEN_FRAME, walls: Dictionary = {}, letters: Dictionary = {}, layout_mode: int = PolyominoModuleData.MachineryLayoutMode.PER_CELL, unified_type: int = CellType.EMPTY) -> void:
 	_DEFINITIONS[id] = {
-		"display_name": name,
+		"display_name": preload("res://resources/polyomino/relic_names.gd").resolve(id, name),
 		"tier": tier,
 		"shape_name": shape_name,
 		"machinery_desc": machinery_desc,
@@ -374,7 +374,7 @@ static func _def(id: StringName, name: String, tier: int, shape_name: String, ma
 
 static func _def_multi(id: StringName, name: String, tier: int, shape_name: String, machinery_desc: String, cells: Array[Vector2i], types: Dictionary = {}, dirs: Dictionary = {}, energies: Dictionary = {}, enclosure: int = PolyominoModuleData.EnclosureType.OPEN_FRAME, walls: Dictionary = {}, layout_mode: int = PolyominoModuleData.MachineryLayoutMode.UNIFIED, unified_type: int = CellType.EMPTY) -> void:
 	_MULTI_PEG_DEFINITIONS[id] = {
-		"display_name": name,
+		"display_name": preload("res://resources/polyomino/relic_names.gd").resolve(id, name),
 		"tier": tier,
 		"shape_name": shape_name,
 		"machinery_desc": machinery_desc,

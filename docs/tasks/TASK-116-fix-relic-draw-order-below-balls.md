@@ -1,6 +1,6 @@
 # TASK-116: Fix relic draw order below balls
 
-- **Status:** IN_PROGRESS
+- **Status:** DONE
 - **Priority:** P1
 - **Category:** UI / Visuals
 - **Target Branch:** `fix/relic-draw-order`
@@ -23,8 +23,8 @@ Fix relic draw order below balls
 
 - [x] Requirements implemented and verified.
 - [x] Raw tests: exit 0, no script errors, zero failed assertions. Existing resource leak warnings remain.
-- [ ] File lengths adhere to the 500-line repository limit.
-- [ ] Pull Request opened, audited by independent PR reviewer, and merged.
+- [x] File lengths adhere to the 500-line repository limit.
+- [x] Pull Request opened, audited by independent PR reviewer, and merged.
 
 ## Implementation and checkpoint
 
@@ -65,3 +65,8 @@ Fix relic draw order below balls
 - Final python scripts/audit_quality.py passed. Raw Godot exit 0, 18249 passed, 0 failed, no SCRIPT ERROR. Static lint, file lengths, and 11 tooling tests passed. Logs are in .godot/audit/.
 - Independent PR review approved the one-line draw-order change with no actionable findings. Physics settings are unchanged; no separate physics check is required.
 - All prior blockers are resolved. Ready to merge PR #90. No task-owned processes or active review agents remain.
+
+## Completion
+
+- PR #90 merged into main at 2908a38037cb82e62c97426a58c602cdc43097ca on 2026-09-27 UTC.
+- Full audit and independent review passed. All earlier checkpoint blockers are resolved.

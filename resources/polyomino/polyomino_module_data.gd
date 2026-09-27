@@ -342,7 +342,7 @@ func serialize() -> Dictionary:
 
 func deserialize(dict: Dictionary) -> void:
 	module_id = StringName(dict.get("module_id", ""))
-	display_name = str(dict.get("display_name", ""))
+	display_name = preload("res://resources/polyomino/relic_names.gd").resolve(module_id, str(dict.get("display_name", "")))
 	tier = int(dict.get("tier", 1))
 	bumper_durability = int(dict.get("bumper_durability", 0))
 	rotation_step = int(dict.get("rotation_step", 0))
@@ -355,7 +355,7 @@ func deserialize(dict: Dictionary) -> void:
 	goal_time_limit = float(dict.get("goal_time_limit", 0.0))
 	reward_energy = int(dict.get("reward_energy", 0))
 	reward_ball_count = int(dict.get("reward_ball_count", 0))
-	goal_title = str(dict.get("goal_title", ""))
+	goal_title = preload("res://resources/polyomino/relic_names.gd").resolve_goal_title(module_id, str(dict.get("goal_title", "")))
 	goal_description = str(dict.get("goal_description", ""))
 	reward_description = str(dict.get("reward_description", ""))
 	activation_requirement = str(dict.get("activation_requirement", ""))
