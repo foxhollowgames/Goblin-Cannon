@@ -88,3 +88,9 @@ Rename all relics to feel more like objects from the Goblin Cannon world and les
 - Naming changes do not alter physics or ball ownership; separate physics tests are not needed. The full suite includes the existing gameplay checks.
 - All four old completion titles are now covered by saved-data and visible-banner assertions. The prior completion-title gap and TASK-114 audit blocker are resolved.
 - Ready for independent PR review. Acceptance checks will be closed after review and merge.
+
+## Independent review
+
+- PR #93: https://github.com/foxhollowgames/Goblin-Cannon/pull/93.
+- Independent reviewer approved source revision 31a6bac with no actionable findings. Review covered catalog completeness, saved data, cards, goal-title migration, and unchanged gameplay fields. Reviewer completed and was interrupted.
+- Integrated the independently tested task 116 merge. Task 109 source is unchanged from the reviewed revision.
