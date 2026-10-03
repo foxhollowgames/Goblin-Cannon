@@ -44,7 +44,7 @@ func test_coordinate_mapping_and_spacing() -> void:
 	assert_eq(board.BOARD_GRID_COL_SPACING, 52.0, "BOARD_GRID_COL_SPACING is 52.0")
 	assert_eq(board.BOARD_GRID_ROW_SPACING, 56.0, "BOARD_GRID_ROW_SPACING is 56.0")
 	assert_eq(board.BOARD_GRID_START_X, 116.0, "BOARD_GRID_START_X is 116.0")
-	assert_eq(board.BOARD_GRID_START_Y, 200.0, "BOARD_GRID_START_Y is 200.0")
+	assert_eq(board.BOARD_GRID_START_Y, 256.0, "BOARD_GRID_START_Y moves down one 56-pixel row")
 
 	for r in range(board.BOARD_GRID_ROWS):
 		for c in range(board.BOARD_GRID_COLS):
@@ -57,7 +57,7 @@ func test_coordinate_mapping_and_spacing() -> void:
 			assert_eq(roundtrip, cell, "world position roundtrips to grid cell %s" % str(cell))
 
 	# Test fuzzy coordinate snapping
-	var fuzzy: Vector2 = Vector2(116.0 + 3.0 * 52.0 + 12.0, 200.0 + 4.0 * 56.0 - 15.0)
+	var fuzzy: Vector2 = Vector2(116.0 + 3.0 * 52.0 + 12.0, 256.0 + 4.0 * 56.0 - 15.0)
 	var snapped: Vector2i = board.world_to_board_cell(fuzzy)
 	assert_eq(snapped, Vector2i(3, 4), "fuzzy position snaps to nearest grid cell (3, 4)")
 

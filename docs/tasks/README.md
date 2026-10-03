@@ -13,6 +13,7 @@ All tasks use structured Markdown with status, priority, and clear acceptance cr
 | [TASK-113](TASK-113-restore-keyword-hover-tooltips.md) | Restore keyword hover tooltips | UI / Tooltips | P1 | DONE | `fix/restore-keyword-hover-tooltips` |
 | [TASK-117](TASK-117-remove-merchant-relic-subtitle-and-enlarge-image.md) | Remove Merchant relic subtitle and enlarge image | UI / Visuals | P2 | DONE | `fix/merchant-relic-image` |
 | [TASK-118](TASK-118-reduce-agent-workflow-overhead.md) | Reduce agent workflow overhead | DevOps / Tooling | P1 | DONE | `fix/reduce-agent-workflow-overhead` |
+| [TASK-119](TASK-119-lower-peg-grid-one-row-for-hopper-clearance.md) | Lower peg grid one row for hopper clearance | Systems / Gameplay | P2 | IN_PROGRESS | `codex/lower-peg-grid` |
 
 ---
 
