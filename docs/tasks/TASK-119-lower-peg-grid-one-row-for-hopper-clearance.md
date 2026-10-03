@@ -1,6 +1,6 @@
 # TASK-119: Lower peg grid one row for hopper clearance
 
-- **Status:** IN_REVIEW
+- **Status:** DONE
 - **Priority:** P2
 - **Category:** Systems / Gameplay
 - **Target Branch:** `codex/lower-peg-grid`
@@ -30,3 +30,12 @@ The first audit failed because the Windows Python shim was inaccessible.
 The corrected static checks passed. Existing function-length warnings remain advisory.
 Rendered capture and focused checks use an explicit workspace log path.
 No owned processes remain. Independent review approved. Await publication and merge.
+
+<!-- verified-closure -->
+## Verified completion
+
+- Merged PR: https://github.com/foxhollowgames/Goblin-Cannon/pull/97
+- Merge commit: `bd8b5f4df6a3507b7aab4d8a4e8f735386f0c264`
+- Merged at: 2026-10-03T16:30:41Z
+- Validation: Focused alignment: exit 0, 610 passed, 0 failed. Full Godot: exit 0, 20710 passed, 0 failed, no SCRIPT ERROR. Static checks and 15 tooling tests pass. Render inspected. Independent review approved.
+<!-- /verified-closure -->
