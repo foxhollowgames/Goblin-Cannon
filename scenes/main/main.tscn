@@ -138,15 +138,15 @@ vertical_alignment = 1
 
 [node name="GoldContainer" type="HBoxContainer" parent="UILayer/LeftPanel" unique_id=1535948080]
 layout_mode = 0
-offset_left = 1165.0
+offset_left = 190.0
 offset_top = 10.0
-offset_right = 1265.0
-offset_bottom = 34.0
+offset_right = 280.0
+offset_bottom = 40.0
 alignment = 0
 theme_override_constants/separation = 6
 
 [node name="GoldIcon" type="TextureRect" parent="UILayer/LeftPanel/GoldContainer" unique_id=1535948082]
-custom_minimum_size = Vector2(18, 18)
+custom_minimum_size = Vector2(24, 24)
 layout_mode = 2
 size_flags_vertical = 4
 texture = ExtResource("26_gold_icon")
@@ -156,7 +156,7 @@ stretch_mode = 5
 [node name="RunGold" type="Label" parent="UILayer/LeftPanel/GoldContainer" unique_id=1535948081]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.94, 0.58, 0.2, 1)
-theme_override_font_sizes/font_size = 15
+theme_override_font_sizes/font_size = 22
 text = "0"
 horizontal_alignment = 0
 vertical_alignment = 1
